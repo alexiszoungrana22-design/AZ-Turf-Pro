@@ -1,0 +1,126 @@
+*{
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+
+body{
+    margin:0;
+    background:#f4f6f8;
+    color:#222;
+}
+
+
+header{
+    background:#102a43;
+    color:white;
+    padding:25px;
+    text-align:center;
+}
+
+
+.logo h1{
+    margin:0;
+    font-size:32px;
+}
+
+
+main{
+    padding:20px;
+    max-width:1100px;
+    margin:auto;
+}
+
+
+.card{
+
+    background:white;
+    border-radius:15px;
+    padding:20px;
+    margin-bottom:20px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+
+}
+
+
+h2{
+    color:#102a43;
+}
+
+
+.grid{
+
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:20px;
+
+}
+
+
+.horse{
+
+    display:flex;
+    justify-content:space-between;
+    padding:12px;
+    margin:8px 0;
+    background:#eef2f7;
+    border-radius:8px;
+
+}
+
+
+.horse span{
+
+    font-weight:bold;
+    color:#b8860b;
+
+}
+
+
+.tickets{
+
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+
+}
+
+
+button{
+
+    border:none;
+    padding:12px 20px;
+    background:#b8860b;
+    color:white;
+    border-radius:8px;
+    cursor:pointer;
+
+}
+
+
+button:hover{
+
+    opacity:0.8;
+
+}
+
+
+.ticket-result{
+
+    margin-top:20px;
+    font-size:22px;
+    font-weight:bold;
+    text-align:center;
+    color:#102a43;
+
+}
+
+
+
+footer{
+
+    text-align:center;
+    padding:20px;
+    color:#666;
+
+}
