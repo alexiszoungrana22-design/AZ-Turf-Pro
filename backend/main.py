@@ -3,7 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from database import Base, engine
 from config import settings
-
+from models import horse
+from models import race
+from models import prediction
 
 # Création des tables
 Base.metadata.create_all(bind=engine)
