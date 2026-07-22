@@ -1,26 +1,26 @@
-const API_URL = "https://az-turf-pro.onrender.com";
+async function analyser(){
 
-const result = document.getElementById("result");
-const button = document.getElementById("generate");
+    const resultat = document.getElementById("resultat");
 
-if (button) {
-    button.addEventListener("click", async () => {
-        result.innerHTML = "Analyse en cours...";
+    resultat.innerHTML = "Analyse AZ Turf en cours...";
 
-        try {
-            const response = await fetch(API_URL + "/pronostic");
+    try{
 
-            const data = await response.json();
+        const response = await fetch("http://127.0.0.1:8000/analyse");
 
-            result.innerHTML = `
-                <h3>🏇 Pronostic AZ-Turf-Pro</h3>
-                <pre>${JSON.stringify(data, null, 2)}</pre>
-            `;
+        const data = await response.json();
 
-        } catch (error) {
-            result.innerHTML = 
-            "❌ Impossible de contacter le serveur AZ-Turf-Pro";
-            console.error(error);
-        }
-    });
+        resultat.innerHTML = `
+        <h3>Ticket conseillé</h3>
+        <p>${data.message}</p>
+        <p>Chevaux : ${data.chevaux.join(" - ")}</p>
+        `;
+
+    }catch(error){
+
+        resultat.innerHTML =
+        "Serveur AZ Turf non connecté";
+
+    }
+
 }
