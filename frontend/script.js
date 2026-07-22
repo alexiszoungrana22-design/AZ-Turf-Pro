@@ -1,48 +1,26 @@
-console.log("AZ Turf-Pro connecté");
+const API_URL = "https://az-turf-pro.onrender.com";
 
-const API_URL = "https://az-turf-pro.onrender.com/pronostic";
+const result = document.getElementById("result");
+const button = document.getElementById("generate");
 
-async function chargerPronostic() {
+if (button) {
+    button.addEventListener("click", async () => {
+        result.innerHTML = "Analyse en cours...";
 
-    try {
-        const response = await fetch(API_URL);
-        const data = await response.json();
+        try {
+            const response = await fetch(API_URL + "/pronostic");
 
-        // Affichage des 7 chevaux
-        const selection = document.getElementById("selection");
+            const data = await response.json();
 
-        selection.innerHTML = "";
-
-        data.selection.forEach(cheval => {
-            selection.innerHTML += `
-                <div class="horse">
-                    ${cheval.numero} - Cheval AZ
-                    <span>${cheval.indice}</span>
-                </div>
+            result.innerHTML = `
+                <h3>🏇 Pronostic AZ-Turf-Pro</h3>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
             `;
-        });
 
-
-        // Base AZ
-        document.getElementById("base").innerHTML = data.base;
-
-
-        // Outsider AZ
-        document.getElementById("outsider").innerHTML = data.outsider;
-
-
-        // Ticket
-        document.querySelector(".ticket-result").innerHTML =
-            data.ticket;
-
-
-    } catch (error) {
-
-        console.error("Erreur AZ Turf-Pro :", error);
-
-    }
+        } catch (error) {
+            result.innerHTML = 
+            "❌ Impossible de contacter le serveur AZ-Turf-Pro";
+            console.error(error);
+        }
+    });
 }
-
-
-// Chargement automatique
-chargerPronostic();
