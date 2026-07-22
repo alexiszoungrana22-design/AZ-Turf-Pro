@@ -17,7 +17,22 @@ app = FastAPI(
     version=settings.VERSION,
     description="Backend officiel AZ Turf-Pro"
 )
-
+@app.get("/pronostic")
+def pronostic():
+    return {
+        "selection": [
+            {"numero": 11, "indice": 92},
+            {"numero": 10, "indice": 88},
+            {"numero": 7, "indice": 85},
+            {"numero": 4, "indice": 82},
+            {"numero": 13, "indice": 79},
+            {"numero": 6, "indice": 76},
+            {"numero": 2, "indice": 72}
+        ],
+        "base": "11 - Cheval Confiance",
+        "outsider": "6 - Cheval Surprise",
+        "ticket": "11 - 10 - 7 - 4 - 13"
+    }
 
 # Autorisation frontend
 app.add_middleware(
