@@ -3,124 +3,60 @@
     font-family:Arial, sans-serif;
 }
 
-
 body{
     margin:0;
-    background:#f4f6f8;
-    color:#222;
+    background:#101820;
+    color:white;
+    text-align:center;
 }
-
 
 header{
-    background:#102a43;
-    color:white;
-    padding:25px;
-    text-align:center;
+    background:#006400;
+    padding:30px 15px;
 }
 
-
-.logo h1{
+header h1{
     margin:0;
-    font-size:32px;
+    font-size:35px;
 }
 
-
-main{
-    padding:20px;
-    max-width:1100px;
-    margin:auto;
+header p{
+    font-size:18px;
 }
 
-
-.card{
-
+.container{
+    margin:40px auto;
+    max-width:500px;
     background:white;
+    color:#222;
+    padding:30px;
     border-radius:15px;
-    padding:20px;
-    margin-bottom:20px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.08);
-
 }
-
-
-h2{
-    color:#102a43;
-}
-
-
-.grid{
-
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-    gap:20px;
-
-}
-
-
-.horse{
-
-    display:flex;
-    justify-content:space-between;
-    padding:12px;
-    margin:8px 0;
-    background:#eef2f7;
-    border-radius:8px;
-
-}
-
-
-.horse span{
-
-    font-weight:bold;
-    color:#b8860b;
-
-}
-
-
-.tickets{
-
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-
-}
-
 
 button{
-
-    border:none;
-    padding:12px 20px;
-    background:#b8860b;
+    background:#006400;
     color:white;
-    border-radius:8px;
+    border:none;
+    padding:15px 30px;
+    font-size:18px;
+    border-radius:10px;
     cursor:pointer;
-
 }
-
 
 button:hover{
-
-    opacity:0.8;
-
+    background:#008000;
 }
 
-
-.ticket-result{
-
-    margin-top:20px;
-    font-size:22px;
-    font-weight:bold;
-    text-align:center;
-    color:#102a43;
-
+#resultat{
+    margin-top:30px;
+    padding:20px;
+    background:#eee;
+    border-radius:10px;
+    min-height:80px;
 }
-
-
 
 footer{
-
-    text-align:center;
+    margin-top:50px;
     padding:20px;
-    color:#666;
-
+    background:#000;
 }
