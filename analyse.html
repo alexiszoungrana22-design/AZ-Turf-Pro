@@ -7,9 +7,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Analyse AZ - Turf Pro</title>
+<title>Analyse AZ Turf Pro</title>
 
-<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="style.css">
 
 </head>
 
@@ -19,7 +19,7 @@
 
 <header>
 
-<h1>🏇 Analyse AZ</h1>
+<h1>🔍 Analyse AZ Turf Pro</h1>
 
 <p>Classement intelligent des chevaux</p>
 
@@ -42,40 +42,23 @@
 
 
 
-<section>
-
-<h2>📊 Classement AZ</h2>
+<section class="card">
 
 
-<div id="chevaux">
-
-Cliquez pour lancer l'analyse.
-
-</div>
+<h2>📊 Résultat analyse</h2>
 
 
-</section>
+<button id="lancer">
 
-
-
-
-<button id="analyse">
-
-🔍 Lancer l'analyse
+🚀 Lancer l'analyse
 
 </button>
 
 
 
+<div id="resultat">
 
-<section class="favorite">
-
-<h2>⭐ Coup de cœur AZ</h2>
-
-
-<div id="favori">
-
-En attente...
+Aucune analyse lancée.
 
 </div>
 
@@ -85,7 +68,113 @@ En attente...
 
 
 
-<script src="/static/script.js"></script>
+
+<footer>
+
+AZ Turf Pro © 2026
+
+</footer>
+
+
+
+
+<script>
+
+
+const API = "https://az-turf-1.onrender.com/analyse";
+
+
+
+document
+.getElementById("lancer")
+.addEventListener("click", async()=>{
+
+
+
+const zone =
+document.getElementById("resultat");
+
+
+
+zone.innerHTML =
+"⏳ Analyse en cours...";
+
+
+
+try{
+
+
+const response =
+await fetch(API);
+
+
+
+const data =
+await response.json();
+
+
+
+let html="";
+
+
+
+data.chevaux.forEach(c=>{
+
+
+html += `
+
+<div class="cheval">
+
+🏇 N°${c.numero}
+
+<br>
+
+Rang : ${c.rang}
+
+<br>
+
+Indice AZ : ${c.indice_az}
+
+<br>
+
+Confiance : ${c.confiance}%
+
+<br>
+
+Type : ${c.type}
+
+</div>
+
+`;
+
+
+});
+
+
+
+zone.innerHTML=html;
+
+
+
+}
+
+catch(e){
+
+
+zone.innerHTML =
+"❌ Erreur serveur";
+
+
+}
+
+
+
+});
+
+
+
+</script>
+
 
 
 </body>
