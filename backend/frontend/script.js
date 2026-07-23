@@ -1,71 +1,62 @@
-const API_URL =
-"https://az-turf-pro.onrender.com/analyse";
+const API_URL = "/analyse";
+
+
+const bouton = document.getElementById("analyse");
+
+
+console.log("AZ Turf Pro chargé");
 
 
 
-// disparition écran démarrage
-
-window.addEventListener("load",()=>{
-
-setTimeout(()=>{
-
-document.getElementById("splash").style.display="none";
-
-},2500);
+if (bouton) {
 
 
-});
+    bouton.addEventListener("click", async () => {
 
 
+        const zone = document.getElementById("chevaux");
 
 
-const bouton=document.getElementById("analyse");
+        if(zone){
+
+            zone.innerHTML = "⏳ Analyse AZ en cours...";
+
+        }
 
 
 
-if(bouton){
+        try {
 
 
-bouton.addEventListener("click",async()=>{
+            const response = await fetch(API_URL);
 
 
-document.getElementById("chevaux").innerHTML=
-
-"⏳ Analyse AZ en cours...";
-
-
-
-try{
-
-
-const response=await fetch(API_URL);
-
-
-const data=await response.json();
+            const data = await response.json();
 
 
 
-afficherResultats(data);
+            afficherResultats(data);
 
 
 
-}
-
-catch(error){
+        } catch(error) {
 
 
-document.getElementById("chevaux").innerHTML=
+            if(zone){
 
-"❌ Erreur connexion API";
+                zone.innerHTML =
+                "❌ Erreur de connexion AZ Turf Pro";
 
-
-console.log(error);
-
-
-}
+            }
 
 
-});
+            console.log(error);
+
+
+        }
+
+
+    });
 
 
 }
@@ -77,107 +68,178 @@ console.log(error);
 function afficherResultats(data){
 
 
-let chevaux=data.chevaux;
 
-
-if(!chevaux){
-
-return;
-
-}
+    const chevaux = data.classement || [];
 
 
 
-let html="";
+    if(chevaux.length === 0){
 
 
-
-chevaux.forEach((cheval,index)=>{
-
-
-html+=`
-
-<div class="cheval">
-
-<strong>
-
-${index+1} 🏇 N°${cheval.numero}
-
-</strong>
-
-<br>
-
-Indice AZ :
-
-<b>${cheval.indice_az}</b>
-
-<br>
-
-Confiance :
-
-<span class="confiance">
-
-${cheval.confiance} %
-
-</span>
-
-<br>
-
-Catégorie :
-
-${cheval.type}
+        document.getElementById("chevaux").innerHTML =
+        "Aucun résultat";
 
 
-</div>
+        return;
 
-`;
-
-
-});
-
-
-
-document.getElementById("chevaux").innerHTML=html;
+    }
 
 
 
 
-let premier=chevaux[0];
-
-
-document.getElementById("favori").innerHTML=
-
-`
-
-🏇 Cheval N°${premier.numero}
-
-<br>
-
-Indice AZ : ${premier.indice_az}
-
-<br>
-
-Confiance : ${premier.confiance} %
-
-`;
+    let html = "";
 
 
 
-
-let ticket=chevaux
-
-.slice(0,5)
-
-.map(c=>c.numero)
-
-.join(" - ");
+    chevaux.forEach((cheval,index)=>{
 
 
+        html += `
 
-document.getElementById("ticket").innerHTML=
 
-"🎫 Quinté conseillé : "+ticket;
+        <div class="cheval">
 
+
+            <strong>
+
+            ${index + 1} 🏇 N°${cheval.numero}
+
+            </strong>
+
+
+            <br>
+
+
+            Indice AZ :
+
+            <b>${cheval.indice_az}</b>
+
+
+            <br>
+
+
+            Confiance :
+
+            <span>
+
+            ${cheval.confiance} %
+
+            </span>
+
+
+            <br>
+
+
+            ${cheval.type}
+
+
+        </div>
+
+
+        `;
+
+
+    });
+
+
+
+    const zone = document.getElementById("chevaux");
+
+
+    if(zone){
+
+        zone.innerHTML = html;
+
+    }
+
+
+
+
+
+    // Favori AZ
+
+
+    const favori = data.favori;
+
+
+
+    if(favori && document.getElementById("favori")){
+
+
+        document.getElementById("favori").innerHTML = `
+
+
+        ⭐ Cheval N°${favori.numero}
+
+
+        <br>
+
+        Indice AZ : ${favori.indice_az}
+
+
+        <br>
+
+        Confiance : ${favori.confiance}%
+
+
+        `;
+
+
+    }
+
+
+
+
+    // Tickets AZ
+
+
+    const tickets = data.tickets;
+
+
+
+    if(tickets && document.getElementById("ticket")){
+
+
+        document.getElementById("ticket").innerHTML = `
+
+
+        🎫 Quinté :
+
+        ${tickets.quinte.join(" - ")}
+
+
+        <br><br>
+
+
+        🎫 Quarté :
+
+        ${tickets.quarte.join(" - ")}
+
+
+        <br><br>
+
+
+        🏇 Trio :
+
+        ${tickets.trio.join(" - ")}
+
+
+        <br><br>
+
+
+        🔥 Champ réduit :
+
+        ${tickets.champ_reduit.bases.join(" - ")}
+
+        +
+
+        ${tickets.champ_reduit.complements.join(" - ")}
+
+
+        `;
+
+
+    }
 
 
 }
