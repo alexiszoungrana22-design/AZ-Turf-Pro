@@ -54,10 +54,25 @@ def lancer_analyse():
 
     ticket = []
 
-    for cheval in classement[:5]:
-        ticket.append({
-            "numero": cheval["numero"],
-            "indice_az": cheval["score"]
-        })
+for rang, cheval in enumerate(classement[:5], start=1):
 
-    return ticket
+    score = cheval["score"]
+
+    if score >= 155:
+        type_cheval = "Favori AZ"
+    elif score >= 130:
+        type_cheval = "Chance régulière"
+    else:
+        type_cheval = "Outsider"
+
+    confiance = min(95, score // 2)
+
+    ticket.append({
+        "rang": rang,
+        "numero": cheval["numero"],
+        "indice_az": score,
+        "confiance": confiance,
+        "type": type_cheval
+    })
+
+return ticket
