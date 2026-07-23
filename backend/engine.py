@@ -127,35 +127,26 @@ def lancer_analyse():
 
 
         ticket.append({
-
             "rang": rang,
             "numero": cheval["numero"],
             "indice_az": score,
             "confiance": confiance,
             "type": type_cheval
-
         })
 
 
-    # Préparation du Ticket AZ Premium
-
-    base = classement[0]["numero"]
-
-    associes = [
-        cheval["numero"]
-        for cheval in classement[1:4]
-    ]
-
-    outsider = classement[4]["numero"]
-
+    # Ticket AZ Premium
 
     ticket_premium = {
 
-        "base": base,
+        "base": classement[0]["numero"],
 
-        "associes": associes,
+        "associes": [
+            cheval["numero"]
+            for cheval in classement[1:4]
+        ],
 
-        "outsider": outsider,
+        "outsider": classement[4]["numero"],
 
         "quinte": [
             cheval["numero"]
@@ -165,4 +156,7 @@ def lancer_analyse():
     }
 
 
-    return ticket
+    return {
+        "chevaux": ticket,
+        "ticket_premium": ticket_premium
+    }
