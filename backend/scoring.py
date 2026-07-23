@@ -1,15 +1,10 @@
-def calcul_score(
-    forme,
-    regularite,
-    jockey,
-    distance
-):
+def calculer_score_az(cheval):
+    score = 0
 
-    score = (
-        forme * 0.4 +
-        regularite * 0.3 +
-        jockey * 0.2 +
-        distance * 0.1
-    )
+    score += cheval.get("forme", 0) * 5
+    score += cheval.get("regularite", 0) * 4
+    score += cheval.get("gains", 0) * 3
+    score += cheval.get("jockey", 0) * 4
+    score += cheval.get("cote", 0) * 2
 
-    return round(score,2)
+    return score
