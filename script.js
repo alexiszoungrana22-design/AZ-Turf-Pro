@@ -1,4 +1,4 @@
-const API_URL = "https://az-turf-1.onrender.com";
+const API_URL = "https://az-turf-pro.onrender.com";
 
 
 // Lancer une analyse AZ
