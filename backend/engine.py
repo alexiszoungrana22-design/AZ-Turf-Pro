@@ -54,10 +54,10 @@ def lancer_analyse():
 
     ticket = []
 
-for cheval in classement[:5]:
-    ticket.append({
-        "numero": cheval["numero"],
-        "indice_az": cheval["score"]
-    })
+    for cheval in classement[:5]:
+        ticket.append({
+            "numero": cheval["numero"],
+            "indice_az": cheval["score"]
+        })
 
-return ticket
+    return ticket
