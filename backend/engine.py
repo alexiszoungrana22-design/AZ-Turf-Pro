@@ -5,7 +5,6 @@ from ranking import classer_chevaux
 def lancer_analyse():
 
     chevaux = [
-
         {
             "numero": 1,
             "forme": 8,
@@ -17,7 +16,6 @@ def lancer_analyse():
             "terrain": 7,
             "experience": 8
         },
-
         {
             "numero": 2,
             "forme": 9,
@@ -29,7 +27,6 @@ def lancer_analyse():
             "terrain": 8,
             "experience": 8
         },
-
         {
             "numero": 3,
             "forme": 10,
@@ -41,7 +38,6 @@ def lancer_analyse():
             "terrain": 9,
             "experience": 10
         },
-
         {
             "numero": 4,
             "forme": 6,
@@ -53,7 +49,6 @@ def lancer_analyse():
             "terrain": 6,
             "experience": 7
         },
-
         {
             "numero": 5,
             "forme": 9,
@@ -65,7 +60,6 @@ def lancer_analyse():
             "terrain": 8,
             "experience": 9
         },
-
         {
             "numero": 6,
             "forme": 7,
@@ -77,7 +71,6 @@ def lancer_analyse():
             "terrain": 8,
             "experience": 7
         },
-
         {
             "numero": 7,
             "forme": 8,
@@ -102,11 +95,11 @@ def lancer_analyse():
     ticket = []
 
 
-        for rang, cheval in enumerate(classement[:7], start=1):
+    for rang, cheval in enumerate(classement[:7], start=1):
 
         score = cheval["score"]
 
-        # Catégorie AZ selon le rang
+
         if rang == 1:
             type_cheval = "Favori AZ"
 
@@ -117,7 +110,6 @@ def lancer_analyse():
             type_cheval = "Outsider"
 
 
-        # Confiance AZ plus équilibrée
         confiance = min(
             95,
             max(
@@ -128,24 +120,11 @@ def lancer_analyse():
 
 
         ticket.append({
-
             "rang": rang,
             "numero": cheval["numero"],
             "indice_az": score,
             "confiance": confiance,
             "type": type_cheval
-
-        })
-
-
-        ticket.append({
-
-            "rang": rang,
-            "numero": cheval["numero"],
-            "indice_az": score,
-            "confiance": confiance,
-            "type": type_cheval
-
         })
 
 
