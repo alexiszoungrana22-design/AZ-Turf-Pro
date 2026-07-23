@@ -1,222 +1,342 @@
-const API_URL = "https://az-turf-pro.onrender.com/analyse";
+*{
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
 
 
-const bouton = document.getElementById("analyse");
+body{
+    margin:0;
+    background:#f4efe3;
+    color:#1d1d1d;
+}
 
 
-console.log("AZ Turf Pro chargé", bouton);
+/* En-tête */
 
+header{
 
+    background:#064d2b;
 
-if(bouton){
+    color:white;
 
+    text-align:center;
 
-bouton.addEventListener("click", async ()=>{
+    padding:25px 15px;
 
-
-document.getElementById("chevaux").innerHTML = `
-
-
-<div class="loading">
-
-🏇 Analyse AZ en cours...
-
-<br><br>
-
-<span>
-Analyse de la forme...
-</span>
-
-<br>
-
-<span>
-Calcul de l'indice AZ...
-</span>
-
-<br>
-
-<span>
-Préparation du ticket...
-</span>
-
-
-</div>
-
-
-`;
-
-
-
-try{
-
-
-const response = await fetch(API_URL);
-
-
-const data = await response.json();
-
-
-
-afficherResultats(data);
-
-
+    border-bottom:4px solid #d4af37;
 
 }
 
-catch(error){
+
+header h1{
+
+    margin:0;
+
+    font-size:28px;
+
+}
 
 
-document.getElementById("chevaux").innerHTML =
+header p{
 
-"❌ Erreur de connexion avec AZ Turf Pro";
+    margin-top:8px;
 
-
-console.log(error);
-
+    color:#e8d7a5;
 
 }
 
 
 
-});
+/* Publicité */
+
+.pub{
+
+    margin:15px;
+
+    padding:18px;
+
+    border-radius:15px;
+
+    background:#064d2b;
+
+    color:white;
+
+    text-align:center;
+
+    border-left:6px solid #d4af37;
+
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+
+}
+
+
+
+.pub h2{
+
+    color:#d4af37;
+
+    margin-top:0;
+
+}
+
+
+
+#pub-message{
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    animation:pubAnimation 3s infinite;
+
+}
+
+
+
+/* Cartes */
+
+section{
+
+    margin:15px;
+
+    padding:18px;
+
+    border-radius:15px;
+
+    background:white;
+
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+
+}
+
+
+
+h2{
+
+    color:#064d2b;
+
+    margin-top:0;
+
+}
+
+
+
+/* Coup de coeur */
+
+.favorite{
+
+    border-left:6px solid #d4af37;
+
+}
+
+
+
+#favori{
+
+    font-size:18px;
+
+    font-weight:bold;
+
+}
+
+
+
+/* Bouton */
+
+button{
+
+    display:block;
+
+    width:90%;
+
+    margin:20px auto;
+
+    padding:15px;
+
+    border:none;
+
+    border-radius:30px;
+
+    background:#d4af37;
+
+    color:#064d2b;
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+}
+
+
+
+button:hover{
+
+    opacity:0.8;
+
+}
+
+
+
+/* Animation analyse */
+
+.loading{
+
+    text-align:center;
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    color:#064d2b;
+
+}
+
+
+
+.loading span{
+
+    display:inline-block;
+
+    animation:chargement 1.5s infinite;
+
+}
+
+
+
+/* Résultats chevaux */
+
+.cheval{
+
+    margin:10px 0;
+
+    padding:15px;
+
+    background:#f8f5ec;
+
+    border-radius:12px;
+
+    border-left:5px solid #064d2b;
+
+}
+
+
+
+.cheval strong{
+
+    color:#064d2b;
+
+}
+
+
+
+.confiance{
+
+    color:#b8860b;
+
+    font-weight:bold;
+
+}
+
+
+
+/* Ticket */
+
+.ticket{
+
+    background:#064d2b;
+
+    color:white;
+
+}
+
+
+
+.ticket h2{
+
+    color:#d4af37;
+
+}
+
+
+
+#ticket{
+
+    font-size:20px;
+
+    font-weight:bold;
+
+}
+
+
+
+/* Footer */
+
+footer{
+
+    text-align:center;
+
+    padding:20px;
+
+    color:#064d2b;
+
+}
+
+
+
+/* Animations */
+
+@keyframes pubAnimation{
+
+
+0%{
+
+    opacity:1;
+
+}
+
+
+50%{
+
+    opacity:0.5;
+
+}
+
+
+100%{
+
+    opacity:1;
+
+}
 
 
 }
 
 
 
+@keyframes chargement{
 
 
-function afficherResultats(data){
+0%{
 
-
-
-let chevaux = data.chevaux;
-
-
-
-if(!chevaux || chevaux.length===0){
-
-
-document.getElementById("chevaux").innerHTML =
-"Aucun cheval trouvé.";
-
-
-return;
-
+    opacity:0.3;
 
 }
 
 
+50%{
 
+    opacity:1;
 
-let html="";
+}
 
 
+100%{
 
-chevaux.forEach((cheval,index)=>{
+    opacity:0.3;
 
+}
 
-html += `
 
-
-<div class="cheval">
-
-
-<strong>
-
-${index+1} 🏇 N°${cheval.numero}
-
-</strong>
-
-
-<br>
-
-
-Indice AZ :
-
-<b>${cheval.indice_az}</b>
-
-
-
-<br>
-
-
-Confiance :
-
-<span class="confiance">
-
-${cheval.confiance} %
-
-</span>
-
-
-
-<br>
-
-
-Catégorie :
-
-${cheval.type}
-
-
-
-</div>
-
-
-`;
-
-
-});
-
-
-
-document.getElementById("chevaux").innerHTML = html;
-
-
-
-
-let premier = chevaux[0];
-
-
-
-document.getElementById("favori").innerHTML = `
-
-
-🏇 Cheval N°${premier.numero}
-
-<br>
-
-Indice AZ : ${premier.indice_az}
-
-<br>
-
-Confiance : ${premier.confiance}%
-
-
-`;
-
-
-
-
-
-
-let ticket = chevaux
-
-.slice(0,5)
-
-.map(c=>c.numero)
-
-.join(" - ");
-
-
-
-
-document.getElementById("ticket").innerHTML =
-
-
-"🎫 Quinté conseillé : " + ticket;
-
-
-
-  }
+}
