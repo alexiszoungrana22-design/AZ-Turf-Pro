@@ -120,12 +120,12 @@ def lancer_analyse():
 
 
         ticket.append({
-            "rang": rang,
-            "numero": cheval["numero"],
-            "indice_az": score,
-            "confiance": confiance,
-            "type": type_cheval
-        })
+    "rang": rang,
+    "numero": cheval["numero"],
+    "indice_az": score,
+    "confiance": confiance,
+    "type": type_cheval
+})
 
 
     return ticket
