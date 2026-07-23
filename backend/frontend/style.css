@@ -1,67 +1,124 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AZ Turf Pro</title>
-    <link rel="stylesheet" href="style.css">
-</head>
+*{
+    box-sizing:border-box;
+    font-family: Arial, sans-serif;
+}
 
-<body>
-
-<header>
-    <h1>🏇 AZ TURF PRO</h1>
-    <p>Intelligence de pronostic hippique</p>
-</header>
+body{
+    margin:0;
+    background:#f4efe3;
+    color:#1d1d1d;
+}
 
 
-<section class="course-card">
-    <h2>📅 Course du jour</h2>
-    <p id="course">Analyse en attente...</p>
-</section>
+/* En-tête */
+
+header{
+    background:#064d2b;
+    color:#ffffff;
+    text-align:center;
+    padding:25px 15px;
+    border-bottom:4px solid #d4af37;
+}
+
+header h1{
+    margin:0;
+    font-size:28px;
+}
+
+header p{
+    margin-top:8px;
+    color:#e8d7a5;
+}
 
 
-<section class="favorite">
-    <h2>⭐ Coup de cœur AZ</h2>
-    <div id="favori">
-        Lancez une analyse pour découvrir le favori AZ
-    </div>
-</section>
+/* Cartes */
+
+section{
+    margin:15px;
+    padding:18px;
+    border-radius:15px;
+    background:#ffffff;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+h2{
+    color:#064d2b;
+    margin-top:0;
+}
 
 
-<button id="analyse">
-    🔍 Lancer l'analyse
-</button>
+/* Coup de coeur */
+
+.favorite{
+    border-left:6px solid #d4af37;
+}
+
+#favori{
+    font-size:18px;
+    font-weight:bold;
+}
 
 
-<section class="results">
+/* Bouton */
 
-<h2>📊 Classement AZ</h2>
-
-<div id="chevaux">
-    Aucun résultat pour le moment.
-</div>
-
-</section>
-
-
-<section class="ticket">
-
-<h2>🎫 Ticket conseillé</h2>
-
-<div id="ticket">
-    En attente d'analyse...
-</div>
-
-</section>
+button{
+    display:block;
+    width:90%;
+    margin:20px auto;
+    padding:15px;
+    border:none;
+    border-radius:30px;
+    background:#d4af37;
+    color:#064d2b;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+}
 
 
-<footer>
-    AZ TURF PRO © 2026
-</footer>
+/* Résultats chevaux */
+
+.cheval{
+    margin:10px 0;
+    padding:15px;
+    background:#f8f5ec;
+    border-radius:12px;
+    border-left:5px solid #064d2b;
+}
 
 
-<script src="script.js"></script>
+.cheval strong{
+    color:#064d2b;
+}
 
-</body>
-</html>
+
+.confiance{
+    color:#b8860b;
+    font-weight:bold;
+}
+
+
+/* Ticket */
+
+.ticket{
+    background:#064d2b;
+    color:white;
+}
+
+.ticket h2{
+    color:#d4af37;
+}
+
+#ticket{
+    font-size:20px;
+    font-weight:bold;
+}
+
+
+/* Footer */
+
+footer{
+    text-align:center;
+    padding:20px;
+    color:#064d2b;
+}
