@@ -5,6 +5,7 @@ from ranking import classer_chevaux
 def lancer_analyse():
 
     chevaux = [
+
         {
             "numero": 1,
             "forme": 8,
@@ -16,6 +17,7 @@ def lancer_analyse():
             "terrain": 7,
             "experience": 8
         },
+
         {
             "numero": 2,
             "forme": 9,
@@ -27,6 +29,7 @@ def lancer_analyse():
             "terrain": 8,
             "experience": 8
         },
+
         {
             "numero": 3,
             "forme": 10,
@@ -38,6 +41,7 @@ def lancer_analyse():
             "terrain": 9,
             "experience": 10
         },
+
         {
             "numero": 4,
             "forme": 6,
@@ -49,6 +53,7 @@ def lancer_analyse():
             "terrain": 6,
             "experience": 7
         },
+
         {
             "numero": 5,
             "forme": 9,
@@ -60,6 +65,7 @@ def lancer_analyse():
             "terrain": 8,
             "experience": 9
         },
+
         {
             "numero": 6,
             "forme": 7,
@@ -71,6 +77,7 @@ def lancer_analyse():
             "terrain": 8,
             "experience": 7
         },
+
         {
             "numero": 7,
             "forme": 8,
@@ -120,33 +127,42 @@ def lancer_analyse():
 
 
         ticket.append({
-    "rang": rang,
-    "numero": cheval["numero"],
-    "indice_az": score,
-    "confiance": confiance,
-    "type": type_cheval
-})
 
-base = classement[0]["numero"]
+            "rang": rang,
+            "numero": cheval["numero"],
+            "indice_az": score,
+            "confiance": confiance,
+            "type": type_cheval
 
-associes = [
-    cheval["numero"]
-    for cheval in classement[1:4]
-]
-
-outsider = classement[4]["numero"]
+        })
 
 
-return {
-    "chevaux": ticket,
-    "ticket_premium": {
+    # Préparation du Ticket AZ Premium
+
+    base = classement[0]["numero"]
+
+    associes = [
+        cheval["numero"]
+        for cheval in classement[1:4]
+    ]
+
+    outsider = classement[4]["numero"]
+
+
+    ticket_premium = {
+
         "base": base,
+
         "associes": associes,
+
         "outsider": outsider,
+
         "quinte": [
             cheval["numero"]
             for cheval in classement[:5]
         ]
+
     }
-}
+
+
     return ticket
