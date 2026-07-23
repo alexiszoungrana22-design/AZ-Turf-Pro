@@ -1,4 +1,4 @@
-const API_URL = "https://az-turf-1.onrender.com/analyse";
+const API_URL = "https://az-turf-pro.onrender.com/analyse";
 
 
 const bouton = document.getElementById("analyse");
