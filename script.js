@@ -1,5 +1,7 @@
 const API_URL = "https://az-turf-pro.onrender.com";
 
+let derniereAnalyse = null;
+
 
 // Lancer une analyse AZ
 
@@ -8,8 +10,8 @@ async function lancerAnalyse(){
     const resultat = document.getElementById("resultat");
 
     resultat.innerHTML = `
-    <h3>Analyse en cours...</h3>
-    <p>⏳ AZ Turf Pro calcule les meilleurs chevaux.</p>
+    <h3>⏳ Analyse en cours...</h3>
+    <p>AZ Turf Pro calcule les meilleurs chevaux.</p>
     `;
 
 
@@ -19,37 +21,29 @@ async function lancerAnalyse(){
 
         const data = await response.json();
 
+        derniereAnalyse = data;
+
 
         let chevaux = "";
 
 
-        if(data.chevaux && data.chevaux.length > 0){
+        data.chevaux.forEach((cheval)=>{
 
-            data.chevaux.forEach((cheval)=>{
-
-                chevaux += `
-                <li>
-                    🐎 Cheval n°${cheval.numero}
-                    <br>
-                    ⭐ Indice AZ : ${cheval.indice_az}
-                    <br>
-                    📊 Confiance : ${cheval.confiance}%
-                    <br>
-                    🏷️ ${cheval.type}
-                </li>
-                `;
-
-            });
-
-        } else {
-
-            chevaux = `
+            chevaux += `
             <li>
-            Aucun classement disponible
+                🐎 <b>Cheval n°${cheval.numero}</b>
+                <br>
+                ⭐ Indice AZ : ${cheval.indice_az}
+                <br>
+                📊 Confiance : ${cheval.confiance}%
+                <br>
+                🏷️ ${cheval.type}
             </li>
+            <br>
             `;
 
-        }
+        });
+
 
 
         resultat.innerHTML = `
@@ -57,12 +51,26 @@ async function lancerAnalyse(){
         <h3>✅ Résultat AZ Turf</h3>
 
         <p>
-        Analyse terminée.
+        Classement des 7 chevaux :
         </p>
 
-        <ul>
+        <ol>
         ${chevaux}
-        </ul>
+        </ol>
+
+
+        <hr>
+
+        <h3>⭐ Favori AZ</h3>
+
+        <p>
+        🐎 Cheval n°${data.favori.numero}
+        <br>
+        Indice : ${data.favori.indice_az}
+        <br>
+        Confiance : ${data.favori.confiance}%
+        </p>
+
 
         `;
 
@@ -81,7 +89,7 @@ async function lancerAnalyse(){
         <h3>❌ Erreur</h3>
 
         <p>
-        Impossible de contacter le serveur AZ Turf.
+        Impossible de contacter AZ Turf Pro.
         </p>
 
         `;
@@ -91,12 +99,11 @@ async function lancerAnalyse(){
 
     }
 
-
 }
 
 
 
-// Sauvegarde historique
+// Historique
 
 function sauvegarderHistorique(data){
 
@@ -109,14 +116,9 @@ function sauvegarderHistorique(data){
 
         date:new Date().toLocaleDateString(),
 
-        chevaux:
-        data.chevaux || [],
+        classement:data.chevaux,
 
-        favori:
-        data.favori || {},
-
-        tickets:
-        data.tickets || {}
+        tickets:data.tickets
 
     });
 
@@ -124,7 +126,6 @@ function sauvegarderHistorique(data){
     localStorage.setItem(
         "az_historique",
         JSON.stringify(historique)
-
     );
 
 
@@ -132,46 +133,45 @@ function sauvegarderHistorique(data){
 
 
 
-// Sauvegarde ticket premium
+// Ticket Premium AZ
 
-function sauverTicket(){
-
-
-    let historique =
-    JSON.parse(localStorage.getItem("az_historique")) || [];
+function afficherTicket(){
 
 
-    historique.push({
+    if(!derniereAnalyse){
 
-        date:new Date().toLocaleDateString(),
+        alert(
+        "Lancez d'abord une analyse AZ."
+        );
 
-        chevaux:
-        [
-            1,
-            5,
-            7,
-            10,
-            14,
-            15,
-            16
-        ],
+        return;
 
-        indice:
-        "Ticket Premium AZ"
-
-    });
+    }
 
 
-    localStorage.setItem(
-        "az_historique",
-        JSON.stringify(historique)
-
-    );
+    const ticket =
+    derniereAnalyse.tickets;
 
 
     alert(
-    "✅ Ticket AZ Premium sauvegardé"
-    );
+`
+🎟️ TICKET PREMIUM AZ
 
+Quinté :
+${ticket.quinte.join("-")}
+
+Quarté :
+${ticket.quarte.join("-")}
+
+Trio :
+${ticket.trio.join("-")}
+
+Base :
+${ticket.champ_reduit.bases.join("-")}
+
+Compléments :
+${ticket.champ_reduit.complements.join("-")}
+`
+    );
 
 }
