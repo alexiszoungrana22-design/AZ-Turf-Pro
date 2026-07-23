@@ -2,8 +2,9 @@ const API_URL = "https://az-turf-pro.onrender.com/analyse";
 
 
 const bouton = document.getElementById("analyse");
+console.log("AZ Turf Pro chargé", bouton);
 
-
+if (bouton) {
 bouton.addEventListener("click", async () => {
 
     document.getElementById("chevaux").innerHTML =
@@ -97,7 +98,7 @@ function afficherResultats(data){
 
     document.getElementById("favori").innerHTML =
 
-    `
+    .
     🏇 Cheval N°${premier.numero}
     <br>
     Indice AZ : ${premier.indice_az}
@@ -120,4 +121,5 @@ function afficherResultats(data){
     "Quinté : " + ticket;
 
 
+}});
 }
