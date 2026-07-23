@@ -1,62 +1,64 @@
-const API_URL = "/analyse";
+const API_URL = "https://az-turf-1.onrender.com/analyse";
 
 
-const bouton = document.getElementById("analyse");
+const boutonAnalyse = document.getElementById("analyse");
 
 
-console.log("AZ Turf Pro chargé");
+if (boutonAnalyse) {
+
+
+    boutonAnalyse.addEventListener("click", analyser);
+
+
+}
 
 
 
-if (bouton) {
+async function analyser(){
 
 
-    bouton.addEventListener("click", async () => {
+    const chevauxZone = document.getElementById("chevaux");
 
 
-        const zone = document.getElementById("chevaux");
+    if(chevauxZone){
+
+        chevauxZone.innerHTML =
+        "⏳ Analyse AZ en cours...";
+
+    }
 
 
-        if(zone){
 
-            zone.innerHTML = "⏳ Analyse AZ en cours...";
+    try{
+
+
+        const reponse = await fetch(API_URL);
+
+
+        const data = await reponse.json();
+
+
+
+        afficherAnalyse(data);
+
+
+
+    }catch(error){
+
+
+        console.error(error);
+
+
+
+        if(chevauxZone){
+
+            chevauxZone.innerHTML =
+            "❌ Impossible de contacter le serveur AZ Turf.";
 
         }
 
 
-
-        try {
-
-
-            const response = await fetch(API_URL);
-
-
-            const data = await response.json();
-
-
-
-            afficherResultats(data);
-
-
-
-        } catch(error) {
-
-
-            if(zone){
-
-                zone.innerHTML =
-                "❌ Erreur de connexion AZ Turf Pro";
-
-            }
-
-
-            console.log(error);
-
-
-        }
-
-
-    });
+    }
 
 
 }
@@ -64,122 +66,105 @@ if (bouton) {
 
 
 
-
-function afficherResultats(data){
-
-
-
-    const chevaux = data.classement || [];
+function afficherAnalyse(data){
 
 
 
-    if(chevaux.length === 0){
+    let chevaux = [];
 
 
-        document.getElementById("chevaux").innerHTML =
-        "Aucun résultat";
+    if(data.chevaux){
 
-
-        return;
+        chevaux = data.chevaux;
 
     }
-
-
-
-
-    let html = "";
-
-
-
-    chevaux.forEach((cheval,index)=>{
-
-
-        html += `
-
-
-        <div class="cheval">
-
-
-            <strong>
-
-            ${index + 1} 🏇 N°${cheval.numero}
-
-            </strong>
-
-
-            <br>
-
-
-            Indice AZ :
-
-            <b>${cheval.indice_az}</b>
-
-
-            <br>
-
-
-            Confiance :
-
-            <span>
-
-            ${cheval.confiance} %
-
-            </span>
-
-
-            <br>
-
-
-            ${cheval.type}
-
-
-        </div>
-
-
-        `;
-
-
-    });
 
 
 
     const zone = document.getElementById("chevaux");
 
 
+
     if(zone){
 
-        zone.innerHTML = html;
+
+        zone.innerHTML = "";
+
+
+
+        chevaux.forEach(cheval => {
+
+
+
+            zone.innerHTML += `
+
+            <div class="cheval">
+
+                🏇 N°${cheval.numero}
+
+                <br>
+
+                Rang : ${cheval.rang}
+
+                <br>
+
+                Indice AZ :
+
+                <b>${cheval.indice_az}</b>
+
+                <br>
+
+                Confiance :
+
+                ${cheval.confiance}%
+
+                <br>
+
+                ${cheval.type}
+
+            </div>
+
+
+            `;
+
+
+
+        });
+
+
 
     }
 
 
 
 
-
-    // Favori AZ
-
-
-    const favori = data.favori;
+    const favori =
+    document.getElementById("favori");
 
 
 
-    if(favori && document.getElementById("favori")){
+    if(favori && chevaux.length > 0){
 
 
-        document.getElementById("favori").innerHTML = `
+        const meilleur = chevaux[0];
 
 
-        ⭐ Cheval N°${favori.numero}
+        favori.innerHTML = `
 
 
-        <br>
-
-        Indice AZ : ${favori.indice_az}
+        ⭐ Cheval N°${meilleur.numero}
 
 
         <br>
 
-        Confiance : ${favori.confiance}%
+
+        Indice AZ : ${meilleur.indice_az}
+
+
+        <br>
+
+
+        Confiance : ${meilleur.confiance}%
 
 
         `;
@@ -190,56 +175,53 @@ function afficherResultats(data){
 
 
 
-    // Tickets AZ
-
-
-    const tickets = data.tickets;
+    const ticket =
+    document.getElementById("ticket");
 
 
 
-    if(tickets && document.getElementById("ticket")){
+    if(ticket && data.ticket_premium){
 
 
-        document.getElementById("ticket").innerHTML = `
+
+        ticket.innerHTML = `
 
 
-        🎫 Quinté :
+        🎫 Quinté AZ :
 
-        ${tickets.quinte.join(" - ")}
-
-
-        <br><br>
-
-
-        🎫 Quarté :
-
-        ${tickets.quarte.join(" - ")}
+        ${data.ticket_premium.quinte.join(" - ")}
 
 
         <br><br>
 
 
-        🏇 Trio :
+        Base :
 
-        ${tickets.trio.join(" - ")}
-
-
-        <br><br>
+        ${data.ticket_premium.base}
 
 
-        🔥 Champ réduit :
+        <br>
 
-        ${tickets.champ_reduit.bases.join(" - ")}
 
-        +
+        Associés :
 
-        ${tickets.champ_reduit.complements.join(" - ")}
+        ${data.ticket_premium.associes.join(" - ")}
+
+
+        <br>
+
+
+        Outsider :
+
+        ${data.ticket_premium.outsider}
 
 
         `;
 
 
+
     }
+
 
 
 }
