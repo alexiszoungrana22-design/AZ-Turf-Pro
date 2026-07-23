@@ -1,8 +1,11 @@
 from scoring import calculer_score_az
 from ranking import classer_chevaux
+from quinte import generer_tickets_az
+
 
 
 def lancer_analyse():
+
 
     chevaux = [
 
@@ -89,32 +92,47 @@ def lancer_analyse():
             "terrain": 7,
             "experience": 8
         }
+
     ]
 
 
+
+    # Calcul indice AZ
+
     for cheval in chevaux:
+
         cheval["score"] = calculer_score_az(cheval)
 
+
+
+    # Classement
 
     classement = classer_chevaux(chevaux)
 
 
-    ticket = []
+
+    resultat = []
 
 
-    for rang, cheval in enumerate(classement[:7], start=1):
+
+    for rang, cheval in enumerate(classement, start=1):
+
 
         score = cheval["score"]
 
 
         if rang == 1:
-            type_cheval = "Favori AZ"
+
+            categorie = "Favori AZ"
 
         elif rang <= 4:
-            type_cheval = "Chance régulière"
+
+            categorie = "Chance régulière"
 
         else:
-            type_cheval = "Outsider"
+
+            categorie = "Outsider"
+
 
 
         confiance = min(
@@ -126,37 +144,39 @@ def lancer_analyse():
         )
 
 
-        ticket.append({
+
+        resultat.append({
+
             "rang": rang,
+
             "numero": cheval["numero"],
+
             "indice_az": score,
+
             "confiance": confiance,
-            "type": type_cheval
+
+            "type": categorie
+
         })
 
 
-    # Ticket AZ Premium
 
-    ticket_premium = {
+    # Génération des tickets
 
-        "base": classement[0]["numero"],
+    tickets = generer_tickets_az(resultat)
 
-        "associes": [
-            cheval["numero"]
-            for cheval in classement[1:4]
-        ],
-
-        "outsider": classement[4]["numero"],
-
-        "quinte": [
-            cheval["numero"]
-            for cheval in classement[:5]
-        ]
-
-    }
 
 
     return {
-        "chevaux": ticket,
-        "ticket_premium": ticket_premium
-    }
+
+
+        "classement": resultat,
+
+
+        "favori": resultat[0],
+
+
+        "tickets": tickets
+
+
+        }
