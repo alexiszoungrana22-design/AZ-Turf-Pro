@@ -1,80 +1,36 @@
-const API_URL = "https://az-turf-pro.onrender.com/analyse";
+const API_URL = "https://az-turf-1.onrender.com";
 
 
-document.addEventListener("DOMContentLoaded", function () {
+// Lancer une analyse AZ
 
-    const boutonAnalyse = document.getElementById("analyse");
+async function lancerAnalyse(){
 
-    if (boutonAnalyse) {
-        boutonAnalyse.onclick = lancerAnalyse;
-    }
+    const resultat = document.getElementById("resultat");
 
-});
-
-
-async function lancerAnalyse() {
-
-    const chevaux = document.getElementById("chevaux");
-    const favori = document.getElementById("favori");
-    const ticket = document.getElementById("ticket");
+    resultat.innerHTML = `
+    <h3>Analyse en cours...</h3>
+    <p>⏳ AZ Turf Pro calcule les meilleurs chevaux.</p>
+    `;
 
 
-    if (chevaux) {
-        chevaux.innerHTML = "⏳ Analyse AZ en cours...";
-    }
+    try{
 
-
-    try {
-
-        const response = await fetch(API_URL);
+        const response = await fetch(API_URL + "/analyse");
 
         const data = await response.json();
 
 
-        console.log(data);
+        let chevaux = "";
 
 
+        if(data.chevaux){
 
-        // FAVORI AZ
+            data.chevaux.forEach((cheval)=>{
 
-        if (favori && data.favori) {
-
-            favori.innerHTML = `
-            🏆 Favori AZ<br><br>
-            🐎 Cheval n°${data.favori.numero}<br>
-            📊 Indice AZ : ${data.favori.indice_az}<br>
-            🎯 Confiance : ${data.favori.confiance}%<br>
-            ⭐ ${data.favori.type}
-            `;
-
-        }
-
-
-
-        // CLASSEMENT
-
-        if (chevaux && data.classement) {
-
-            chevaux.innerHTML = "";
-
-            data.classement.forEach(c => {
-
-                chevaux.innerHTML += `
-
-                <div class="cheval">
-
-                <h3>
-                Rang ${c.rang} - 🐎 N°${c.numero}
-                </h3>
-
-                <p>
-                Indice AZ : <b>${c.indice_az}</b><br>
-                Confiance : <b>${c.confiance}%</b><br>
-                Type : ${c.type}
-                </p>
-
-                </div>
-
+                chevaux += `
+                <li>
+                🐎 ${cheval.nom || cheval}
+                </li>
                 `;
 
             });
@@ -82,63 +38,115 @@ async function lancerAnalyse() {
         }
 
 
+        resultat.innerHTML = `
 
-        // TICKETS
+        <h3>✅ Résultat AZ</h3>
 
-        if (ticket && data.tickets) {
+        <p>
+        Analyse terminée.
+        </p>
 
+        <ul>
+        ${chevaux}
+        </ul>
 
-            ticket.innerHTML = `
-
-            🎫 <h3>Ticket Premium AZ</h3>
-
-
-            Quinté :
-            <b>${data.tickets.quinte.join(" - ")}</b>
-
-            <br><br>
-
-            Quarté :
-            <b>${data.tickets.quarte.join(" - ")}</b>
-
-            <br><br>
-
-            Trio :
-            <b>${data.tickets.trio.join(" - ")}</b>
-
-            <br><br>
-
-            Champ réduit :
-
-            <br>
-            Bases :
-            <b>${data.tickets.champ_reduit.bases.join(" - ")}</b>
-
-            <br>
-
-            Compléments :
-            <b>${data.tickets.champ_reduit.complements.join(" - ")}</b>
-
-            `;
-
-        }
+        `;
 
 
-
-    } catch(error) {
-
-
-        console.error(error);
-
-
-        if (chevaux) {
-
-            chevaux.innerHTML =
-            "❌ Erreur connexion API AZ Turf";
-
-        }
+        sauvegarderHistorique(data);
 
 
     }
+
+
+    catch(error){
+
+
+        resultat.innerHTML = `
+
+        <h3>❌ Erreur</h3>
+
+        <p>
+        Impossible de contacter le serveur AZ Turf.
+        </p>
+
+        `;
+
+
+        console.log(error);
+
+    }
+
+
+}
+
+
+
+// Sauvegarde historique
+
+function sauvegarderHistorique(data){
+
+
+    let historique =
+    JSON.parse(localStorage.getItem("az_historique")) || [];
+
+
+    historique.push({
+
+        date:new Date().toLocaleDateString(),
+
+        chevaux:
+        JSON.stringify(data.chevaux || []),
+
+        indice:
+        data.indice || "AZ"
+
+    });
+
+
+    localStorage.setItem(
+        "az_historique",
+        JSON.stringify(historique)
+
+    );
+
+
+}
+
+
+
+// Sauvegarde ticket premium
+
+function sauverTicket(){
+
+
+    let historique =
+    JSON.parse(localStorage.getItem("az_historique")) || [];
+
+
+    historique.push({
+
+        date:new Date().toLocaleDateString(),
+
+        chevaux:
+        "1-5-7-10-14-15-16",
+
+        indice:
+        "Ticket Premium AZ"
+
+    });
+
+
+    localStorage.setItem(
+        "az_historique",
+        JSON.stringify(historique)
+
+    );
+
+
+    alert(
+    "✅ Ticket AZ Premium sauvegardé"
+    );
+
 
 }
