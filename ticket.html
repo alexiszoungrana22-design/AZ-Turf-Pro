@@ -1,33 +1,27 @@
 <!DOCTYPE html>
 <html lang="fr">
 
-
 <head>
 
 <meta charset="UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Ticket AZ Turf Pro</title>
 
-<title>Ticket AZ</title>
-
-
-<link rel="stylesheet" href="/static/style.css">
-
+<link rel="stylesheet" href="style.css">
 
 </head>
-
 
 
 <body>
 
 
-
 <header>
 
-<h1>🎫 Ticket AZ</h1>
+<h1>🎫 Ticket AZ Turf Pro</h1>
 
-<p>Suggestions de jeu</p>
+<p>Ticket conseillé par l'intelligence AZ</p>
 
 </header>
 
@@ -50,15 +44,23 @@
 
 
 
-<section class="ticket">
+<section class="card">
 
 
-<h2>🎫 Quinté conseillé</h2>
+<h2>🎯 Ticket Premium</h2>
+
+
+<button id="charger">
+
+📥 Charger le ticket
+
+</button>
+
 
 
 <div id="ticket">
 
-Lancez une analyse pour obtenir un ticket.
+Aucun ticket disponible.
 
 </div>
 
@@ -69,32 +71,120 @@ Lancez une analyse pour obtenir un ticket.
 
 
 
-<section>
+<footer>
 
+AZ Turf Pro © 2026
 
-<h2>Autres jeux</h2>
-
-
-<p>
-
-🥇 Quarté : préparation en cours
-
-</p>
-
-
-<p>
-
-🏇 Trio : préparation en cours
-
-</p>
-
-
-</section>
+</footer>
 
 
 
 
-<script src="/static/script.js"></script>
+
+<script>
+
+
+const API =
+"https://az-turf-1.onrender.com/analyse";
+
+
+
+document
+.getElementById("charger")
+.addEventListener("click", async()=>{
+
+
+
+const zone =
+document.getElementById("ticket");
+
+
+
+zone.innerHTML =
+"⏳ Chargement du ticket...";
+
+
+
+try{
+
+
+
+const response =
+await fetch(API);
+
+
+
+const data =
+await response.json();
+
+
+
+const ticket =
+data.ticket_premium;
+
+
+
+zone.innerHTML = `
+
+
+<div class="cheval">
+
+
+🏇 Base :
+
+<b>${ticket.base}</b>
+
+
+<br><br>
+
+
+⭐ Associés :
+
+<b>${ticket.associes.join(" - ")}</b>
+
+
+<br><br>
+
+
+🔥 Outsider :
+
+<b>${ticket.outsider}</b>
+
+
+<br><br>
+
+
+🎫 Quinté :
+
+<b>${ticket.quinte.join(" - ")}</b>
+
+
+</div>
+
+
+
+`;
+
+
+
+}
+
+catch(error){
+
+
+zone.innerHTML =
+"❌ Impossible de récupérer le ticket.";
+
+
+}
+
+
+
+});
+
+
+
+</script>
 
 
 
