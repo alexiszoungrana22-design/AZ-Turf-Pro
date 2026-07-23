@@ -1,26 +1,51 @@
-async function analyser(){
+const API = "https://az-turf-pro.onrender.com/analyse";
 
-    const resultat = document.getElementById("resultat");
+const bouton = document.getElementById("btnAnalyse");
+const resultat = document.getElementById("resultat");
 
-    resultat.innerHTML = "Analyse AZ Turf en cours...";
+bouton.addEventListener("click", async () => {
 
-    try{
+    resultat.innerHTML = "⏳ Analyse en cours...";
 
-        const response = await fetch("http://127.0.0.1:8000/analyse");
+    try {
 
-        const data = await response.json();
+        const reponse = await fetch(API);
+        const data = await reponse.json();
 
         resultat.innerHTML = `
-        <h3>Ticket conseillé</h3>
-        <p>${data.message}</p>
-        <p>Chevaux : ${data.chevaux.join(" - ")}</p>
+            <h2>${data.message}</h2>
         `;
 
-    }catch(error){
+        data.chevaux.forEach(cheval => {
+
+            let classe = "";
+
+            if(cheval.type === "Favori AZ"){
+                classe = "favori";
+            }
+            else if(cheval.type === "Chance régulière"){
+                classe = "chance";
+            }
+            else{
+                classe = "outsider";
+            }
+
+            resultat.innerHTML += `
+                <div class="cheval ${classe}">
+                    <h3>🏇 Rang ${cheval.rang} - Cheval N°${cheval.numero}</h3>
+                    <p>Indice AZ : <b>${cheval.indice_az}</b></p>
+                    <p>Confiance : <b>${cheval.confiance}%</b></p>
+                    <p>${cheval.type}</p>
+                </div>
+            `;
+
+        });
+
+    } catch(error){
 
         resultat.innerHTML =
-        "Serveur AZ Turf non connecté";
+        "❌ Erreur de connexion avec AZ Turf Pro";
 
     }
 
-}
+});
