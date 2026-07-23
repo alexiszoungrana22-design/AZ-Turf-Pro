@@ -1,202 +1,224 @@
-const API_URL = "https://az-turf-pro.onrender.com/analyse";
+const API_URL =
+"https://az-turf-pro.onrender.com/analyse";
+
+
+
+// Animation écran d'ouverture
+
+window.addEventListener("load",()=>{
+
+setTimeout(()=>{
+
+document.getElementById("splash").style.display="none";
+
+},3000);
+
+
+});
+
+
+
 
 
 const bouton = document.getElementById("analyse");
 
+
 console.log("AZ Turf Pro chargé", bouton);
 
 
-if (bouton) {
 
-    bouton.addEventListener("click", async () => {
-
-
-        document.getElementById("chevaux").innerHTML =
-        `
-        <div class="animation">
-            🏇 AZ Turf Pro analyse la course...<br>
-            ⏳ Calcul des indices AZ en cours
-        </div>
-        `;
+if(bouton){
 
 
-        document.getElementById("ticket").innerHTML =
-        "⏳ Génération du ticket AZ Premium...";
+bouton.addEventListener("click", async()=>{
 
 
-        try {
-
-            const response = await fetch(API_URL);
-
-            const data = await response.json();
+document.getElementById("chevaux").innerHTML = `
 
 
-            afficherResultats(data);
+<div class="loading">
+
+🏇 Analyse AZ en cours...
+
+<br><br>
+
+<span>
+Analyse de la forme...
+</span>
+
+<br>
+
+<span>
+Calcul indice AZ...
+</span>
+
+<br>
+
+<span>
+Création du ticket...
+</span>
 
 
-        } catch(error) {
+</div>
 
 
-            document.getElementById("chevaux").innerHTML =
-            "❌ Erreur de connexion avec AZ Turf Pro";
+`;
 
 
-            console.log(error);
 
-        }
+try{
 
-    });
+
+const response = await fetch(API_URL);
+
+
+const data = await response.json();
+
+
+
+afficherResultats(data);
+
+
+
+}
+
+catch(error){
+
+
+document.getElementById("chevaux").innerHTML =
+
+"❌ Erreur de connexion AZ Turf Pro";
+
+
+console.log(error);
+
 
 }
 
 
 
-function afficherResultats(data) {
+});
 
 
-    let chevaux = data.chevaux;
+}
 
 
-    if (!chevaux || chevaux.length === 0) {
 
 
-        document.getElementById("chevaux").innerHTML =
-        "Aucun cheval trouvé.";
 
+function afficherResultats(data){
 
-        return;
 
-    }
+let chevaux=data.chevaux;
 
 
 
-    let html = "";
+if(!chevaux || chevaux.length===0){
 
+document.getElementById("chevaux").innerHTML=
+"Aucun cheval trouvé.";
 
+return;
 
-    chevaux.forEach((cheval,index)=>{
+}
 
 
-        html += `
 
-        <div class="cheval">
+let html="";
 
-            <strong>
-            ${index+1} 🏇 N°${cheval.numero}
-            </strong>
 
-            <br>
 
-            Indice AZ :
-            <b>${cheval.indice_az}</b>
+chevaux.forEach((cheval,index)=>{
 
-            <br>
 
-            Confiance :
-            <span class="confiance">
-            ${cheval.confiance} %
-            </span>
+html+=`
 
-            <br>
 
-            Catégorie :
-            ${cheval.type}
+<div class="cheval">
 
-        </div>
 
-        `;
+<strong>
 
+${index+1} 🏇 N°${cheval.numero}
 
-    });
+</strong>
 
 
+<br>
 
-    document.getElementById("chevaux").innerHTML = html;
+Indice AZ :
 
+<b>${cheval.indice_az}</b>
 
 
+<br>
 
-    // Coup de coeur AZ
+Confiance :
 
-    let premier = chevaux[0];
+<span class="confiance">
 
+${cheval.confiance} %
 
-    document.getElementById("favori").innerHTML = `
+</span>
 
-        🏇 Cheval N°${premier.numero}
 
-        <br>
+<br>
 
-        Indice AZ : ${premier.indice_az}
+Catégorie :
 
-        <br>
+${cheval.type}
 
-        Confiance : ${premier.confiance} %
 
-    `;
+</div>
 
 
+`;
 
 
-    // Ticket AZ Premium
+});
 
-    if(data.ticket_premium){
 
 
-        let premium = data.ticket_premium;
+document.getElementById("chevaux").innerHTML=html;
 
 
-        document.getElementById("ticket").innerHTML = `
 
 
-        🎫 <strong>Ticket AZ Premium</strong>
+let premier=chevaux[0];
 
-        <br><br>
 
 
-        ⭐ Base :
-        ${premium.base}
+document.getElementById("favori").innerHTML=`
 
+🏇 Cheval N°${premier.numero}
 
-        <br><br>
+<br>
 
+Indice AZ : ${premier.indice_az}
 
-        🔒 Associés :
-        ${premium.associes.join(" - ")}
+<br>
 
+Confiance : ${premier.confiance} %
 
-        <br><br>
+`;
 
 
-        🎯 Outsider :
-        ${premium.outsider}
 
 
-        <br><br>
+let ticket=chevaux
 
+.slice(0,5)
 
-        🏇 Quinté conseillé :
-        ${premium.quinte.join(" - ")}
+.map(c=>c.numero)
 
+.join(" - ");
 
-        `;
 
 
-    } else {
+document.getElementById("ticket").innerHTML=
 
+"🎫 Quinté conseillé : "+ticket;
 
-        let ticket = chevaux
-        .slice(0,5)
-        .map(c => c.numero)
-        .join(" - ");
-
-
-        document.getElementById("ticket").innerHTML =
-
-        "🎫 Quinté conseillé : " + ticket;
-
-
-    }
 
 
 }
