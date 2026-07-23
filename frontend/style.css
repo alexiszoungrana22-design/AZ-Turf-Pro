@@ -1,71 +1,124 @@
 *{
-    margin:0;
-    padding:0;
     box-sizing:border-box;
-    font-family:Arial,sans-serif;
+    font-family: Arial, sans-serif;
 }
 
 body{
-    background:#f4f6f9;
-    color:#222;
+    margin:0;
+    background:#f4efe3;
+    color:#1d1d1d;
 }
 
+
+/* En-tête */
+
 header{
-    background:#003366;
-    color:white;
+    background:#064d2b;
+    color:#ffffff;
     text-align:center;
-    padding:25px;
+    padding:25px 15px;
+    border-bottom:4px solid #d4af37;
 }
 
 header h1{
-    font-size:32px;
-    margin-bottom:10px;
+    margin:0;
+    font-size:28px;
 }
 
-main{
-    max-width:700px;
-    margin:30px auto;
-    padding:20px;
+header p{
+    margin-top:8px;
+    color:#e8d7a5;
 }
+
+
+/* Cartes */
+
+section{
+    margin:15px;
+    padding:18px;
+    border-radius:15px;
+    background:#ffffff;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+h2{
+    color:#064d2b;
+    margin-top:0;
+}
+
+
+/* Coup de coeur */
+
+.favorite{
+    border-left:6px solid #d4af37;
+}
+
+#favori{
+    font-size:18px;
+    font-weight:bold;
+}
+
+
+/* Bouton */
 
 button{
-    width:100%;
+    display:block;
+    width:90%;
+    margin:20px auto;
     padding:15px;
     border:none;
-    border-radius:10px;
-    background:#0b8f3d;
-    color:white;
+    border-radius:30px;
+    background:#d4af37;
+    color:#064d2b;
     font-size:18px;
+    font-weight:bold;
     cursor:pointer;
 }
 
-button:hover{
-    background:#087532;
-}
 
-#resultat{
-    margin-top:20px;
-    background:white;
-    border-radius:12px;
-    padding:20px;
-    box-shadow:0 2px 10px rgba(0,0,0,.1);
-}
+/* Résultats chevaux */
 
 .cheval{
-    margin-top:15px;
+    margin:10px 0;
     padding:15px;
-    border-radius:8px;
-    background:#eef4ff;
+    background:#f8f5ec;
+    border-radius:12px;
+    border-left:5px solid #064d2b;
 }
 
-.favori{
-    border-left:6px solid gold;
+
+.cheval strong{
+    color:#064d2b;
 }
 
-.chance{
-    border-left:6px solid green;
+
+.confiance{
+    color:#b8860b;
+    font-weight:bold;
 }
 
-.outsider{
-    border-left:6px solid gray;
+
+/* Ticket */
+
+.ticket{
+    background:#064d2b;
+    color:white;
+}
+
+.ticket h2{
+    color:#d4af37;
+}
+
+#ticket{
+    font-size:20px;
+    font-weight:bold;
+}
+
+
+/* Footer */
+
+footer{
+    text-align:center;
+    padding:20px;
+    color:#064d2b;
 }
