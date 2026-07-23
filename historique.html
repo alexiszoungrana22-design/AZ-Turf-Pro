@@ -1,155 +1,101 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Historique AZ Turf Pro</title>
-
-<link rel="stylesheet" href="style.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AZ Turf Pro - Historique</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 
 <body>
 
-
-<header>
-
-<h1>📊 Historique AZ Turf Pro</h1>
-
-<p>Suivi des analyses précédentes</p>
-
+<header class="hero">
+    <h1>🐎 AZ TURF PRO</h1>
+    <p>Historique des pronostics</p>
 </header>
 
 
-
-<nav class="menu">
-
-<a href="index.html">🏠 Accueil</a>
-
-<a href="analyse.html">🔍 Analyse</a>
-
-<a href="ticket.html">🎫 Ticket</a>
-
-<a href="historique.html">📊 Historique</a>
-
+<nav>
+    <a href="index.html">Accueil</a>
+    <a href="analyse.html">Analyse</a>
+    <a href="ticket.html">Ticket Premium</a>
+    <a href="historique.html">Historique</a>
 </nav>
 
 
+<section class="container">
 
+    <div class="card">
 
-<section class="card">
+        <h2>📚 Historique AZ</h2>
 
+        <div id="historique">
 
-<h2>📈 Dernières analyses</h2>
+            <p>
+                Aucun pronostic enregistré pour le moment.
+            </p>
 
+        </div>
 
-<div id="historique">
-
-
-Aucun historique enregistré.
-
-
-</div>
-
+    </div>
 
 
 </section>
 
 
-
-
 <footer>
-
-AZ Turf Pro © 2026
-
+    <p>© 2026 AZ Turf Pro</p>
 </footer>
 
 
+<script src="script.js"></script>
 
 
 <script>
 
+let historique = JSON.parse(localStorage.getItem("az_historique")) || [];
 
-const historique =
-document.getElementById("historique");
-
-
-
-let analyses =
-JSON.parse(localStorage.getItem("az_historique")) || [];
+let zone = document.getElementById("historique");
 
 
+if(historique.length > 0){
 
-if(analyses.length === 0){
+    zone.innerHTML = "";
 
+    historique.forEach((analyse, index)=>{
 
-historique.innerHTML =
-"Aucune analyse enregistrée.";
+        zone.innerHTML += `
 
+        <div class="card">
 
-}
+            <h3>
+            Analyse ${index + 1}
+            </h3>
 
-else{
+            <p>
+            📅 Date : ${analyse.date}
+            </p>
 
+            <p>
+            🐎 Chevaux :
+            ${analyse.chevaux}
+            </p>
 
+            <p>
+            ⭐ Indice AZ :
+            ${analyse.indice}
+            </p>
 
-historique.innerHTML = "";
+        </div>
 
+        `;
 
-
-analyses.forEach((analyse,index)=>{
-
-
-
-historique.innerHTML += `
-
-
-<div class="cheval">
-
-
-📅 Analyse ${index + 1}
-
-
-<br><br>
-
-
-🎫 Ticket :
-
-${analyse.ticket || "Non disponible"}
-
-
-<br><br>
-
-
-⭐ Favori :
-
-${analyse.favori || "Non disponible"}
-
-
-</div>
-
-
-`;
-
-
-
-});
-
-
+    });
 
 }
-
-
 
 </script>
 
 
-
 </body>
-
 </html>
