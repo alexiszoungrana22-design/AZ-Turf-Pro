@@ -107,17 +107,25 @@ def lancer_analyse():
         score = cheval["score"]
 
 
-        if score >= 200:
-            type_cheval = "Favori AZ"
+        # Catégorie AZ selon le rang
+if rang == 1:
+    type_cheval = "Favori AZ"
 
-        elif score >= 160:
-            type_cheval = "Chance régulière"
+elif rang <= 4:
+    type_cheval = "Chance régulière"
 
-        else:
-            type_cheval = "Outsider"
+else:
+    type_cheval = "Outsider"
 
 
-        confiance = min(95, int(score / 2))
+# Confiance AZ plus équilibrée
+confiance = min(
+    95,
+    max(
+        50,
+        int((score / 250) * 100)
+    )
+)
 
 
         ticket.append({
