@@ -102,30 +102,40 @@ def lancer_analyse():
     ticket = []
 
 
-    for rang, cheval in enumerate(classement[:7], start=1):
+        for rang, cheval in enumerate(classement[:7], start=1):
 
         score = cheval["score"]
 
-
         # Catégorie AZ selon le rang
-if rang == 1:
-    type_cheval = "Favori AZ"
+        if rang == 1:
+            type_cheval = "Favori AZ"
 
-elif rang <= 4:
-    type_cheval = "Chance régulière"
+        elif rang <= 4:
+            type_cheval = "Chance régulière"
 
-else:
-    type_cheval = "Outsider"
+        else:
+            type_cheval = "Outsider"
 
 
-# Confiance AZ plus équilibrée
-confiance = min(
-    95,
-    max(
-        50,
-        int((score / 250) * 100)
-    )
-)
+        # Confiance AZ plus équilibrée
+        confiance = min(
+            95,
+            max(
+                50,
+                int((score / 250) * 100)
+            )
+        )
+
+
+        ticket.append({
+
+            "rang": rang,
+            "numero": cheval["numero"],
+            "indice_az": score,
+            "confiance": confiance,
+            "type": type_cheval
+
+        })
 
 
         ticket.append({
