@@ -1,12 +1,12 @@
 const API_URL = "https://az-turf-pro.onrender.com/analyse";
 
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function () {
 
-    const bouton = document.getElementById("analyse");
+    const boutonAnalyse = document.getElementById("analyse");
 
-    if (bouton) {
-        bouton.addEventListener("click", lancerAnalyse);
+    if (boutonAnalyse) {
+        boutonAnalyse.onclick = lancerAnalyse;
     }
 
 });
@@ -14,50 +14,67 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function lancerAnalyse() {
 
-    const chevauxDiv = document.getElementById("chevaux");
-    const favoriDiv = document.getElementById("favori");
-    const ticketDiv = document.getElementById("ticket");
+    const chevaux = document.getElementById("chevaux");
+    const favori = document.getElementById("favori");
+    const ticket = document.getElementById("ticket");
 
-    if (chevauxDiv) {
-        chevauxDiv.innerHTML = "⏳ Analyse AZ en cours...";
+
+    if (chevaux) {
+        chevaux.innerHTML = "⏳ Analyse AZ en cours...";
     }
+
 
     try {
 
-        const reponse = await fetch(API_URL);
+        const response = await fetch(API_URL);
 
-        const data = await reponse.json();
+        const data = await response.json();
 
 
-        // Affichage favori AZ
-        if (favoriDiv && data.favori) {
+        console.log(data);
 
-            favoriDiv.innerHTML = `
-                🏆 Cheval favori AZ : <b>${data.favori.numero}</b><br>
-                Indice AZ : ${data.favori.indice_az}<br>
-                Confiance : ${data.favori.confiance}%
+
+
+        // FAVORI AZ
+
+        if (favori && data.favori) {
+
+            favori.innerHTML = `
+            🏆 Favori AZ<br><br>
+            🐎 Cheval n°${data.favori.numero}<br>
+            📊 Indice AZ : ${data.favori.indice_az}<br>
+            🎯 Confiance : ${data.favori.confiance}%<br>
+            ⭐ ${data.favori.type}
             `;
 
         }
 
 
 
-        // Affichage classement
-        if (chevauxDiv && data.classement) {
+        // CLASSEMENT
 
-            chevauxDiv.innerHTML = "";
+        if (chevaux && data.classement) {
 
-            data.classement.forEach(cheval => {
+            chevaux.innerHTML = "";
 
-                chevauxDiv.innerHTML += `
-                    <div class="cheval">
-                        <b>Rang ${cheval.rang}</b><br>
-                        🐎 Numéro : ${cheval.numero}<br>
-                        📊 Indice AZ : ${cheval.indice_az}<br>
-                        🎯 Confiance : ${cheval.confiance}%<br>
-                        ⭐ ${cheval.type}
-                    </div>
-                    <hr>
+            data.classement.forEach(c => {
+
+                chevaux.innerHTML += `
+
+                <div class="cheval">
+
+                <h3>
+                Rang ${c.rang} - 🐎 N°${c.numero}
+                </h3>
+
+                <p>
+                Indice AZ : <b>${c.indice_az}</b><br>
+                Confiance : <b>${c.confiance}%</b><br>
+                Type : ${c.type}
+                </p>
+
+                </div>
+
                 `;
 
             });
@@ -66,43 +83,61 @@ async function lancerAnalyse() {
 
 
 
-        // Affichage tickets
-        if (ticketDiv && data.tickets) {
+        // TICKETS
 
-            ticketDiv.innerHTML = `
+        if (ticket && data.tickets) {
 
-                🎫 <b>Ticket Quinté :</b><br>
-                ${data.tickets.quinte.join(" - ")}
-                <br><br>
 
-                🎟️ <b>Quarté :</b><br>
-                ${data.tickets.quarte.join(" - ")}
-                <br><br>
+            ticket.innerHTML = `
 
-                🔥 <b>Trio :</b><br>
-                ${data.tickets.trio.join(" - ")}
-                <br><br>
+            🎫 <h3>Ticket Premium AZ</h3>
 
-                🏇 <b>Champ réduit :</b><br>
-                Bases :
-                ${data.tickets.champ_reduit.bases.join(" - ")}
-                <br>
-                Compléments :
-                ${data.tickets.champ_reduit.complements.join(" - ")}
+
+            Quinté :
+            <b>${data.tickets.quinte.join(" - ")}</b>
+
+            <br><br>
+
+            Quarté :
+            <b>${data.tickets.quarte.join(" - ")}</b>
+
+            <br><br>
+
+            Trio :
+            <b>${data.tickets.trio.join(" - ")}</b>
+
+            <br><br>
+
+            Champ réduit :
+
+            <br>
+            Bases :
+            <b>${data.tickets.champ_reduit.bases.join(" - ")}</b>
+
+            <br>
+
+            Compléments :
+            <b>${data.tickets.champ_reduit.complements.join(" - ")}</b>
 
             `;
 
         }
 
 
-    } catch (erreur) {
 
-        console.error(erreur);
+    } catch(error) {
 
-        if (chevauxDiv) {
-            chevauxDiv.innerHTML =
-            "❌ Erreur de connexion avec AZ Turf Pro";
+
+        console.error(error);
+
+
+        if (chevaux) {
+
+            chevaux.innerHTML =
+            "❌ Erreur connexion API AZ Turf";
+
         }
+
 
     }
 
