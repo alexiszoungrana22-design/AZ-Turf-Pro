@@ -1,139 +1,222 @@
-*{
-    box-sizing:border-box;
-    font-family: Arial, sans-serif;
-}
-
-body{
-    margin:0;
-    background:#f4efe3;
-    color:#1d1d1d;
-}
+const API_URL = "https://az-turf-pro.onrender.com/analyse";
 
 
-/* En-tête */
-
-header{
-    background:#064d2b;
-    color:#ffffff;
-    text-align:center;
-    padding:25px 15px;
-    border-bottom:4px solid #d4af37;
-}
-
-header h1{
-    margin:0;
-    font-size:28px;
-}
-
-header p{
-    margin-top:8px;
-    color:#e8d7a5;
-}
+const bouton = document.getElementById("analyse");
 
 
-/* Cartes */
-
-section{
-    margin:15px;
-    padding:18px;
-    border-radius:15px;
-    background:#ffffff;
-    box-shadow:0 4px 10px rgba(0,0,0,0.1);
-}
-
-h2{
-    color:#064d2b;
-    margin-top:0;
-}
+console.log("AZ Turf Pro chargé", bouton);
 
 
-/* Coup de coeur */
 
-.favorite{
-    border-left:6px solid #d4af37;
-}
-
-#favori{
-    font-size:18px;
-    font-weight:bold;
-}
+if(bouton){
 
 
-/* Bouton */
-
-button{
-    display:block;
-    width:90%;
-    margin:20px auto;
-    padding:15px;
-    border:none;
-    border-radius:30px;
-    background:#d4af37;
-    color:#064d2b;
-    font-size:18px;
-    font-weight:bold;
-    cursor:pointer;
-}
+bouton.addEventListener("click", async ()=>{
 
 
-/* Résultats chevaux */
-
-.cheval{
-    margin:10px 0;
-    padding:15px;
-    background:#f8f5ec;
-    border-radius:12px;
-    border-left:5px solid #064d2b;
-}
+document.getElementById("chevaux").innerHTML = `
 
 
-.cheval strong{
-    color:#064d2b;
-}
+<div class="loading">
+
+🏇 Analyse AZ en cours...
+
+<br><br>
+
+<span>
+Analyse de la forme...
+</span>
+
+<br>
+
+<span>
+Calcul de l'indice AZ...
+</span>
+
+<br>
+
+<span>
+Préparation du ticket...
+</span>
 
 
-.confiance{
-    color:#b8860b;
-    font-weight:bold;
-}
-@media(max-width:600px){
+</div>
 
-    header h1{
-        font-size:24px;
-    }
 
-    section{
-        margin:10px;
-        padding:15px;
-    }
+`;
 
-    button{
-        width:95%;
-    }
+
+
+try{
+
+
+const response = await fetch(API_URL);
+
+
+const data = await response.json();
+
+
+
+afficherResultats(data);
+
+
 
 }
 
-/* Ticket */
+catch(error){
 
-.ticket{
-    background:#064d2b;
-    color:white;
-}
 
-.ticket h2{
-    color:#d4af37;
-}
+document.getElementById("chevaux").innerHTML =
 
-#ticket{
-    font-size:20px;
-    font-weight:bold;
+"❌ Erreur de connexion avec AZ Turf Pro";
+
+
+console.log(error);
+
+
 }
 
 
-/* Footer */
 
-footer{
-    text-align:center;
-    padding:20px;
-    color:#064d2b;
+});
+
+
 }
+
+
+
+
+
+function afficherResultats(data){
+
+
+
+let chevaux = data.chevaux;
+
+
+
+if(!chevaux || chevaux.length===0){
+
+
+document.getElementById("chevaux").innerHTML =
+"Aucun cheval trouvé.";
+
+
+return;
+
+
+}
+
+
+
+
+let html="";
+
+
+
+chevaux.forEach((cheval,index)=>{
+
+
+html += `
+
+
+<div class="cheval">
+
+
+<strong>
+
+${index+1} 🏇 N°${cheval.numero}
+
+</strong>
+
+
+<br>
+
+
+Indice AZ :
+
+<b>${cheval.indice_az}</b>
+
+
+
+<br>
+
+
+Confiance :
+
+<span class="confiance">
+
+${cheval.confiance} %
+
+</span>
+
+
+
+<br>
+
+
+Catégorie :
+
+${cheval.type}
+
+
+
+</div>
+
+
+`;
+
+
+});
+
+
+
+document.getElementById("chevaux").innerHTML = html;
+
+
+
+
+let premier = chevaux[0];
+
+
+
+document.getElementById("favori").innerHTML = `
+
+
+🏇 Cheval N°${premier.numero}
+
+<br>
+
+Indice AZ : ${premier.indice_az}
+
+<br>
+
+Confiance : ${premier.confiance}%
+
+
+`;
+
+
+
+
+
+
+let ticket = chevaux
+
+.slice(0,5)
+
+.map(c=>c.numero)
+
+.join(" - ");
+
+
+
+
+document.getElementById("ticket").innerHTML =
+
+
+"🎫 Quinté conseillé : " + ticket;
+
+
+
+  }
