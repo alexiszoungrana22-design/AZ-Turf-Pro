@@ -23,24 +23,38 @@ async function lancerAnalyse(){
         let chevaux = "";
 
 
-        if(data.chevaux){
+        if(data.chevaux && data.chevaux.length > 0){
 
             data.chevaux.forEach((cheval)=>{
 
                 chevaux += `
                 <li>
-                🐎 ${cheval.nom || cheval}
+                    🐎 Cheval n°${cheval.numero}
+                    <br>
+                    ⭐ Indice AZ : ${cheval.indice_az}
+                    <br>
+                    📊 Confiance : ${cheval.confiance}%
+                    <br>
+                    🏷️ ${cheval.type}
                 </li>
                 `;
 
             });
+
+        } else {
+
+            chevaux = `
+            <li>
+            Aucun classement disponible
+            </li>
+            `;
 
         }
 
 
         resultat.innerHTML = `
 
-        <h3>✅ Résultat AZ</h3>
+        <h3>✅ Résultat AZ Turf</h3>
 
         <p>
         Analyse terminée.
@@ -96,10 +110,13 @@ function sauvegarderHistorique(data){
         date:new Date().toLocaleDateString(),
 
         chevaux:
-        JSON.stringify(data.chevaux || []),
+        data.chevaux || [],
 
-        indice:
-        data.indice || "AZ"
+        favori:
+        data.favori || {},
+
+        tickets:
+        data.tickets || {}
 
     });
 
@@ -129,7 +146,15 @@ function sauverTicket(){
         date:new Date().toLocaleDateString(),
 
         chevaux:
-        "1-5-7-10-14-15-16",
+        [
+            1,
+            5,
+            7,
+            10,
+            14,
+            15,
+            16
+        ],
 
         indice:
         "Ticket Premium AZ"
