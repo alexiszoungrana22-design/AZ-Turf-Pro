@@ -11,5 +11,6 @@ def analyse():
 
     return {
         "message": "Analyse AZ Turf terminée",
-        "chevaux": resultat
+        "chevaux": resultat["chevaux"],
+        "ticket_premium": resultat["ticket_premium"]
     }
