@@ -10,8 +10,18 @@ if (bouton) {
 
     bouton.addEventListener("click", async () => {
 
+
         document.getElementById("chevaux").innerHTML =
-            "⏳ Analyse AZ en cours...";
+        `
+        <div class="animation">
+            🏇 AZ Turf Pro analyse la course...<br>
+            ⏳ Calcul des indices AZ en cours
+        </div>
+        `;
+
+
+        document.getElementById("ticket").innerHTML =
+        "⏳ Génération du ticket AZ Premium...";
 
 
         try {
@@ -20,15 +30,19 @@ if (bouton) {
 
             const data = await response.json();
 
+
             afficherResultats(data);
 
 
         } catch(error) {
 
+
             document.getElementById("chevaux").innerHTML =
             "❌ Erreur de connexion avec AZ Turf Pro";
 
+
             console.log(error);
+
         }
 
     });
@@ -45,14 +59,19 @@ function afficherResultats(data) {
 
     if (!chevaux || chevaux.length === 0) {
 
+
         document.getElementById("chevaux").innerHTML =
         "Aucun cheval trouvé.";
 
+
         return;
+
     }
 
 
+
     let html = "";
+
 
 
     chevaux.forEach((cheval,index)=>{
@@ -87,10 +106,13 @@ function afficherResultats(data) {
 
         `;
 
+
     });
 
 
+
     document.getElementById("chevaux").innerHTML = html;
+
 
 
 
@@ -115,16 +137,66 @@ function afficherResultats(data) {
 
 
 
-    // Ticket conseillé
 
-    let ticket = chevaux
-    .slice(0,5)
-    .map(c => c.numero)
-    .join(" - ");
+    // Ticket AZ Premium
+
+    if(data.ticket_premium){
 
 
-    document.getElementById("ticket").innerHTML =
+        let premium = data.ticket_premium;
 
-    "🎫 Quinté conseillé : " + ticket;
+
+        document.getElementById("ticket").innerHTML = `
+
+
+        🎫 <strong>Ticket AZ Premium</strong>
+
+        <br><br>
+
+
+        ⭐ Base :
+        ${premium.base}
+
+
+        <br><br>
+
+
+        🔒 Associés :
+        ${premium.associes.join(" - ")}
+
+
+        <br><br>
+
+
+        🎯 Outsider :
+        ${premium.outsider}
+
+
+        <br><br>
+
+
+        🏇 Quinté conseillé :
+        ${premium.quinte.join(" - ")}
+
+
+        `;
+
+
+    } else {
+
+
+        let ticket = chevaux
+        .slice(0,5)
+        .map(c => c.numero)
+        .join(" - ");
+
+
+        document.getElementById("ticket").innerHTML =
+
+        "🎫 Quinté conseillé : " + ticket;
+
+
+    }
+
 
 }
