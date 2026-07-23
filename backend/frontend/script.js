@@ -2,44 +2,48 @@ const API_URL = "https://az-turf-pro.onrender.com/analyse";
 
 
 const bouton = document.getElementById("analyse");
+
 console.log("AZ Turf Pro chargé", bouton);
 
+
 if (bouton) {
-bouton.addEventListener("click", async () => {
 
-    document.getElementById("chevaux").innerHTML =
-        "⏳ Analyse AZ en cours...";
-
-
-    try {
-
-        const response = await fetch(API_URL);
-
-        const data = await response.json();
-
-
-        afficherResultats(data);
-
-
-    } catch(error){
+    bouton.addEventListener("click", async () => {
 
         document.getElementById("chevaux").innerHTML =
-        "❌ Erreur de connexion avec AZ Turf Pro";
-
-        console.log(error);
-    }
-
-});
+            "⏳ Analyse AZ en cours...";
 
 
+        try {
 
-function afficherResultats(data){
+            const response = await fetch(API_URL);
+
+            const data = await response.json();
+
+            afficherResultats(data);
+
+
+        } catch(error) {
+
+            document.getElementById("chevaux").innerHTML =
+            "❌ Erreur de connexion avec AZ Turf Pro";
+
+            console.log(error);
+        }
+
+    });
+
+}
+
+
+
+function afficherResultats(data) {
 
 
     let chevaux = data.chevaux;
 
 
-    if(!chevaux || chevaux.length === 0){
+    if (!chevaux || chevaux.length === 0) {
 
         document.getElementById("chevaux").innerHTML =
         "Aucun cheval trouvé.";
@@ -83,7 +87,6 @@ function afficherResultats(data){
 
         `;
 
-
     });
 
 
@@ -96,14 +99,18 @@ function afficherResultats(data){
     let premier = chevaux[0];
 
 
-    document.getElementById("favori").innerHTML =
+    document.getElementById("favori").innerHTML = `
 
-    .
-    🏇 Cheval N°${premier.numero}
-    <br>
-    Indice AZ : ${premier.indice_az}
-    <br>
-    Confiance : ${premier.confiance} %
+        🏇 Cheval N°${premier.numero}
+
+        <br>
+
+        Indice AZ : ${premier.indice_az}
+
+        <br>
+
+        Confiance : ${premier.confiance} %
+
     `;
 
 
@@ -118,8 +125,6 @@ function afficherResultats(data){
 
     document.getElementById("ticket").innerHTML =
 
-    "Quinté : " + ticket;
+    "🎫 Quinté conseillé : " + ticket;
 
-
-}});
 }
