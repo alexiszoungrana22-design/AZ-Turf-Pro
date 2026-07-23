@@ -1,182 +1,68 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Analyse AZ Turf Pro</title>
-
-<link rel="stylesheet" href="style.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AZ Turf Pro - Analyse</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 
 <body>
 
-
-<header>
-
-<h1>🔍 Analyse AZ Turf Pro</h1>
-
-<p>Classement intelligent des chevaux</p>
-
+<header class="hero">
+    <h1>🐎 AZ TURF PRO</h1>
+    <p>Analyse intelligente des courses</p>
 </header>
 
 
-
-<nav class="menu">
-
-<a href="index.html">🏠 Accueil</a>
-
-<a href="analyse.html">🔍 Analyse</a>
-
-<a href="ticket.html">🎫 Ticket</a>
-
-<a href="historique.html">📊 Historique</a>
-
+<nav>
+    <a href="index.html">Accueil</a>
+    <a href="analyse.html">Analyse</a>
+    <a href="ticket.html">Ticket Premium</a>
+    <a href="historique.html">Historique</a>
 </nav>
 
 
+<section class="container">
+
+    <div class="card">
+
+        <h2>📊 Analyse Quinté</h2>
+
+        <p>
+            Lancez l'analyse AZ pour obtenir
+            le classement des chevaux.
+        </p>
 
 
-<section class="card">
+        <button class="btn" onclick="lancerAnalyse()">
+            🔍 Analyser maintenant
+        </button>
 
 
-<h2>📊 Résultat analyse</h2>
+    </div>
 
 
-<button id="lancer">
+    <div id="resultat" class="card">
 
-🚀 Lancer l'analyse
+        <h3>Résultat AZ</h3>
 
-</button>
+        <p>
+            En attente d'une analyse...
+        </p>
 
-
-
-<div id="resultat">
-
-Aucune analyse lancée.
-
-</div>
+    </div>
 
 
 </section>
 
 
-
-
-
 <footer>
-
-AZ Turf Pro © 2026
-
+    <p>© 2026 AZ Turf Pro</p>
 </footer>
 
 
-
-
-<script>
-
-
-const API = "https://az-turf-1.onrender.com/analyse";
-
-
-
-document
-.getElementById("lancer")
-.addEventListener("click", async()=>{
-
-
-
-const zone =
-document.getElementById("resultat");
-
-
-
-zone.innerHTML =
-"⏳ Analyse en cours...";
-
-
-
-try{
-
-
-const response =
-await fetch(API);
-
-
-
-const data =
-await response.json();
-
-
-
-let html="";
-
-
-
-data.chevaux.forEach(c=>{
-
-
-html += `
-
-<div class="cheval">
-
-🏇 N°${c.numero}
-
-<br>
-
-Rang : ${c.rang}
-
-<br>
-
-Indice AZ : ${c.indice_az}
-
-<br>
-
-Confiance : ${c.confiance}%
-
-<br>
-
-Type : ${c.type}
-
-</div>
-
-`;
-
-
-});
-
-
-
-zone.innerHTML=html;
-
-
-
-}
-
-catch(e){
-
-
-zone.innerHTML =
-"❌ Erreur serveur";
-
-
-}
-
-
-
-});
-
-
-
-</script>
-
-
+<script src="script.js"></script>
 
 </body>
-
 </html>
