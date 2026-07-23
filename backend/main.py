@@ -11,11 +11,11 @@ app = FastAPI(
 # Routes API
 app.include_router(router)
 
-# Servir le dossier frontend
+# Servir le frontend
 app.mount("/static", StaticFiles(directory="../frontend"), name="static")
 
 
 # Page d'accueil
 @app.get("/")
 def accueil():
-    return FileResponse("frontend/index.html")
+    return FileResponse("../frontend/index.html")
