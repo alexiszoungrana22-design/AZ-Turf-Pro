@@ -1,15 +1,21 @@
 def generer_tickets_az(classement):
     """
-    Génération des tickets AZ Turf Pro
-    à partir du classement des chevaux
+    Génération des tickets AZ Turf Pro :
+    - Quinté
+    - Quarté
+    - Trio
+    - Champ réduit
     """
 
-    if not classement or len(classement) < 3:
+    if not classement:
         return {
             "quinte": [],
             "quarte": [],
             "trio": [],
-            "champ_reduit": []
+            "champ_reduit": {
+                "bases": [],
+                "complements": []
+            }
         }
 
 
@@ -19,25 +25,36 @@ def generer_tickets_az(classement):
     ]
 
 
-    # Les meilleurs chevaux AZ
+    # Sélection AZ selon le classement
 
     base = numeros[:7]
 
 
-    ticket = {
+    quinte = base[:5]
 
-        "quinte": base[:5],
+    quarte = base[:4]
 
-        "quarte": base[:4],
+    trio = base[:3]
 
-        "trio": base[:3],
 
-        "champ_reduit": {
-            "bases": base[:3],
-            "complements": base[3:7]
-        }
+    champ_reduit = {
+
+        "bases": base[:3],
+
+        "complements": base[3:7]
 
     }
 
 
-    return ticket
+
+    return {
+
+        "quinte": quinte,
+
+        "quarte": quarte,
+
+        "trio": trio,
+
+        "champ_reduit": champ_reduit
+
+    }
