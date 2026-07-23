@@ -12,7 +12,7 @@ app = FastAPI(
 app.include_router(router)
 
 # Servir le dossier frontend
-app.mount("/static", StaticFiles(directory="frontend"), name="static")
+app.mount("/static", StaticFiles(directory="../frontend"), name="static")
 
 
 # Page d'accueil
