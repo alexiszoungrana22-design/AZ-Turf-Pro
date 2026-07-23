@@ -127,5 +127,26 @@ def lancer_analyse():
     "type": type_cheval
 })
 
+base = classement[0]["numero"]
 
+associes = [
+    cheval["numero"]
+    for cheval in classement[1:4]
+]
+
+outsider = classement[4]["numero"]
+
+
+return {
+    "chevaux": ticket,
+    "ticket_premium": {
+        "base": base,
+        "associes": associes,
+        "outsider": outsider,
+        "quinte": [
+            cheval["numero"]
+            for cheval in classement[:5]
+        ]
+    }
+}
     return ticket
