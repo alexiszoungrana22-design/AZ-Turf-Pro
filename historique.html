@@ -1,43 +1,33 @@
 <!DOCTYPE html>
 <html lang="fr">
 
-
 <head>
 
 <meta charset="UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Historique AZ Turf Pro</title>
 
-<title>Historique AZ</title>
-
-
-<link rel="stylesheet" href="/static/style.css">
-
+<link rel="stylesheet" href="style.css">
 
 </head>
-
 
 
 <body>
 
 
-
-
 <header>
 
-<h1>📊 Historique AZ</h1>
+<h1>📊 Historique AZ Turf Pro</h1>
 
-<p>Suivi des anciennes analyses</p>
-
+<p>Suivi des analyses précédentes</p>
 
 </header>
 
 
 
-
 <nav class="menu">
-
 
 <a href="index.html">🏠 Accueil</a>
 
@@ -47,34 +37,21 @@
 
 <a href="historique.html">📊 Historique</a>
 
-
 </nav>
 
 
 
 
-
-<section>
-
-
-<h2>Dernières analyses</h2>
+<section class="card">
 
 
-
-<div class="cheval">
-
-
-📅 Aucune analyse enregistrée pour le moment.
+<h2>📈 Dernières analyses</h2>
 
 
-</div>
+<div id="historique">
 
 
-
-<div class="cheval">
-
-
-🔒 Historique connecté à la base de données prochainement.
+Aucun historique enregistré.
 
 
 </div>
@@ -82,7 +59,6 @@
 
 
 </section>
-
 
 
 
@@ -95,7 +71,85 @@ AZ Turf Pro © 2026
 
 
 
-</body>
 
+<script>
+
+
+const historique =
+document.getElementById("historique");
+
+
+
+let analyses =
+JSON.parse(localStorage.getItem("az_historique")) || [];
+
+
+
+if(analyses.length === 0){
+
+
+historique.innerHTML =
+"Aucune analyse enregistrée.";
+
+
+}
+
+else{
+
+
+
+historique.innerHTML = "";
+
+
+
+analyses.forEach((analyse,index)=>{
+
+
+
+historique.innerHTML += `
+
+
+<div class="cheval">
+
+
+📅 Analyse ${index + 1}
+
+
+<br><br>
+
+
+🎫 Ticket :
+
+${analyse.ticket || "Non disponible"}
+
+
+<br><br>
+
+
+⭐ Favori :
+
+${analyse.favori || "Non disponible"}
+
+
+</div>
+
+
+`;
+
+
+
+});
+
+
+
+}
+
+
+
+</script>
+
+
+
+</body>
 
 </html>
