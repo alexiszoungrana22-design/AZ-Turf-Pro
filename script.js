@@ -1,227 +1,109 @@
 const API_URL = "https://az-turf-pro.onrender.com/analyse";
 
 
-const boutonAnalyse = document.getElementById("analyse");
+document.addEventListener("DOMContentLoaded", () => {
 
+    const bouton = document.getElementById("analyse");
 
-if (boutonAnalyse) {
-
-
-    boutonAnalyse.addEventListener("click", analyser);
-
-
-}
-
-
-
-async function analyser(){
-
-
-    const chevauxZone = document.getElementById("chevaux");
-
-
-    if(chevauxZone){
-
-        chevauxZone.innerHTML =
-        "⏳ Analyse AZ en cours...";
-
+    if (bouton) {
+        bouton.addEventListener("click", lancerAnalyse);
     }
 
+});
 
 
-    try{
+async function lancerAnalyse() {
 
+    const chevauxDiv = document.getElementById("chevaux");
+    const favoriDiv = document.getElementById("favori");
+    const ticketDiv = document.getElementById("ticket");
+
+    if (chevauxDiv) {
+        chevauxDiv.innerHTML = "⏳ Analyse AZ en cours...";
+    }
+
+    try {
 
         const reponse = await fetch(API_URL);
-
 
         const data = await reponse.json();
 
 
+        // Affichage favori AZ
+        if (favoriDiv && data.favori) {
 
-        afficherAnalyse(data);
-
-
-
-    }catch(error){
-
-
-        console.error(error);
-
-
-
-        if(chevauxZone){
-
-            chevauxZone.innerHTML =
-            "❌ Impossible de contacter le serveur AZ Turf.";
+            favoriDiv.innerHTML = `
+                🏆 Cheval favori AZ : <b>${data.favori.numero}</b><br>
+                Indice AZ : ${data.favori.indice_az}<br>
+                Confiance : ${data.favori.confiance}%
+            `;
 
         }
 
 
-    }
 
+        // Affichage classement
+        if (chevauxDiv && data.classement) {
 
-}
+            chevauxDiv.innerHTML = "";
 
+            data.classement.forEach(cheval => {
 
+                chevauxDiv.innerHTML += `
+                    <div class="cheval">
+                        <b>Rang ${cheval.rang}</b><br>
+                        🐎 Numéro : ${cheval.numero}<br>
+                        📊 Indice AZ : ${cheval.indice_az}<br>
+                        🎯 Confiance : ${cheval.confiance}%<br>
+                        ⭐ ${cheval.type}
+                    </div>
+                    <hr>
+                `;
 
+            });
 
-function afficherAnalyse(data){
-
-
-
-    let chevaux = [];
-
-
-    if(data.chevaux){
-
-        chevaux = data.chevaux;
-
-    }
-
-
-
-    const zone = document.getElementById("chevaux");
-
-
-
-    if(zone){
-
-
-        zone.innerHTML = "";
+        }
 
 
 
-        chevaux.forEach(cheval => {
+        // Affichage tickets
+        if (ticketDiv && data.tickets) {
 
+            ticketDiv.innerHTML = `
 
+                🎫 <b>Ticket Quinté :</b><br>
+                ${data.tickets.quinte.join(" - ")}
+                <br><br>
 
-            zone.innerHTML += `
+                🎟️ <b>Quarté :</b><br>
+                ${data.tickets.quarte.join(" - ")}
+                <br><br>
 
-            <div class="cheval">
+                🔥 <b>Trio :</b><br>
+                ${data.tickets.trio.join(" - ")}
+                <br><br>
 
-                🏇 N°${cheval.numero}
-
+                🏇 <b>Champ réduit :</b><br>
+                Bases :
+                ${data.tickets.champ_reduit.bases.join(" - ")}
                 <br>
-
-                Rang : ${cheval.rang}
-
-                <br>
-
-                Indice AZ :
-
-                <b>${cheval.indice_az}</b>
-
-                <br>
-
-                Confiance :
-
-                ${cheval.confiance}%
-
-                <br>
-
-                ${cheval.type}
-
-            </div>
-
+                Compléments :
+                ${data.tickets.champ_reduit.complements.join(" - ")}
 
             `;
 
+        }
 
 
-        });
+    } catch (erreur) {
 
+        console.error(erreur);
 
-
-    }
-
-
-
-
-    const favori =
-    document.getElementById("favori");
-
-
-
-    if(favori && chevaux.length > 0){
-
-
-        const meilleur = chevaux[0];
-
-
-        favori.innerHTML = `
-
-
-        ⭐ Cheval N°${meilleur.numero}
-
-
-        <br>
-
-
-        Indice AZ : ${meilleur.indice_az}
-
-
-        <br>
-
-
-        Confiance : ${meilleur.confiance}%
-
-
-        `;
-
+        if (chevauxDiv) {
+            chevauxDiv.innerHTML =
+            "❌ Erreur de connexion avec AZ Turf Pro";
+        }
 
     }
-
-
-
-
-    const ticket =
-    document.getElementById("ticket");
-
-
-
-    if(ticket && data.ticket_premium){
-
-
-
-        ticket.innerHTML = `
-
-
-        🎫 Quinté AZ :
-
-        ${data.ticket_premium.quinte.join(" - ")}
-
-
-        <br><br>
-
-
-        Base :
-
-        ${data.ticket_premium.base}
-
-
-        <br>
-
-
-        Associés :
-
-        ${data.ticket_premium.associes.join(" - ")}
-
-
-        <br>
-
-
-        Outsider :
-
-        ${data.ticket_premium.outsider}
-
-
-        `;
-
-
-
-    }
-
-
 
 }
