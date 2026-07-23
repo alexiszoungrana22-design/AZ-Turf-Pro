@@ -1,47 +1,123 @@
-const API = "https://az-turf-pro.onrender.com/analyse";
+const API_URL = "https://az-turf-1.onrender.com/analyse";
 
-const bouton = document.getElementById("btnAnalyse");
-const resultat = document.getElementById("resultat");
+
+const bouton = document.getElementById("analyse");
+
 
 bouton.addEventListener("click", async () => {
 
-    resultat.innerHTML = "<h2>Analyse en cours...</h2>";
+    document.getElementById("chevaux").innerHTML =
+        "⏳ Analyse AZ en cours...";
 
-    try{
 
-        const reponse = await fetch(API);
-        const data = await reponse.json();
+    try {
 
-        resultat.innerHTML = `<h2>${data.message}</h2>`;
+        const response = await fetch(API_URL);
 
-        data.chevaux.forEach((cheval)=>{
+        const data = await response.json();
 
-            let classe="outsider";
 
-            if(cheval.type==="Favori AZ"){
-                classe="favori";
-            }else if(cheval.type==="Chance régulière"){
-                classe="chance";
-            }
+        afficherResultats(data);
 
-            resultat.innerHTML += `
-                <div class="cheval ${classe}">
-                    <h3>🏇 Rang ${cheval.rang}</h3>
-                    <p><strong>Cheval :</strong> N°${cheval.numero}</p>
-                    <p><strong>Indice AZ :</strong> ${cheval.indice_az}</p>
-                    <p><strong>Confiance :</strong> ${cheval.confiance}%</p>
-                    <p><strong>Type :</strong> ${cheval.type}</p>
-                </div>
-            `;
-        });
 
-    }catch(e){
+    } catch(error){
 
-        resultat.innerHTML=`
-            <h2>Erreur</h2>
-            <p>Impossible de contacter le serveur AZ Turf Pro.</p>
-        `;
+        document.getElementById("chevaux").innerHTML =
+        "❌ Erreur de connexion avec AZ Turf Pro";
 
+        console.log(error);
     }
 
 });
+
+
+
+function afficherResultats(data){
+
+
+    let chevaux = data.chevaux;
+
+
+    if(!chevaux || chevaux.length === 0){
+
+        document.getElementById("chevaux").innerHTML =
+        "Aucun cheval trouvé.";
+
+        return;
+    }
+
+
+    let html = "";
+
+
+    chevaux.forEach((cheval,index)=>{
+
+
+        html += `
+
+        <div class="cheval">
+
+            <strong>
+            ${index+1} 🏇 N°${cheval.numero}
+            </strong>
+
+            <br>
+
+            Indice AZ :
+            <b>${cheval.indice_az}</b>
+
+            <br>
+
+            Confiance :
+            <span class="confiance">
+            ${cheval.confiance} %
+            </span>
+
+            <br>
+
+            Catégorie :
+            ${cheval.type}
+
+        </div>
+
+        `;
+
+
+    });
+
+
+    document.getElementById("chevaux").innerHTML = html;
+
+
+
+    // Coup de coeur AZ
+
+    let premier = chevaux[0];
+
+
+    document.getElementById("favori").innerHTML =
+
+    `
+    🏇 Cheval N°${premier.numero}
+    <br>
+    Indice AZ : ${premier.indice_az}
+    <br>
+    Confiance : ${premier.confiance} %
+    `;
+
+
+
+    // Ticket conseillé
+
+    let ticket = chevaux
+    .slice(0,5)
+    .map(c => c.numero)
+    .join(" - ");
+
+
+    document.getElementById("ticket").innerHTML =
+
+    "Quinté : " + ticket;
+
+
+}
