@@ -50,12 +50,47 @@ def analyse():
 
             "course": course.get(
                 "course",
-                "Course AZ"
+                ""
             ),
 
             "date": course.get(
                 "date",
                 ""
+            ),
+
+            "reunion": course.get(
+                "reunion",
+                ""
+            ),
+
+            "course_numero": course.get(
+                "course_numero",
+                ""
+            ),
+
+            "hippodrome": course.get(
+                "hippodrome",
+                ""
+            ),
+
+            "discipline": course.get(
+                "discipline",
+                ""
+            ),
+
+            "distance_course": course.get(
+                "distance_course",
+                0
+            ),
+
+            "allocation": course.get(
+                "allocation",
+                0
+            ),
+
+            "partants": course.get(
+                "partants",
+                0
             ),
 
             "chevaux": resultat.get(
@@ -81,14 +116,9 @@ def analyse():
         }
 
 
-
     except Exception as e:
 
-
         raise HTTPException(
-
             status_code=500,
-
-            detail=str(e)
-
+            detail=f"Erreur AZ : {str(e)}"
         )
