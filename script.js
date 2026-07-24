@@ -1,76 +1,131 @@
 const API_URL = "https://az-turf-pro.onrender.com";
 
-let derniereAnalyse = null;
+let analyseAZ = null;
 
 
-// ==========================
+// =========================
 // ANALYSE AZ
-// ==========================
+// =========================
 
 async function lancerAnalyse(){
 
     const resultat = document.getElementById("resultat");
 
-    resultat.innerHTML = `
-    <h3>⏳ Analyse en cours...</h3>
-    <p>AZ Turf Pro calcule les meilleurs chevaux.</p>
-    `;
+    if(resultat){
+
+        resultat.innerHTML = `
+        <h3>⏳ Analyse en cours...</h3>
+        <p>AZ Turf Pro calcule les chevaux.</p>
+        `;
+
+    }
 
 
-    try {
+    try{
 
-        const response = await fetch(API_URL + "/analyse");
+        const response = await fetch(
+            API_URL + "/analyse"
+        );
+
 
         const data = await response.json();
 
-        derniereAnalyse = data;
+
+        analyseAZ = data;
 
 
-        let chevaux = "";
+        localStorage.setItem(
+            "analyseAZ",
+            JSON.stringify(data)
+        );
+
+
+
+        let liste = "";
+
 
 
         data.chevaux.forEach((cheval)=>{
 
-            chevaux += `
+
+            liste += `
+
             <li>
-                🐎 <b>Cheval n°${cheval.numero}</b><br>
-                ⭐ Indice AZ : ${cheval.indice_az}<br>
-                📊 Confiance : ${cheval.confiance}%<br>
-                🏷️ ${cheval.type}
-            </li>
+
+            🐎 Cheval n°${cheval.numero}
+
             <br>
+
+            ⭐ Indice AZ :
+            ${cheval.indice_az}
+
+
+            <br>
+
+            📊 Confiance :
+            ${cheval.confiance}%
+
+
+            <br>
+
+            🏷️ ${cheval.type}
+
+            </li>
+
+            <br>
+
             `;
+
 
         });
 
 
-        resultat.innerHTML = `
 
-        <h3>✅ Résultat AZ Turf</h3>
+        if(resultat){
 
-        <ol>
-        ${chevaux}
-        </ol>
+            resultat.innerHTML = `
+
+            <h2>
+            ✅ Résultat AZ
+            </h2>
 
 
-        <h3>⭐ Favori AZ</h3>
+            <ol>
 
-        <p>
-        🐎 Cheval n°${data.favori.numero}<br>
-        Indice : ${data.favori.indice_az}<br>
-        Confiance : ${data.favori.confiance}%
-        </p>
+            ${liste}
 
-        `;
+            </ol>
+
+
+
+            <h3>
+            ⭐ Favori AZ
+            </h3>
+
+
+            <p>
+
+            🐎 Cheval n°${data.favori.numero}
+
+            <br>
+
+            Indice :
+            ${data.favori.indice_az}
+
+            <br>
+
+            Confiance :
+            ${data.favori.confiance}%
+
+            </p>
+
+            `;
+
+        }
+
 
 
         sauvegarderHistorique(data);
-
-
-        localStorage.setItem(
-            "derniere_analyse",
-            JSON.stringify(data)
-        );
 
 
     }
@@ -78,10 +133,23 @@ async function lancerAnalyse(){
 
     catch(error){
 
-        resultat.innerHTML = `
-        <h3>❌ Erreur</h3>
-        <p>Impossible de contacter AZ Turf Pro.</p>
-        `;
+
+        if(resultat){
+
+            resultat.innerHTML = `
+
+            <h3>
+            ❌ Erreur
+            </h3>
+
+            <p>
+            Serveur AZ Turf indisponible.
+            </p>
+
+            `;
+
+        }
+
 
         console.log(error);
 
@@ -91,132 +159,219 @@ async function lancerAnalyse(){
 
 
 
-// ==========================
-// AFFICHER TICKET PREMIUM
-// ==========================
+
+
+// =========================
+// TICKET PREMIUM
+// =========================
 
 function chargerTicket(){
 
-    let data =
+
+    const data =
     JSON.parse(
-        localStorage.getItem("derniere_analyse")
+        localStorage.getItem("analyseAZ")
     );
+
 
 
     if(!data){
 
+
         alert(
-        "Lancez d'abord une analyse AZ."
+        "Lancez d'abord une analyse."
         );
+
 
         return;
 
     }
 
 
-    let ticket = data.tickets;
 
 
-    document.getElementById("ticket").innerHTML = `
-
-    <h3>🎟️ Ticket AZ Premium</h3>
+    const ticket = data.tickets;
 
 
-    <p>
-    🏆 Quinté :
-    <b>${ticket.quinte.join(" - ")}</b>
-    </p>
+
+    const zone =
+    document.getElementById("ticket");
 
 
-    <p>
-    🥈 Quarté :
-    <b>${ticket.quarte.join(" - ")}</b>
-    </p>
+
+    if(zone){
 
 
-    <p>
-    🥉 Trio :
-    <b>${ticket.trio.join(" - ")}</b>
-    </p>
+        zone.innerHTML = `
 
 
-    <p>
-    🔥 Bases :
-    <b>${ticket.champ_reduit.bases.join(" - ")}</b>
-    </p>
+        <h3>
+        🎟️ Ticket AZ Premium
+        </h3>
 
 
-    <p>
-    ⭐ Compléments :
-    <b>${ticket.champ_reduit.complements.join(" - ")}</b>
-    </p>
 
-    `;
+        <p>
+        🏆 Quinté :
+        <b>
+        ${ticket.quinte.join(" - ")}
+        </b>
+        </p>
+
+
+
+        <p>
+        🥈 Quarté :
+        <b>
+        ${ticket.quarte.join(" - ")}
+        </b>
+        </p>
+
+
+
+        <p>
+        🥉 Trio :
+        <b>
+        ${ticket.trio.join(" - ")}
+        </b>
+        </p>
+
+
+
+        <p>
+        🔥 Bases :
+        <b>
+        ${ticket.champ_reduit.bases.join(" - ")}
+        </b>
+        </p>
+
+
+
+        <p>
+        ⭐ Compléments :
+        <b>
+        ${ticket.champ_reduit.complements.join(" - ")}
+        </b>
+        </p>
+
+
+        `;
+
+    }
 
 }
 
 
 
-// ==========================
+
+
+// =========================
 // HISTORIQUE
-// ==========================
+// =========================
 
 function sauvegarderHistorique(data){
 
+
     let historique =
     JSON.parse(
-        localStorage.getItem("az_historique")
+        localStorage.getItem("historiqueAZ")
     ) || [];
 
 
-    historique.push({
 
-        date:
-        new Date().toLocaleDateString(),
+    historique.push(data);
 
-        chevaux:
-        data.chevaux,
 
-        tickets:
-        data.tickets
+
+    localStorage.setItem(
+        "historiqueAZ",
+        JSON.stringify(historique)
+    );
+
+
+}
+
+
+
+
+
+function afficherHistorique(){
+
+
+    const zone =
+    document.getElementById("historique");
+
+
+
+    if(!zone) return;
+
+
+
+    let historique =
+    JSON.parse(
+        localStorage.getItem("historiqueAZ")
+    ) || [];
+
+
+
+    if(historique.length === 0){
+
+        zone.innerHTML =
+        "<p>Aucune analyse.</p>";
+
+        return;
+
+    }
+
+
+
+    zone.innerHTML = "";
+
+
+
+    historique.forEach((item)=>{
+
+
+        zone.innerHTML += `
+
+        <div class="card">
+
+
+        📅 Analyse AZ
+
+
+        <br>
+
+
+        Favori :
+        Cheval n°${item.favori.numero}
+
+
+        <br>
+
+
+        Quinté :
+        ${item.tickets.quinte.join("-")}
+
+
+        </div>
+
+
+        `;
+
 
     });
 
 
-    localStorage.setItem(
-        "az_historique",
-        JSON.stringify(historique)
-    );
-
 }
 
 
 
-// ==========================
-// SAUVEGARDE TICKET
-// ==========================
 
-function sauverTicket(){
+// Chargement automatique historique
 
-    let ticket =
-    localStorage.getItem(
-        "derniere_analyse"
-    );
+window.onload = function(){
 
+    afficherHistorique();
 
-    if(!ticket){
-
-        alert(
-        "Aucun ticket disponible."
-        );
-
-        return;
-
-    }
-
-
-    alert(
-    "✅ Ticket AZ Premium sauvegardé"
-    );
-
-}
+};
