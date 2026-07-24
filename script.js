@@ -1,83 +1,164 @@
 /* =====================================
    AZ TURF PRO V6
-   SCRIPT INTERACTIF PREMIUM
+   DESIGN HIPPIQUE PREMIUM
 ===================================== */
 
 
-
-// ===============================
-// CONFIGURATION API
-// ===============================
-
-
-// À remplacer par ton URL Render plus tard
-const API_URL = "http://127.0.0.1:8000";
+*{
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
 
 
+body{
+
+    margin:0;
+    background:#0b1712;
+    color:white;
+
+}
 
 
-
-// ===============================
-// COMPTE A REBOURS
-// ===============================
-
-
-function lancerCompteARebours(){
+/* =====================
+ HEADER
+===================== */
 
 
-    const compteur = document.getElementById("countdown");
+.header-az{
+
+    background:#06351f;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 25px;
+    border-bottom:3px solid #d4af37;
+
+}
 
 
-    if(!compteur){
+.logo{
 
-        return;
+    font-size:26px;
+    font-weight:bold;
+    color:#d4af37;
 
-    }
-
-
-
-    // Exemple : prochain départ dans 30 minutes
-
-    let temps = 30 * 60;
-
-
-
-    setInterval(()=>{
-
-
-        let heures = Math.floor(
-            temps / 3600
-        );
-
-
-        let minutes = Math.floor(
-            (temps % 3600) / 60
-        );
-
-
-        let secondes = temps % 60;
+}
 
 
 
-        compteur.innerHTML =
+nav a{
 
-        `${String(heures).padStart(2,"0")}:`+
-        `${String(minutes).padStart(2,"0")}:`+
-        `${String(secondes).padStart(2,"0")}`;
+    color:white;
+    text-decoration:none;
+    padding:10px 15px;
+    margin:5px;
+    border-radius:8px;
 
-
-
-        if(temps > 0){
-
-            temps--;
-
-        }
+}
 
 
 
-    },1000);
+nav a:hover{
+
+    background:#d4af37;
+    color:#111;
+
+}
 
 
+
+/* =====================
+ HERO ACCUEIL
+===================== */
+
+
+.hero-az{
+
+    min-height:480px;
+
+    background:
+
+    linear-gradient(
+    rgba(0,0,0,.55),
+    rgba(0,0,0,.75)
+    ),
+
+    url("images/banner.jpg");
+
+
+    background-size:cover;
+    background-position:center;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+
+}
+
+
+
+.overlay{
+
+    padding:20px;
+
+}
+
+
+
+.overlay h1{
+
+    font-size:42px;
+    color:#d4af37;
+
+}
+
+
+
+.overlay p{
+
+    font-size:20px;
+
+}
+
+
+
+/* =====================
+ COMPTEUR
+===================== */
+
+
+.countdown-box{
+
+    background:rgba(0,0,0,.75);
+
+    border:2px solid #d4af37;
+
+    border-radius:15px;
+
+    padding:20px;
+
+    margin:25px auto;
+
+    max-width:350px;
+
+}
+
+
+
+.countdown-box h2{
+
+    color:#d4af37;
+
+}
+
+
+
+#countdown{
+
+    font-size:40px;
+    font-weight:bold;
+    color:#00ff88;
 
 }
 
@@ -85,94 +166,88 @@ function lancerCompteARebours(){
 
 
 
+/* =====================
+ CONTENEUR
+===================== */
 
 
-// ===============================
-// ANALYSE AZ API
-// ===============================
+.container{
 
+    max-width:1200px;
 
-async function lancerAnalyse(){
+    margin:auto;
 
-
-const zone = document.getElementById("resultat");
-
-
-
-if(zone){
-
-zone.innerHTML =
-
-`
-
-<div class="cheval">
-
-⏳ Analyse AZ en cours...
-
-</div>
-
-`;
+    padding:20px;
 
 }
 
 
 
-try{
+
+/* =====================
+ BLOCS
+===================== */
 
 
-const reponse = await fetch(
+.course-box,
+.selection-az,
+.ticket-box,
+.publicite{
 
-`${API_URL}/analyse`
+    background:#111d18;
 
-);
+    border-radius:15px;
 
+    padding:25px;
 
+    margin-bottom:25px;
 
-const data = await reponse.json();
-
-
-
-afficherAnalyse(data);
-
-
-
-enregistrerHistorique(data);
-
-
+    border:1px solid #28553d;
 
 }
 
 
 
-catch(error){
+h1,
+h2{
 
-
-console.log(error);
-
-
-
-if(zone){
-
-
-zone.innerHTML =
-
-`
-
-<div class="cheval">
-
-❌ API AZ indisponible
-
-</div>
-
-`;
-
+    color:#d4af37;
 
 }
 
 
+
+
+/* =====================
+ BOUTONS
+===================== */
+
+
+.btn-az{
+
+    display:inline-block;
+
+    background:#087f3d;
+
+    color:white;
+
+    padding:14px 25px;
+
+    border-radius:10px;
+
+    text-decoration:none;
+
+    font-weight:bold;
+
 }
 
 
+
+.btn-az:hover{
+
+    background:#d4af37;
+
+    color:#111;
 
 }
 
@@ -180,182 +255,122 @@ zone.innerHTML =
 
 
 
+/* =====================
+ COURSES
+===================== */
 
 
-// ===============================
-// AFFICHAGE RESULTATS
-// ===============================
+.grid-courses{
 
+    display:grid;
 
-function afficherAnalyse(data){
+    grid-template-columns:
+    repeat(auto-fit,minmax(220px,1fr));
 
-
-
-const zone =
-document.getElementById("resultat");
-
-
-
-if(!zone){
-
-return;
+    gap:15px;
 
 }
 
 
 
-let contenu="";
+.course-card{
 
+    background:#06351f;
 
+    padding:20px;
 
+    border-radius:12px;
 
-if(data.chevaux){
-
-
-
-data.chevaux
-.slice(0,7)
-.forEach((cheval,index)=>{
-
-
-
-contenu +=
-
-
-`
-
-<div class="cheval">
-
-
-<strong>
-
-${index+1} - N° ${cheval.numero}
-
-</strong>
-
-
-<p>
-
-Indice AZ :
-${cheval.indice_az}
-
-</p>
-
-
-<p class="confiance">
-
-Confiance :
-${cheval.confiance} %
-
-</p>
-
-
-<p>
-
-${cheval.type || "Sélection AZ"}
-
-</p>
-
-
-
-</div>
-
-
-`;
-
-
-
-});
-
-
+    border-left:5px solid #d4af37;
 
 }
 
 
 
-else{
+.course-card span{
 
-
-contenu =
-
-`
-
-<div class="cheval">
-
-Aucun résultat disponible
-
-</div>
-
-`;
-
-}
-
-
-
-zone.innerHTML = contenu;
-
-
+    color:#00ff88;
 
 }
 
 
 
 
+/* =====================
+ CHEVAUX
+===================== */
+
+
+.cheval{
+
+    background:#17251e;
+
+    padding:15px;
+
+    margin:12px 0;
+
+    border-radius:12px;
+
+    border-left:5px solid #d4af37;
+
+}
 
 
 
-// ===============================
-// HISTORIQUE
-// ===============================
+.cheval strong{
 
+    color:#d4af37;
 
-function enregistrerHistorique(data){
-
-
-
-let historique =
-
-JSON.parse(
-
-localStorage.getItem(
-"az_historique"
-)
-
-) || [];
+}
 
 
 
+.confiance{
 
-historique.unshift({
+    color:#00ff88;
 
-date:
-new Date().toLocaleString(),
-
-resultat:data
-
-});
-
-
-
-
-if(historique.length > 20){
-
-historique.pop();
+    font-weight:bold;
 
 }
 
 
 
 
-localStorage.setItem(
-
-"az_historique",
-
-JSON.stringify(historique)
-
-);
+/* =====================
+ TICKETS
+===================== */
 
 
+.ticket-box{
+
+    text-align:center;
+
+}
+
+
+
+.game-grid{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(auto-fit,minmax(150px,1fr));
+
+    gap:15px;
+
+}
+
+
+
+.game-grid div{
+
+    background:#06351f;
+
+    padding:20px;
+
+    border-radius:10px;
+
+    font-weight:bold;
 
 }
 
@@ -363,98 +378,116 @@ JSON.stringify(historique)
 
 
 
-
-function chargerHistorique(){
-
-
-
-const zone =
-document.getElementById("historique");
+/* =====================
+ PUBLICITES
+===================== */
 
 
+.pub-slider{
 
-if(!zone){
+    height:230px;
 
-return;
+    position:relative;
+
+    overflow:hidden;
+
+}
+
+
+
+.pub-slider img{
+
+    width:100%;
+
+    height:230px;
+
+    object-fit:cover;
+
+    border-radius:12px;
+
+    position:absolute;
+
+    animation:pub 15s infinite;
+
+}
+
+
+
+.pub-slider img:nth-child(2){
+
+    animation-delay:5s;
+
+}
+
+
+
+.pub-slider img:nth-child(3){
+
+    animation-delay:10s;
+
+}
+
+
+
+@keyframes pub{
+
+
+0%{
+
+opacity:0;
+
+}
+
+
+10%{
+
+opacity:1;
+
+}
+
+
+30%{
+
+opacity:1;
+
+}
+
+
+40%{
+
+opacity:0;
+
+}
+
+
+100%{
+
+opacity:0;
+
+}
+
 
 }
 
 
 
 
-let historique =
-
-JSON.parse(
-
-localStorage.getItem(
-"az_historique"
-)
-
-) || [];
+/* =====================
+ FOOTER
+===================== */
 
 
+footer{
 
+    background:#06351f;
 
-if(historique.length===0){
+    text-align:center;
 
+    padding:20px;
 
-zone.innerHTML =
+    margin-top:30px;
 
-`
-
-<div class="cheval">
-
-Aucune analyse enregistrée
-
-</div>
-
-`;
-
-return;
-
-
-}
-
-
-
-
-zone.innerHTML="";
-
-
-
-
-historique.forEach(item=>{
-
-
-zone.innerHTML +=
-
-
-`
-
-<div class="cheval">
-
-<strong>
-
-${item.date}
-
-</strong>
-
-
-<p>
-
-Analyse AZ enregistrée
-
-</p>
-
-
-</div>
-
-`;
-
-
-});
-
-
+    border-top:3px solid #d4af37;
 
 }
 
@@ -462,26 +495,58 @@ Analyse AZ enregistrée
 
 
 
-
-// ===============================
-// DEMARRAGE
-// ===============================
-
-
-document.addEventListener(
-
-"DOMContentLoaded",
-
-()=>{
+/* =====================
+ MOBILE
+===================== */
 
 
-lancerCompteARebours();
+@media(max-width:700px){
 
 
-chargerHistorique();
+.header-az{
 
-
+    flex-direction:column;
 
 }
 
-);
+
+nav{
+
+    margin-top:15px;
+
+}
+
+
+
+nav a{
+
+    display:inline-block;
+
+}
+
+
+
+.overlay h1{
+
+    font-size:28px;
+
+}
+
+
+
+#countdown{
+
+    font-size:32px;
+
+}
+
+
+
+.container{
+
+    padding:10px;
+
+}
+
+
+   }
