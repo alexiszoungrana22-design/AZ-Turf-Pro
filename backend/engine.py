@@ -66,24 +66,29 @@ def lancer_analyse(chevaux):
 
         resultat.append({
 
-            "rang": rang,
+    "rang": rang,
 
-            "numero": cheval.get(
-                "numero"
-            ),
+    "numero": cheval.get("numero"),
 
-            "nom": cheval.get(
-                "nom",
-                ""
-            ),
+    "nom": cheval.get("nom", ""),
 
-            "indice_az": score,
+    "age": cheval.get("age", 0),
 
-            "confiance": confiance,
+    "sexe": cheval.get("sexe", ""),
 
-            "type": categorie
+    "jockey": cheval.get("jockey", ""),
 
-        })
+    "entraineur": cheval.get("entraineur", ""),
+
+    "performances": cheval.get("performances", []),
+
+    "indice_az": score,
+
+    "confiance": confiance,
+
+    "type": categorie
+
+})
 
 
 
