@@ -3,7 +3,9 @@ const API_URL = "https://az-turf-pro.onrender.com";
 let derniereAnalyse = null;
 
 
-// Lancer une analyse AZ
+// ==========================
+// ANALYSE AZ
+// ==========================
 
 async function lancerAnalyse(){
 
@@ -15,7 +17,7 @@ async function lancerAnalyse(){
     `;
 
 
-    try{
+    try {
 
         const response = await fetch(API_URL + "/analyse");
 
@@ -31,12 +33,9 @@ async function lancerAnalyse(){
 
             chevaux += `
             <li>
-                🐎 <b>Cheval n°${cheval.numero}</b>
-                <br>
-                ⭐ Indice AZ : ${cheval.indice_az}
-                <br>
-                📊 Confiance : ${cheval.confiance}%
-                <br>
+                🐎 <b>Cheval n°${cheval.numero}</b><br>
+                ⭐ Indice AZ : ${cheval.indice_az}<br>
+                📊 Confiance : ${cheval.confiance}%<br>
                 🏷️ ${cheval.type}
             </li>
             <br>
@@ -45,32 +44,22 @@ async function lancerAnalyse(){
         });
 
 
-
         resultat.innerHTML = `
 
         <h3>✅ Résultat AZ Turf</h3>
-
-        <p>
-        Classement des 7 chevaux :
-        </p>
 
         <ol>
         ${chevaux}
         </ol>
 
 
-        <hr>
-
         <h3>⭐ Favori AZ</h3>
 
         <p>
-        🐎 Cheval n°${data.favori.numero}
-        <br>
-        Indice : ${data.favori.indice_az}
-        <br>
+        🐎 Cheval n°${data.favori.numero}<br>
+        Indice : ${data.favori.indice_az}<br>
         Confiance : ${data.favori.confiance}%
         </p>
-
 
         `;
 
@@ -78,22 +67,21 @@ async function lancerAnalyse(){
         sauvegarderHistorique(data);
 
 
+        localStorage.setItem(
+            "derniere_analyse",
+            JSON.stringify(data)
+        );
+
+
     }
 
 
     catch(error){
 
-
         resultat.innerHTML = `
-
         <h3>❌ Erreur</h3>
-
-        <p>
-        Impossible de contacter AZ Turf Pro.
-        </p>
-
+        <p>Impossible de contacter AZ Turf Pro.</p>
         `;
-
 
         console.log(error);
 
@@ -103,42 +91,19 @@ async function lancerAnalyse(){
 
 
 
-// Historique
+// ==========================
+// AFFICHER TICKET PREMIUM
+// ==========================
 
-function sauvegarderHistorique(data){
+function chargerTicket(){
 
-
-    let historique =
-    JSON.parse(localStorage.getItem("az_historique")) || [];
-
-
-    historique.push({
-
-        date:new Date().toLocaleDateString(),
-
-        classement:data.chevaux,
-
-        tickets:data.tickets
-
-    });
-
-
-    localStorage.setItem(
-        "az_historique",
-        JSON.stringify(historique)
+    let data =
+    JSON.parse(
+        localStorage.getItem("derniere_analyse")
     );
 
 
-}
-
-
-
-// Ticket Premium AZ
-
-function afficherTicket(){
-
-
-    if(!derniereAnalyse){
+    if(!data){
 
         alert(
         "Lancez d'abord une analyse AZ."
@@ -149,29 +114,109 @@ function afficherTicket(){
     }
 
 
-    const ticket =
-    derniereAnalyse.tickets;
+    let ticket = data.tickets;
+
+
+    document.getElementById("ticket").innerHTML = `
+
+    <h3>🎟️ Ticket AZ Premium</h3>
+
+
+    <p>
+    🏆 Quinté :
+    <b>${ticket.quinte.join(" - ")}</b>
+    </p>
+
+
+    <p>
+    🥈 Quarté :
+    <b>${ticket.quarte.join(" - ")}</b>
+    </p>
+
+
+    <p>
+    🥉 Trio :
+    <b>${ticket.trio.join(" - ")}</b>
+    </p>
+
+
+    <p>
+    🔥 Bases :
+    <b>${ticket.champ_reduit.bases.join(" - ")}</b>
+    </p>
+
+
+    <p>
+    ⭐ Compléments :
+    <b>${ticket.champ_reduit.complements.join(" - ")}</b>
+    </p>
+
+    `;
+
+}
+
+
+
+// ==========================
+// HISTORIQUE
+// ==========================
+
+function sauvegarderHistorique(data){
+
+    let historique =
+    JSON.parse(
+        localStorage.getItem("az_historique")
+    ) || [];
+
+
+    historique.push({
+
+        date:
+        new Date().toLocaleDateString(),
+
+        chevaux:
+        data.chevaux,
+
+        tickets:
+        data.tickets
+
+    });
+
+
+    localStorage.setItem(
+        "az_historique",
+        JSON.stringify(historique)
+    );
+
+}
+
+
+
+// ==========================
+// SAUVEGARDE TICKET
+// ==========================
+
+function sauverTicket(){
+
+    let ticket =
+    localStorage.getItem(
+        "derniere_analyse"
+    );
+
+
+    if(!ticket){
+
+        alert(
+        "Aucun ticket disponible."
+        );
+
+        return;
+
+    }
 
 
     alert(
-`
-🎟️ TICKET PREMIUM AZ
-
-Quinté :
-${ticket.quinte.join("-")}
-
-Quarté :
-${ticket.quarte.join("-")}
-
-Trio :
-${ticket.trio.join("-")}
-
-Base :
-${ticket.champ_reduit.bases.join("-")}
-
-Compléments :
-${ticket.champ_reduit.complements.join("-")}
-`
+    "✅ Ticket AZ Premium sauvegardé"
     );
 
 }
