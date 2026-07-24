@@ -195,58 +195,35 @@ function afficherAnalyse(data){
 
 function chargerTicket(){
 
-
-
     const zone = document.getElementById("ticket");
 
 
-
     if(!zone){
-
         return;
-
     }
 
 
-
-
     const data = JSON.parse(
-
         localStorage.getItem("analyseAZ")
-
     );
-
-
-
 
 
     if(!data || !data.tickets){
 
 
-
         zone.innerHTML = `
-
 
         <h3>⚠️ Aucun ticket disponible</h3>
 
-
         <p>
-
         Lancez une analyse avant de générer un ticket.
-
         </p>
-
 
         `;
 
-
-
         return;
 
-
     }
-
-
 
 
 
@@ -254,13 +231,28 @@ function chargerTicket(){
 
 
 
+    let couplesPlaces = "";
+
+    if(tickets.couple_place){
+
+        tickets.couple_place.forEach((couple)=>{
+
+            couplesPlaces += `
+            <br>
+            🐎 ${couple[0]} - ${couple[1]}
+            `;
+
+        });
+
+    }
+
 
 
     zone.innerHTML = `
 
 
-
     <h3>🎟️ Ticket AZ Premium</h3>
+
 
 
     <p>
@@ -269,10 +261,12 @@ function chargerTicket(){
     </p>
 
 
+
     <p>
     🏆 <strong>Quarté :</strong>
     ${tickets.quarte.join(" - ")}
     </p>
+
 
 
     <p>
@@ -281,10 +275,26 @@ function chargerTicket(){
     </p>
 
 
+
     <p>
-    🔵 <strong>Bases :</strong>
+    🥇 <strong>Couplé gagnant :</strong>
+    ${tickets.couple_gagnant.join(" - ")}
+    </p>
+
+
+
+    <p>
+    🥈 <strong>Couplé placé :</strong>
+    ${couplesPlaces}
+    </p>
+
+
+
+    <p>
+    🔵 <strong>Bases champ réduit :</strong>
     ${tickets.champ_reduit.bases.join(" - ")}
     </p>
+
 
 
     <p>
@@ -294,8 +304,6 @@ function chargerTicket(){
 
 
     `;
-
-
 
 }
 
