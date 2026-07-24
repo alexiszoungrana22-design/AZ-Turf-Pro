@@ -1,6 +1,6 @@
 /* =====================================
-   AZ TURF PRO V5
-   PREMIUM HIPPIQUE
+   AZ TURF PRO V6
+   DESIGN HIPPIQUE PREMIUM
 ===================================== */
 
 
@@ -14,12 +14,11 @@ body{
 
     margin:0;
 
-    background:#07110d;
+    background:#0c1512;
 
     color:white;
 
 }
-
 
 
 /* =====================
@@ -29,7 +28,7 @@ body{
 
 .header-az{
 
-    background:#052e1b;
+    background:#06351f;
 
     display:flex;
 
@@ -39,7 +38,7 @@ body{
 
     padding:15px 25px;
 
-    border-bottom:2px solid #c9a227;
+    border-bottom:3px solid #d4af37;
 
 }
 
@@ -47,7 +46,7 @@ body{
 
 .logo{
 
-    font-size:26px;
+    font-size:28px;
 
     font-weight:bold;
 
@@ -63,9 +62,9 @@ nav a{
 
     text-decoration:none;
 
-    margin:0 8px;
+    margin:5px;
 
-    padding:8px 12px;
+    padding:10px 14px;
 
     border-radius:8px;
 
@@ -75,9 +74,9 @@ nav a{
 
 nav a:hover{
 
-    background:#c9a227;
+    background:#d4af37;
 
-    color:#07110d;
+    color:#111;
 
 }
 
@@ -90,7 +89,7 @@ nav a:hover{
 
 .hero-az{
 
-    height:420px;
+    min-height:500px;
 
     background:
 
@@ -121,6 +120,14 @@ nav a:hover{
 
 
 
+.overlay{
+
+    padding:20px;
+
+}
+
+
+
 .overlay h1{
 
     font-size:42px;
@@ -141,7 +148,52 @@ nav a:hover{
 
 
 /* =====================
- BOUTON
+ COMPTE A REBOURS
+===================== */
+
+
+.countdown-box{
+
+    background:rgba(0,0,0,.7);
+
+    border:2px solid #d4af37;
+
+    border-radius:15px;
+
+    padding:20px;
+
+    margin:25px auto;
+
+    max-width:350px;
+
+}
+
+
+
+.countdown-box h2{
+
+    color:#d4af37;
+
+}
+
+
+
+#countdown{
+
+    font-size:40px;
+
+    font-weight:bold;
+
+    color:#00ff88;
+
+}
+
+
+
+
+
+/* =====================
+ BOUTONS
 ===================== */
 
 
@@ -149,17 +201,15 @@ nav a:hover{
 
     display:inline-block;
 
-    margin-top:20px;
-
-    padding:14px 25px;
-
     background:#087f3d;
 
     color:white;
 
     text-decoration:none;
 
-    border-radius:8px;
+    padding:14px 25px;
+
+    border-radius:10px;
 
     font-weight:bold;
 
@@ -186,7 +236,7 @@ nav a:hover{
 
 .container{
 
-    max-width:1100px;
+    max-width:1200px;
 
     margin:auto;
 
@@ -197,31 +247,25 @@ nav a:hover{
 
 
 
-
 /* =====================
  BLOCS
 ===================== */
 
 
 .course-box,
-
 .selection-az,
-
 .ticket-box,
-
 .publicite{
 
+    background:#111d18;
 
-    background:#101c17;
-
-    border:1px solid #244a35;
+    border:1px solid #284d39;
 
     border-radius:15px;
 
-    padding:20px;
+    padding:25px;
 
     margin-bottom:25px;
-
 
 }
 
@@ -238,37 +282,37 @@ h2{
 
 
 /* =====================
- COURSE INFO
+ COURSES
 ===================== */
 
 
-.course-info{
+.grid-courses{
 
-    display:flex;
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
 
     gap:15px;
 
-    flex-wrap:wrap;
+}
+
+
+
+.course-card{
+
+    background:#06351f;
+
+    padding:20px;
+
+    border-radius:12px;
+
+    border-left:5px solid #d4af37;
 
 }
 
 
 
-.course-info div{
-
-    background:#052e1b;
-
-    padding:15px;
-
-    border-radius:10px;
-
-    flex:1;
-
-}
-
-
-
-.active{
+.course-card span{
 
     color:#00ff88;
 
@@ -277,63 +321,23 @@ h2{
 
 
 
+
 /* =====================
- CHEVAUX
+ CHEVAUX TOP 7
 ===================== */
 
 
 .cheval{
 
-
-    display:flex;
-
-    align-items:center;
-
-    gap:20px;
-
-    background:#16251e;
-
-    margin:12px 0;
+    background:#17251e;
 
     padding:15px;
+
+    margin:12px 0;
 
     border-radius:12px;
 
     border-left:5px solid #d4af37;
-
-
-}
-
-
-
-.rang{
-
-
-    width:40px;
-
-    height:40px;
-
-    background:#d4af37;
-
-    color:#111;
-
-    border-radius:50%;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    font-weight:bold;
-
-}
-
-
-
-.cheval h3{
-
-    margin:0;
 
 }
 
@@ -352,28 +356,38 @@ h2{
 
 
 /* =====================
- TICKET
+ JEUX
 ===================== */
 
 
-.ticket-number{
+.game-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+
+    gap:15px;
+
+    margin-bottom:25px;
+
+}
 
 
-    background:#052e1b;
 
-    border:2px dashed #d4af37;
+.game-grid div{
+
+    background:#06351f;
 
     padding:20px;
 
     text-align:center;
 
-    font-size:28px;
+    border-radius:10px;
 
     font-weight:bold;
 
-    letter-spacing:5px;
-
 }
+
 
 
 
@@ -386,9 +400,9 @@ h2{
 
 .pub-slider{
 
-    height:220px;
-
     position:relative;
+
+    height:230px;
 
     overflow:hidden;
 
@@ -398,20 +412,17 @@ h2{
 
 .pub-slider img{
 
-
     position:absolute;
 
     width:100%;
 
-    height:220px;
+    height:230px;
 
     object-fit:cover;
 
-    border-radius:10px;
+    border-radius:12px;
 
-
-    animation:pub 15s infinite;
-
+    animation:pubAZ 15s infinite;
 
 }
 
@@ -434,7 +445,7 @@ h2{
 
 
 
-@keyframes pub{
+@keyframes pubAZ{
 
 
 0%{
@@ -477,7 +488,6 @@ opacity:0;
 
 
 
-
 /* =====================
  FOOTER
 ===================== */
@@ -485,13 +495,13 @@ opacity:0;
 
 footer{
 
-    background:#052e1b;
+    background:#06351f;
 
     text-align:center;
 
     padding:20px;
 
-    border-top:2px solid #c9a227;
+    border-top:3px solid #d4af37;
 
 }
 
@@ -523,6 +533,14 @@ nav{
 
 
 
+nav a{
+
+    display:inline-block;
+
+}
+
+
+
 .overlay h1{
 
     font-size:30px;
@@ -531,17 +549,9 @@ nav{
 
 
 
-.hero-az{
+#countdown{
 
-    height:320px;
-
-}
-
-
-
-.ticket-number{
-
-    font-size:22px;
+    font-size:32px;
 
 }
 
