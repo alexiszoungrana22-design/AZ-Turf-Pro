@@ -13,9 +13,7 @@
 body{
 
     margin:0;
-
-    background:#0c1512;
-
+    background:#0b1712;
     color:white;
 
 }
@@ -29,27 +27,19 @@ body{
 .header-az{
 
     background:#06351f;
-
     display:flex;
-
     justify-content:space-between;
-
     align-items:center;
-
-    padding:15px 25px;
-
+    padding:18px 25px;
     border-bottom:3px solid #d4af37;
 
 }
 
 
-
 .logo{
 
-    font-size:28px;
-
+    font-size:26px;
     font-weight:bold;
-
     color:#d4af37;
 
 }
@@ -59,13 +49,9 @@ body{
 nav a{
 
     color:white;
-
     text-decoration:none;
-
+    padding:10px 15px;
     margin:5px;
-
-    padding:10px 14px;
-
     border-radius:8px;
 
 }
@@ -75,7 +61,6 @@ nav a{
 nav a:hover{
 
     background:#d4af37;
-
     color:#111;
 
 }
@@ -83,37 +68,30 @@ nav a:hover{
 
 
 /* =====================
- HERO
+ HERO ACCUEIL
 ===================== */
 
 
 .hero-az{
 
-    min-height:500px;
+    min-height:480px;
 
     background:
 
     linear-gradient(
-
     rgba(0,0,0,.55),
-
     rgba(0,0,0,.75)
-
     ),
 
     url("images/banner.jpg");
 
 
     background-size:cover;
-
     background-position:center;
 
     display:flex;
-
     align-items:center;
-
     justify-content:center;
-
     text-align:center;
 
 }
@@ -131,7 +109,6 @@ nav a:hover{
 .overlay h1{
 
     font-size:42px;
-
     color:#d4af37;
 
 }
@@ -146,15 +123,14 @@ nav a:hover{
 
 
 
-
 /* =====================
- COMPTE A REBOURS
+ COMPTEUR
 ===================== */
 
 
 .countdown-box{
 
-    background:rgba(0,0,0,.7);
+    background:rgba(0,0,0,.75);
 
     border:2px solid #d4af37;
 
@@ -181,47 +157,8 @@ nav a:hover{
 #countdown{
 
     font-size:40px;
-
     font-weight:bold;
-
     color:#00ff88;
-
-}
-
-
-
-
-
-/* =====================
- BOUTONS
-===================== */
-
-
-.btn-az{
-
-    display:inline-block;
-
-    background:#087f3d;
-
-    color:white;
-
-    text-decoration:none;
-
-    padding:14px 25px;
-
-    border-radius:10px;
-
-    font-weight:bold;
-
-}
-
-
-
-.btn-az:hover{
-
-    background:#d4af37;
-
-    color:#111;
 
 }
 
@@ -259,21 +196,58 @@ nav a:hover{
 
     background:#111d18;
 
-    border:1px solid #284d39;
-
     border-radius:15px;
 
     padding:25px;
 
     margin-bottom:25px;
 
+    border:1px solid #28553d;
+
 }
 
 
 
+h1,
 h2{
 
     color:#d4af37;
+
+}
+
+
+
+
+/* =====================
+ BOUTONS
+===================== */
+
+
+.btn-az{
+
+    display:inline-block;
+
+    background:#087f3d;
+
+    color:white;
+
+    padding:14px 25px;
+
+    border-radius:10px;
+
+    text-decoration:none;
+
+    font-weight:bold;
+
+}
+
+
+
+.btn-az:hover{
+
+    background:#d4af37;
+
+    color:#111;
 
 }
 
@@ -290,7 +264,8 @@ h2{
 
     display:grid;
 
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    grid-template-columns:
+    repeat(auto-fit,minmax(220px,1fr));
 
     gap:15px;
 
@@ -321,9 +296,8 @@ h2{
 
 
 
-
 /* =====================
- CHEVAUX TOP 7
+ CHEVAUX
 ===================== */
 
 
@@ -343,6 +317,14 @@ h2{
 
 
 
+.cheval strong{
+
+    color:#d4af37;
+
+}
+
+
+
 .confiance{
 
     color:#00ff88;
@@ -354,21 +336,27 @@ h2{
 
 
 
-
 /* =====================
- JEUX
+ TICKETS
 ===================== */
+
+
+.ticket-box{
+
+    text-align:center;
+
+}
+
 
 
 .game-grid{
 
     display:grid;
 
-    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    grid-template-columns:
+    repeat(auto-fit,minmax(150px,1fr));
 
     gap:15px;
-
-    margin-bottom:25px;
 
 }
 
@@ -380,8 +368,6 @@ h2{
 
     padding:20px;
 
-    text-align:center;
-
     border-radius:10px;
 
     font-weight:bold;
@@ -392,17 +378,16 @@ h2{
 
 
 
-
 /* =====================
- PUBLICITE
+ PUBLICITES
 ===================== */
 
 
 .pub-slider{
 
-    position:relative;
-
     height:230px;
+
+    position:relative;
 
     overflow:hidden;
 
@@ -412,8 +397,6 @@ h2{
 
 .pub-slider img{
 
-    position:absolute;
-
     width:100%;
 
     height:230px;
@@ -422,7 +405,9 @@ h2{
 
     border-radius:12px;
 
-    animation:pubAZ 15s infinite;
+    position:absolute;
+
+    animation:pub 15s infinite;
 
 }
 
@@ -444,8 +429,7 @@ h2{
 
 
 
-
-@keyframes pubAZ{
+@keyframes pub{
 
 
 0%{
@@ -501,6 +485,8 @@ footer{
 
     padding:20px;
 
+    margin-top:30px;
+
     border-top:3px solid #d4af37;
 
 }
@@ -524,7 +510,6 @@ footer{
 }
 
 
-
 nav{
 
     margin-top:15px;
@@ -543,7 +528,7 @@ nav a{
 
 .overlay h1{
 
-    font-size:30px;
+    font-size:28px;
 
 }
 
@@ -555,6 +540,13 @@ nav a{
 
 }
 
+
+
+.container{
+
+    padding:10px;
+
+}
 
 
 }
