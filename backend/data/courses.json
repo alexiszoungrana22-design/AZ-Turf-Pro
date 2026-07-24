@@ -7,127 +7,134 @@
   "discipline": "Trot Attelé",
   "distance_course": 2700,
   "allocation": 90000,
-  "partants": 7,
 
   "chevaux": [
+
     {
       "numero": 1,
       "nom": "Cheval AZ 1",
       "age": 6,
       "sexe": "M",
       "jockey": "Jockey 1",
-      "jockey_score": 8,
       "entraineur": "Entraîneur 1",
+      "performances": [3,5,2,7],
       "forme": 8,
       "regularite": 7,
       "gains": 7,
+      "jockey_score": 8,
       "cote": 7,
       "distance": 8,
       "terrain": 7,
-      "experience": 8,
-      "performances": [3, 5, 2, 7]
+      "experience": 8
     },
+
     {
       "numero": 2,
       "nom": "Cheval AZ 2",
       "age": 5,
       "sexe": "M",
       "jockey": "Jockey 2",
-      "jockey_score": 7,
       "entraineur": "Entraîneur 2",
+      "performances": [2,1,4,3],
       "forme": 9,
       "regularite": 8,
       "gains": 8,
+      "jockey_score": 7,
       "cote": 8,
       "distance": 9,
       "terrain": 8,
-      "experience": 8,
-      "performances": [2, 1, 4, 3]
+      "experience": 8
     },
+
     {
       "numero": 3,
       "nom": "Cheval AZ 3",
       "age": 6,
       "sexe": "M",
       "jockey": "Jockey 3",
-      "jockey_score": 9,
       "entraineur": "Entraîneur 3",
+      "performances": [1,1,2,3],
       "forme": 10,
       "regularite": 9,
       "gains": 9,
+      "jockey_score": 9,
       "cote": 9,
       "distance": 9,
       "terrain": 9,
-      "experience": 10,
-      "performances": [1, 1, 2, 3]
+      "experience": 10
     },
+
     {
       "numero": 4,
       "nom": "Cheval AZ 4",
       "age": 7,
       "sexe": "F",
       "jockey": "Jockey 4",
-      "jockey_score": 7,
       "entraineur": "Entraîneur 4",
+      "performances": [8,6,7,5],
       "forme": 6,
       "regularite": 6,
       "gains": 6,
+      "jockey_score": 7,
       "cote": 6,
       "distance": 7,
       "terrain": 6,
-      "experience": 7,
-      "performances": [8, 6, 7, 5]
+      "experience": 7
     },
+
     {
       "numero": 5,
       "nom": "Cheval AZ 5",
       "age": 5,
       "sexe": "M",
       "jockey": "Jockey 5",
-      "jockey_score": 8,
       "entraineur": "Entraîneur 5",
+      "performances": [2,3,1,5],
       "forme": 9,
       "regularite": 8,
       "gains": 8,
+      "jockey_score": 8,
       "cote": 9,
       "distance": 8,
       "terrain": 8,
-      "experience": 9,
-      "performances": [2, 3, 1, 5]
+      "experience": 9
     },
+
     {
       "numero": 6,
       "nom": "Cheval AZ 6",
       "age": 6,
       "sexe": "M",
       "jockey": "Jockey 6",
-      "jockey_score": 8,
       "entraineur": "Entraîneur 6",
+      "performances": [4,3,6,2],
       "forme": 7,
       "regularite": 7,
       "gains": 7,
+      "jockey_score": 8,
       "cote": 7,
       "distance": 7,
       "terrain": 8,
-      "experience": 7,
-      "performances": [4, 3, 6, 2]
+      "experience": 7
     },
+
     {
       "numero": 7,
       "nom": "Cheval AZ 7",
       "age": 5,
       "sexe": "F",
       "jockey": "Jockey 7",
-      "jockey_score": 7,
       "entraineur": "Entraîneur 7",
+      "performances": [3,2,5,1],
       "forme": 8,
       "regularite": 8,
       "gains": 7,
+      "jockey_score": 7,
       "cote": 8,
       "distance": 8,
       "terrain": 7,
-      "experience": 8,
-      "performances": [3, 2, 5, 1]
+      "experience": 8
     }
+
   ]
 }
