@@ -45,7 +45,7 @@ async function lancerAnalyse(){
 
 
 
-        data.chevaux.forEach((cheval)=>{
+        data.classement.forEach((cheval)=>{
 
 
             liste += `
