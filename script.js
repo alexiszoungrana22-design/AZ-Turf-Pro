@@ -1,58 +1,40 @@
 /* =====================================
-   AZ TURF PRO V3
-   SCRIPT PRINCIPAL
+   AZ TURF PRO V5
+   SCRIPT FRONTEND COMPLET
 ===================================== */
 
 
-// =============================
-// CONFIGURATION API
-// =============================
+/* ================================
+   CONFIGURATION API
+================================ */
 
-// Remplace cette adresse par ton URL Render quand le backend sera en ligne
+
 const API_URL = "http://127.0.0.1:8000";
 
 
 
-// =============================
-// SPLASH SCREEN
-// =============================
 
-window.addEventListener("load", () => {
-
-    const splash = document.getElementById("splash");
-
-    if(splash){
-
-        setTimeout(() => {
-
-            splash.style.display = "none";
-
-        },3000);
-
-    }
-
-});
-
-
-
-
-// =============================
-// ANALYSE AZ
-// =============================
+// ================================
+// LANCER ANALYSE AZ
+// ================================
 
 
 async function lancerAnalyse(){
 
 
-    const resultat = document.getElementById("resultat");
+    const zone = document.getElementById("resultat");
 
 
-    if(resultat){
+    if(zone){
 
-        resultat.innerHTML = `
-        <div class="card">
+        zone.innerHTML = `
+
+        <div class="cheval">
+
         ⏳ Analyse AZ en cours...
+
         </div>
+
         `;
 
     }
@@ -70,7 +52,9 @@ async function lancerAnalyse(){
 
         if(!response.ok){
 
-            throw new Error("Erreur API");
+            throw new Error(
+                "Erreur serveur API"
+            );
 
         }
 
@@ -80,30 +64,37 @@ async function lancerAnalyse(){
 
 
 
-        afficherAnalyse(data);
+        afficherResultat(data);
 
 
 
-        sauvegarderHistorique(data);
+        enregistrerHistorique(data);
 
 
 
     }
 
+
+
     catch(error){
 
 
-        if(resultat){
 
-            resultat.innerHTML = `
+        console.error(error);
 
-            <div class="card">
 
-            ❌ Impossible de contacter le serveur AZ.
+
+        if(zone){
+
+            zone.innerHTML = `
+
+            <div class="cheval">
+
+            ❌ Serveur AZ inaccessible.
 
             <br><br>
 
-            Vérifie que l'API FastAPI est démarrée.
+            Vérifiez que l'API FastAPI fonctionne.
 
             </div>
 
@@ -112,10 +103,9 @@ async function lancerAnalyse(){
         }
 
 
-        console.error(error);
-
 
     }
+
 
 
 }
@@ -123,18 +113,22 @@ async function lancerAnalyse(){
 
 
 
-// =============================
-// AFFICHAGE RESULTATS
-// =============================
 
 
-function afficherAnalyse(data){
+// ================================
+// AFFICHAGE ANALYSE
+// ================================
 
 
-const resultat = document.getElementById("resultat");
+function afficherResultat(data){
 
 
-if(!resultat){
+
+const zone = document.getElementById("resultat");
+
+
+
+if(!zone){
 
     return;
 
@@ -142,39 +136,58 @@ if(!resultat){
 
 
 
-let html = `
+let html = "";
 
 
-<div class="card">
 
-<h2>🏇 Analyse AZ terminée</h2>
 
+
+if(data.chevaux && data.chevaux.length){
+
+
+
+html += `
+
+<div class="course-box">
+
+<h2>
+
+🏆 Résultat Analyse AZ
+
+</h2>
 
 </div>
-
 
 `;
 
 
 
-if(data.chevaux){
 
 
-
-data.chevaux.forEach(cheval => {
+data.chevaux.forEach((cheval)=>{
 
 
 
 html += `
 
 
-<div class="cheval-card">
+<div class="cheval">
+
+
+<span class="rang">
+
+${cheval.rang || ""}
+
+</span>
+
+
+
+<div>
 
 
 <h3>
 
-${cheval.rang || ""} -
-Cheval N° ${cheval.numero}
+🐎 Cheval N° ${cheval.numero}
 
 </h3>
 
@@ -182,27 +195,25 @@ Cheval N° ${cheval.numero}
 <p>
 
 Indice AZ :
-<span class="indice">
+
+<strong>
 
 ${cheval.indice_az}
 
-</span>
+</strong>
 
 </p>
 
 
-<p>
+
+<p class="confiance">
 
 Confiance :
 
-<span class="confiance">
-
 ${cheval.confiance} %
 
-</span>
-
-
 </p>
+
 
 
 <p>
@@ -215,6 +226,9 @@ ${cheval.type || "Sélection AZ"}
 </div>
 
 
+</div>
+
+
 `;
 
 
@@ -223,24 +237,25 @@ ${cheval.type || "Sélection AZ"}
 
 
 
-}
-
-
-
 html += `
 
 
-<div class="ticket">
+<div class="ticket-box">
 
 
-<h2>🎟️ Ticket conseillé AZ</h2>
+<h2>
+
+🎟️ Ticket conseillé
+
+</h2>
 
 
-<p>
+
+<div class="ticket-number">
 
 ${genererTicket(data)}
 
-</p>
+</div>
 
 
 </div>
@@ -250,7 +265,26 @@ ${genererTicket(data)}
 
 
 
-resultat.innerHTML = html;
+}
+
+else{
+
+
+html = `
+
+<div class="cheval">
+
+Aucun résultat disponible.
+
+</div>
+
+`;
+
+}
+
+
+
+zone.innerHTML = html;
 
 
 
@@ -258,17 +292,21 @@ resultat.innerHTML = html;
 
 
 
-// =============================
+
+
+
+// ================================
 // GENERATION TICKET
-// =============================
+// ================================
 
 
 function genererTicket(data){
 
 
+
 if(!data.chevaux){
 
-    return "Aucun ticket disponible";
+return "N/A";
 
 }
 
@@ -278,7 +316,11 @@ return data.chevaux
 
 .slice(0,5)
 
-.map(c => c.numero)
+.map(
+
+cheval => cheval.numero
+
+)
 
 .join(" - ");
 
@@ -289,38 +331,50 @@ return data.chevaux
 
 
 
-// =============================
+
+
+// ================================
 // HISTORIQUE LOCAL
-// =============================
+// ================================
 
 
-function sauvegarderHistorique(data){
+function enregistrerHistorique(data){
 
 
 
 let historique = JSON.parse(
 
-localStorage.getItem("az_historique")
+localStorage.getItem(
+"az_historique"
+)
 
 ) || [];
 
 
 
+
+
 historique.unshift({
+
 
 date:new Date().toLocaleString(),
 
-data:data
+analyse:data
+
 
 });
 
 
 
-if(historique.length > 20){
+
+
+if(historique.length > 30){
 
 historique.pop();
 
 }
+
+
 
 
 
@@ -338,15 +392,23 @@ JSON.stringify(historique)
 
 
 
-// =============================
+
+
+// ================================
 // AFFICHAGE HISTORIQUE
-// =============================
+// ================================
 
 
-function afficherHistorique(){
+function chargerHistorique(){
 
 
-const zone = document.getElementById("historique");
+
+const zone = document.getElementById(
+
+"historique"
+
+);
+
 
 
 if(!zone){
@@ -357,11 +419,16 @@ return;
 
 
 
+
 let historique = JSON.parse(
 
-localStorage.getItem("az_historique")
+localStorage.getItem(
+"az_historique"
+)
 
 ) || [];
+
+
 
 
 
@@ -370,7 +437,7 @@ if(historique.length===0){
 
 zone.innerHTML = `
 
-<div class="card">
+<div class="cheval">
 
 Aucune analyse enregistrée.
 
@@ -386,16 +453,20 @@ return;
 
 
 
+
 let html="";
+
 
 
 
 historique.forEach(item=>{
 
 
+
 html += `
 
-<div class="card">
+
+<div class="cheval">
 
 
 <h3>
@@ -407,7 +478,7 @@ ${item.date}
 
 <p>
 
-Analyse AZ enregistrée
+Ticket AZ enregistré
 
 </p>
 
@@ -423,7 +494,9 @@ Analyse AZ enregistrée
 
 
 
-zone.innerHTML=html;
+
+
+zone.innerHTML = html;
 
 
 
@@ -431,9 +504,12 @@ zone.innerHTML=html;
 
 
 
-// =============================
-// BOUTON ANALYSE
-// =============================
+
+
+
+// ================================
+// INITIALISATION
+// ================================
 
 
 document.addEventListener(
@@ -443,31 +519,7 @@ document.addEventListener(
 ()=>{
 
 
-const bouton = document.getElementById(
-
-"btnAnalyse"
-
-);
-
-
-
-if(bouton){
-
-
-bouton.addEventListener(
-
-"click",
-
-lancerAnalyse
-
-);
-
-
-}
-
-
-
-afficherHistorique();
+chargerHistorique();
 
 
 
