@@ -2,26 +2,95 @@ def calculer_score_az(cheval):
 
     score = 0
 
-    criteres = {
-        "forme": 5,
-        "regularite": 4,
-        "gains": 3,
-        "jockey": 4,
-        "cote": 2,
-        "distance": 3,
-        "terrain": 2,
-        "experience": 2
-    }
+
+    # Forme récente (critère majeur)
+    score += cheval.get(
+        "forme",
+        0
+    ) * 5
 
 
-    for critere, poids in criteres.items():
 
-        try:
-            valeur = int(cheval.get(critere, 0))
-        except (ValueError, TypeError):
-            valeur = 0
+    # Régularité
+    score += cheval.get(
+        "regularite",
+        0
+    ) * 4
 
-        score += valeur * poids
+
+
+    # Gains / classe du cheval
+    score += cheval.get(
+        "gains",
+        0
+    ) * 3
+
+
+
+    # Jockey / driver
+    score += cheval.get(
+        "jockey_score",
+        0
+    ) * 4
+
+
+
+    # Cote marché
+    score += cheval.get(
+        "cote",
+        0
+    ) * 2
+
+
+
+    # Adaptation distance
+    score += cheval.get(
+        "distance",
+        0
+    ) * 3
+
+
+
+    # Adaptation terrain
+    score += cheval.get(
+        "terrain",
+        0
+    ) * 2
+
+
+
+    # Expérience
+    score += cheval.get(
+        "experience",
+        0
+    ) * 2
+
+
+
+    # Bonus performances récentes
+    performances = cheval.get(
+        "performances",
+        []
+    )
+
+
+    if performances:
+
+
+        bonnes_places = 0
+
+
+        for place in performances:
+
+
+            if place <= 3:
+
+                bonnes_places += 1
+
+
+
+        score += bonnes_places * 5
+
 
 
     return score
