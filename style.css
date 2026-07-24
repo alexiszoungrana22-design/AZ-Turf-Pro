@@ -322,3 +322,44 @@ footer{
 
 
 }
+/* BANNIERE PUBLICITAIRE */
+
+.pub-container{
+
+    max-width:950px;
+    margin:20px auto;
+    background:white;
+    border-radius:15px;
+    padding:15px;
+    text-align:center;
+    box-shadow:0 4px 12px rgba(0,0,0,0.12);
+
+    animation:apparition 0.8s ease;
+
+}
+
+
+.pub-container img{
+
+    width:100%;
+    max-height:180px;
+    object-fit:cover;
+    border-radius:12px;
+
+}
+
+
+.pub-container p{
+
+    font-size:18px;
+    font-weight:bold;
+    color:#06251c;
+
+}
+
+
+.pub-container .btn{
+
+    margin-top:10px;
+
+}
