@@ -1,125 +1,266 @@
-/* ==================================
+/* =====================================
    AZ TURF PRO v3
-   Design Premium
-================================== */
+   Design Premium Fusion
+===================================== */
 
 
 *{
+
     box-sizing:border-box;
-    margin:0;
-    padding:0;
-    font-family:Arial, Helvetica, sans-serif;
+
+    font-family:Arial, sans-serif;
+
 }
+
 
 
 body{
 
-    background:#f4f6f8;
-    color:#222;
-    min-height:100vh;
+    margin:0;
 
-}
-
-
-
-/* =========================
-   HEADER
-========================= */
-
-
-.hero{
-
-    background:linear-gradient(
-        135deg,
-        #06251c,
-        #0b3d2e
-    );
+    background:#07111f;
 
     color:white;
 
+}
+
+
+
+/* =====================
+   SPLASH
+===================== */
+
+
+#splash{
+
+    position:fixed;
+
+    top:0;
+
+    left:0;
+
+    width:100%;
+
+    height:100%;
+
+    background:#07111f;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    z-index:9999;
+
+    animation:hideSplash 3s forwards;
+
+}
+
+
+
+.splash-content{
+
     text-align:center;
 
-    padding:35px 15px;
-
 }
 
 
-.hero h1{
 
-    font-size:36px;
+.horse{
 
-    margin-bottom:10px;
+    font-size:60px;
 
-}
-
-
-.hero p{
-
-    font-size:18px;
-
-    opacity:0.95;
+    animation:bounce 1s infinite;
 
 }
 
 
 
-/* =========================
-   NAVIGATION
-========================= */
+.splash-content h1{
+
+    color:#00ff88;
+
+}
 
 
-nav{
 
-    background:#041a13;
+.loader{
+
+    width:45px;
+
+    height:45px;
+
+    border:5px solid #333;
+
+    border-top:5px solid #00ff88;
+
+    border-radius:50%;
+
+    margin:20px auto;
+
+    animation:rotate 1s linear infinite;
+
+}
+
+
+
+@keyframes rotate{
+
+    from{
+
+        transform:rotate(0deg);
+
+    }
+
+
+    to{
+
+        transform:rotate(360deg);
+
+    }
+
+}
+
+
+
+@keyframes bounce{
+
+    50%{
+
+        transform:translateY(-10px);
+
+    }
+
+}
+
+
+
+@keyframes hideSplash{
+
+    0%,80%{
+
+        opacity:1;
+
+        visibility:visible;
+
+    }
+
+
+    100%{
+
+        opacity:0;
+
+        visibility:hidden;
+
+    }
+
+}
+
+
+
+/* =====================
+   HEADER
+===================== */
+
+
+header{
+
+    text-align:center;
+
+    padding:25px;
+
+    background:#101f35;
+
+}
+
+
+
+header h1{
+
+    color:#00ff88;
+
+    font-size:32px;
+
+}
+
+
+
+header p{
+
+    font-size:17px;
+
+}
+
+
+
+/* =====================
+   MENU
+===================== */
+
+
+.menu{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:15px;
+
+    flex-wrap:wrap;
 
     padding:15px;
 
-    text-align:center;
-
 }
 
 
-nav a{
 
-    color:white;
+.menu a{
 
     text-decoration:none;
 
-    margin:0 10px;
+    color:white;
+
+    background:#00a86b;
+
+    padding:10px 18px;
+
+    border-radius:8px;
 
     font-weight:bold;
 
 }
 
 
-nav a:hover{
 
-    color:#d4af37;
+.menu a:hover{
+
+    background:#00ff88;
+
+    color:black;
 
 }
-
-
-
-/* =========================
+/* =====================
    BANDEAU DEFILE
-========================= */
+===================== */
 
 
 .message-defile{
 
-    background:#d4af37;
+    background:#00ff88;
 
-    color:#06251c;
-
-    font-weight:bold;
+    color:#07111f;
 
     padding:12px;
+
+    font-weight:bold;
 
     overflow:hidden;
 
     white-space:nowrap;
 
 }
+
 
 
 .message-defile span{
@@ -133,6 +274,7 @@ nav a:hover{
 
 
 @keyframes defileAZ{
+
 
     from{
 
@@ -151,41 +293,23 @@ nav a:hover{
 
 
 
-/* =========================
-   CONTENEUR
-========================= */
 
-
-.container{
-
-    max-width:1000px;
-
-    margin:auto;
-
-    padding:20px;
-
-}
-
-
-
-/* =========================
-   CARTES GENERALES
-========================= */
+/* =====================
+   CARTES
+===================== */
 
 
 .card{
 
-    background:white;
+    background:#10243d;
 
-    border-radius:18px;
+    margin:15px;
 
     padding:20px;
 
-    margin-bottom:20px;
+    border-radius:15px;
 
-    box-shadow:
-
-    0 5px 15px rgba(0,0,0,0.12);
+    box-shadow:0 0 10px #000;
 
     animation:apparition .7s ease;
 
@@ -199,7 +323,7 @@ nav a:hover{
 
         opacity:0;
 
-        transform:translateY(25px);
+        transform:translateY(20px);
 
     }
 
@@ -214,65 +338,35 @@ nav a:hover{
 
 }
 
-/* =========================
-   INFORMATIONS COURSE
-========================= */
-
-
-.course-card{
-
-    border-left:6px solid #d4af37;
-
-    background:white;
-
-    border-radius:18px;
-
-    padding:20px;
-
-    margin-bottom:20px;
-
-    line-height:1.8;
-
-}
 
 
 
-.course-card h2{
-
-    color:#0b3d2e;
-
-}
-
-
-
-/* =========================
+/* =====================
    CHEVAUX
-========================= */
+===================== */
 
 
+.cheval,
 .cheval-card{
 
-    background:white;
+    background:#162f50;
 
-    border-radius:18px;
+    padding:15px;
 
-    padding:18px;
+    margin:10px 0;
 
-    margin-bottom:15px;
+    border-radius:10px;
 
-    border-left:5px solid #0b3d2e;
-
-    box-shadow:
-
-    0 4px 12px rgba(0,0,0,0.10);
+    border-left:5px solid #00ff88;
 
 }
 
 
 
+.cheval:hover,
 .cheval-card:hover{
 
-    transform:scale(1.02);
+    transform:scale(1.03);
 
     transition:.3s;
 
@@ -280,19 +374,18 @@ nav a:hover{
 
 
 
+
 .indice{
 
     display:inline-block;
 
-    background:#0b3d2e;
-
-    color:white;
+    background:#00a86b;
 
     padding:6px 12px;
 
     border-radius:20px;
 
-    margin-top:10px;
+    font-weight:bold;
 
 }
 
@@ -300,28 +393,31 @@ nav a:hover{
 
 .confiance{
 
-    font-weight:bold;
+    color:#00ff88;
 
-    color:#d4af37;
+    font-weight:bold;
 
 }
 
 
 
-/* =========================
+
+/* =====================
    FAVORI AZ
-========================= */
+===================== */
 
 
 .favori{
 
-    background:#fff5c4;
+    background:#152b18;
 
-    border:2px solid #d4af37;
+    border:2px solid #00ff88;
 
-    border-radius:18px;
+    margin:15px;
 
     padding:20px;
+
+    border-radius:15px;
 
     animation:pulseAZ 2s infinite;
 
@@ -331,132 +427,36 @@ nav a:hover{
 
 @keyframes pulseAZ{
 
-
-    0%{
-
-        transform:scale(1);
-
-    }
-
-
     50%{
 
         transform:scale(1.04);
 
     }
 
-
-    100%{
-
-        transform:scale(1);
-
-    }
-
 }
 
 
 
-/* =========================
-   TICKET PREMIUM
-========================= */
-
-
-.ticket{
-
-    background:
-
-    linear-gradient(
-
-    135deg,
-
-    #06251c,
-
-    #0b3d2e
-
-    );
-
-
-    color:white;
-
-    border-radius:18px;
-
-    padding:25px;
-
-    box-shadow:
-
-    0 5px 20px rgba(0,0,0,.25);
-
-}
-
-
-
-.ticket h2{
-
-    color:#d4af37;
-
-}
-
-
-
-/* =========================
-   BOUTONS
-========================= */
-
-
-.btn{
-
-    display:inline-block;
-
-    background:#0b3d2e;
-
-    color:white;
-
-    padding:12px 25px;
-
-    border-radius:30px;
-
-    text-decoration:none;
-
-    font-weight:bold;
-
-    margin-top:10px;
-
-}
-
-
-
-.btn:hover{
-
-    background:#d4af37;
-
-    color:#06251c;
-
-    transition:.3s;
-
-}
-
-
-
-/* =========================
-   PUBLICITES
-========================= */
+/* =====================
+   PUBLICITE
+===================== */
 
 
 .pub-container{
 
-    max-width:1000px;
-
     margin:20px auto;
 
-    background:white;
+    max-width:950px;
+
+    background:#10243d;
+
+    border:2px dashed #00ff88;
+
+    border-radius:15px;
 
     padding:15px;
 
-    border-radius:18px;
-
     text-align:center;
-
-    border:2px dashed #d4af37;
 
 }
 
@@ -470,7 +470,7 @@ nav a:hover{
 
     object-fit:cover;
 
-    border-radius:15px;
+    border-radius:10px;
 
 }
 
@@ -478,22 +478,103 @@ nav a:hover{
 
 .pub-container p{
 
-    margin:15px;
+    color:#00ff88;
 
     font-weight:bold;
 
-    color:#0b3d2e;
+   }
+/* =====================
+   TICKET PREMIUM
+===================== */
 
-    }
 
-/* =========================
+.ticket{
+
+    background:#10243d;
+
+    border-left:5px solid #00ff88;
+
+    margin:15px;
+
+    padding:20px;
+
+    border-radius:15px;
+
+    box-shadow:0 0 10px #000;
+
+}
+
+
+
+.ticket h2{
+
+    color:#00ff88;
+
+}
+
+
+
+
+/* =====================
+   BOUTONS
+===================== */
+
+
+button,
+.btn{
+
+    display:block;
+
+    margin:20px auto;
+
+    padding:15px 25px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#00ff88;
+
+    color:#001;
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    text-decoration:none;
+
+    text-align:center;
+
+}
+
+
+
+button:hover,
+.btn:hover{
+
+    transform:scale(1.05);
+
+    background:#00a86b;
+
+    color:white;
+
+}
+
+
+
+
+/* =====================
    CLASSEMENT
-========================= */
+===================== */
 
 
 .classement{
 
     list-style:none;
+
+    padding:0;
 
 }
 
@@ -501,152 +582,84 @@ nav a:hover{
 
 .classement li{
 
-    background:white;
+    background:#10243d;
 
-    margin-bottom:12px;
+    margin:10px 15px;
 
     padding:15px;
 
-    border-radius:15px;
-
-    box-shadow:
-
-    0 3px 10px rgba(0,0,0,.10);
+    border-radius:10px;
 
 }
 
 
 
-/* TOP 3 */
 
 .top1{
 
-    border-left:6px solid gold;
+    border-left:5px solid gold;
 
 }
 
 
 .top2{
 
-    border-left:6px solid silver;
+    border-left:5px solid silver;
 
 }
 
 
 .top3{
 
-    border-left:6px solid #cd7f32;
+    border-left:5px solid #cd7f32;
 
 }
 
 
 
-/* =========================
-   CHARGEMENT ANALYSE
-========================= */
 
 
-.loading{
+/* =====================
+   FOOTER
+===================== */
+
+
+footer{
 
     text-align:center;
 
     padding:20px;
 
-    font-size:20px;
-
-    color:#0b3d2e;
-
-}
-
-
-
-.spinner{
-
-    width:40px;
-
-    height:40px;
-
-    border:5px solid #ddd;
-
-    border-top:5px solid #d4af37;
-
-    border-radius:50%;
-
-    margin:auto;
-
-    animation:tourner 1s linear infinite;
-
-}
-
-
-
-@keyframes tourner{
-
-    100%{
-
-        transform:rotate(360deg);
-
-    }
-
-}
-
-
-
-/* =========================
-   FOOTER
-========================= */
-
-
-footer{
-
-    background:#041a13;
-
-    color:white;
-
-    text-align:center;
-
-    padding:25px;
+    background:#101f35;
 
     margin-top:30px;
 
+    color:white;
+
 }
 
 
 
-/* =========================
+/* =====================
    MOBILE
-========================= */
+===================== */
 
 
 @media(max-width:700px){
 
 
-    .hero h1{
+    header h1{
 
         font-size:26px;
 
     }
 
 
-    .hero p{
+    .menu a{
 
-        font-size:15px;
+        width:90%;
 
-    }
-
-
-    nav a{
-
-        display:inline-block;
-
-        margin:6px;
-
-    }
-
-
-    .container{
-
-        padding:10px;
+        text-align:center;
 
     }
 
@@ -655,15 +668,11 @@ footer{
     .ticket,
     .favori{
 
+        margin:10px;
+
         padding:15px;
 
     }
 
 
 }
-
-
-
-/* =========================
-   FIN AZ TURF PRO v3
-========================= */
