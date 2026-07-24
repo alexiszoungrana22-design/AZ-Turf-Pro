@@ -1,27 +1,32 @@
 const API_URL = "https://az-turf-pro.onrender.com";
 
+
+// Stockage de la dernière analyse
 let analyseAZ = null;
 
 
+
 // =========================
-// ANALYSE AZ
+// LANCER ANALYSE AZ
 // =========================
 
 async function lancerAnalyse(){
 
     const resultat = document.getElementById("resultat");
 
+
     if(resultat){
 
         resultat.innerHTML = `
         <h3>⏳ Analyse en cours...</h3>
-        <p>AZ Turf Pro calcule les chevaux.</p>
+        <p>AZ Turf Pro calcule les meilleurs chevaux.</p>
         `;
 
     }
 
 
-    try{
+    try {
+
 
         const response = await fetch(
             API_URL + "/analyse"
@@ -31,7 +36,9 @@ async function lancerAnalyse(){
         const data = await response.json();
 
 
+
         analyseAZ = data;
+
 
 
         localStorage.setItem(
@@ -59,20 +66,16 @@ async function lancerAnalyse(){
             ⭐ Indice AZ :
             ${cheval.indice_az}
 
-
             <br>
 
             📊 Confiance :
             ${cheval.confiance}%
-
 
             <br>
 
             🏷️ ${cheval.type}
 
             </li>
-
-            <br>
 
             `;
 
@@ -83,11 +86,14 @@ async function lancerAnalyse(){
 
         if(resultat){
 
+
             resultat.innerHTML = `
+
 
             <h2>
             ✅ Résultat AZ
             </h2>
+
 
 
             <ol>
@@ -98,9 +104,11 @@ async function lancerAnalyse(){
 
 
 
+
             <h3>
             ⭐ Favori AZ
             </h3>
+
 
 
             <p>
@@ -119,6 +127,8 @@ async function lancerAnalyse(){
 
             </p>
 
+
+
             `;
 
         }
@@ -131,7 +141,11 @@ async function lancerAnalyse(){
     }
 
 
+
     catch(error){
+
+
+        console.log(error);
 
 
         if(resultat){
@@ -143,15 +157,12 @@ async function lancerAnalyse(){
             </h3>
 
             <p>
-            Serveur AZ Turf indisponible.
+            Impossible de contacter AZ Turf Pro.
             </p>
 
             `;
 
         }
-
-
-        console.log(error);
 
     }
 
@@ -160,10 +171,10 @@ async function lancerAnalyse(){
 
 
 
+// =========================
+// GENERER TICKET PREMIUM
+// =========================
 
-// =========================
-// TICKET PREMIUM
-// =========================
 
 function chargerTicket(){
 
@@ -186,7 +197,6 @@ function chargerTicket(){
         return;
 
     }
-
 
 
 
@@ -264,10 +274,10 @@ function chargerTicket(){
 
 
 
-
 // =========================
 // HISTORIQUE
 // =========================
+
 
 function sauvegarderHistorique(data){
 
@@ -317,7 +327,7 @@ function afficherHistorique(){
     if(historique.length === 0){
 
         zone.innerHTML =
-        "<p>Aucune analyse.</p>";
+        "<p>Aucune analyse enregistrée.</p>";
 
         return;
 
@@ -329,33 +339,29 @@ function afficherHistorique(){
 
 
 
-    historique.forEach((item)=>{
+    historique.forEach((data)=>{
 
 
         zone.innerHTML += `
 
         <div class="card">
 
-
         📅 Analyse AZ
-
 
         <br>
 
-
         Favori :
-        Cheval n°${item.favori.numero}
+        Cheval n°${data.favori.numero}
 
 
         <br>
 
 
         Quinté :
-        ${item.tickets.quinte.join("-")}
+        ${data.tickets.quinte.join("-")}
 
 
         </div>
-
 
         `;
 
@@ -367,8 +373,6 @@ function afficherHistorique(){
 
 
 
-
-// Chargement automatique historique
 
 window.onload = function(){
 
