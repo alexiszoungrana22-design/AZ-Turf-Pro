@@ -1,101 +1,99 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>AZ Turf Pro - Historique</title>
+
     <link rel="stylesheet" href="style.css">
+
 </head>
+
 
 <body>
 
+
 <header class="hero">
+
     <h1>🐎 AZ TURF PRO</h1>
-    <p>Historique des pronostics</p>
+
+    <p>
+        Historique des analyses
+    </p>
+
 </header>
 
 
+
+
 <nav>
+
     <a href="index.html">Accueil</a>
+
     <a href="analyse.html">Analyse</a>
+
     <a href="ticket.html">Ticket Premium</a>
+
     <a href="historique.html">Historique</a>
+
 </nav>
+
+
+
 
 
 <section class="container">
 
-    <div class="card">
 
-        <h2>📚 Historique AZ</h2>
 
-        <div id="historique">
+<div class="card">
 
-            <p>
-                Aucun pronostic enregistré pour le moment.
-            </p>
 
-        </div>
+<h2>
+📜 Historique AZ
+</h2>
 
-    </div>
+
+
+<div id="historique">
+
+<p>
+Aucune analyse enregistrée.
+</p>
+
+</div>
+
+
+
+</div>
+
 
 
 </section>
 
 
+
+
+
+
 <footer>
-    <p>© 2026 AZ Turf Pro</p>
+
+<p>
+© 2026 AZ Turf Pro
+</p>
+
 </footer>
 
 
-<script src="script.js?v=3"></script>
 
 
-<script>
 
-let historique = JSON.parse(localStorage.getItem("az_historique")) || [];
-
-let zone = document.getElementById("historique");
-
-
-if(historique.length > 0){
-
-    zone.innerHTML = "";
-
-    historique.forEach((analyse, index)=>{
-
-        zone.innerHTML += `
-
-        <div class="card">
-
-            <h3>
-            Analyse ${index + 1}
-            </h3>
-
-            <p>
-            📅 Date : ${analyse.date}
-            </p>
-
-            <p>
-            🐎 Chevaux :
-            ${analyse.chevaux}
-            </p>
-
-            <p>
-            ⭐ Indice AZ :
-            ${analyse.indice}
-            </p>
-
-        </div>
-
-        `;
-
-    });
-
-}
-
-</script>
+<script src="script.js"></script>
 
 
 </body>
+
 </html>
