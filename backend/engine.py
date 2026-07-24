@@ -3,12 +3,9 @@ from ranking import classer_chevaux
 from quinte import generer_tickets_az
 
 
-
 def lancer_analyse():
 
-
     chevaux = [
-
         {
             "numero": 1,
             "forme": 8,
@@ -20,7 +17,6 @@ def lancer_analyse():
             "terrain": 7,
             "experience": 8
         },
-
         {
             "numero": 2,
             "forme": 9,
@@ -32,7 +28,6 @@ def lancer_analyse():
             "terrain": 8,
             "experience": 8
         },
-
         {
             "numero": 3,
             "forme": 10,
@@ -44,7 +39,6 @@ def lancer_analyse():
             "terrain": 9,
             "experience": 10
         },
-
         {
             "numero": 4,
             "forme": 6,
@@ -56,7 +50,6 @@ def lancer_analyse():
             "terrain": 6,
             "experience": 7
         },
-
         {
             "numero": 5,
             "forme": 9,
@@ -68,7 +61,6 @@ def lancer_analyse():
             "terrain": 8,
             "experience": 9
         },
-
         {
             "numero": 6,
             "forme": 7,
@@ -80,7 +72,6 @@ def lancer_analyse():
             "terrain": 8,
             "experience": 7
         },
-
         {
             "numero": 7,
             "forme": 8,
@@ -92,91 +83,65 @@ def lancer_analyse():
             "terrain": 7,
             "experience": 8
         }
-
     ]
 
 
-
-    # Calcul indice AZ
-
     for cheval in chevaux:
-
         cheval["score"] = calculer_score_az(cheval)
 
 
-
-    # Classement
-
     classement = classer_chevaux(chevaux)
 
+
+    if not classement:
+        return {
+            "classement": [],
+            "favori": {},
+            "tickets": {}
+        }
 
 
     resultat = []
 
 
-
     for rang, cheval in enumerate(classement, start=1):
 
-
-        score = cheval["score"]
-
+        score = cheval.get("score", 0)
 
         if rang == 1:
-
             categorie = "Favori AZ"
-
         elif rang <= 4:
-
             categorie = "Chance régulière"
-
         else:
-
             categorie = "Outsider"
-
 
 
         confiance = min(
             95,
             max(
                 50,
-                int((score / 250) * 100)
+                int(score * 0.4)
             )
         )
 
 
-
         resultat.append({
-
             "rang": rang,
-
             "numero": cheval["numero"],
-
             "indice_az": score,
-
             "confiance": confiance,
-
             "type": categorie
-
         })
 
 
-
-    # Génération des tickets
-
-    tickets = generer_tickets_az(resultat)
-
+    try:
+        tickets = generer_tickets_az(resultat)
+    except Exception:
+        tickets = {}
 
 
     return {
-
-
         "classement": resultat,
-
-
         "favori": resultat[0],
-
-
         "tickets": tickets
-
-
-        }
+    }
