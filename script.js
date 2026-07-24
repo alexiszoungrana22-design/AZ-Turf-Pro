@@ -94,33 +94,46 @@ function afficherAnalyse(data){
 
     data.chevaux.forEach((cheval)=>{
 
+    liste += `
 
-        liste += `
+    <li>
 
-        <li>
+    🐎 <strong>Cheval n°${cheval.numero}</strong>
 
-        🐎 <strong>Cheval n°${cheval.numero}</strong>
+    <br>
 
-        <br>
+    🏇 Nom :
+    ${cheval.nom || "Non renseigné"}
 
-        ⭐ Indice AZ :
-        ${cheval.indice_az}
+    <br>
 
-        <br>
+    👤 Jockey :
+    ${cheval.jockey || "Non renseigné"}
 
-        📊 Confiance :
-        ${cheval.confiance}%
+    <br>
 
-        <br>
+    🏠 Entraîneur :
+    ${cheval.entraineur || "Non renseigné"}
 
-        🏷️ ${cheval.type}
+    <br>
 
-        </li>
+    ⭐ Indice AZ :
+    ${cheval.indice_az}
 
-        `;
+    <br>
 
+    📊 Confiance :
+    ${cheval.confiance}%
 
-    });
+    <br>
+
+    🏷️ ${cheval.type}
+
+    </li>
+
+    `;
+
+});
 
 
 
