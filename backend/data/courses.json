@@ -1,6 +1,14 @@
 {
-  "course": "Quinté AZ Turf Pro",
+  "course": "Prix de Paris",
   "date": "2026-07-24",
+  "reunion": "R1",
+  "course_numero": "C4",
+  "hippodrome": "Vincennes",
+  "discipline": "Trot Attelé",
+  "distance_course": 2700,
+  "allocation": 90000,
+  "partants": 7,
+
   "chevaux": [
     {
       "numero": 1,
@@ -9,7 +17,7 @@
       "sexe": "M",
       "jockey": "Jockey 1",
       "jockey_score": 8,
-      "entraineur": "Entraineur 1",
+      "entraineur": "Entraîneur 1",
       "forme": 8,
       "regularite": 7,
       "gains": 7,
@@ -17,7 +25,7 @@
       "distance": 8,
       "terrain": 7,
       "experience": 8,
-      "performances": [3,5,2,7]
+      "performances": [3, 5, 2, 7]
     },
     {
       "numero": 2,
@@ -26,7 +34,7 @@
       "sexe": "M",
       "jockey": "Jockey 2",
       "jockey_score": 7,
-      "entraineur": "Entraineur 2",
+      "entraineur": "Entraîneur 2",
       "forme": 9,
       "regularite": 8,
       "gains": 8,
@@ -34,7 +42,7 @@
       "distance": 9,
       "terrain": 8,
       "experience": 8,
-      "performances": [2,1,4,3]
+      "performances": [2, 1, 4, 3]
     },
     {
       "numero": 3,
@@ -43,7 +51,7 @@
       "sexe": "M",
       "jockey": "Jockey 3",
       "jockey_score": 9,
-      "entraineur": "Entraineur 3",
+      "entraineur": "Entraîneur 3",
       "forme": 10,
       "regularite": 9,
       "gains": 9,
@@ -51,7 +59,7 @@
       "distance": 9,
       "terrain": 9,
       "experience": 10,
-      "performances": [1,1,2,3]
+      "performances": [1, 1, 2, 3]
     },
     {
       "numero": 4,
@@ -60,7 +68,7 @@
       "sexe": "F",
       "jockey": "Jockey 4",
       "jockey_score": 7,
-      "entraineur": "Entraineur 4",
+      "entraineur": "Entraîneur 4",
       "forme": 6,
       "regularite": 6,
       "gains": 6,
@@ -68,7 +76,7 @@
       "distance": 7,
       "terrain": 6,
       "experience": 7,
-      "performances": [8,6,7,5]
+      "performances": [8, 6, 7, 5]
     },
     {
       "numero": 5,
@@ -77,7 +85,7 @@
       "sexe": "M",
       "jockey": "Jockey 5",
       "jockey_score": 8,
-      "entraineur": "Entraineur 5",
+      "entraineur": "Entraîneur 5",
       "forme": 9,
       "regularite": 8,
       "gains": 8,
@@ -85,7 +93,41 @@
       "distance": 8,
       "terrain": 8,
       "experience": 9,
-      "performances": [2,3,1,5]
+      "performances": [2, 3, 1, 5]
+    },
+    {
+      "numero": 6,
+      "nom": "Cheval AZ 6",
+      "age": 6,
+      "sexe": "M",
+      "jockey": "Jockey 6",
+      "jockey_score": 8,
+      "entraineur": "Entraîneur 6",
+      "forme": 7,
+      "regularite": 7,
+      "gains": 7,
+      "cote": 7,
+      "distance": 7,
+      "terrain": 8,
+      "experience": 7,
+      "performances": [4, 3, 6, 2]
+    },
+    {
+      "numero": 7,
+      "nom": "Cheval AZ 7",
+      "age": 5,
+      "sexe": "F",
+      "jockey": "Jockey 7",
+      "jockey_score": 7,
+      "entraineur": "Entraîneur 7",
+      "forme": 8,
+      "regularite": 8,
+      "gains": 7,
+      "cote": 8,
+      "distance": 8,
+      "terrain": 7,
+      "experience": 8,
+      "performances": [3, 2, 5, 1]
     }
   ]
 }
