@@ -1,6 +1,6 @@
 /* =====================================
-   AZ TURF PRO V4
-   DESIGN PROFESSIONNEL HIPPIQUE
+   AZ TURF PRO V5
+   PREMIUM HIPPIQUE
 ===================================== */
 
 
@@ -14,26 +14,22 @@ body{
 
     margin:0;
 
-    background:#f2f4f7;
+    background:#07110d;
 
-    color:#222;
+    color:white;
 
 }
 
 
 
 /* =====================
-   TOP BAR
+ HEADER
 ===================== */
 
 
-.topbar{
+.header-az{
 
-    background:#075b32;
-
-    color:white;
-
-    padding:15px 20px;
+    background:#052e1b;
 
     display:flex;
 
@@ -41,7 +37,9 @@ body{
 
     align-items:center;
 
-    flex-wrap:wrap;
+    padding:15px 25px;
+
+    border-bottom:2px solid #c9a227;
 
 }
 
@@ -49,9 +47,11 @@ body{
 
 .logo{
 
-    font-size:25px;
+    font-size:26px;
 
     font-weight:bold;
+
+    color:#d4af37;
 
 }
 
@@ -63,11 +63,11 @@ nav a{
 
     text-decoration:none;
 
-    margin:5px;
+    margin:0 8px;
 
     padding:8px 12px;
 
-    border-radius:6px;
+    border-radius:8px;
 
 }
 
@@ -75,66 +75,45 @@ nav a{
 
 nav a:hover{
 
-    background:#00a86b;
+    background:#c9a227;
+
+    color:#07110d;
 
 }
-
-
 
 
 
 /* =====================
-   BANNIERE
+ HERO
 ===================== */
 
 
-.hero-banner{
+.hero-az{
 
-    position:relative;
+    height:420px;
 
-    height:380px;
+    background:
 
-    overflow:hidden;
+    linear-gradient(
 
-}
+    rgba(0,0,0,.55),
 
+    rgba(0,0,0,.75)
 
+    ),
 
-.hero-banner img{
-
-    width:100%;
-
-    height:100%;
-
-    object-fit:cover;
-
-}
+    url("images/banner.jpg");
 
 
+    background-size:cover;
 
-.hero-content{
-
-    position:absolute;
-
-    top:0;
-
-    left:0;
-
-    width:100%;
-
-    height:100%;
-
-    background:rgba(0,0,0,0.45);
+    background-position:center;
 
     display:flex;
 
-    flex-direction:column;
-
-    justify-content:center;
-
     align-items:center;
 
-    color:white;
+    justify-content:center;
 
     text-align:center;
 
@@ -142,52 +121,57 @@ nav a:hover{
 
 
 
-.hero-content h1{
+.overlay h1{
 
-    font-size:45px;
+    font-size:42px;
 
-    margin:5px;
-
-    color:#00ff88;
+    color:#d4af37;
 
 }
 
 
 
-.hero-content h2{
+.overlay p{
 
-    font-size:22px;
+    font-size:20px;
 
 }
 
 
 
 
-.btn{
+/* =====================
+ BOUTON
+===================== */
+
+
+.btn-az{
 
     display:inline-block;
 
-    background:#00a86b;
-
-    color:white;
+    margin-top:20px;
 
     padding:14px 25px;
 
-    border-radius:8px;
+    background:#087f3d;
+
+    color:white;
 
     text-decoration:none;
 
-    font-weight:bold;
+    border-radius:8px;
 
-    margin-top:15px;
+    font-weight:bold;
 
 }
 
 
 
-.btn:hover{
+.btn-az:hover{
 
-    background:#075b32;
+    background:#d4af37;
+
+    color:#111;
 
 }
 
@@ -196,7 +180,7 @@ nav a:hover{
 
 
 /* =====================
-   CONTENU
+ CONTENEUR
 ===================== */
 
 
@@ -215,35 +199,50 @@ nav a:hover{
 
 
 /* =====================
-   COURSE
+ BLOCS
 ===================== */
 
 
-.course-card{
+.course-box,
 
-    background:white;
+.selection-az,
+
+.ticket-box,
+
+.publicite{
+
+
+    background:#101c17;
+
+    border:1px solid #244a35;
+
+    border-radius:15px;
 
     padding:20px;
 
-    border-radius:12px;
-
-    box-shadow:0 3px 10px rgba(0,0,0,0.15);
-
     margin-bottom:25px;
 
-}
-
-
-
-.course-card h2{
-
-    color:#075b32;
 
 }
 
 
 
-.info{
+h2{
+
+    color:#d4af37;
+
+}
+
+
+
+
+
+/* =====================
+ COURSE INFO
+===================== */
+
+
+.course-info{
 
     display:flex;
 
@@ -255,58 +254,141 @@ nav a:hover{
 
 
 
-.info span{
+.course-info div{
 
-    background:#075b32;
+    background:#052e1b;
 
-    color:white;
+    padding:15px;
 
-    padding:10px;
+    border-radius:10px;
 
-    border-radius:8px;
+    flex:1;
 
 }
 
+
+
+.active{
+
+    color:#00ff88;
+
+}
+
+
+
+
+/* =====================
+ CHEVAUX
+===================== */
+
+
+.cheval{
+
+
+    display:flex;
+
+    align-items:center;
+
+    gap:20px;
+
+    background:#16251e;
+
+    margin:12px 0;
+
+    padding:15px;
+
+    border-radius:12px;
+
+    border-left:5px solid #d4af37;
+
+
+}
+
+
+
+.rang{
+
+
+    width:40px;
+
+    height:40px;
+
+    background:#d4af37;
+
+    color:#111;
+
+    border-radius:50%;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-weight:bold;
+
+}
+
+
+
+.cheval h3{
+
+    margin:0;
+
+}
+
+
+
+.confiance{
+
+    color:#00ff88;
+
+    font-weight:bold;
+
+}
 
 
 
 
 
 /* =====================
-   PUBLICITE SLIDER
+ TICKET
 ===================== */
 
 
-.publicite{
+.ticket-number{
 
-    background:white;
+
+    background:#052e1b;
+
+    border:2px dashed #d4af37;
 
     padding:20px;
 
-    border-radius:12px;
-
-    margin-bottom:30px;
-
     text-align:center;
 
-}
+    font-size:28px;
 
+    font-weight:bold;
 
-
-.publicite h2{
-
-    color:#075b32;
+    letter-spacing:5px;
 
 }
 
 
+
+
+
+/* =====================
+ PUBLICITE
+===================== */
 
 
 .pub-slider{
 
-    position:relative;
-
     height:220px;
+
+    position:relative;
 
     overflow:hidden;
 
@@ -316,6 +398,9 @@ nav a:hover{
 
 .pub-slider img{
 
+
+    position:absolute;
+
     width:100%;
 
     height:220px;
@@ -324,9 +409,9 @@ nav a:hover{
 
     border-radius:10px;
 
-    position:absolute;
 
-    animation:pubAnimation 15s infinite;
+    animation:pub 15s infinite;
+
 
 }
 
@@ -349,8 +434,7 @@ nav a:hover{
 
 
 
-
-@keyframes pubAnimation{
+@keyframes pub{
 
 
 0%{
@@ -395,66 +479,19 @@ opacity:0;
 
 
 /* =====================
-   FEATURES
-===================== */
-
-
-.features{
-
-    display:flex;
-
-    gap:20px;
-
-    flex-wrap:wrap;
-
-}
-
-
-
-.feature{
-
-    background:white;
-
-    flex:1;
-
-    min-width:250px;
-
-    padding:20px;
-
-    border-radius:12px;
-
-    box-shadow:0 3px 10px rgba(0,0,0,.15);
-
-}
-
-
-
-.feature h3{
-
-    color:#075b32;
-
-}
-
-
-
-
-
-/* =====================
-   FOOTER
+ FOOTER
 ===================== */
 
 
 footer{
 
-    background:#075b32;
-
-    color:white;
+    background:#052e1b;
 
     text-align:center;
 
     padding:20px;
 
-    margin-top:30px;
+    border-top:2px solid #c9a227;
 
 }
 
@@ -463,46 +500,51 @@ footer{
 
 
 /* =====================
-   MOBILE
+ MOBILE
 ===================== */
 
 
 @media(max-width:700px){
 
 
-.topbar{
+.header-az{
 
     flex-direction:column;
 
 }
 
 
+
 nav{
 
-    margin-top:10px;
+    margin-top:15px;
 
 }
 
 
-.hero-banner{
 
-    height:300px;
+.overlay h1{
 
-}
-
-
-.hero-content h1{
-
-    font-size:32px;
+    font-size:30px;
 
 }
 
 
-.hero-content h2{
 
-    font-size:18px;
+.hero-az{
+
+    height:320px;
 
 }
+
+
+
+.ticket-number{
+
+    font-size:22px;
+
+}
+
 
 
 }
