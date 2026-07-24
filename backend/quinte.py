@@ -7,7 +7,7 @@ def generer_tickets_az(classement):
     - Champ réduit
     """
 
-    if not classement:
+    if not isinstance(classement, list) or not classement:
         return {
             "quinte": [],
             "quarte": [],
@@ -19,42 +19,40 @@ def generer_tickets_az(classement):
         }
 
 
-    numeros = [
-        cheval["numero"]
-        for cheval in classement
-    ]
+    numeros = []
+
+    for cheval in classement:
+        numero = cheval.get("numero")
+
+        if numero is not None:
+            numeros.append(numero)
 
 
-    # Sélection AZ selon le classement
+    if not numeros:
+        return {
+            "quinte": [],
+            "quarte": [],
+            "trio": [],
+            "champ_reduit": {
+                "bases": [],
+                "complements": []
+            }
+        }
 
+
+    # Sélection AZ Turf Pro
     base = numeros[:7]
 
 
-    quinte = base[:5]
-
-    quarte = base[:4]
-
-    trio = base[:3]
-
-
-    champ_reduit = {
-
-        "bases": base[:3],
-
-        "complements": base[3:7]
-
-    }
-
-
-
     return {
+        "quinte": base[:5],
 
-        "quinte": quinte,
+        "quarte": base[:4],
 
-        "quarte": quarte,
+        "trio": base[:3],
 
-        "trio": trio,
-
-        "champ_reduit": champ_reduit
-
+        "champ_reduit": {
+            "bases": base[:3],
+            "complements": base[3:7]
+        }
     }
