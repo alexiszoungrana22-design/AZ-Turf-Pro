@@ -144,7 +144,7 @@ function afficherAnalyse(data){
     <br>
 
     👥 Partants :
-    ${data.partants}
+${data.partants || data.chevaux.length}
 
     </div>
 
