@@ -1,405 +1,454 @@
 /* =====================================
-   AZ TURF PRO V3
-   PREMIUM DESIGN
+   AZ TURF PRO V4
+   DESIGN PROFESSIONNEL HIPPIQUE
 ===================================== */
+
 
 *{
     box-sizing:border-box;
-    font-family:Arial, sans-serif;
+    font-family:Arial, Helvetica, sans-serif;
 }
+
 
 body{
+
     margin:0;
-    background:#07111f;
+
+    background:#f2f4f7;
+
+    color:#222;
+
+}
+
+
+
+/* =====================
+   TOP BAR
+===================== */
+
+
+.topbar{
+
+    background:#075b32;
+
     color:white;
-}
 
+    padding:15px 20px;
 
-/* =====================
-   SPLASH
-===================== */
-
-#splash{
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:#07111f;
     display:flex;
-    justify-content:center;
+
+    justify-content:space-between;
+
     align-items:center;
-    z-index:9999;
-    animation:hideSplash 3s forwards;
-}
-
-.splash-content{
-    text-align:center;
-}
-
-.horse{
-    font-size:65px;
-    animation:bounce 1s infinite;
-}
-
-.splash-content h1{
-    color:#00ff88;
-}
-
-.loader{
-    width:45px;
-    height:45px;
-    border:5px solid #333;
-    border-top:5px solid #00ff88;
-    border-radius:50%;
-    margin:20px auto;
-    animation:rotate 1s linear infinite;
-}
-
-
-@keyframes rotate{
-    to{
-        transform:rotate(360deg);
-    }
-}
-
-@keyframes bounce{
-    50%{
-        transform:translateY(-12px);
-    }
-}
-
-@keyframes hideSplash{
-
-    0%,80%{
-        opacity:1;
-        visibility:visible;
-    }
-
-    100%{
-        opacity:0;
-        visibility:hidden;
-    }
-}
-
-
-
-/* =====================
- HEADER
-===================== */
-
-.hero{
-
-    text-align:center;
-
-    padding:30px 15px;
-
-    background:#101f35;
-
-}
-
-
-.hero h1{
-
-    color:#00ff88;
-
-    font-size:34px;
-
-}
-
-
-.hero p{
-
-    font-size:18px;
-
-}
-
-
-
-/* =====================
- MENU
-===================== */
-
-
-.menu{
-
-    display:flex;
-
-    justify-content:center;
-
-    gap:15px;
 
     flex-wrap:wrap;
 
-    padding:15px;
+}
+
+
+
+.logo{
+
+    font-size:25px;
+
+    font-weight:bold;
 
 }
 
 
 
-.menu a{
-
-    text-decoration:none;
+nav a{
 
     color:white;
 
+    text-decoration:none;
+
+    margin:5px;
+
+    padding:8px 12px;
+
+    border-radius:6px;
+
+}
+
+
+
+nav a:hover{
+
     background:#00a86b;
 
-    padding:12px 18px;
-
-    border-radius:10px;
-
-    font-weight:bold;
-
 }
 
 
-
-.menu a:hover{
-
-    background:#00ff88;
-
-    color:#07111f;
-
-}
 
 
 
 /* =====================
- BANDEAU
+   BANNIERE
 ===================== */
 
 
-.message-defile{
+.hero-banner{
 
-    background:#00ff88;
+    position:relative;
 
-    color:#07111f;
-
-    padding:12px;
-
-    font-weight:bold;
+    height:380px;
 
     overflow:hidden;
 
-    white-space:nowrap;
+}
+
+
+
+.hero-banner img{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
 
 }
 
 
-.message-defile span{
+
+.hero-content{
+
+    position:absolute;
+
+    top:0;
+
+    left:0;
+
+    width:100%;
+
+    height:100%;
+
+    background:rgba(0,0,0,0.45);
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    color:white;
+
+    text-align:center;
+
+}
+
+
+
+.hero-content h1{
+
+    font-size:45px;
+
+    margin:5px;
+
+    color:#00ff88;
+
+}
+
+
+
+.hero-content h2{
+
+    font-size:22px;
+
+}
+
+
+
+
+.btn{
 
     display:inline-block;
 
-    animation:defileAZ 18s linear infinite;
+    background:#00a86b;
+
+    color:white;
+
+    padding:14px 25px;
+
+    border-radius:8px;
+
+    text-decoration:none;
+
+    font-weight:bold;
+
+    margin-top:15px;
 
 }
 
 
 
-@keyframes defileAZ{
+.btn:hover{
 
-    from{
-
-        transform:translateX(100%);
-
-    }
-
-    to{
-
-        transform:translateX(-100%);
-
-    }
+    background:#075b32;
 
 }
+
 
 
 
 
 /* =====================
- CONTAINER
+   CONTENU
 ===================== */
 
 
 .container{
 
-    max-width:1000px;
+    max-width:1100px;
 
     margin:auto;
 
-    padding:15px;
+    padding:20px;
 
 }
+
 
 
 
 
 /* =====================
- CARTES
+   COURSE
 ===================== */
 
 
-.card{
+.course-card{
 
-    background:#10243d;
-
-    margin:20px 0;
-
-    padding:25px;
-
-    border-radius:15px;
-
-    box-shadow:0 0 15px #000;
-
-    animation:apparition .7s ease;
-
-}
-
-
-
-.card h2{
-
-    color:#00ff88;
-
-}
-
-
-
-@keyframes apparition{
-
-    from{
-
-        opacity:0;
-
-        transform:translateY(20px);
-
-    }
-
-    to{
-
-        opacity:1;
-
-        transform:translateY(0);
-
-    }
-
-}
-
-
-
-/* =====================
- PREMIUM
-===================== */
-
-
-.premium{
-
-    border:2px solid #00ff88;
-
-    animation:pulseAZ 2s infinite;
-
-}
-
-
-
-@keyframes pulseAZ{
-
-    50%{
-
-        transform:scale(1.03);
-
-    }
-
-}
-
-
-
-/* =====================
- BOUTONS
-===================== */
-
-
-.btn,
-button{
-
-    display:block;
-
-    width:max-content;
-
-    margin:20px auto;
-
-    padding:15px 25px;
-
-    background:#00ff88;
-
-    color:#07111f;
-
-    border-radius:10px;
-
-    text-decoration:none;
-
-    font-weight:bold;
-
-    font-size:18px;
-
-}
-
-
-.btn:hover,
-button:hover{
-
-    background:#00a86b;
-
-    color:white;
-
-    transform:scale(1.05);
-
-}
-
-
-
-
-/* =====================
- PUBLICITE
-===================== */
-
-
-.pub-container{
-
-    background:#10243d;
-
-    border:2px dashed #00ff88;
+    background:white;
 
     padding:20px;
 
-    border-radius:15px;
+    border-radius:12px;
 
-    text-align:center;
+    box-shadow:0 3px 10px rgba(0,0,0,0.15);
 
-    margin:20px 0;
+    margin-bottom:25px;
+
+}
+
+
+
+.course-card h2{
+
+    color:#075b32;
 
 }
 
 
 
-.pub-container p{
+.info{
 
-    color:#00ff88;
+    display:flex;
 
-    font-weight:bold;
+    gap:15px;
+
+    flex-wrap:wrap;
 
 }
+
+
+
+.info span{
+
+    background:#075b32;
+
+    color:white;
+
+    padding:10px;
+
+    border-radius:8px;
+
+}
+
+
+
 
 
 
 /* =====================
- FOOTER
+   PUBLICITE SLIDER
+===================== */
+
+
+.publicite{
+
+    background:white;
+
+    padding:20px;
+
+    border-radius:12px;
+
+    margin-bottom:30px;
+
+    text-align:center;
+
+}
+
+
+
+.publicite h2{
+
+    color:#075b32;
+
+}
+
+
+
+
+.pub-slider{
+
+    position:relative;
+
+    height:220px;
+
+    overflow:hidden;
+
+}
+
+
+
+.pub-slider img{
+
+    width:100%;
+
+    height:220px;
+
+    object-fit:cover;
+
+    border-radius:10px;
+
+    position:absolute;
+
+    animation:pubAnimation 15s infinite;
+
+}
+
+
+
+.pub-slider img:nth-child(2){
+
+    animation-delay:5s;
+
+}
+
+
+
+.pub-slider img:nth-child(3){
+
+    animation-delay:10s;
+
+}
+
+
+
+
+
+@keyframes pubAnimation{
+
+
+0%{
+
+opacity:0;
+
+}
+
+
+10%{
+
+opacity:1;
+
+}
+
+
+30%{
+
+opacity:1;
+
+}
+
+
+40%{
+
+opacity:0;
+
+}
+
+
+100%{
+
+opacity:0;
+
+}
+
+
+}
+
+
+
+
+
+/* =====================
+   FEATURES
+===================== */
+
+
+.features{
+
+    display:flex;
+
+    gap:20px;
+
+    flex-wrap:wrap;
+
+}
+
+
+
+.feature{
+
+    background:white;
+
+    flex:1;
+
+    min-width:250px;
+
+    padding:20px;
+
+    border-radius:12px;
+
+    box-shadow:0 3px 10px rgba(0,0,0,.15);
+
+}
+
+
+
+.feature h3{
+
+    color:#075b32;
+
+}
+
+
+
+
+
+/* =====================
+   FOOTER
 ===================== */
 
 
 footer{
 
-    background:#101f35;
+    background:#075b32;
+
+    color:white;
 
     text-align:center;
 
@@ -412,33 +461,46 @@ footer{
 
 
 
+
 /* =====================
- MOBILE
+   MOBILE
 ===================== */
 
 
 @media(max-width:700px){
 
 
-.hero h1{
+.topbar{
 
-    font-size:26px;
-
-}
-
-
-.menu a{
-
-    width:90%;
-
-    text-align:center;
+    flex-direction:column;
 
 }
 
 
-.card{
+nav{
 
-    padding:15px;
+    margin-top:10px;
+
+}
+
+
+.hero-banner{
+
+    height:300px;
+
+}
+
+
+.hero-content h1{
+
+    font-size:32px;
+
+}
+
+
+.hero-content h2{
+
+    font-size:18px;
 
 }
 
