@@ -1,33 +1,108 @@
+/* =====================================
+   AZ TURF PRO V3
+   PREMIUM DESIGN
+===================================== */
+
 *{
     box-sizing:border-box;
     font-family:Arial, sans-serif;
 }
 
-
 body{
-
     margin:0;
-    background:#f4f6f8;
-    color:#222;
-
+    background:#07111f;
+    color:white;
 }
 
 
-/* En-tête */
+/* =====================
+   SPLASH
+===================== */
+
+#splash{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:#07111f;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+    animation:hideSplash 3s forwards;
+}
+
+.splash-content{
+    text-align:center;
+}
+
+.horse{
+    font-size:65px;
+    animation:bounce 1s infinite;
+}
+
+.splash-content h1{
+    color:#00ff88;
+}
+
+.loader{
+    width:45px;
+    height:45px;
+    border:5px solid #333;
+    border-top:5px solid #00ff88;
+    border-radius:50%;
+    margin:20px auto;
+    animation:rotate 1s linear infinite;
+}
+
+
+@keyframes rotate{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+@keyframes bounce{
+    50%{
+        transform:translateY(-12px);
+    }
+}
+
+@keyframes hideSplash{
+
+    0%,80%{
+        opacity:1;
+        visibility:visible;
+    }
+
+    100%{
+        opacity:0;
+        visibility:hidden;
+    }
+}
+
+
+
+/* =====================
+ HEADER
+===================== */
 
 .hero{
 
-    background:#0b3d2e;
-    color:white;
     text-align:center;
+
     padding:30px 15px;
+
+    background:#101f35;
 
 }
 
 
 .hero h1{
 
-    margin:0;
+    color:#00ff88;
+
     font-size:34px;
 
 }
@@ -35,202 +110,337 @@ body{
 
 .hero p{
 
-    margin-top:10px;
     font-size:18px;
 
 }
 
 
 
-/* Navigation */
+/* =====================
+ MENU
+===================== */
 
-nav{
 
-    background:#06251c;
+.menu{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:15px;
+
+    flex-wrap:wrap;
+
     padding:15px;
-    text-align:center;
 
 }
 
 
-nav a{
+
+.menu a{
+
+    text-decoration:none;
 
     color:white;
-    text-decoration:none;
-    margin:0 8px;
+
+    background:#00a86b;
+
+    padding:12px 18px;
+
+    border-radius:10px;
+
     font-weight:bold;
 
 }
 
 
-nav a:hover{
 
-    color:#d4af37;
+.menu a:hover{
+
+    background:#00ff88;
+
+    color:#07111f;
 
 }
 
 
 
-/* Conteneur */
+/* =====================
+ BANDEAU
+===================== */
+
+
+.message-defile{
+
+    background:#00ff88;
+
+    color:#07111f;
+
+    padding:12px;
+
+    font-weight:bold;
+
+    overflow:hidden;
+
+    white-space:nowrap;
+
+}
+
+
+.message-defile span{
+
+    display:inline-block;
+
+    animation:defileAZ 18s linear infinite;
+
+}
+
+
+
+@keyframes defileAZ{
+
+    from{
+
+        transform:translateX(100%);
+
+    }
+
+    to{
+
+        transform:translateX(-100%);
+
+    }
+
+}
+
+
+
+
+/* =====================
+ CONTAINER
+===================== */
+
 
 .container{
 
-    max-width:950px;
-    margin:20px auto;
+    max-width:1000px;
+
+    margin:auto;
+
     padding:15px;
 
 }
 
 
 
-/* Cartes */
+
+/* =====================
+ CARTES
+===================== */
+
 
 .card{
 
-    background:white;
-    padding:20px;
-    margin-bottom:20px;
+    background:#10243d;
+
+    margin:20px 0;
+
+    padding:25px;
+
     border-radius:15px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.12);
+
+    box-shadow:0 0 15px #000;
+
+    animation:apparition .7s ease;
 
 }
 
 
 
-/* Carte informations course */
+.card h2{
 
-.course-card{
-
-    border-left:6px solid #0b3d2e;
-    line-height:1.8;
-
-}
-
-
-.course-card strong{
-
-    font-size:22px;
-    color:#0b3d2e;
+    color:#00ff88;
 
 }
 
 
 
-/* Carte premium */
+@keyframes apparition{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(20px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+
+
+/* =====================
+ PREMIUM
+===================== */
+
 
 .premium{
 
-    border:2px solid #d4af37;
+    border:2px solid #00ff88;
+
+    animation:pulseAZ 2s infinite;
 
 }
 
 
 
-/* Boutons */
+@keyframes pulseAZ{
 
-.btn{
+    50%{
 
-    display:inline-block;
-    background:#0b3d2e;
-    color:white;
-    padding:12px 22px;
-    border-radius:8px;
+        transform:scale(1.03);
+
+    }
+
+}
+
+
+
+/* =====================
+ BOUTONS
+===================== */
+
+
+.btn,
+button{
+
+    display:block;
+
+    width:max-content;
+
+    margin:20px auto;
+
+    padding:15px 25px;
+
+    background:#00ff88;
+
+    color:#07111f;
+
+    border-radius:10px;
+
     text-decoration:none;
-    border:none;
-    cursor:pointer;
-    font-size:16px;
-    margin-top:10px;
+
+    font-weight:bold;
+
+    font-size:18px;
 
 }
 
 
-.btn:hover{
+.btn:hover,
+button:hover{
 
-    opacity:0.85;
+    background:#00a86b;
 
-}
-
-
-
-/* Liste chevaux */
-
-li{
-
-    list-style:none;
-    background:#f8f8f8;
-    margin-bottom:15px;
-    padding:15px;
-    border-radius:12px;
-    border-left:5px solid #0b3d2e;
-
-}
-
-
-
-/* Favori */
-
-.favori{
-
-    background:#fff4c2;
-    border:2px solid #d4af37;
-    padding:15px;
-    border-radius:12px;
-
-}
-
-
-
-/* Ticket */
-
-.ticket{
-
-    background:#06251c;
     color:white;
-    padding:20px;
-    border-radius:15px;
-    line-height:1.8;
+
+    transform:scale(1.05);
 
 }
 
 
 
-/* Footer */
+
+/* =====================
+ PUBLICITE
+===================== */
+
+
+.pub-container{
+
+    background:#10243d;
+
+    border:2px dashed #00ff88;
+
+    padding:20px;
+
+    border-radius:15px;
+
+    text-align:center;
+
+    margin:20px 0;
+
+}
+
+
+
+.pub-container p{
+
+    color:#00ff88;
+
+    font-weight:bold;
+
+}
+
+
+
+/* =====================
+ FOOTER
+===================== */
+
 
 footer{
 
+    background:#101f35;
+
     text-align:center;
+
     padding:20px;
-    background:#06251c;
-    color:white;
+
     margin-top:30px;
 
 }
 
 
 
-/* Téléphone */
 
-@media(max-width:600px){
-
-    .hero h1{
-
-        font-size:26px;
-
-    }
+/* =====================
+ MOBILE
+===================== */
 
 
-    nav a{
-
-        display:inline-block;
-        margin:5px;
-
-    }
+@media(max-width:700px){
 
 
-    .container{
+.hero h1{
 
-        padding:10px;
+    font-size:26px;
 
-    }
+}
+
+
+.menu a{
+
+    width:90%;
+
+    text-align:center;
+
+}
+
+
+.card{
+
+    padding:15px;
+
+}
+
 
 }
