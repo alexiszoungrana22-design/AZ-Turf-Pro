@@ -50,7 +50,7 @@ def analyse():
 
             "course": course.get(
                 "course",
-                ""
+                "Course AZ"
             ),
 
             "date": course.get(
@@ -89,6 +89,6 @@ def analyse():
 
             status_code=500,
 
-            detail=f"Erreur AZ : {str(e)}"
+            detail=str(e)
 
         )
