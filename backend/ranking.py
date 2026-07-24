@@ -1,5 +1,9 @@
 def classer_chevaux(chevaux):
 
+    if not isinstance(chevaux, list):
+        return []
+
+
     classement = sorted(
         chevaux,
         key=lambda x: (
@@ -10,7 +14,9 @@ def classer_chevaux(chevaux):
         reverse=True
     )
 
+
     for rang, cheval in enumerate(classement, start=1):
         cheval["rang"] = rang
+
 
     return classement

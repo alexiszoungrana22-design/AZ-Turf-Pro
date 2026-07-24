@@ -3,101 +3,18 @@ from ranking import classer_chevaux
 from quinte import generer_tickets_az
 
 
+def lancer_analyse(chevaux):
 
-def lancer_analyse():
+    if not chevaux:
 
-
-    chevaux = [
-
-        {
-            "numero": 1,
-            "forme": 8,
-            "regularite": 7,
-            "gains": 7,
-            "jockey": 8,
-            "cote": 7,
-            "distance": 8,
-            "terrain": 7,
-            "experience": 8
-        },
-
-        {
-            "numero": 2,
-            "forme": 9,
-            "regularite": 8,
-            "gains": 8,
-            "jockey": 7,
-            "cote": 8,
-            "distance": 9,
-            "terrain": 8,
-            "experience": 8
-        },
-
-        {
-            "numero": 3,
-            "forme": 10,
-            "regularite": 9,
-            "gains": 9,
-            "jockey": 9,
-            "cote": 9,
-            "distance": 9,
-            "terrain": 9,
-            "experience": 10
-        },
-
-        {
-            "numero": 4,
-            "forme": 6,
-            "regularite": 6,
-            "gains": 6,
-            "jockey": 7,
-            "cote": 6,
-            "distance": 7,
-            "terrain": 6,
-            "experience": 7
-        },
-
-        {
-            "numero": 5,
-            "forme": 9,
-            "regularite": 8,
-            "gains": 8,
-            "jockey": 8,
-            "cote": 9,
-            "distance": 8,
-            "terrain": 8,
-            "experience": 9
-        },
-
-        {
-            "numero": 6,
-            "forme": 7,
-            "regularite": 7,
-            "gains": 7,
-            "jockey": 8,
-            "cote": 7,
-            "distance": 7,
-            "terrain": 8,
-            "experience": 7
-        },
-
-        {
-            "numero": 7,
-            "forme": 8,
-            "regularite": 8,
-            "gains": 7,
-            "jockey": 7,
-            "cote": 8,
-            "distance": 8,
-            "terrain": 7,
-            "experience": 8
+        return {
+            "classement": [],
+            "favori": {},
+            "tickets": {}
         }
 
-    ]
 
-
-
-    # Calcul indice AZ
+    # Calcul de l'indice AZ
 
     for cheval in chevaux:
 
@@ -117,8 +34,10 @@ def lancer_analyse():
 
     for rang, cheval in enumerate(classement, start=1):
 
-
-        score = cheval["score"]
+        score = cheval.get(
+            "score",
+            0
+        )
 
 
         if rang == 1:
@@ -139,7 +58,7 @@ def lancer_analyse():
             95,
             max(
                 50,
-                int((score / 250) * 100)
+                int(score * 0.4)
             )
         )
 
@@ -147,36 +66,44 @@ def lancer_analyse():
 
         resultat.append({
 
-            "rang": rang,
+    "rang": rang,
 
-            "numero": cheval["numero"],
+    "numero": cheval.get("numero"),
 
-            "indice_az": score,
+    "nom": cheval.get("nom", ""),
 
-            "confiance": confiance,
+    "age": cheval.get("age", 0),
 
-            "type": categorie
+    "sexe": cheval.get("sexe", ""),
 
-        })
+    "jockey": cheval.get("jockey", ""),
+
+    "entraineur": cheval.get("entraineur", ""),
+
+    "performances": cheval.get("performances", []),
+
+    "indice_az": score,
+
+    "confiance": confiance,
+
+    "type": categorie
+
+})
 
 
 
-    # Génération des tickets
-
-    tickets = generer_tickets_az(resultat)
+    tickets = generer_tickets_az(
+        resultat
+    )
 
 
 
     return {
 
-
         "classement": resultat,
 
-
-        "favori": resultat[0],
-
+        "favori": resultat[0] if resultat else {},
 
         "tickets": tickets
 
-
-        }
+    }

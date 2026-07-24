@@ -3,13 +3,15 @@
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Historique AZ Turf Pro</title>
+    <meta name="description" content="Historique des analyses AZ Turf Pro">
 
-<link rel="stylesheet" href="style.css">
+    <title>AZ Turf Pro - Historique</title>
+
+    <link rel="stylesheet" href="style.css">
 
 </head>
 
@@ -17,41 +19,58 @@
 <body>
 
 
-<header>
+<header class="hero">
 
-<h1>📊 Historique AZ Turf Pro</h1>
+    <h1>🐎 AZ TURF PRO</h1>
 
-<p>Suivi des analyses précédentes</p>
+    <p>
+        Historique des analyses AZ
+    </p>
 
 </header>
 
 
 
-<nav class="menu">
 
-<a href="index.html">🏠 Accueil</a>
+<nav>
 
-<a href="analyse.html">🔍 Analyse</a>
+    <a href="index.html">Accueil</a>
 
-<a href="ticket.html">🎫 Ticket</a>
+    <a href="analyse.html">Analyse</a>
 
-<a href="historique.html">📊 Historique</a>
+    <a href="ticket.html">Ticket Premium</a>
+
+    <a href="historique.html">Historique</a>
 
 </nav>
 
 
 
 
-<section class="card">
+
+<section class="container">
 
 
-<h2>📈 Dernières analyses</h2>
+
+<div class="card">
 
 
-<div id="historique">
+    <h2>
+        📜 Historique AZ
+    </h2>
 
 
-Aucun historique enregistré.
+
+    <div id="historique">
+
+
+        <p>
+            Chargement de l'historique...
+        </p>
+
+
+    </div>
+
 
 
 </div>
@@ -63,90 +82,24 @@ Aucun historique enregistré.
 
 
 
+
+
+
 <footer>
 
-AZ Turf Pro © 2026
+
+    <p>
+        © 2026 AZ Turf Pro
+    </p>
+
 
 </footer>
 
 
 
 
-<script>
 
-
-const historique =
-document.getElementById("historique");
-
-
-
-let analyses =
-JSON.parse(localStorage.getItem("az_historique")) || [];
-
-
-
-if(analyses.length === 0){
-
-
-historique.innerHTML =
-"Aucune analyse enregistrée.";
-
-
-}
-
-else{
-
-
-
-historique.innerHTML = "";
-
-
-
-analyses.forEach((analyse,index)=>{
-
-
-
-historique.innerHTML += `
-
-
-<div class="cheval">
-
-
-📅 Analyse ${index + 1}
-
-
-<br><br>
-
-
-🎫 Ticket :
-
-${analyse.ticket || "Non disponible"}
-
-
-<br><br>
-
-
-⭐ Favori :
-
-${analyse.favori || "Non disponible"}
-
-
-</div>
-
-
-`;
-
-
-
-});
-
-
-
-}
-
-
-
-</script>
+<script src="script.js" defer></script>
 
 
 

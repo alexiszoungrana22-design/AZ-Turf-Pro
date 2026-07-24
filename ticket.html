@@ -3,13 +3,12 @@
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AZ Turf Pro - Ticket Premium</title>
 
-<title>Ticket AZ Turf Pro</title>
-
-<link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css">
 
 </head>
 
@@ -17,26 +16,28 @@
 <body>
 
 
-<header>
+<header class="hero">
 
-<h1>🎫 Ticket AZ Turf Pro</h1>
+    <h1>🐎 AZ TURF PRO</h1>
 
-<p>Ticket conseillé par l'intelligence AZ</p>
+    <p>
+        Ticket Premium AZ
+    </p>
 
 </header>
 
 
 
 
-<nav class="menu">
+<nav>
 
-<a href="index.html">🏠 Accueil</a>
+    <a href="index.html">Accueil</a>
 
-<a href="analyse.html">🔍 Analyse</a>
+    <a href="analyse.html">Analyse</a>
 
-<a href="ticket.html">🎫 Ticket</a>
+    <a href="ticket.html">Ticket Premium</a>
 
-<a href="historique.html">📊 Historique</a>
+    <a href="historique.html">Historique</a>
 
 </nav>
 
@@ -44,25 +45,67 @@
 
 
 
-<section class="card">
+<section class="container">
 
 
-<h2>🎯 Ticket Premium</h2>
+
+<div class="card premium">
 
 
-<button id="charger">
+<h2>
+⭐ Ticket AZ Premium
+</h2>
 
-📥 Charger le ticket
 
-</button>
+
+<p>
+Combinaisons générées automatiquement
+par le moteur AZ.
+</p>
+
 
 
 
 <div id="ticket">
 
-Aucun ticket disponible.
+
+<h3>
+🎟️ Ticket conseillé
+</h3>
+
+
+<p>
+Effectuez une analyse pour générer
+votre ticket.
+</p>
+
 
 </div>
+
+
+
+
+
+<button class="btn" onclick="chargerTicket()">
+
+🎯 Générer le ticket AZ
+
+</button>
+
+
+
+
+<button class="btn" onclick="sauverTicket()">
+
+💾 Sauvegarder
+
+</button>
+
+
+
+</div>
+
+
 
 
 </section>
@@ -71,9 +114,12 @@ Aucun ticket disponible.
 
 
 
+
 <footer>
 
-AZ Turf Pro © 2026
+<p>
+© 2026 AZ Turf Pro
+</p>
 
 </footer>
 
@@ -81,111 +127,7 @@ AZ Turf Pro © 2026
 
 
 
-<script>
-
-
-const API =
-"https://az-turf-1.onrender.com/analyse";
-
-
-
-document
-.getElementById("charger")
-.addEventListener("click", async()=>{
-
-
-
-const zone =
-document.getElementById("ticket");
-
-
-
-zone.innerHTML =
-"⏳ Chargement du ticket...";
-
-
-
-try{
-
-
-
-const response =
-await fetch(API);
-
-
-
-const data =
-await response.json();
-
-
-
-const ticket =
-data.ticket_premium;
-
-
-
-zone.innerHTML = `
-
-
-<div class="cheval">
-
-
-🏇 Base :
-
-<b>${ticket.base}</b>
-
-
-<br><br>
-
-
-⭐ Associés :
-
-<b>${ticket.associes.join(" - ")}</b>
-
-
-<br><br>
-
-
-🔥 Outsider :
-
-<b>${ticket.outsider}</b>
-
-
-<br><br>
-
-
-🎫 Quinté :
-
-<b>${ticket.quinte.join(" - ")}</b>
-
-
-</div>
-
-
-
-`;
-
-
-
-}
-
-catch(error){
-
-
-zone.innerHTML =
-"❌ Impossible de récupérer le ticket.";
-
-
-}
-
-
-
-});
-
-
-
-</script>
-
+<script src="script.js"></script>
 
 
 </body>

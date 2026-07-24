@@ -4,14 +4,19 @@ def generer_tickets_az(classement):
     - Quinté
     - Quarté
     - Trio
+    - Couplé gagnant
+    - Couplé placé
     - Champ réduit
     """
 
-    if not classement:
+    if not isinstance(classement, list) or not classement:
+
         return {
             "quinte": [],
             "quarte": [],
             "trio": [],
+            "couple_gagnant": [],
+            "couple_place": [],
             "champ_reduit": {
                 "bases": [],
                 "complements": []
@@ -19,42 +24,76 @@ def generer_tickets_az(classement):
         }
 
 
-    numeros = [
-        cheval["numero"]
-        for cheval in classement
-    ]
+    numeros = []
+
+    for cheval in classement:
+
+        numero = cheval.get("numero")
+
+        if numero is not None:
+            numeros.append(numero)
 
 
-    # Sélection AZ selon le classement
+
+    if len(numeros) < 2:
+
+        return {
+            "quinte": numeros,
+            "quarte": numeros,
+            "trio": numeros,
+            "couple_gagnant": [],
+            "couple_place": [],
+            "champ_reduit": {
+                "bases": numeros,
+                "complements": []
+            }
+        }
+
+
 
     base = numeros[:7]
 
 
-    quinte = base[:5]
-
-    quarte = base[:4]
-
-    trio = base[:3]
-
-
-    champ_reduit = {
-
-        "bases": base[:3],
-
-        "complements": base[3:7]
-
-    }
-
-
-
     return {
 
-        "quinte": quinte,
+        "quinte": base[:5],
 
-        "quarte": quarte,
+        "quarte": base[:4],
 
-        "trio": trio,
+        "trio": base[:3],
 
-        "champ_reduit": champ_reduit
+
+        # Les 2 premiers AZ
+        # pour le couplé gagnant
+        "couple_gagnant": [
+            base[0],
+            base[1]
+        ],
+
+
+        # Plusieurs possibilités couplé placé
+        "couple_place": [
+            [
+                base[0],
+                base[1]
+            ],
+            [
+                base[0],
+                base[2]
+            ],
+            [
+                base[1],
+                base[2]
+            ]
+        ],
+
+
+        "champ_reduit": {
+
+            "bases": base[:3],
+
+            "complements": base[3:7]
+
+        }
 
     }
