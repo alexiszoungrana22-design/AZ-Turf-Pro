@@ -1,340 +1,146 @@
 /* =====================================
-   AZ TURF PRO v3
-   Design Premium Fusion
+   AZ TURF PRO V6
+   DESIGN HIPPIQUE PREMIUM
 ===================================== */
 
 
 *{
-
     box-sizing:border-box;
-
-    font-family:Arial, sans-serif;
-
+    font-family:Arial, Helvetica, sans-serif;
 }
-
 
 
 body{
 
     margin:0;
 
-    background:#07111f;
+    background:#0c1512;
 
     color:white;
 
 }
 
 
-
 /* =====================
-   SPLASH
+ HEADER
 ===================== */
 
 
-#splash{
+.header-az{
 
-    position:fixed;
-
-    top:0;
-
-    left:0;
-
-    width:100%;
-
-    height:100%;
-
-    background:#07111f;
+    background:#06351f;
 
     display:flex;
 
-    justify-content:center;
+    justify-content:space-between;
 
     align-items:center;
 
-    z-index:9999;
+    padding:15px 25px;
 
-    animation:hideSplash 3s forwards;
-
-}
-
-
-
-.splash-content{
-
-    text-align:center;
+    border-bottom:3px solid #d4af37;
 
 }
 
 
 
-.horse{
+.logo{
 
-    font-size:60px;
+    font-size:28px;
 
-    animation:bounce 1s infinite;
+    font-weight:bold;
 
-}
-
-
-
-.splash-content h1{
-
-    color:#00ff88;
+    color:#d4af37;
 
 }
 
 
 
-.loader{
-
-    width:45px;
-
-    height:45px;
-
-    border:5px solid #333;
-
-    border-top:5px solid #00ff88;
-
-    border-radius:50%;
-
-    margin:20px auto;
-
-    animation:rotate 1s linear infinite;
-
-}
-
-
-
-@keyframes rotate{
-
-    from{
-
-        transform:rotate(0deg);
-
-    }
-
-
-    to{
-
-        transform:rotate(360deg);
-
-    }
-
-}
-
-
-
-@keyframes bounce{
-
-    50%{
-
-        transform:translateY(-10px);
-
-    }
-
-}
-
-
-
-@keyframes hideSplash{
-
-    0%,80%{
-
-        opacity:1;
-
-        visibility:visible;
-
-    }
-
-
-    100%{
-
-        opacity:0;
-
-        visibility:hidden;
-
-    }
-
-}
-
-
-
-/* =====================
-   HEADER
-===================== */
-
-
-header{
-
-    text-align:center;
-
-    padding:25px;
-
-    background:#101f35;
-
-}
-
-
-
-header h1{
-
-    color:#00ff88;
-
-    font-size:32px;
-
-}
-
-
-
-header p{
-
-    font-size:17px;
-
-}
-
-
-
-/* =====================
-   MENU
-===================== */
-
-
-.menu{
-
-    display:flex;
-
-    justify-content:center;
-
-    gap:15px;
-
-    flex-wrap:wrap;
-
-    padding:15px;
-
-}
-
-
-
-.menu a{
-
-    text-decoration:none;
+nav a{
 
     color:white;
 
-    background:#00a86b;
+    text-decoration:none;
 
-    padding:10px 18px;
+    margin:5px;
+
+    padding:10px 14px;
 
     border-radius:8px;
 
-    font-weight:bold;
-
 }
 
 
 
-.menu a:hover{
+nav a:hover{
 
-    background:#00ff88;
+    background:#d4af37;
 
-    color:black;
-
-}
-/* =====================
-   BANDEAU DEFILE
-===================== */
-
-
-.message-defile{
-
-    background:#00ff88;
-
-    color:#07111f;
-
-    padding:12px;
-
-    font-weight:bold;
-
-    overflow:hidden;
-
-    white-space:nowrap;
+    color:#111;
 
 }
-
-
-
-.message-defile span{
-
-    display:inline-block;
-
-    animation:defileAZ 18s linear infinite;
-
-}
-
-
-
-@keyframes defileAZ{
-
-
-    from{
-
-        transform:translateX(100%);
-
-    }
-
-
-    to{
-
-        transform:translateX(-100%);
-
-    }
-
-}
-
 
 
 
 /* =====================
-   CARTES
+ HERO
 ===================== */
 
 
-.card{
+.hero-az{
 
-    background:#10243d;
+    min-height:500px;
 
-    margin:15px;
+    background:
+
+    linear-gradient(
+
+    rgba(0,0,0,.55),
+
+    rgba(0,0,0,.75)
+
+    ),
+
+    url("images/banner.jpg");
+
+
+    background-size:cover;
+
+    background-position:center;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    text-align:center;
+
+}
+
+
+
+.overlay{
 
     padding:20px;
 
-    border-radius:15px;
+}
 
-    box-shadow:0 0 10px #000;
 
-    animation:apparition .7s ease;
+
+.overlay h1{
+
+    font-size:42px;
+
+    color:#d4af37;
 
 }
 
 
 
-@keyframes apparition{
+.overlay p{
 
-    from{
-
-        opacity:0;
-
-        transform:translateY(20px);
-
-    }
-
-
-    to{
-
-        opacity:1;
-
-        transform:translateY(0);
-
-    }
+    font-size:20px;
 
 }
 
@@ -342,50 +148,196 @@ header p{
 
 
 /* =====================
-   CHEVAUX
+ COMPTE A REBOURS
 ===================== */
 
 
-.cheval,
-.cheval-card{
+.countdown-box{
 
-    background:#162f50;
+    background:rgba(0,0,0,.7);
 
-    padding:15px;
+    border:2px solid #d4af37;
 
-    margin:10px 0;
+    border-radius:15px;
 
-    border-radius:10px;
+    padding:20px;
 
-    border-left:5px solid #00ff88;
+    margin:25px auto;
 
-}
-
-
-
-.cheval:hover,
-.cheval-card:hover{
-
-    transform:scale(1.03);
-
-    transition:.3s;
+    max-width:350px;
 
 }
 
 
 
+.countdown-box h2{
 
-.indice{
+    color:#d4af37;
+
+}
+
+
+
+#countdown{
+
+    font-size:40px;
+
+    font-weight:bold;
+
+    color:#00ff88;
+
+}
+
+
+
+
+
+/* =====================
+ BOUTONS
+===================== */
+
+
+.btn-az{
 
     display:inline-block;
 
-    background:#00a86b;
+    background:#087f3d;
 
-    padding:6px 12px;
+    color:white;
 
-    border-radius:20px;
+    text-decoration:none;
+
+    padding:14px 25px;
+
+    border-radius:10px;
 
     font-weight:bold;
+
+}
+
+
+
+.btn-az:hover{
+
+    background:#d4af37;
+
+    color:#111;
+
+}
+
+
+
+
+
+/* =====================
+ CONTENEUR
+===================== */
+
+
+.container{
+
+    max-width:1200px;
+
+    margin:auto;
+
+    padding:20px;
+
+}
+
+
+
+
+/* =====================
+ BLOCS
+===================== */
+
+
+.course-box,
+.selection-az,
+.ticket-box,
+.publicite{
+
+    background:#111d18;
+
+    border:1px solid #284d39;
+
+    border-radius:15px;
+
+    padding:25px;
+
+    margin-bottom:25px;
+
+}
+
+
+
+h2{
+
+    color:#d4af37;
+
+}
+
+
+
+
+
+/* =====================
+ COURSES
+===================== */
+
+
+.grid-courses{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+    gap:15px;
+
+}
+
+
+
+.course-card{
+
+    background:#06351f;
+
+    padding:20px;
+
+    border-radius:12px;
+
+    border-left:5px solid #d4af37;
+
+}
+
+
+
+.course-card span{
+
+    color:#00ff88;
+
+}
+
+
+
+
+
+/* =====================
+ CHEVAUX TOP 7
+===================== */
+
+
+.cheval{
+
+    background:#17251e;
+
+    padding:15px;
+
+    margin:12px 0;
+
+    border-radius:12px;
+
+    border-left:5px solid #d4af37;
 
 }
 
@@ -402,163 +354,134 @@ header p{
 
 
 
+
 /* =====================
-   FAVORI AZ
+ JEUX
 ===================== */
 
 
-.favori{
+.game-grid{
 
-    background:#152b18;
+    display:grid;
 
-    border:2px solid #00ff88;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
 
-    margin:15px;
+    gap:15px;
+
+    margin-bottom:25px;
+
+}
+
+
+
+.game-grid div{
+
+    background:#06351f;
 
     padding:20px;
 
-    border-radius:15px;
+    text-align:center;
 
-    animation:pulseAZ 2s infinite;
+    border-radius:10px;
 
-}
-
-
-
-@keyframes pulseAZ{
-
-    50%{
-
-        transform:scale(1.04);
-
-    }
+    font-weight:bold;
 
 }
+
+
+
 
 
 
 /* =====================
-   PUBLICITE
+ PUBLICITE
 ===================== */
 
 
-.pub-container{
+.pub-slider{
 
-    margin:20px auto;
+    position:relative;
 
-    max-width:950px;
+    height:230px;
 
-    background:#10243d;
-
-    border:2px dashed #00ff88;
-
-    border-radius:15px;
-
-    padding:15px;
-
-    text-align:center;
+    overflow:hidden;
 
 }
 
 
 
-.pub-container img{
+.pub-slider img{
+
+    position:absolute;
 
     width:100%;
 
-    max-height:200px;
+    height:230px;
 
     object-fit:cover;
 
-    border-radius:10px;
+    border-radius:12px;
+
+    animation:pubAZ 15s infinite;
 
 }
 
 
 
-.pub-container p{
+.pub-slider img:nth-child(2){
 
-    color:#00ff88;
-
-    font-weight:bold;
-
-   }
-/* =====================
-   TICKET PREMIUM
-===================== */
-
-
-.ticket{
-
-    background:#10243d;
-
-    border-left:5px solid #00ff88;
-
-    margin:15px;
-
-    padding:20px;
-
-    border-radius:15px;
-
-    box-shadow:0 0 10px #000;
+    animation-delay:5s;
 
 }
 
 
 
-.ticket h2{
+.pub-slider img:nth-child(3){
 
-    color:#00ff88;
+    animation-delay:10s;
 
 }
 
 
 
 
-/* =====================
-   BOUTONS
-===================== */
+@keyframes pubAZ{
 
 
-button,
-.btn{
+0%{
 
-    display:block;
-
-    margin:20px auto;
-
-    padding:15px 25px;
-
-    border:none;
-
-    border-radius:10px;
-
-    background:#00ff88;
-
-    color:#001;
-
-    font-size:18px;
-
-    font-weight:bold;
-
-    cursor:pointer;
-
-    text-decoration:none;
-
-    text-align:center;
+opacity:0;
 
 }
 
 
+10%{
 
-button:hover,
-.btn:hover{
+opacity:1;
 
-    transform:scale(1.05);
+}
 
-    background:#00a86b;
 
-    color:white;
+30%{
+
+opacity:1;
+
+}
+
+
+40%{
+
+opacity:0;
+
+}
+
+
+100%{
+
+opacity:0;
+
+}
+
 
 }
 
@@ -566,113 +489,72 @@ button:hover,
 
 
 /* =====================
-   CLASSEMENT
-===================== */
-
-
-.classement{
-
-    list-style:none;
-
-    padding:0;
-
-}
-
-
-
-.classement li{
-
-    background:#10243d;
-
-    margin:10px 15px;
-
-    padding:15px;
-
-    border-radius:10px;
-
-}
-
-
-
-
-.top1{
-
-    border-left:5px solid gold;
-
-}
-
-
-.top2{
-
-    border-left:5px solid silver;
-
-}
-
-
-.top3{
-
-    border-left:5px solid #cd7f32;
-
-}
-
-
-
-
-
-/* =====================
-   FOOTER
+ FOOTER
 ===================== */
 
 
 footer{
 
+    background:#06351f;
+
     text-align:center;
 
     padding:20px;
 
-    background:#101f35;
-
-    margin-top:30px;
-
-    color:white;
+    border-top:3px solid #d4af37;
 
 }
 
 
 
+
+
 /* =====================
-   MOBILE
+ MOBILE
 ===================== */
 
 
 @media(max-width:700px){
 
 
-    header h1{
+.header-az{
 
-        font-size:26px;
+    flex-direction:column;
 
-    }
-
-
-    .menu a{
-
-        width:90%;
-
-        text-align:center;
-
-    }
+}
 
 
-    .card,
-    .ticket,
-    .favori{
 
-        margin:10px;
+nav{
 
-        padding:15px;
+    margin-top:15px;
 
-    }
+}
+
+
+
+nav a{
+
+    display:inline-block;
+
+}
+
+
+
+.overlay h1{
+
+    font-size:30px;
+
+}
+
+
+
+#countdown{
+
+    font-size:32px;
+
+}
+
 
 
 }
