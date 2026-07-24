@@ -37,6 +37,13 @@ def analyse():
         )
 
 
+        if not chevaux:
+
+            raise Exception(
+                "Aucun cheval trouvé dans courses.json"
+            )
+
+
 
         resultat = lancer_analyse(
             chevaux
@@ -48,9 +55,12 @@ def analyse():
 
             "message": "Analyse AZ Turf terminée",
 
+
+            # Informations de la course
+
             "course": course.get(
                 "course",
-                ""
+                "Course AZ"
             ),
 
             "date": course.get(
@@ -88,10 +98,13 @@ def analyse():
                 0
             ),
 
-            "partants": course.get(
-                "partants",
-                0
-            ),
+            # Compte automatiquement les chevaux
+
+            "partants": len(chevaux),
+
+
+
+            # Résultats AZ
 
             "chevaux": resultat.get(
                 "classement",
@@ -103,10 +116,12 @@ def analyse():
                 []
             ),
 
+
             "favori": resultat.get(
                 "favori",
                 {}
             ),
+
 
             "tickets": resultat.get(
                 "tickets",
@@ -116,9 +131,14 @@ def analyse():
         }
 
 
+
     except Exception as e:
 
+
         raise HTTPException(
+
             status_code=500,
+
             detail=f"Erreur AZ : {str(e)}"
+
         )
