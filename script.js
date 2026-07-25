@@ -1,13 +1,13 @@
 /* =====================================
-   AZ TURF PRO - SCRIPT PRINCIPAL
-   Fonctions navigation et affichage
+   AZ TURF PRO - SCRIPT API
+   Connexion frontend / backend
 ===================================== */
 
 
 document.addEventListener("DOMContentLoaded", function(){
 
 
-    // Animation légère des cartes
+    // Animation des cartes
 
     const cards = document.querySelectorAll(".card, .box");
 
@@ -27,12 +27,11 @@ document.addEventListener("DOMContentLoaded", function(){
 
         });
 
-
     });
 
 
 
-    // Message utilisateur
+    // Bouton message
 
     const message = document.querySelector(".message-icon");
 
@@ -42,8 +41,8 @@ document.addEventListener("DOMContentLoaded", function(){
         message.addEventListener("click", function(){
 
             alert(
-            "Bienvenue sur AZ Turf Pro.\n\n" +
-            "Retrouvez vos analyses spécialisées et vos tickets premium."
+                "Bienvenue sur AZ Turf Pro.\n\n" +
+                "Votre analyse hippique intelligente."
             );
 
         });
@@ -52,17 +51,13 @@ document.addEventListener("DOMContentLoaded", function(){
 
 
 
-    // Mise à jour automatique de l'année du footer
+    // Charger automatiquement l'analyse
 
-    const footerYear = document.querySelector(".footer-year");
+    if(document.querySelector(".table-container")){
 
-
-    if(footerYear){
-
-        footerYear.textContent = new Date().getFullYear();
+        chargerAnalyse();
 
     }
-
 
 
 });
@@ -72,8 +67,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
 
 /* =====================================
-   Préparation connexion API
-   Analyse spécialisée
+   CONNEXION API AZ TURF PRO
 ===================================== */
 
 
@@ -86,33 +80,247 @@ try{
 const reponse = await fetch("/api/analyse");
 
 
+
 if(!reponse.ok){
 
-throw new Error("Erreur serveur");
+throw new Error("Erreur API");
 
 }
 
 
-const donnees = await reponse.json();
+
+const data = await reponse.json();
+
 
 
 console.log(
-"Analyse AZ Turf Pro :",
-donnees
+"Résultat AZ Turf Pro :",
+data
 );
 
 
 
+afficherCourse(data);
+
+afficherPartants(data.chevaux);
+
+afficherFavori(data.favori);
+
+afficherTickets(data.tickets);
+
+
+
 }
+
 catch(error){
 
 
+console.error(error);
+
+
 console.log(
-"Analyse disponible prochainement"
+"Impossible de charger l'analyse AZ Turf"
 );
 
 
 }
+
+
+
+}
+
+
+
+
+
+/* =====================================
+   AFFICHAGE COURSE
+===================================== */
+
+
+function afficherCourse(data){
+
+
+const titre = document.querySelector(".course-card h2");
+
+
+if(titre && data.course){
+
+titre.textContent = "🏇 " + data.course;
+
+}
+
+
+
+const infos =
+document.querySelectorAll(".course-info span");
+
+
+
+if(infos.length >= 3){
+
+
+infos[2].textContent =
+(data.partants || 0) + " chevaux";
+
+
+}
+
+
+}
+
+
+
+
+
+/* =====================================
+   TABLEAU DES CHEVAUX
+===================================== */
+
+
+function afficherPartants(chevaux){
+
+
+const tableau =
+document.querySelector("tbody");
+
+
+
+if(!tableau || !chevaux){
+
+return;
+
+}
+
+
+
+tableau.innerHTML = "";
+
+
+
+chevaux.forEach(cheval => {
+
+
+
+const ligne =
+document.createElement("tr");
+
+
+
+ligne.innerHTML = `
+
+<td>${cheval.numero ?? ""}</td>
+
+<td>${cheval.nom ?? ""}</td>
+
+<td>${cheval.jockey ?? ""}</td>
+
+<td>${cheval.entraineur ?? ""}</td>
+
+<td>${cheval.confiance ?? ""}%</td>
+
+<td>${cheval.indice_az ?? ""}</td>
+
+`;
+
+
+
+tableau.appendChild(ligne);
+
+
+
+});
+
+
+
+}
+
+
+
+
+
+
+
+/* =====================================
+   FAVORI AZ
+===================================== */
+
+
+function afficherFavori(favori){
+
+
+const bloc =
+document.querySelector(".favorite p");
+
+
+
+if(bloc && favori){
+
+
+bloc.innerHTML = `
+
+Cheval N° ${favori.numero ?? "-"} 
+
+<br>
+
+${favori.nom ?? ""}
+
+<br>
+
+Indice AZ :
+${favori.indice_az ?? "-"}
+
+`;
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+/* =====================================
+   TICKETS
+===================================== */
+
+
+function afficherTickets(tickets){
+
+
+const zone =
+document.querySelector(
+"section.welcome:last-child"
+);
+
+
+
+if(!zone || !tickets){
+
+return;
+
+}
+
+
+
+zone.innerHTML = `
+
+<h2>🎟 Sélection conseillée</h2>
+
+
+<p>
+Quinté :
+<strong>
+${JSON.stringify(tickets)}
+</strong>
+</p>
+
+
+`;
 
 
 
