@@ -6,11 +6,7 @@ def classer_chevaux(chevaux):
 
     classement = sorted(
         chevaux,
-        key=lambda x: (
-            x.get("score", 0),
-            x.get("regularite", 0),
-            x.get("forme", 0)
-        ),
+        key=lambda x: x.get("indice_az", 0),
         reverse=True
     )
 
