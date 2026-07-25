@@ -1,127 +1,67 @@
-from fastapi import APIRouter, HTTPException
-from engine import lancer_analyse
-import json
-import os
+from scoring import calculer_score_az
+from ranking import classer_chevaux
+from quinte import generer_tickets_az
+
+try:
+    from learning import enregistrer_course
+except Exception:
+    enregistrer_course = None
 
 
-router = APIRouter(
-    prefix="/api",
-    tags=["AZ Turf"]
-)
+def lancer_analyse(chevaux):
 
-
-@router.get("/analyse")
-def analyse():
-
-    try:
-
-        chemin = os.path.join(
-            "data",
-            "courses.json"
-        )
-
-
-        with open(
-            chemin,
-            "r",
-            encoding="utf-8"
-        ) as fichier:
-
-            course = json.load(fichier)
-
-
-        chevaux = course.get(
-            "chevaux",
-            []
-        )
-
-
-        if not chevaux:
-            raise Exception(
-                "Aucun cheval trouvé dans courses.json"
-            )
-
-
-        resultat = lancer_analyse(
-            chevaux
-        )
-
-
-        classement = resultat.get(
-            "classement",
-            []
-        )
-
-
+    if not chevaux:
         return {
-
-            "message": "Analyse AZ Turf terminée",
-
-            "course": course.get(
-                "course",
-                "Course AZ"
-            ),
-
-            "date": course.get(
-                "date",
-                ""
-            ),
-
-            "reunion": course.get(
-                "reunion",
-                ""
-            ),
-
-            "course_numero": course.get(
-                "course_numero",
-                ""
-            ),
-
-            "hippodrome": course.get(
-                "hippodrome",
-                ""
-            ),
-
-            "discipline": course.get(
-                "discipline",
-                ""
-            ),
-
-            "distance_course": course.get(
-                "distance_course",
-                0
-            ),
-
-            "allocation": course.get(
-                "allocation",
-                0
-            ),
-
-            "partants": len(chevaux),
-
-
-            "chevaux": classement,
-
-            "classement": classement,
-
-
-            "favori": resultat.get(
-                "favori",
-                {}
-            ),
-
-
-            "tickets": resultat.get(
-                "tickets",
-                {}
-            )
-
+            "message": "Aucun cheval trouvé",
+            "chevaux": [],
+            "classement": [],
+            "favori": {},
+            "tickets": {}
         }
 
 
-    except Exception as e:
+    chevaux_scores = []
 
-        raise HTTPException(
-            status_code=500,
-            detail=f"Erreur AZ : {str(e)}"
-        )
+
+    for cheval in chevaux:
+
+        score = calculer_score_az(cheval)
+
+        chevaux_scores.append({
+            "numero": cheval.get("numero"),
+            "nom": cheval.get("nom", ""),
+            "indice_az": score,
+            "forme": cheval.get("forme", 0),
+            "regularite": cheval.get("regularite", 0),
+            "cote": cheval.get("cote", 0)
+        })
+
+
+    classement = classer_chevaux(chevaux_scores)
+
+
+    favori = classement[0] if classement else {}
+
+
+    tickets = generer_tickets_az(classement)
+
+
+    if enregistrer_course:
+
+        try:
+            enregistrer_course({
+                "chevaux": chevaux,
+                "classement": classement,
+                "tickets": tickets
+            })
+        except Exception:
+            pass
+
+
+    return {
+        "message": "Analyse AZ Turf terminée",
+        "chevaux": classement,
+        "classement": classement,
+        "favori": favori,
+        "tickets": tickets
+    }
