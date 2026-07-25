@@ -3,14 +3,14 @@ const API = "/api/analyse";
 
 // MENU
 
-const btnMenu = document.getElementById("btnMenu");
-const menu = document.getElementById("menu");
+const menuBtn = document.getElementById("menuBtn");
+const sideMenu = document.getElementById("sideMenu");
 const overlay = document.getElementById("overlay");
 
 
-btnMenu.onclick = () => {
+menuBtn.onclick = () => {
 
-    menu.classList.add("active");
+    sideMenu.classList.add("active");
     overlay.classList.add("active");
 
 };
@@ -18,7 +18,7 @@ btnMenu.onclick = () => {
 
 overlay.onclick = () => {
 
-    menu.classList.remove("active");
+    sideMenu.classList.remove("active");
     overlay.classList.remove("active");
 
 };
@@ -28,63 +28,70 @@ overlay.onclick = () => {
 
 // COMPTEUR
 
-let temps = 7200;
+let secondes = 5400;
 
 
-function compteur(){
+function updateCountdown(){
 
-    let h = Math.floor(temps / 3600);
-    let m = Math.floor((temps % 3600) / 60);
-    let s = temps % 60;
+    let h = Math.floor(secondes / 3600);
+    let m = Math.floor((secondes % 3600) / 60);
+    let s = secondes % 60;
 
 
-    document.getElementById("timer").innerHTML =
+    document.getElementById("countdown").innerHTML =
     `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
 
 
-    if(temps > 0){
-        temps--;
+    if(secondes > 0){
+        secondes--;
     }
 
 }
 
 
-setInterval(compteur,1000);
-compteur();
+setInterval(updateCountdown,1000);
+
+updateCountdown();
 
 
 
 
 
-// CHARGEMENT ANALYSE
+
+// CHARGEMENT API
 
 async function chargerAnalyse(){
 
-try {
+try{
 
 
-const reponse = await fetch(API);
+const response = await fetch(API);
 
-const data = await reponse.json();
+const data = await response.json();
 
 
 
-/* COURSE */
 
-document.getElementById("courseInfo").innerHTML = `
+// COURSE
+
+document.getElementById("course").innerHTML = `
 
 <h3>${data.course}</h3>
 
 <p>
-📍 ${data.hippodrome}
+📍 Hippodrome : ${data.hippodrome}
 </p>
 
 <p>
-🏇 ${data.discipline}
+🏇 Discipline : ${data.discipline}
 </p>
 
 <p>
-📏 ${data.distance_course} m
+📏 Distance : ${data.distance_course} m
+</p>
+
+<p>
+💰 Allocation : ${data.allocation}
 </p>
 
 <p>
@@ -97,33 +104,38 @@ document.getElementById("courseInfo").innerHTML = `
 
 
 
-/* CHEVAUX */
+
+// CHEVAUX
 
 let chevaux = data.chevaux || data.classement || [];
 
+let html = "";
 
-let html="";
 
 
 if(chevaux.length){
 
 
-chevaux.forEach(c=>{
+chevaux.forEach((cheval)=>{
 
 
 html += `
 
-<div class="cheval">
+<div class="horse">
 
-<b>🐎 N°${c.numero} - ${c.nom}</b>
-
-<br>
-
-⭐ Indice AZ : ${c.indice_az || 0}
+<b>
+🐎 N°${cheval.numero} ${cheval.nom}
+</b>
 
 <br>
 
-🏆 Rang : ${c.rang || "-"}
+⭐ Indice AZ :
+${cheval.indice_az || 0}
+
+<br>
+
+🏆 Rang :
+${cheval.rang || "-"}
 
 </div>
 
@@ -135,41 +147,59 @@ html += `
 }else{
 
 
-html = "Liste des partants disponible après analyse.";
+html = `
+<div class="horse">
+Liste des partants disponible après analyse.
+</div>
+`;
 
 }
 
 
-document.getElementById("chevaux").innerHTML = html;
+
+document.getElementById("horses").innerHTML = html;
 
 
 
 
-/* TICKET */
 
+
+// TICKET
 
 if(data.tickets){
 
 
 document.getElementById("ticket").innerHTML = `
 
+<p>
 🔥 Quinté :
-
 <b>
 ${data.tickets.quinte.join(" - ")}
 </b>
+</p>
 
-<br><br>
 
-🎯 Trio :
+<p>
+🎯 Quarté :
+<b>
+${data.tickets.quarte.join(" - ")}
+</b>
+</p>
 
+
+<p>
+🏆 Trio :
 <b>
 ${data.tickets.trio.join(" - ")}
 </b>
+</p>
+
 
 `;
 
 }
+
+
 
 
 
@@ -177,13 +207,15 @@ ${data.tickets.trio.join(" - ")}
 
 catch(error){
 
-console.log(error);
+console.log(
+"Erreur AZ Turf :",
+error
+);
 
 }
 
 
 }
-
 
 
 
@@ -194,17 +226,21 @@ chargerAnalyse();
 
 
 
-// BOUTON ANALYSE
 
-document.getElementById("analyseBtn").onclick = () => {
+// ANALYSE BUTTON
 
 
-let zone = document.getElementById("resultat");
+document.getElementById("analyseBtn").onclick = ()=>{
+
+
+const zone = document.getElementById("analyseResult");
 
 
 zone.innerHTML = `
 
+<p>
 ⏳ Analyse AZ en cours...
+</p>
 
 `;
 
@@ -212,14 +248,18 @@ zone.innerHTML = `
 
 setTimeout(()=>{
 
+
 chargerAnalyse();
 
 
 zone.innerHTML = `
 
+<p>
 ✅ Analyse terminée
+</p>
 
 `;
+
 
 },1500);
 
