@@ -1,561 +1,161 @@
 /* =====================================
-   AZ TURF PRO - STYLE COMPLET
-   PARTIE 1/3
+   AZ TURF PRO - DESIGN PREMIUM CLAIR
+   Analyse spécialisée hippique
 ===================================== */
 
-
-/* RESET */
 
 *{
     box-sizing:border-box;
     margin:0;
     padding:0;
+    font-family:"Segoe UI", Arial, sans-serif;
 }
 
 
 body{
-
-    font-family:Arial, sans-serif;
-
-    background:#f4f7fb;
-
-    color:#222;
-
+    background:#f5f1e8;
+    color:#243026;
 }
 
 
 
-/* HEADER */
+/* =========================
+        HEADER
+========================= */
 
-.header-az,
-.header{
 
-    background:#0b3d91;
+.header-az{
 
-    color:white;
-
-    padding:15px;
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-}
-
-
-.logo{
-
-    font-size:28px;
-
-    font-weight:bold;
-
-}
-
-
-
-.vip-btn{
-
-    background:#c9a227;
-
-    color:white;
-
-    padding:10px 15px;
-
-    border-radius:20px;
-
-    text-decoration:none;
-
-    font-weight:bold;
-
-}
-
-
-
-/* BANNIERE */
-
-.banner{
-
-    width:100%;
-
-    height:220px;
-
-    object-fit:cover;
-
-    border-radius:0 0 20px 20px;
-
-}
-
-
-
-/* CONTENU */
-
-.container{
-
-    padding:20px;
-
-    margin-left:90px;
-
-}
-
-
-
-/* CARTES */
-
-.card,
-.vip-card,
-.premium-card,
-.comment-card{
-
-    background:white;
-
-    padding:20px;
-
-    margin:15px 0;
-
-    border-radius:15px;
-
-    box-shadow:0 3px 10px rgba(0,0,0,0.12);
-
-}
-
-
-
-.card h2,
-.vip-card h2,
-.premium-card h2,
-.comment-card h2{
-
-    color:#0b3d91;
-
-    margin-bottom:15px;
-
-}
-
-
-
-/* TABLEAUX CHEVAUX */
-
-table{
-
-    width:100%;
-
-    border-collapse:collapse;
-
-    background:white;
-
-}
-
-
-th{
-
-    background:#0b3d91;
-
-    color:white;
-
-    padding:12px;
-
-}
-
-
-td{
-
-    padding:10px;
-
-    border-bottom:1px solid #ddd;
-
-    text-align:center;
-
-}
-
-
-
-tr:hover{
-
-    background:#eef4ff;
-
-}
-
-
-
-/* BOUTONS */
-
-button{
-
-    background:#0b3d91;
-
-    color:white;
-
-    border:none;
-
-    padding:12px 20px;
-
-    border-radius:20px;
-
-    cursor:pointer;
-
-}
-
-
-
-button:hover{
-
-    background:#06275c;
-
-}
-
-/* =====================================
-   AZ TURF PRO - STYLE COMPLET
-   PARTIE 2/3
-===================================== */
-
-
-/* MENU VERTICAL */
-
-.menu-vertical{
-
-    position:fixed;
-
-    left:0;
-
-    top:120px;
-
-    width:75px;
-
-    background:#0b3d91;
-
-    display:flex;
-
-    flex-direction:column;
-
-    border-radius:0 15px 15px 0;
-
+    position:relative;
     overflow:hidden;
 
-    z-index:1000;
+    background:
+    linear-gradient(135deg,#0c6b3d,#16824d);
+
+    color:white;
+
+    min-height:170px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    padding:25px;
 
 }
 
 
 
-.menu-vertical a{
-
-    color:white;
-
-    text-decoration:none;
+.logo-area{
 
     text-align:center;
+    z-index:2;
 
-    padding:15px 5px;
+}
 
-    font-size:12px;
+
+.logo-area h1{
+
+    font-size:42px;
+    letter-spacing:1px;
+    font-weight:800;
 
 }
 
 
 
-.menu-vertical a:hover{
+.logo-area p{
 
-    background:#06275c;
-
-}
-
-
-
-/* ESPACE VIP */
-
-.vip-card{
-
-    border-top:5px solid #c9a227;
+    margin-top:8px;
+    font-size:17px;
 
 }
 
 
 
-.premium-card ul{
+.horse-watermark{
 
-    list-style:none;
+    position:absolute;
 
-}
+    right:20px;
+    bottom:-20px;
 
+    width:230px;
+    height:160px;
 
+    background-image:url("images/banner.jpg");
+    background-size:cover;
+    background-position:center;
 
-.premium-card li{
-
-    padding:10px;
-
-    margin:5px 0;
-
-    background:#f1f5ff;
-
-    border-radius:10px;
+    opacity:0.12;
 
 }
 
 
 
-/* DISCUSSION */
+.message-icon{
 
-.comment-card input,
-.comment-card textarea{
+    position:absolute;
 
-    width:100%;
+    right:20px;
+    top:20px;
 
-    padding:12px;
+    background:white;
+    color:#0c6b3d;
 
-    margin:8px 0;
+    width:42px;
+    height:42px;
 
-    border:1px solid #ccc;
+    border-radius:50%;
 
-    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 
-    font-size:15px;
-
-}
-
-
-
-.commentaire{
-
-    background:#f1f1f1;
-
-    padding:12px;
-
-    margin-top:10px;
-
-    border-radius:10px;
+    font-size:22px;
 
 }
 
 
 
-.commentaire strong{
-
-    color:#0b3d91;
-
-}
+/* =========================
+        MENU
+========================= */
 
 
-
-/* TICKET AZ */
-
-.ticket{
-
-    background:#0b3d91;
-
-    color:white;
-
-    padding:20px;
-
-    border-radius:15px;
-
-    margin:15px 0;
-
-}
-
-
-
-.ticket span{
-
-    color:#c9a227;
-
-    font-weight:bold;
-
-}
-
-
-
-/* BADGES */
-
-.badge{
-
-    display:inline-block;
-
-    background:#c9a227;
-
-    color:white;
-
-    padding:5px 12px;
-
-    border-radius:20px;
-
-    font-size:12px;
-
-}
-
-
-
-/* RESULTATS */
-
-.resultat{
+.menu{
 
     background:white;
 
-    padding:15px;
+    display:flex;
 
-    margin:10px 0;
+    justify-content:center;
 
-    border-radius:15px;
+    gap:10px;
 
-    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    padding:12px;
 
-}
+    box-shadow:0 3px 10px rgba(0,0,0,0.08);
 
-
-
-.favori{
-
-    border-left:5px solid #c9a227;
-
-}
-
-/* =====================================
-   AZ TURF PRO - STYLE COMPLET
-   PARTIE 3/3
-===================================== */
-
-
-/* RESPONSIVE MOBILE */
-
-@media(max-width:700px){
-
-
-    .header-az,
-    .header{
-
-        flex-direction:column;
-
-        gap:10px;
-
-    }
-
-
-    .logo{
-
-        font-size:24px;
-
-    }
-
-
-    .container{
-
-        margin-left:80px;
-
-        padding:12px;
-
-    }
-
-
-
-    .banner{
-
-        height:150px;
-
-    }
-
-
-
-    table{
-
-        font-size:12px;
-
-    }
-
-
-
-    th,
-    td{
-
-        padding:7px;
-
-    }
-
-
-
-    .menu-vertical{
-
-        top:100px;
-
-        width:65px;
-
-    }
-
-
-
-    .menu-vertical a{
-
-        font-size:11px;
-
-        padding:12px 3px;
-
-    }
-
+    overflow-x:auto;
 
 }
 
 
 
-/* ANIMATION */
+.menu a{
 
-.card,
-.vip-card,
-.premium-card,
-.comment-card,
-.ticket{
+    text-decoration:none;
 
-    animation:apparition 0.4s ease;
+    color:#24512f;
 
-}
+    font-weight:600;
 
+    padding:10px 16px;
 
+    border-radius:25px;
 
-@keyframes apparition{
-
-    from{
-
-        opacity:0;
-
-        transform:translateY(15px);
-
-    }
-
-
-    to{
-
-        opacity:1;
-
-        transform:translateY(0);
-
-    }
-
-}
-
-
-
-/* FOOTER */
-
-footer{
-
-    background:#0b3d91;
-
-    color:white;
-
-    text-align:center;
-
-    padding:20px;
-
-    margin-top:30px;
-
-    border-top:4px solid #c9a227;
-
-}
-
-
-
-/* LIENS */
-
-a{
+    white-space:nowrap;
 
     transition:0.3s;
 
@@ -563,4 +163,328 @@ a{
 
 
 
-/* FIN AZ TURF PRO */
+.menu a:hover,
+.menu a.active{
+
+    background:#0c6b3d;
+
+    color:white;
+
+}
+
+
+
+/* =========================
+     COURSE CARD
+========================= */
+
+
+.course-card{
+
+    margin:25px auto;
+
+    max-width:1100px;
+
+    background:white;
+
+    border-radius:15px;
+
+    padding:20px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+
+}
+
+
+
+.course-card h2{
+
+    color:#0c6b3d;
+
+    margin-bottom:15px;
+
+}
+
+
+
+.course-info{
+
+    display:flex;
+
+    justify-content:space-around;
+
+    flex-wrap:wrap;
+
+    gap:15px;
+
+}
+
+
+
+.course-info div{
+
+    background:#f7f7f7;
+
+    padding:15px;
+
+    border-radius:10px;
+
+    text-align:center;
+
+}
+
+
+
+.course-info strong{
+
+    display:block;
+
+    color:#0c6b3d;
+
+}
+
+
+
+/* =========================
+        CONTENU
+========================= */
+
+
+.home-content{
+
+    max-width:1100px;
+
+    margin:auto;
+
+    padding:20px;
+
+}
+
+
+
+.welcome{
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:15px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,0.07);
+
+}
+
+
+
+.welcome h2{
+
+    color:#0c6b3d;
+
+    margin-bottom:10px;
+
+}
+
+
+
+/* =========================
+     ACCES RAPIDES
+========================= */
+
+
+.quick-access{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+    gap:20px;
+
+    margin-top:25px;
+
+}
+
+
+
+.box{
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:15px;
+
+    text-align:center;
+
+    text-decoration:none;
+
+    color:#243026;
+
+    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+
+    transition:0.3s;
+
+}
+
+
+
+.box:hover{
+
+    transform:translateY(-5px);
+
+}
+
+
+
+.box h3{
+
+    margin:12px 0;
+
+}
+
+
+
+.box.green{
+
+    border-top:5px solid #0c6b3d;
+
+}
+
+
+
+.box.gold{
+
+    border-top:5px solid #c99b32;
+
+}
+
+
+
+/* =========================
+     ANALYSE
+========================= */
+
+
+.analysis-preview{
+
+    margin-top:30px;
+
+}
+
+
+
+.analysis-preview h2{
+
+    color:#0c6b3d;
+
+}
+
+
+
+.cards{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+    gap:20px;
+
+    margin-top:20px;
+
+}
+
+
+
+.card{
+
+    background:white;
+
+    padding:20px;
+
+    border-radius:15px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+
+}
+
+
+
+.favorite{
+
+    border-left:5px solid #0c6b3d;
+
+}
+
+
+.base{
+
+    border-left:5px solid #c99b32;
+
+}
+
+
+.outsider{
+
+    border-left:5px solid #2474a6;
+
+}
+
+
+
+/* =========================
+        FOOTER
+========================= */
+
+
+footer{
+
+    margin-top:40px;
+
+    background:#0c6b3d;
+
+    color:white;
+
+    text-align:center;
+
+    padding:20px;
+
+}
+
+
+
+/* =========================
+        MOBILE
+========================= */
+
+
+@media(max-width:700px){
+
+
+.logo-area h1{
+
+    font-size:32px;
+
+}
+
+
+.logo-area p{
+
+    font-size:14px;
+
+}
+
+
+.menu{
+
+    justify-content:flex-start;
+
+}
+
+
+.course-info{
+
+    flex-direction:column;
+
+}
+
+
+}
