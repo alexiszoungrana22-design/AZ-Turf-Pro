@@ -47,6 +47,12 @@ def analyse():
         )
 
 
+        classement = resultat.get(
+            "classement",
+            []
+        )
+
+
         return {
 
             "message": "Analyse AZ Turf terminée",
@@ -94,25 +100,22 @@ def analyse():
             "partants": len(chevaux),
 
 
-            "chevaux": resultat.get(
-                "chevaux",
-                []
-            ),
+            "chevaux": classement,
 
-            "classement": resultat.get(
-                "classement",
-                []
-            ),
+            "classement": classement,
+
 
             "favori": resultat.get(
                 "favori",
                 {}
             ),
 
+
             "tickets": resultat.get(
                 "tickets",
                 {}
             )
+
         }
 
 
