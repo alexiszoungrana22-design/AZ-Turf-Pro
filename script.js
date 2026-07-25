@@ -77,7 +77,7 @@ async function chargerAnalyse(){
 try{
 
 
-const response = await fetch("/api/analyse");
+const reponse = await fetch("https://az-turf-pro.onrender.com/api/analyse");
 
 
 if(!response.ok){
