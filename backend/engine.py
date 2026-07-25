@@ -1,7 +1,7 @@
 from scoring import calculer_score_az
 from ranking import classer_chevaux
 from quinte import generer_tickets_az
-from engine import lancer_analyse
+from learning import enregistrer_course
 
 
 def lancer_analyse(chevaux):
