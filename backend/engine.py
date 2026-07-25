@@ -8,13 +8,17 @@ def lancer_analyse(chevaux):
 
     if not chevaux:
         return {
+            "message": "Aucun cheval trouvé",
+            "chevaux": [],
             "classement": [],
+            "favori": {},
             "tickets": {}
         }
 
     chevaux_scores = []
 
     for cheval in chevaux:
+
         score = calculer_score_az(cheval)
 
         chevaux_scores.append({
@@ -23,9 +27,11 @@ def lancer_analyse(chevaux):
             "indice_az": score
         })
 
+
     classement = classer_chevaux(chevaux_scores)
 
     tickets = generer_tickets_az(classement)
+
 
     try:
         enregistrer_course({
@@ -33,11 +39,18 @@ def lancer_analyse(chevaux):
             "classement": classement,
             "tickets": tickets
         })
+
     except Exception:
         pass
+
+
+    favori = classement[0] if classement else {}
+
 
     return {
         "message": "Analyse AZ Turf terminée",
         "chevaux": classement,
+        "classement": classement,
+        "favori": favori,
         "tickets": tickets
     }
