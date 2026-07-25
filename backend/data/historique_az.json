@@ -1,0 +1,266 @@
+[
+    {
+        "date_analyse": "2026-07-25 07:59:00",
+        "classement": [
+            {
+                "rang": 1,
+                "numero": 3,
+                "nom": "Cheval AZ 3",
+                "age": 6,
+                "sexe": "M",
+                "jockey": "Jockey 3",
+                "entraineur": "Entraîneur 3",
+                "performances": [
+                    1,
+                    1,
+                    2,
+                    3
+                ],
+                "indice_az": 252,
+                "confiance": 95,
+                "type": "Favori AZ"
+            },
+            {
+                "rang": 2,
+                "numero": 5,
+                "nom": "Cheval AZ 5",
+                "age": 5,
+                "sexe": "M",
+                "jockey": "Jockey 5",
+                "entraineur": "Entraîneur 5",
+                "performances": [
+                    2,
+                    3,
+                    1,
+                    5
+                ],
+                "indice_az": 224,
+                "confiance": 89,
+                "type": "Chance régulière"
+            },
+            {
+                "rang": 3,
+                "numero": 2,
+                "nom": "Cheval AZ 2",
+                "age": 5,
+                "sexe": "M",
+                "jockey": "Jockey 2",
+                "entraineur": "Entraîneur 2",
+                "performances": [
+                    2,
+                    1,
+                    4,
+                    3
+                ],
+                "indice_az": 219,
+                "confiance": 87,
+                "type": "Chance régulière"
+            },
+            {
+                "rang": 4,
+                "numero": 7,
+                "nom": "Cheval AZ 7",
+                "age": 5,
+                "sexe": "F",
+                "jockey": "Jockey 7",
+                "entraineur": "Entraîneur 7",
+                "performances": [
+                    3,
+                    2,
+                    5,
+                    1
+                ],
+                "indice_az": 206,
+                "confiance": 82,
+                "type": "Chance régulière"
+            },
+            {
+                "rang": 5,
+                "numero": 1,
+                "nom": "Cheval AZ 1",
+                "age": 6,
+                "sexe": "M",
+                "jockey": "Jockey 1",
+                "entraineur": "Entraîneur 1",
+                "performances": [
+                    3,
+                    5,
+                    2,
+                    7
+                ],
+                "indice_az": 199,
+                "confiance": 79,
+                "type": "Outsider"
+            },
+            {
+                "rang": 6,
+                "numero": 6,
+                "nom": "Cheval AZ 6",
+                "age": 6,
+                "sexe": "M",
+                "jockey": "Jockey 6",
+                "entraineur": "Entraîneur 6",
+                "performances": [
+                    4,
+                    3,
+                    6,
+                    2
+                ],
+                "indice_az": 191,
+                "confiance": 76,
+                "type": "Outsider"
+            },
+            {
+                "rang": 7,
+                "numero": 4,
+                "nom": "Cheval AZ 4",
+                "age": 7,
+                "sexe": "F",
+                "jockey": "Jockey 4",
+                "entraineur": "Entraîneur 4",
+                "performances": [
+                    8,
+                    6,
+                    7,
+                    5
+                ],
+                "indice_az": 159,
+                "confiance": 63,
+                "type": "Outsider"
+            }
+        ],
+        "arrivee": []
+    },
+    {
+        "date_analyse": "2026-07-25 08:17:25",
+        "classement": [
+            {
+                "rang": 1,
+                "numero": 3,
+                "nom": "Cheval AZ 3",
+                "age": 6,
+                "sexe": "M",
+                "jockey": "Jockey 3",
+                "entraineur": "Entraîneur 3",
+                "performances": [
+                    1,
+                    1,
+                    2,
+                    3
+                ],
+                "indice_az": 252,
+                "confiance": 95,
+                "type": "Favori AZ"
+            },
+            {
+                "rang": 2,
+                "numero": 5,
+                "nom": "Cheval AZ 5",
+                "age": 5,
+                "sexe": "M",
+                "jockey": "Jockey 5",
+                "entraineur": "Entraîneur 5",
+                "performances": [
+                    2,
+                    3,
+                    1,
+                    5
+                ],
+                "indice_az": 224,
+                "confiance": 89,
+                "type": "Chance régulière"
+            },
+            {
+                "rang": 3,
+                "numero": 2,
+                "nom": "Cheval AZ 2",
+                "age": 5,
+                "sexe": "M",
+                "jockey": "Jockey 2",
+                "entraineur": "Entraîneur 2",
+                "performances": [
+                    2,
+                    1,
+                    4,
+                    3
+                ],
+                "indice_az": 219,
+                "confiance": 87,
+                "type": "Chance régulière"
+            },
+            {
+                "rang": 4,
+                "numero": 7,
+                "nom": "Cheval AZ 7",
+                "age": 5,
+                "sexe": "F",
+                "jockey": "Jockey 7",
+                "entraineur": "Entraîneur 7",
+                "performances": [
+                    3,
+                    2,
+                    5,
+                    1
+                ],
+                "indice_az": 206,
+                "confiance": 82,
+                "type": "Chance régulière"
+            },
+            {
+                "rang": 5,
+                "numero": 1,
+                "nom": "Cheval AZ 1",
+                "age": 6,
+                "sexe": "M",
+                "jockey": "Jockey 1",
+                "entraineur": "Entraîneur 1",
+                "performances": [
+                    3,
+                    5,
+                    2,
+                    7
+                ],
+                "indice_az": 199,
+                "confiance": 79,
+                "type": "Outsider"
+            },
+            {
+                "rang": 6,
+                "numero": 6,
+                "nom": "Cheval AZ 6",
+                "age": 6,
+                "sexe": "M",
+                "jockey": "Jockey 6",
+                "entraineur": "Entraîneur 6",
+                "performances": [
+                    4,
+                    3,
+                    6,
+                    2
+                ],
+                "indice_az": 191,
+                "confiance": 76,
+                "type": "Outsider"
+            },
+            {
+                "rang": 7,
+                "numero": 4,
+                "nom": "Cheval AZ 4",
+                "age": 7,
+                "sexe": "F",
+                "jockey": "Jockey 4",
+                "entraineur": "Entraîneur 4",
+                "performances": [
+                    8,
+                    6,
+                    7,
+                    5
+                ],
+                "indice_az": 159,
+                "confiance": 63,
+                "type": "Outsider"
+            }
+        ],
+        "arrivee": []
+    }
+]
