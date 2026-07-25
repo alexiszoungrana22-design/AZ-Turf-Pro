@@ -1,13 +1,13 @@
 /* =====================================
-   AZ TURF PRO - SCRIPT API
-   Connexion frontend / backend
+   AZ TURF PRO - SCRIPT PRINCIPAL
+   Connexion API + affichage analyse
 ===================================== */
 
 
 document.addEventListener("DOMContentLoaded", function(){
 
 
-    // Animation des cartes
+    // Animation cartes
 
     const cards = document.querySelectorAll(".card, .box");
 
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
 
 
-    // Bouton message
+    // Message
 
     const message = document.querySelector(".message-icon");
 
@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
             alert(
                 "Bienvenue sur AZ Turf Pro.\n\n" +
-                "Votre analyse hippique intelligente."
+                "Analyse hippique intelligente et tickets premium."
             );
 
         });
@@ -51,9 +51,9 @@ document.addEventListener("DOMContentLoaded", function(){
 
 
 
-    // Charger automatiquement l'analyse
+    // Chargement analyse uniquement sur la page analyse
 
-    if(document.querySelector(".table-container")){
+    if(document.getElementById("table-partants")){
 
         chargerAnalyse();
 
@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
 
 /* =====================================
-   CONNEXION API AZ TURF PRO
+   APPEL API AZ TURF PRO
 ===================================== */
 
 
@@ -77,24 +77,22 @@ async function chargerAnalyse(){
 try{
 
 
-const reponse = await fetch("/api/analyse");
+const response = await fetch("/api/analyse");
 
 
+if(!response.ok){
 
-if(!reponse.ok){
-
-throw new Error("Erreur API");
+throw new Error("Erreur serveur");
 
 }
 
 
-
-const data = await reponse.json();
+const data = await response.json();
 
 
 
 console.log(
-"Résultat AZ Turf Pro :",
+"Analyse AZ :",
 data
 );
 
@@ -102,7 +100,7 @@ data
 
 afficherCourse(data);
 
-afficherPartants(data.chevaux);
+afficherChevaux(data.chevaux);
 
 afficherFavori(data.favori);
 
@@ -118,75 +116,93 @@ catch(error){
 console.error(error);
 
 
-console.log(
-"Impossible de charger l'analyse AZ Turf"
-);
-
+}
 
 }
 
-
-
-}
 
 
 
 
 
 /* =====================================
-   AFFICHAGE COURSE
+   INFORMATIONS COURSE
 ===================================== */
 
 
 function afficherCourse(data){
 
 
-const titre = document.querySelector(".course-card h2");
+const elements = {
+
+"course-nom" :
+"🏇 " + (data.course || "Course AZ"),
 
 
-if(titre && data.course){
+"hippodrome" :
+data.hippodrome || "--",
 
-titre.textContent = "🏇 " + data.course;
+
+"discipline" :
+data.discipline || "--",
+
+
+"distance" :
+(data.distance_course || "--") + " m",
+
+
+"partants" :
+(data.partants || 0) + " chevaux",
+
+
+"date-course" :
+data.date || "--"
+
+
+};
+
+
+
+for(const id in elements){
+
+
+const element =
+document.getElementById(id);
+
+
+if(element){
+
+element.textContent = elements[id];
+
+}
+
+
+}
+
 
 }
 
 
 
-const infos =
-document.querySelectorAll(".course-info span");
-
-
-
-if(infos.length >= 3){
-
-
-infos[2].textContent =
-(data.partants || 0) + " chevaux";
-
-
-}
-
-
-}
 
 
 
 
 
 /* =====================================
-   TABLEAU DES CHEVAUX
+   TABLEAU CHEVAUX
 ===================================== */
 
 
-function afficherPartants(chevaux){
+function afficherChevaux(chevaux){
 
 
 const tableau =
-document.querySelector("tbody");
+document.getElementById("table-partants");
 
 
 
-if(!tableau || !chevaux){
+if(!tableau){
 
 return;
 
@@ -201,7 +217,6 @@ tableau.innerHTML = "";
 chevaux.forEach(cheval => {
 
 
-
 const ligne =
 document.createElement("tr");
 
@@ -209,17 +224,19 @@ document.createElement("tr");
 
 ligne.innerHTML = `
 
-<td>${cheval.numero ?? ""}</td>
+<td>${cheval.rang}</td>
 
-<td>${cheval.nom ?? ""}</td>
+<td>${cheval.numero}</td>
 
-<td>${cheval.jockey ?? ""}</td>
+<td>${cheval.nom}</td>
 
-<td>${cheval.entraineur ?? ""}</td>
+<td>${cheval.jockey}</td>
 
-<td>${cheval.confiance ?? ""}%</td>
+<td>${cheval.entraineur}</td>
 
-<td>${cheval.indice_az ?? ""}</td>
+<td>${cheval.indice_az}</td>
+
+<td>${cheval.confiance}%</td>
 
 `;
 
@@ -232,7 +249,6 @@ tableau.appendChild(ligne);
 });
 
 
-
 }
 
 
@@ -241,65 +257,16 @@ tableau.appendChild(ligne);
 
 
 
+
 /* =====================================
-   FAVORI AZ
+   FAVORI / BASE / OUTSIDERS
 ===================================== */
 
 
 function afficherFavori(favori){
 
 
-const bloc =
-document.querySelector(".favorite p");
-
-
-
-if(bloc && favori){
-
-
-bloc.innerHTML = `
-
-Cheval N° ${favori.numero ?? "-"} 
-
-<br>
-
-${favori.nom ?? ""}
-
-<br>
-
-Indice AZ :
-${favori.indice_az ?? "-"}
-
-`;
-
-}
-
-
-
-}
-
-
-
-
-
-
-
-/* =====================================
-   TICKETS
-===================================== */
-
-
-function afficherTickets(tickets){
-
-
-const zone =
-document.querySelector(
-"section.welcome:last-child"
-);
-
-
-
-if(!zone || !tickets){
+if(!favori){
 
 return;
 
@@ -307,20 +274,115 @@ return;
 
 
 
-zone.innerHTML = `
+const bloc =
+document.getElementById("favori-az");
 
-<h2>🎟 Sélection conseillée</h2>
 
 
-<p>
-Quinté :
-<strong>
-${JSON.stringify(tickets)}
-</strong>
-</p>
+if(bloc){
 
+
+bloc.innerHTML = `
+
+N° ${favori.numero}<br>
+
+${favori.nom}<br>
+
+Indice AZ : ${favori.indice_az}<br>
+
+Confiance : ${favori.confiance}%
 
 `;
+
+}
+
+
+const base =
+document.getElementById("base-az");
+
+
+if(base){
+
+
+base.textContent =
+"N° " + favori.numero +
+" - " + favori.nom;
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function afficherTickets(tickets){
+
+
+if(!tickets){
+
+return;
+
+}
+
+
+
+const quinte =
+document.getElementById("quinte");
+
+
+const quarte =
+document.getElementById("quarte");
+
+
+const trio =
+document.getElementById("trio");
+
+
+const couple =
+document.getElementById("couple");
+
+
+
+if(quinte){
+
+quinte.textContent =
+tickets.quinte.join(" - ");
+
+}
+
+
+
+if(quarte){
+
+quarte.textContent =
+tickets.quarte.join(" - ");
+
+}
+
+
+
+if(trio){
+
+trio.textContent =
+tickets.trio.join(" - ");
+
+}
+
+
+
+if(couple){
+
+couple.textContent =
+tickets.couple_gagnant.join(" - ");
+
+}
 
 
 
