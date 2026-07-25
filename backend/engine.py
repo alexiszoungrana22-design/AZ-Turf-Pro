@@ -1,6 +1,7 @@
 from scoring import calculer_score_az
 from ranking import classer_chevaux
 from quinte import generer_tickets_az
+from learning import enregistrer_course
 
 
 def lancer_analyse(chevaux):
@@ -10,7 +11,6 @@ def lancer_analyse(chevaux):
             "message": "Aucun cheval",
             "chevaux": [],
             "classement": [],
-            "favori": {},
             "tickets": {}
         }
 
@@ -21,6 +21,7 @@ def lancer_analyse(chevaux):
     for cheval in chevaux:
 
         score = calculer_score_az(cheval)
+
 
         chevaux_scores.append({
 
@@ -36,6 +37,7 @@ def lancer_analyse(chevaux):
         })
 
 
+
     classement = classer_chevaux(
         chevaux_scores
     )
@@ -46,11 +48,28 @@ def lancer_analyse(chevaux):
     )
 
 
+    try:
+
+        enregistrer_course({
+
+            "chevaux": chevaux,
+
+            "classement": classement,
+
+            "tickets": tickets
+
+        })
+
+    except Exception:
+
+        pass
+
+
+
     return {
 
         "message": "Analyse AZ Turf terminée",
 
-        # classement complet
         "chevaux": classement,
 
         "classement": classement,
