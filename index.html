@@ -17,200 +17,123 @@
 <div class="app-container">
 
 
+<!-- HEADER -->
+
 <header class="topbar">
 
 <div class="logo">
+
 <span class="logo-icon">🏇</span>
 
 <h1>
-AZ Turf Pro
-<span>PRO</span>
+AZ Turf <span>PRO</span>
 </h1>
 
 </div>
 
 
+<nav class="menu">
+
+<a href="index.html">Accueil</a>
+<a href="analyse.html">Analyse</a>
+<a href="partants.html">Partants</a>
+<a href="ticket.html">Tickets</a>
+<a href="historique.html">Historique</a>
+<a href="commentaires.html">Commentaires</a>
+<a href="espace-vip.html">VIP</a>
+
+</nav>
+
+
 <div class="header-actions">
 
-<span class="live-badge">
-<span class="dot"></span>
-En Direct
-</span>
-
-
-<button id="btn-refresh" class="btn-primary">
-Actualiser
-</button>
-
+<a href="espace-vip.html" class="btn-primary">
+Espace VIP
+</a>
 
 </div>
+
 
 </header>
 
 
 
+<!-- BANNIERE -->
 
-<div class="main-content">
+<section class="banner">
 
+<p>
+🏇 Les meilleures analyses hippiques du jour avec AZ Turf Pro
+</p>
 
-
-<aside class="sidebar">
-
-
-<h2>Courses du Jour</h2>
-
-
-<div class="race-selector">
-
-<label>
-Sélectionner une course :
-</label>
+</section>
 
 
-<select id="race-select">
 
-<option>
-Course disponible
-</option>
 
-</select>
+<!-- COMPTE A REBOURS -->
+
+<section class="countdown-card">
+
+<h2>⏱️ Prochaine course</h2>
+
+<div id="countdown">
+
+00 : 00 : 00
+
+</div>
+
+<p>
+Départ Quinté+ du jour
+</p>
+
+</section>
+
+
+
+
+
+<!-- DIRECT -->
+
+<section class="live-card">
+
+<h2>🏇 Quinté en direct</h2>
+
+
+<div class="live-info">
+
+<p>
+Réunion : <strong id="live-reunion">R1</strong>
+</p>
+
+<p>
+Course : <strong id="live-course">C1</strong>
+</p>
+
+
+<p class="status">
+🟢 En attente du départ
+</p>
+
 
 </div>
 
 
+<div class="live-ranking">
 
-
-<div class="race-meta-card">
-
-<h3>Infos Course</h3>
-
+<h3>Classement provisoire</h3>
 
 <ul>
 
-<li>
-<strong>Course :</strong>
-<span id="meta-course">-</span>
-</li>
-
-
-<li>
-<strong>Hippodrome :</strong>
-<span id="meta-hippodrome">-</span>
-</li>
-
-
-<li>
-<strong>Discipline :</strong>
-<span id="meta-discipline">-</span>
-</li>
-
-
-<li>
-<strong>Distance :</strong>
-<span id="meta-distance">-</span>
-</li>
-
-
-<li>
-<strong>Partants :</strong>
-<span id="meta-partants">-</span>
-</li>
-
+<li>N° -</li>
+<li>N° -</li>
+<li>N° -</li>
+<li>N° -</li>
+<li>N° -</li>
 
 </ul>
 
-
 </div>
-
-
-
-
-<div class="filter-box">
-
-<h3>Paramètres</h3>
-
-
-<label>
-Forme
-</label>
-
-<input type="range">
-
-
-<label>
-Jockey
-</label>
-
-<input type="range">
-
-
-<label>
-Cotes
-</label>
-
-<input type="range">
-
-
-</div>
-
-
-</aside>
-
-
-
-
-
-
-<main class="dashboard">
-
-
-
-<section class="kpi-grid">
-
-
-<div class="kpi-card">
-
-<span class="kpi-label">
-Favori
-</span>
-
-<div class="kpi-value" id="kpi-favorite">
--
-</div>
-
-</div>
-
-
-
-
-<div class="kpi-card highlight">
-
-<span class="kpi-label">
-Indice de confiance
-</span>
-
-<div class="kpi-value" id="kpi-confidence">
--
-</div>
-
-</div>
-
-
-
-
-
-<div class="kpi-card">
-
-<span class="kpi-label">
-Outsider à suivre
-</span>
-
-<div class="kpi-value" id="kpi-outsider">
--
-</div>
-
-</div>
-
 
 
 </section>
@@ -220,25 +143,61 @@ Outsider à suivre
 
 
 
+<!-- ANALYSE -->
 
-<section class="table-section">
-
-
-<div class="table-header">
-
-<h2>
-Classement des partants
-</h2>
+<main class="dashboard">
 
 
-<span class="subtitle">
-Analyse en temps réel
-</span>
+<section class="kpi-grid">
 
+
+<div class="kpi-card">
+
+<span>Favori</span>
+
+<strong id="kpi-favorite">
+-
+</strong>
 
 </div>
 
 
+
+<div class="kpi-card highlight">
+
+<span>Confiance</span>
+
+<strong id="kpi-confidence">
+-
+</strong>
+
+</div>
+
+
+
+<div class="kpi-card">
+
+<span>Outsider</span>
+
+<strong id="kpi-outsider">
+-
+</strong>
+
+</div>
+
+
+</section>
+
+
+
+
+
+<section class="table-section">
+
+
+<h2>
+📊 Analyse des partants
+</h2>
 
 
 <div class="table-wrapper">
@@ -246,28 +205,19 @@ Analyse en temps réel
 
 <table>
 
-
 <thead>
 
 <tr>
 
 <th>N°</th>
-
 <th>Cheval</th>
-
 <th>Jockey</th>
-
 <th>Entraîneur</th>
-
 <th>Forme</th>
-
-<th>Score</th>
-
+<th>Indice</th>
 <th>Rang</th>
 
-
 </tr>
-
 
 </thead>
 
@@ -283,7 +233,6 @@ Analyse en temps réel
 </div>
 
 
-
 </section>
 
 
@@ -292,37 +241,21 @@ Analyse en temps réel
 
 
 
+<!-- TICKETS -->
+
+
 <section class="prediction-card">
 
 
 <h2>
-🎯 Pronostic recommandé
+🎟️ Tickets recommandés
 </h2>
 
 
-<p>
-Combinaisons générées automatiquement
-</p>
-
-
-<div class="top-combination" id="top-combination">
+<div id="top-combination" class="top-combination">
 
 </div>
 
-
-
-</section>
-
-
-
-
-
-<section class="prediction-card">
-
-
-<h2>
-🎟️ Tickets Premium
-</h2>
 
 
 <div id="tickets">
@@ -337,20 +270,133 @@ Combinaisons générées automatiquement
 
 
 
+
+
+<!-- COMMENTAIRES VISIBLES -->
+
+
+<section class="comments-card">
+
+
+<h2>
+💬 Commentaires des membres
+</h2>
+
+
+<div class="comment-list">
+
+
+<div class="comment">
+
+<strong>Membre</strong>
+
+<p>
+Les bases du jour sont intéressantes.
+</p>
+
+</div>
+
+
+<div class="comment">
+
+<strong>Pronostiqueur</strong>
+
+<p>
+Bonne analyse, attente du résultat.
+</p>
+
+</div>
+
+
+</div>
+
+
+<a href="commentaires.html" class="btn-primary">
+Voir tous les commentaires
+</a>
+
+
+</section>
+
+
+
+
+
+
+
+<!-- HISTORIQUE -->
+
+
+<section class="history-card">
+
+
+<h2>
+🏆 Derniers résultats
+</h2>
+
+
+<p>
+Consultez les performances des précédents pronostics.
+</p>
+
+
+<a href="historique.html">
+Voir historique
+</a>
+
+
+</section>
+
+
+
+
 </main>
 
 
-
 </div>
 
-
-
-</div>
 
 
 <script src="script.js"></script>
 
 
-</body>
+<script>
 
+
+// Compte à rebours simple
+
+let temps = 3600;
+
+
+function countdown(){
+
+let h = Math.floor(temps / 3600);
+
+let m = Math.floor((temps % 3600) / 60);
+
+let s = temps % 60;
+
+
+document.getElementById("countdown").textContent =
+
+`${h.toString().padStart(2,"0")} : ${m.toString().padStart(2,"0")} : ${s.toString().padStart(2,"0")}`;
+
+
+if(temps > 0){
+temps--;
+}
+
+}
+
+
+setInterval(countdown,1000);
+
+countdown();
+
+
+</script>
+
+
+
+</body>
 </html>
