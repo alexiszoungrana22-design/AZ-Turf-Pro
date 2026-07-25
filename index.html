@@ -4,158 +4,202 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>AZ Turf Pro - Analyse spécialisée</title>
+<title>AZ Turf Pro</title>
 
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<header class="header-az">
+<!-- MENU LATERAL -->
+<div id="overlay"></div>
 
-    <div class="horse-watermark"></div>
+<nav id="menu">
 
-    <div class="logo-area">
-        <h1>AZ Turf Pro</h1>
-        <p>Analyse spécialisée des courses hippiques</p>
-    </div>
+<h2>🏇 AZ Turf Pro</h2>
 
-    <div class="message-icon">
-        💬
-    </div>
-
-</header>
-
-
-<nav class="menu">
-
-    <a class="active" href="index.html">Accueil</a>
-    <a href="analyse.html">Analyse</a>
-    <a href="pronostics.html">Pronostics</a>
-    <a href="ticket.html">Tickets Premium</a>
-    <a href="resultats.html">Résultats</a>
-    <a href="historique.html">Historique</a>
+<a>🏠 Accueil</a>
+<a>🔥 Analyse AZ</a>
+<a>🎟️ Tickets</a>
+<a>🏆 Classement</a>
+<a>📜 Historique</a>
+<a>👤 Espace membre</a>
+<a>💬 Commentaires</a>
+<a>⭐ Favoris</a>
+<a>⚙️ Paramètres</a>
 
 </nav>
 
 
-<section class="course-card">
+<!-- HEADER -->
 
-    <h2>🏇 Course du jour</h2>
+<header>
 
-    <div class="course-info">
-
-        <div>
-            <strong>Prix de la Croix</strong>
-            <span>Attelé / Plat - 2150 m</span>
-        </div>
-
-        <div>
-            <strong>16 Partants</strong>
-            <span>Départ : 14h50</span>
-        </div>
-
-        <div>
-            <strong>Arrêt de jeu</strong>
-            <span>00:26:01</span>
-        </div>
-
-    </div>
-
-</section>
+<button id="btnMenu">
+☰
+</button>
 
 
-<main class="home-content">
+<div class="logo">
+🏇 AZ Turf Pro
+</div>
 
 
-<section class="welcome">
+<button class="vip">
+💎 VIP
+</button>
 
-<h2>Bienvenue sur AZ Turf Pro</h2>
-
-<p>
-Retrouvez des analyses spécialisées, des sélections étudiées,
-des pronostics et des tickets premium pour vos courses hippiques.
-</p>
-
-</section>
+</header>
 
 
 
-<section class="quick-access">
+<!-- BANNIERE -->
 
-<a href="analyse.html" class="box green">
-📊
-<h3>Analyse spécialisée</h3>
-<p>Étude complète des courses</p>
-</a>
+<div class="banner">
 
+<span>
+🏇 AZ Turf Pro : Analyse intelligente des courses hippiques • Indice AZ • Quinté • Quarté • Trio • Tickets premium
+</span>
 
-<a href="ticket.html" class="box gold">
-🎟️
-<h3>Tickets Premium</h3>
-<p>Sélections conseillées</p>
-</a>
+</div>
 
 
-<a href="resultats.html" class="box">
-🏆
-<h3>Résultats</h3>
-<p>Arrivées et classements</p>
-</a>
 
+<!-- COMPTEUR -->
 
-<a href="historique.html" class="box">
-📚
-<h3>Historique</h3>
-<p>Anciennes analyses</p>
-</a>
+<section class="countdown">
 
+<h3>⏳ Prochaine analyse</h3>
+
+<div id="timer">
+00:00:00
+</div>
 
 </section>
 
 
 
-<section class="analysis-preview">
+<!-- COURSE -->
 
-<h2>Analyse spécialisée du jour</h2>
+<section class="card">
 
-<div class="cards">
+<h2>🏆 Course du jour</h2>
 
-<div class="card favorite">
-<h3>⭐ Favoris</h3>
-<p>Chevaux avec les meilleures chances.</p>
-</div>
+<div id="courseInfo">
 
-
-<div class="card base">
-<h3>🔒 Base</h3>
-<p>Le cheval de confiance de la sélection.</p>
-</div>
-
-
-<div class="card outsider">
-<h3>🎯 Outsiders</h3>
-<p>Les chevaux capables de surprendre.</p>
-</div>
-
+<p>Chargement...</p>
 
 </div>
 
 </section>
 
 
-</main>
 
 
+<!-- PARTANTS -->
+
+<section class="card">
+
+<h2>🐎 Liste des partants</h2>
+
+<div id="chevaux">
+
+Chargement des chevaux...
+
+</div>
+
+</section>
+
+
+
+
+<!-- ANALYSE -->
+
+<section class="card analyse">
+
+<h2>🔥 Analyse AZ</h2>
+
+<button id="analyseBtn">
+LANCER ANALYSE
+</button>
+
+
+<div id="resultat">
+
+</div>
+
+</section>
+
+
+
+
+<!-- TICKET -->
+
+<section class="card">
+
+<h2>🎟️ Ticket conseillé</h2>
+
+<div id="ticket">
+
+En attente...
+
+</div>
+
+</section>
+
+
+
+<!-- MUSIQUE -->
+
+<section class="music">
+
+🎵 Ambiance Turf
+
+<br>
+
+<button>
+▶️
+</button>
+
+<button>
+⏸️
+</button>
+
+</section>
+
+
+
+
+<!-- NAVIGATION BASSE -->
 
 <footer>
 
-<p>
-AZ Turf Pro - Expertise hippique et analyses spécialisées
-</p>
+<button>
+🏠
+<br>
+Accueil
+</button>
+
+
+<button>
+🔥
+<br>
+Analyse
+</button>
+
+
+<button>
+👤
+<br>
+Membre
+</button>
+
 
 </footer>
 
+
+
+<script src="script.js"></script>
 
 </body>
 </html>
