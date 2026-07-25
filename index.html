@@ -7,59 +7,175 @@
 <title>AZ Turf Pro</title>
 
 <link rel="stylesheet" href="style.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 </head>
 
 <body>
 
-<div id="overlay"></div>
-
-<!-- MENU -->
-<nav id="sideMenu">
-
-<div class="menu-logo">
-🏇 AZ Turf Pro
-</div>
-
-<a>🏠 Accueil</a>
-<a>🔥 Analyse AZ</a>
-<a>🎟️ Tickets</a>
-<a>🐎 Partants</a>
-<a>📊 Statistiques</a>
-<a>📜 Historique</a>
-<a>👤 Espace membre</a>
-<a>💬 Commentaires</a>
-<a>💎 VIP</a>
-<a>⚙️ Paramètres</a>
-
-</nav>
+<div class="app-container">
 
 
-<!-- HEADER -->
-<header>
-
-<button id="menuBtn">
-☰
-</button>
-
+<header class="topbar">
 
 <div class="logo">
-🏇 AZ TURF PRO
+<span class="logo-icon">🏇</span>
+
+<h1>
+AZ Turf Pro
+<span>PRO</span>
+</h1>
+
 </div>
 
 
-<button class="vipBtn">
-💎 VIP
+<div class="header-actions">
+
+<span class="live-badge">
+<span class="dot"></span>
+En Direct
+</span>
+
+
+<button id="btn-refresh" class="btn-primary">
+Actualiser
 </button>
+
+
+</div>
 
 </header>
 
 
 
-<!-- BANNIERE -->
-<div class="news">
 
-<div>
-🏇 AZ Turf Pro • Analyse intelligente des courses hippiques • Indice AZ • Quinté • Quarté • Trio • Pronostics premium
+<div class="main-content">
+
+
+
+<aside class="sidebar">
+
+
+<h2>Courses du Jour</h2>
+
+
+<div class="race-selector">
+
+<label>
+Sélectionner une course :
+</label>
+
+
+<select id="race-select">
+
+<option>
+Course disponible
+</option>
+
+</select>
+
+</div>
+
+
+
+
+<div class="race-meta-card">
+
+<h3>Infos Course</h3>
+
+
+<ul>
+
+<li>
+<strong>Course :</strong>
+<span id="meta-course">-</span>
+</li>
+
+
+<li>
+<strong>Hippodrome :</strong>
+<span id="meta-hippodrome">-</span>
+</li>
+
+
+<li>
+<strong>Discipline :</strong>
+<span id="meta-discipline">-</span>
+</li>
+
+
+<li>
+<strong>Distance :</strong>
+<span id="meta-distance">-</span>
+</li>
+
+
+<li>
+<strong>Partants :</strong>
+<span id="meta-partants">-</span>
+</li>
+
+
+</ul>
+
+
+</div>
+
+
+
+
+<div class="filter-box">
+
+<h3>Paramètres</h3>
+
+
+<label>
+Forme
+</label>
+
+<input type="range">
+
+
+<label>
+Jockey
+</label>
+
+<input type="range">
+
+
+<label>
+Cotes
+</label>
+
+<input type="range">
+
+
+</div>
+
+
+</aside>
+
+
+
+
+
+
+<main class="dashboard">
+
+
+
+<section class="kpi-grid">
+
+
+<div class="kpi-card">
+
+<span class="kpi-label">
+Favori
+</span>
+
+<div class="kpi-value" id="kpi-favorite">
+-
 </div>
 
 </div>
@@ -67,128 +183,133 @@
 
 
 
-<!-- COMPTEUR -->
-<section class="countBox">
+<div class="kpi-card highlight">
 
-<h3>⏳ Prochaine course</h3>
+<span class="kpi-label">
+Indice de confiance
+</span>
 
-<div id="countdown">
-00:00:00
+<div class="kpi-value" id="kpi-confidence">
+-
 </div>
+
+</div>
+
+
+
+
+
+<div class="kpi-card">
+
+<span class="kpi-label">
+Outsider à suivre
+</span>
+
+<div class="kpi-value" id="kpi-outsider">
+-
+</div>
+
+</div>
+
+
 
 </section>
 
 
 
 
-<!-- COURSE -->
-<section class="mainCard">
 
-<h2>🏆 Course du jour</h2>
 
-<div id="course">
 
-Chargement...
+<section class="table-section">
+
+
+<div class="table-header">
+
+<h2>
+Classement des partants
+</h2>
+
+
+<span class="subtitle">
+Analyse en temps réel
+</span>
+
+
 </div>
+
+
+
+
+<div class="table-wrapper">
+
+
+<table>
+
+
+<thead>
+
+<tr>
+
+<th>N°</th>
+
+<th>Cheval</th>
+
+<th>Jockey</th>
+
+<th>Entraîneur</th>
+
+<th>Forme</th>
+
+<th>Score</th>
+
+<th>Rang</th>
+
+
+</tr>
+
+
+</thead>
+
+
+<tbody id="table-body">
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
 
 </section>
 
 
 
 
-<!-- PARTANTS -->
-<section class="mainCard">
-
-<h2>🐎 Liste des partants</h2>
-
-<div id="horses">
-
-Chargement des chevaux...
-
-</div>
-
-</section>
 
 
 
+<section class="prediction-card">
 
 
-<!-- ANALYSE -->
-<section class="mainCard">
+<h2>
+🎯 Pronostic recommandé
+</h2>
 
-<h2>🔥 Analyse AZ</h2>
-
-
-<button id="analyseBtn">
-
-Lancer l'analyse
-
-</button>
-
-
-<div id="analyseResult">
-
-</div>
-
-
-</section>
-
-
-
-
-
-<!-- TICKET -->
-<section class="mainCard ticket">
-
-<h2>🎟️ Ticket conseillé</h2>
-
-
-<div id="ticket">
-
-En attente...
-
-</div>
-
-
-</section>
-
-
-
-
-
-<!-- VIP -->
-<section class="vipCard">
-
-<h2>💎 Espace VIP</h2>
 
 <p>
-Pronostics premium<br>
-Indice AZ avancé<br>
-Tickets optimisés
+Combinaisons générées automatiquement
 </p>
 
-<button>
-Découvrir VIP
-</button>
 
-</section>
+<div class="top-combination" id="top-combination">
 
+</div>
 
 
-
-<!-- MUSIQUE -->
-
-<section class="music">
-
-🎵 Ambiance Turf
-
-<button>
-▶
-</button>
-
-<button>
-⏸
-</button>
 
 </section>
 
@@ -196,34 +317,39 @@ Découvrir VIP
 
 
 
-
-<!-- NAVIGATION -->
-
-<footer>
-
-<button>
-🏠<br>
-Accueil
-</button>
+<section class="prediction-card">
 
 
-<button>
-🔥<br>
-Analyse
-</button>
+<h2>
+🎟️ Tickets Premium
+</h2>
 
 
-<button>
-👤<br>
-Membre
-</button>
+<div id="tickets">
 
 
-</footer>
+</div>
 
+
+</section>
+
+
+
+
+
+</main>
+
+
+
+</div>
+
+
+
+</div>
 
 
 <script src="script.js"></script>
+
 
 </body>
 
