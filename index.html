@@ -11,41 +11,43 @@
 
 <body>
 
-<!-- MENU LATERAL -->
 <div id="overlay"></div>
 
-<nav id="menu">
+<!-- MENU -->
+<nav id="sideMenu">
 
-<h2>🏇 AZ Turf Pro</h2>
+<div class="menu-logo">
+🏇 AZ Turf Pro
+</div>
 
 <a>🏠 Accueil</a>
 <a>🔥 Analyse AZ</a>
 <a>🎟️ Tickets</a>
-<a>🏆 Classement</a>
+<a>🐎 Partants</a>
+<a>📊 Statistiques</a>
 <a>📜 Historique</a>
 <a>👤 Espace membre</a>
 <a>💬 Commentaires</a>
-<a>⭐ Favoris</a>
+<a>💎 VIP</a>
 <a>⚙️ Paramètres</a>
 
 </nav>
 
 
 <!-- HEADER -->
-
 <header>
 
-<button id="btnMenu">
+<button id="menuBtn">
 ☰
 </button>
 
 
 <div class="logo">
-🏇 AZ Turf Pro
+🏇 AZ TURF PRO
 </div>
 
 
-<button class="vip">
+<button class="vipBtn">
 💎 VIP
 </button>
 
@@ -54,24 +56,23 @@
 
 
 <!-- BANNIERE -->
+<div class="news">
 
-<div class="banner">
-
-<span>
-🏇 AZ Turf Pro : Analyse intelligente des courses hippiques • Indice AZ • Quinté • Quarté • Trio • Tickets premium
-</span>
+<div>
+🏇 AZ Turf Pro • Analyse intelligente des courses hippiques • Indice AZ • Quinté • Quarté • Trio • Pronostics premium
+</div>
 
 </div>
 
 
 
+
 <!-- COMPTEUR -->
+<section class="countBox">
 
-<section class="countdown">
+<h3>⏳ Prochaine course</h3>
 
-<h3>⏳ Prochaine analyse</h3>
-
-<div id="timer">
+<div id="countdown">
 00:00:00
 </div>
 
@@ -79,16 +80,15 @@
 
 
 
-<!-- COURSE -->
 
-<section class="card">
+<!-- COURSE -->
+<section class="mainCard">
 
 <h2>🏆 Course du jour</h2>
 
-<div id="courseInfo">
+<div id="course">
 
-<p>Chargement...</p>
-
+Chargement...
 </div>
 
 </section>
@@ -97,12 +97,11 @@
 
 
 <!-- PARTANTS -->
-
-<section class="card">
+<section class="mainCard">
 
 <h2>🐎 Liste des partants</h2>
 
-<div id="chevaux">
+<div id="horses">
 
 Chargement des chevaux...
 
@@ -113,31 +112,36 @@ Chargement des chevaux...
 
 
 
-<!-- ANALYSE -->
 
-<section class="card analyse">
+<!-- ANALYSE -->
+<section class="mainCard">
 
 <h2>🔥 Analyse AZ</h2>
 
+
 <button id="analyseBtn">
-LANCER ANALYSE
+
+Lancer l'analyse
+
 </button>
 
 
-<div id="resultat">
+<div id="analyseResult">
 
 </div>
+
 
 </section>
 
 
 
 
-<!-- TICKET -->
 
-<section class="card">
+<!-- TICKET -->
+<section class="mainCard ticket">
 
 <h2>🎟️ Ticket conseillé</h2>
+
 
 <div id="ticket">
 
@@ -145,7 +149,30 @@ En attente...
 
 </div>
 
+
 </section>
+
+
+
+
+
+<!-- VIP -->
+<section class="vipCard">
+
+<h2>💎 Espace VIP</h2>
+
+<p>
+Pronostics premium<br>
+Indice AZ avancé<br>
+Tickets optimisés
+</p>
+
+<button>
+Découvrir VIP
+</button>
+
+</section>
+
 
 
 
@@ -155,14 +182,12 @@ En attente...
 
 🎵 Ambiance Turf
 
-<br>
-
 <button>
-▶️
+▶
 </button>
 
 <button>
-⏸️
+⏸
 </button>
 
 </section>
@@ -170,27 +195,26 @@ En attente...
 
 
 
-<!-- NAVIGATION BASSE -->
+
+
+<!-- NAVIGATION -->
 
 <footer>
 
 <button>
-🏠
-<br>
+🏠<br>
 Accueil
 </button>
 
 
 <button>
-🔥
-<br>
+🔥<br>
 Analyse
 </button>
 
 
 <button>
-👤
-<br>
+👤<br>
 Membre
 </button>
 
@@ -202,4 +226,5 @@ Membre
 <script src="script.js"></script>
 
 </body>
+
 </html>
