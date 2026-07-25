@@ -1,144 +1,19 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from engine import lancer_analyse
-import json
-import os
 
-
-router = APIRouter(
-    prefix="/api",
-    tags=["AZ Turf"]
-)
+router = APIRouter()
 
 
 @router.get("/analyse")
 def analyse():
+    chevaux = [
+        {"numero": 1, "nom": "Cheval 1"},
+        {"numero": 2, "nom": "Cheval 2"},
+        {"numero": 3, "nom": "Cheval 3"},
+        {"numero": 4, "nom": "Cheval 4"},
+        {"numero": 5, "nom": "Cheval 5"}
+    ]
 
-    try:
+    resultat = lancer_analyse(chevaux)
 
-        chemin = os.path.join(
-            "data",
-            "courses.json"
-        )
-
-
-        with open(
-            chemin,
-            "r",
-            encoding="utf-8"
-        ) as fichier:
-
-            course = json.load(fichier)
-
-
-
-        chevaux = course.get(
-            "chevaux",
-            []
-        )
-
-
-        if not chevaux:
-
-            raise Exception(
-                "Aucun cheval trouvé dans courses.json"
-            )
-
-
-
-        resultat = lancer_analyse(
-            chevaux
-        )
-
-
-
-        return {
-
-            "message": "Analyse AZ Turf terminée",
-
-
-            # Informations de la course
-
-            "course": course.get(
-                "course",
-                "Course AZ"
-            ),
-
-            "date": course.get(
-                "date",
-                ""
-            ),
-
-            "reunion": course.get(
-                "reunion",
-                ""
-            ),
-
-            "course_numero": course.get(
-                "course_numero",
-                ""
-            ),
-
-            "hippodrome": course.get(
-                "hippodrome",
-                ""
-            ),
-
-            "discipline": course.get(
-                "discipline",
-                ""
-            ),
-
-            "distance_course": course.get(
-                "distance_course",
-                0
-            ),
-
-            "allocation": course.get(
-                "allocation",
-                0
-            ),
-
-            # Compte automatiquement les chevaux
-
-            "partants": len(chevaux),
-
-
-
-            # Résultats AZ
-
-            "chevaux": resultat.get(
-                "classement",
-                []
-            ),
-
-            "classement": resultat.get(
-                "classement",
-                []
-            ),
-
-
-            "favori": resultat.get(
-                "favori",
-                {}
-            ),
-
-
-            "tickets": resultat.get(
-                "tickets",
-                {}
-            )
-
-        }
-
-
-
-    except Exception as e:
-
-
-        raise HTTPException(
-
-            status_code=500,
-
-            detail=f"Erreur AZ : {str(e)}"
-
-        )
+    return resultat
