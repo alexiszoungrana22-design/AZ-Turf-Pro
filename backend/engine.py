@@ -1,7 +1,7 @@
 from scoring import calculer_score_az
 from ranking import classer_chevaux
 from quinte import generer_tickets_az
-from learning import enregistrer_course
+from backend.learning import enregistrer_course
 
 
 
