@@ -3,260 +3,475 @@
    Style journal hippique professionnel
 ===================================== */
 
+
 *{
     box-sizing:border-box;
     font-family:"Segoe UI", Arial, sans-serif;
 }
 
+
 body{
+
     margin:0;
     background:#f5f1e8;
     color:#243026;
+
 }
+
 
 
 /* HEADER */
 
 .header-az{
+
     background:#0b3d91;
     display:flex;
     justify-content:space-between;
     align-items:center;
     padding:18px 30px;
     border-bottom:4px solid #c9a227;
+
 }
+
 
 
 .logo{
-    font-size:30px;
+
+    font-size:32px;
     font-weight:900;
     letter-spacing:2px;
     color:#c9a227;
-    text-shadow:1px 2px 2px #333;
+
+    text-shadow:
+    0 0 8px rgba(201,162,39,.8);
+
+    animation:azPulse 2s infinite;
+
 }
+
+
+
+@keyframes azPulse{
+
+
+0%{
+
+opacity:1;
+transform:scale(1);
+
+}
+
+
+50%{
+
+opacity:.75;
+transform:scale(1.05);
+
+text-shadow:
+
+0 0 20px #0b3d91,
+0 0 30px #c9a227;
+
+}
+
+
+100%{
+
+opacity:1;
+transform:scale(1);
+
+}
+
+
+}
+
+
+
+
+/* MENU */
 
 
 nav a{
-    color:white;
-    text-decoration:none;
-    margin:5px;
-    padding:10px 15px;
-    border-radius:8px;
-    font-weight:bold;
+
+color:white;
+
+text-decoration:none;
+
+margin:5px;
+
+padding:10px 14px;
+
+border-radius:8px;
+
+font-weight:bold;
+
 }
+
 
 
 nav a:hover{
-    background:#c9a227;
-    color:#111;
+
+background:#c9a227;
+
+color:#111;
+
 }
+
+
 
 
 /* HERO */
 
+
 .hero-az{
 
-    min-height:480px;
 
-    background:
-    linear-gradient(
-        rgba(255,255,255,.25),
-        rgba(11,61,145,.35)
-    ),
-    url("images/banner.jpg");
+min-height:480px;
 
-    background-size:cover;
-    background-position:center;
 
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    text-align:center;
+background:
+
+linear-gradient(
+
+rgba(255,255,255,.25),
+
+rgba(11,61,145,.35)
+
+),
+
+url("images/banner.jpg");
+
+
+background-size:cover;
+
+background-position:center;
+
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+text-align:center;
+
 
 }
+
 
 
 .overlay{
 
-    background:rgba(255,255,255,.88);
-    padding:35px;
-    border-radius:20px;
-    max-width:700px;
-    box-shadow:0 10px 30px rgba(0,0,0,.2);
+
+background:rgba(255,255,255,.90);
+
+padding:35px;
+
+border-radius:20px;
+
+max-width:700px;
+
+box-shadow:
+
+0 10px 30px rgba(0,0,0,.20);
+
 
 }
+
 
 
 .overlay h1{
-    color:#0b3d91;
-    font-size:42px;
+
+color:#0b3d91;
+
+font-size:42px;
+
 }
+
 
 
 .overlay p{
-    font-size:20px;
-    color:#555;
+
+font-size:20px;
+
+color:#555;
+
 }
+
+
 
 
 
 /* BOUTONS */
 
+
 .btn-az{
 
-    display:inline-block;
-    background:#0b3d91;
-    color:white;
-    padding:14px 28px;
-    border-radius:10px;
-    text-decoration:none;
-    font-weight:bold;
-    border:2px solid #c9a227;
+
+display:inline-block;
+
+background:#0b3d91;
+
+color:white;
+
+padding:14px 28px;
+
+border-radius:10px;
+
+text-decoration:none;
+
+font-weight:bold;
+
+border:2px solid #c9a227;
 
 }
+
 
 
 .btn-az:hover{
 
-    background:#c9a227;
-    color:#111;
+
+background:#c9a227;
+
+color:#111;
+
 
 }
 
 
 
-/* BLOCS */
+
+/* CONTENEUR */
+
 
 .container{
 
-    max-width:1200px;
-    margin:auto;
-    padding:25px;
+
+max-width:1200px;
+
+margin:auto;
+
+padding:25px;
+
 
 }
+
+
+
+
+
+/* CARTES */
 
 
 .course-box,
-.selection-az,
+
 .ticket-box,
+
+.selection-az,
+
 .publicite{
 
-    background:white;
-    border-radius:18px;
-    padding:25px;
-    margin-bottom:25px;
 
-    border-top:5px solid #0b3d91;
+background:white;
 
-    box-shadow:0 5px 20px rgba(0,0,0,.08);
+padding:25px;
+
+margin-bottom:25px;
+
+border-radius:18px;
+
+
+border-top:
+
+5px solid #0b3d91;
+
+
+box-shadow:
+
+0 5px 20px rgba(0,0,0,.08);
+
 
 }
 
 
-h1,h2{
-    color:#0b3d91;
+
+h1,
+
+h2{
+
+
+color:#0b3d91;
+
+
 }
+
 
 
 
 /* CHEVAUX */
 
+
 .cheval{
 
-    background:#fafafa;
-    padding:18px;
-    margin:12px 0;
-    border-radius:12px;
-    border-left:5px solid #c9a227;
+
+background:#fafafa;
+
+padding:18px;
+
+margin:12px 0;
+
+border-radius:12px;
+
+
+border-left:
+
+5px solid #c9a227;
+
 
 }
 
-
-.cheval strong{
-    color:#0b3d91;
-}
 
 
 .confiance{
 
-    color:#1565c0;
-    font-weight:bold;
+
+color:#1565c0;
+
+font-weight:bold;
+
 
 }
+
 
 
 
 /* TICKET */
 
+
 .game-grid{
 
-    display:grid;
-    grid-template-columns:
-    repeat(auto-fit,minmax(160px,1fr));
 
-    gap:15px;
+display:grid;
+
+grid-template-columns:
+
+repeat(auto-fit,minmax(160px,1fr));
+
+
+gap:15px;
+
 
 }
+
 
 
 .game-grid div{
 
-    background:#0b3d91;
-    color:white;
-    padding:20px;
-    text-align:center;
-    border-radius:12px;
-    font-weight:bold;
+
+background:#0b3d91;
+
+color:white;
+
+padding:20px;
+
+text-align:center;
+
+border-radius:12px;
+
+font-weight:bold;
+
 
 }
+
+
 
 
 
 /* PUBLICITES */
 
+
 .pub-slider img{
 
-    width:100%;
-    height:240px;
-    object-fit:cover;
-    border-radius:15px;
+
+width:100%;
+
+height:240px;
+
+object-fit:cover;
+
+border-radius:15px;
+
 
 }
+
+
 
 
 
 /* FOOTER */
 
+
 footer{
 
-    background:#0b3d91;
-    color:white;
-    text-align:center;
-    padding:20px;
-    border-top:4px solid #c9a227;
+
+background:#0b3d91;
+
+color:white;
+
+text-align:center;
+
+padding:20px;
+
+border-top:
+
+4px solid #c9a227;
+
 
 }
+
+
 
 
 
 /* MOBILE */
 
+
 @media(max-width:700px){
 
+
 .header-az{
-    flex-direction:column;
+
+flex-direction:column;
+
 }
+
 
 .logo{
-    font-size:24px;
+
+font-size:25px;
+
 }
+
 
 .overlay h1{
-    font-size:28px;
+
+font-size:28px;
+
 }
 
-.container{
-    padding:12px;
+
+nav{
+
+text-align:center;
+
 }
+
+
+.container{
+
+padding:12px;
+
+}
+
 
 }
