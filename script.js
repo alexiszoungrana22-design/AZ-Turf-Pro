@@ -1,69 +1,20 @@
 const API = "/api/analyse";
 
+const tableBody = document.getElementById("table-body");
+const btnRefresh = document.getElementById("btn-refresh");
 
-// MENU
+const kpiFavorite = document.getElementById("kpi-favorite");
+const kpiConfidence = document.getElementById("kpi-confidence");
+const kpiOutsider = document.getElementById("kpi-outsider");
 
-const menuBtn = document.getElementById("menuBtn");
-const sideMenu = document.getElementById("sideMenu");
-const overlay = document.getElementById("overlay");
-
-
-menuBtn.onclick = () => {
-
-    sideMenu.classList.add("active");
-    overlay.classList.add("active");
-
-};
-
-
-overlay.onclick = () => {
-
-    sideMenu.classList.remove("active");
-    overlay.classList.remove("active");
-
-};
+const topCombination = document.getElementById("top-combination");
+const ticketsBox = document.getElementById("tickets");
 
 
 
+async function chargerAnalyse() {
 
-// COMPTEUR
-
-let secondes = 5400;
-
-
-function updateCountdown(){
-
-    let h = Math.floor(secondes / 3600);
-    let m = Math.floor((secondes % 3600) / 60);
-    let s = secondes % 60;
-
-
-    document.getElementById("countdown").innerHTML =
-    `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
-
-
-    if(secondes > 0){
-        secondes--;
-    }
-
-}
-
-
-setInterval(updateCountdown,1000);
-
-updateCountdown();
-
-
-
-
-
-
-// CHARGEMENT API
-
-async function chargerAnalyse(){
-
-try{
-
+try {
 
 const response = await fetch(API);
 
@@ -71,135 +22,219 @@ const data = await response.json();
 
 
 
+// Informations course
 
-// COURSE
+document.getElementById("meta-course").textContent =
+data.course || "-";
 
-document.getElementById("course").innerHTML = `
+document.getElementById("meta-hippodrome").textContent =
+data.hippodrome || "-";
 
-<h3>${data.course}</h3>
+document.getElementById("meta-discipline").textContent =
+data.discipline || "-";
 
-<p>
-📍 Hippodrome : ${data.hippodrome}
-</p>
+document.getElementById("meta-distance").textContent =
+(data.distance_course || "-") + " m";
 
-<p>
-🏇 Discipline : ${data.discipline}
-</p>
+document.getElementById("meta-partants").textContent =
+data.partants || "-";
 
-<p>
-📏 Distance : ${data.distance_course} m
-</p>
 
-<p>
-💰 Allocation : ${data.allocation}
-</p>
 
-<p>
-🐎 Partants : ${data.partants}
-</p>
+
+// Chevaux
+
+const chevaux = data.classement || data.chevaux || [];
+
+tableBody.innerHTML = "";
+
+
+
+chevaux.forEach((cheval,index)=>{
+
+
+const tr = document.createElement("tr");
+
+
+tr.innerHTML = `
+
+<td>
+<span class="num-badge">
+${cheval.numero || "-"}
+</span>
+</td>
+
+
+<td>
+<strong>
+${cheval.nom || "Cheval"}
+</strong>
+</td>
+
+
+<td>
+${cheval.jockey || "-"}
+</td>
+
+
+<td>
+${cheval.entraineur || "-"}
+</td>
+
+
+<td>
+${cheval.forme || "-"}
+</td>
+
+
+<td>
+
+<div class="score-bar-container">
+
+<span>
+${cheval.indice_az || cheval.score || 0}
+</span>
+
+
+<div class="score-bar">
+
+<div class="score-fill"
+style="width:${Math.min(cheval.indice_az || 0,100)}%">
+</div>
+
+</div>
+
+</div>
+
+</td>
+
+
+
+<td>
+
+<span class="badge-rank ${
+index === 0 ? "top1" :
+index < 3 ? "top3" :
+"outsider"
+}">
+
+${cheval.rang || index+1}
+
+</span>
+
+</td>
 
 `;
 
 
+tableBody.appendChild(tr);
+
+
+});
 
 
 
 
-// CHEVAUX
 
-let chevaux = data.chevaux || data.classement || [];
 
-let html = "";
-
+// KPI
 
 
 if(chevaux.length){
 
 
-chevaux.forEach((cheval)=>{
+kpiFavorite.textContent =
+`${chevaux[0].numero} - ${chevaux[0].nom}`;
 
 
-html += `
-
-<div class="horse">
-
-<b>
-🐎 N°${cheval.numero} ${cheval.nom}
-</b>
-
-<br>
-
-⭐ Indice AZ :
-${cheval.indice_az || 0}
-
-<br>
-
-🏆 Rang :
-${cheval.rang || "-"}
-
-</div>
-
-`;
-
-});
+kpiConfidence.textContent =
+(chevaux[0].confiance || "88") + "%";
 
 
-}else{
+
+const outsider =
+chevaux.find(c=>c.rang>=3) || chevaux[chevaux.length-1];
 
 
-html = `
-<div class="horse">
-Liste des partants disponible après analyse.
-</div>
-`;
+kpiOutsider.textContent =
+`${outsider.numero} - ${outsider.nom}`;
+
 
 }
 
 
 
-document.getElementById("horses").innerHTML = html;
 
 
 
+// Pronostic
 
-
-
-// TICKET
 
 if(data.tickets){
 
 
-document.getElementById("ticket").innerHTML = `
+topCombination.innerHTML = `
 
-<p>
-🔥 Quinté :
-<b>
+<div class="combo-pill">
+<span>Q+</span>
 ${data.tickets.quinte.join(" - ")}
-</b>
-</p>
+</div>
 
 
-<p>
-🎯 Quarté :
-<b>
+<div class="combo-pill">
+<span>Q</span>
 ${data.tickets.quarte.join(" - ")}
-</b>
+</div>
+
+
+<div class="combo-pill">
+<span>T</span>
+${data.tickets.trio.join(" - ")}
+</div>
+
+`;
+
+
+
+ticketsBox.innerHTML = `
+
+<p>
+🥇 Couplé gagnant :
+<strong>
+${data.tickets.couple_gagnant.join(" - ")}
+</strong>
 </p>
 
 
 <p>
-🏆 Trio :
-<b>
-${data.tickets.trio.join(" - ")}
-</b>
+🥈 Couplés placés :
+<br>
+${data.tickets.couple_place
+.map(c=>c.join(" - "))
+.join("<br>")}
 </p>
 
+
+<p>
+🔒 Champ réduit :
+<br>
+Bases :
+<strong>
+${data.tickets.champ_reduit.bases.join(" - ")}
+</strong>
+
+<br>
+
+Compléments :
+<strong>
+${data.tickets.champ_reduit.complements.join(" - ")}
+</strong>
+
+</p>
 
 `;
 
 }
-
-
 
 
 
@@ -207,62 +242,22 @@ ${data.tickets.trio.join(" - ")}
 
 catch(error){
 
-console.log(
-"Erreur AZ Turf :",
-error
-);
+console.log("Erreur API :",error);
 
 }
-
 
 }
 
 
 
 
-chargerAnalyse();
 
-
-
-
-
-
-// ANALYSE BUTTON
-
-
-document.getElementById("analyseBtn").onclick = ()=>{
-
-
-const zone = document.getElementById("analyseResult");
-
-
-zone.innerHTML = `
-
-<p>
-⏳ Analyse AZ en cours...
-</p>
-
-`;
-
-
-
-setTimeout(()=>{
-
+btnRefresh.onclick = ()=>{
 
 chargerAnalyse();
-
-
-zone.innerHTML = `
-
-<p>
-✅ Analyse terminée
-</p>
-
-`;
-
-
-},1500);
-
-
 
 };
+
+
+
+chargerAnalyse();
