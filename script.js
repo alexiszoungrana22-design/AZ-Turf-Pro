@@ -1,5 +1,6 @@
 const API = "/api/analyse";
 
+
 const tableBody = document.getElementById("table-body");
 const btnRefresh = document.getElementById("btn-refresh");
 
@@ -11,154 +12,258 @@ const topCombination = document.getElementById("top-combination");
 const ticketsBox = document.getElementById("tickets");
 
 
-
 async function chargerAnalyse() {
 
-try {
+    try {
 
-const response = await fetch(API);
+        const response = await fetch(API);
 
-const data = await response.json();
+        if (!response.ok) {
+            throw new Error("Erreur API");
+        }
 
+        const data = await response.json();
 
 
-// Informations course
+        // Informations course
 
-document.getElementById("meta-course").textContent =
-data.course || "-";
+        const metaCourse = document.getElementById("meta-course");
+        if (metaCourse)
+            metaCourse.textContent = data.course || "-";
 
-document.getElementById("meta-hippodrome").textContent =
-data.hippodrome || "-";
 
-document.getElementById("meta-discipline").textContent =
-data.discipline || "-";
+        const metaHippodrome = document.getElementById("meta-hippodrome");
+        if (metaHippodrome)
+            metaHippodrome.textContent = data.hippodrome || "-";
 
-document.getElementById("meta-distance").textContent =
-(data.distance_course || "-") + " m";
 
-document.getElementById("meta-partants").textContent =
-data.partants || "-";
+        const metaDiscipline = document.getElementById("meta-discipline");
+        if (metaDiscipline)
+            metaDiscipline.textContent = data.discipline || "-";
 
 
+        const metaDistance = document.getElementById("meta-distance");
+        if (metaDistance)
+            metaDistance.textContent =
+            (data.distance_course || "-") + " m";
 
 
-// Chevaux
+        const metaPartants = document.getElementById("meta-partants");
+        if (metaPartants)
+            metaPartants.textContent = data.partants || "-";
 
-const chevaux = data.classement || data.chevaux || [];
 
-tableBody.innerHTML = "";
 
+        // Liste chevaux
 
+        const chevaux = data.classement || data.chevaux || [];
 
-chevaux.forEach((cheval,index)=>{
 
+        if (tableBody) {
 
-const tr = document.createElement("tr");
+            tableBody.innerHTML = "";
 
 
-tr.innerHTML = `
+            chevaux.forEach((cheval,index)=>{
 
-<td>
-<span class="num-badge">
-${cheval.numero || "-"}
-</span>
-</td>
 
+                const tr = document.createElement("tr");
 
-<td>
-<strong>
-${cheval.nom || "Cheval"}
-</strong>
-</td>
 
+                tr.innerHTML = `
 
-<td>
-${cheval.jockey || "-"}
-</td>
+                <td>
+                    <span class="num-badge">
+                    ${cheval.numero || "-"}
+                    </span>
+                </td>
 
 
-<td>
-${cheval.entraineur || "-"}
-</td>
+                <td>
+                    <strong>
+                    ${cheval.nom || "Cheval"}
+                    </strong>
+                </td>
 
 
-<td>
-${cheval.forme || "-"}
-</td>
+                <td>
+                    ${cheval.jockey || "-"}
+                </td>
 
 
-<td>
+                <td>
+                    ${cheval.entraineur || "-"}
+                </td>
 
-<div class="score-bar-container">
 
-<span>
-${cheval.indice_az || cheval.score || 0}
-</span>
+                <td>
+                    ${cheval.forme || cheval.musique || "-"}
+                </td>
 
 
-<div class="score-bar">
+                <td>
 
-<div class="score-fill"
-style="width:${Math.min(cheval.indice_az || 0,100)}%">
-</div>
+                <div class="score-bar-container">
 
-</div>
+                    <span>
+                    ${cheval.indice_az || cheval.score || 0}
+                    </span>
 
-</div>
 
-</td>
+                    <div class="score-bar">
 
+                        <div class="score-fill"
+                        style="width:${Math.min(cheval.indice_az || 0,100)}%">
+                        </div>
 
+                    </div>
 
-<td>
+                </div>
 
-<span class="badge-rank ${
-index === 0 ? "top1" :
-index < 3 ? "top3" :
-"outsider"
-}">
+                </td>
 
-${cheval.rang || index+1}
 
-</span>
+                <td>
 
-</td>
+                <span class="badge-rank ${
+                    index === 0 ? "top1" :
+                    index < 3 ? "top3" :
+                    "outsider"
+                }">
 
-`;
+                ${cheval.rang || index+1}
 
+                </span>
 
-tableBody.appendChild(tr);
+                </td>
 
+                `;
 
-});
 
+                tableBody.appendChild(tr);
 
+            });
 
+        }
 
 
 
-// KPI
+        // KPI
 
+        if(chevaux.length){
 
-if(chevaux.length){
 
+            if(kpiFavorite)
+                kpiFavorite.textContent =
+                `${chevaux[0].numero || "-"} - ${chevaux[0].nom || "-"}`;
 
-kpiFavorite.textContent =
-`${chevaux[0].numero} - ${chevaux[0].nom}`;
 
+            if(kpiConfidence)
+                kpiConfidence.textContent =
+                (chevaux[0].confiance || 88) + "%";
 
-kpiConfidence.textContent =
-(chevaux[0].confiance || "88") + "%";
 
 
+            const outsider =
+            chevaux.find(c=>c.rang>=3)
+            || chevaux[chevaux.length-1];
 
-const outsider =
-chevaux.find(c=>c.rang>=3) || chevaux[chevaux.length-1];
 
+            if(kpiOutsider)
+                kpiOutsider.textContent =
+                `${outsider.numero || "-"} - ${outsider.nom || "-"}`;
 
-kpiOutsider.textContent =
-`${outsider.numero} - ${outsider.nom}`;
+        }
 
+
+
+
+        // Pronostic
+
+        if(data.tickets && topCombination){
+
+
+            topCombination.innerHTML = `
+
+            <div class="combo-pill">
+            <span>Q+</span>
+            ${data.tickets.quinte.join(" - ")}
+            </div>
+
+
+            <div class="combo-pill">
+            <span>Q</span>
+            ${data.tickets.quarte.join(" - ")}
+            </div>
+
+
+            <div class="combo-pill">
+            <span>T</span>
+            ${data.tickets.trio.join(" - ")}
+            </div>
+
+            `;
+
+        }
+
+
+
+
+        // Tickets détaillés
+
+        if(data.tickets && ticketsBox){
+
+
+            ticketsBox.innerHTML = `
+
+            <p>
+            🥇 Couplé gagnant :
+            <strong>
+            ${data.tickets.couple_gagnant.join(" - ")}
+            </strong>
+            </p>
+
+
+            <p>
+            🥈 Couplés placés :
+            <br>
+            ${data.tickets.couple_place
+            .map(c=>c.join(" - "))
+            .join("<br>")}
+            </p>
+
+
+            <p>
+            🔒 Champ réduit :
+            <br>
+
+            Bases :
+            <strong>
+            ${data.tickets.champ_reduit.bases.join(" - ")}
+            </strong>
+
+            <br>
+
+            Compléments :
+            <strong>
+            ${data.tickets.champ_reduit.complements.join(" - ")}
+            </strong>
+
+            </p>
+
+            `;
+
+        }
+
+
+
+    }
+
+    catch(error){
+
+        console.log("Erreur API :", error);
+
+    }
 
 }
 
@@ -166,98 +271,19 @@ kpiOutsider.textContent =
 
 
 
+if(btnRefresh){
 
-// Pronostic
+    btnRefresh.onclick = ()=>{
 
+        chargerAnalyse();
 
-if(data.tickets){
-
-
-topCombination.innerHTML = `
-
-<div class="combo-pill">
-<span>Q+</span>
-${data.tickets.quinte.join(" - ")}
-</div>
-
-
-<div class="combo-pill">
-<span>Q</span>
-${data.tickets.quarte.join(" - ")}
-</div>
-
-
-<div class="combo-pill">
-<span>T</span>
-${data.tickets.trio.join(" - ")}
-</div>
-
-`;
-
-
-
-ticketsBox.innerHTML = `
-
-<p>
-🥇 Couplé gagnant :
-<strong>
-${data.tickets.couple_gagnant.join(" - ")}
-</strong>
-</p>
-
-
-<p>
-🥈 Couplés placés :
-<br>
-${data.tickets.couple_place
-.map(c=>c.join(" - "))
-.join("<br>")}
-</p>
-
-
-<p>
-🔒 Champ réduit :
-<br>
-Bases :
-<strong>
-${data.tickets.champ_reduit.bases.join(" - ")}
-</strong>
-
-<br>
-
-Compléments :
-<strong>
-${data.tickets.champ_reduit.complements.join(" - ")}
-</strong>
-
-</p>
-
-`;
+    };
 
 }
 
 
 
-}
-
-catch(error){
-
-console.log("Erreur API :",error);
-
-}
-
-}
-
-
-
-
-
-btnRefresh.onclick = ()=>{
-
-chargerAnalyse();
-
-};
-
-
-
-chargerAnalyse();
+document.addEventListener(
+"DOMContentLoaded",
+chargerAnalyse
+);
