@@ -1,110 +1,175 @@
-/* =====================================
-   AZ TURF PRO - SCRIPT PRINCIPAL
-   Connexion API + affichage analyse
-===================================== */
+const API = "/api/analyse";
 
 
-document.addEventListener("DOMContentLoaded", function(){
+// MENU
+
+const btnMenu = document.getElementById("btnMenu");
+const menu = document.getElementById("menu");
+const overlay = document.getElementById("overlay");
 
 
-    // Animation cartes
+btnMenu.onclick = () => {
 
-    const cards = document.querySelectorAll(".card, .box");
+    menu.classList.add("active");
+    overlay.classList.add("active");
 
-
-    cards.forEach(card => {
-
-        card.addEventListener("mouseenter", function(){
-
-            this.style.transform = "translateY(-5px)";
-
-        });
+};
 
 
-        card.addEventListener("mouseleave", function(){
+overlay.onclick = () => {
 
-            this.style.transform = "translateY(0)";
+    menu.classList.remove("active");
+    overlay.classList.remove("active");
 
-        });
-
-    });
+};
 
 
 
-    // Message
 
-    const message = document.querySelector(".message-icon");
+// COMPTEUR
+
+let temps = 7200;
 
 
-    if(message){
+function compteur(){
 
-        message.addEventListener("click", function(){
+    let h = Math.floor(temps / 3600);
+    let m = Math.floor((temps % 3600) / 60);
+    let s = temps % 60;
 
-            alert(
-                "Bienvenue sur AZ Turf Pro.\n\n" +
-                "Analyse hippique intelligente et tickets premium."
-            );
 
-        });
+    document.getElementById("timer").innerHTML =
+    `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
 
+
+    if(temps > 0){
+        temps--;
     }
-
-
-
-    // Chargement analyse uniquement sur la page analyse
-
-    if(document.getElementById("table-partants")){
-
-        chargerAnalyse();
-
-    }
-
-
-});
-
-
-
-
-
-/* =====================================
-   APPEL API AZ TURF PRO
-===================================== */
-
-
-async function chargerAnalyse(){
-
-
-try{
-
-
-const reponse = await fetch("https://az-turf-pro.onrender.com/api/analyse");
-
-
-if(!response.ok){
-
-throw new Error("Erreur serveur");
 
 }
 
 
-const data = await response.json();
+setInterval(compteur,1000);
+compteur();
 
 
 
-console.log(
-"Analyse AZ :",
-data
-);
+
+
+// CHARGEMENT ANALYSE
+
+async function chargerAnalyse(){
+
+try {
+
+
+const reponse = await fetch(API);
+
+const data = await reponse.json();
 
 
 
-afficherCourse(data);
+/* COURSE */
 
-afficherChevaux(data.chevaux);
+document.getElementById("courseInfo").innerHTML = `
 
-afficherFavori(data.favori);
+<h3>${data.course}</h3>
 
-afficherTickets(data.tickets);
+<p>
+📍 ${data.hippodrome}
+</p>
+
+<p>
+🏇 ${data.discipline}
+</p>
+
+<p>
+📏 ${data.distance_course} m
+</p>
+
+<p>
+🐎 Partants : ${data.partants}
+</p>
+
+`;
+
+
+
+
+
+/* CHEVAUX */
+
+let chevaux = data.chevaux || data.classement || [];
+
+
+let html="";
+
+
+if(chevaux.length){
+
+
+chevaux.forEach(c=>{
+
+
+html += `
+
+<div class="cheval">
+
+<b>🐎 N°${c.numero} - ${c.nom}</b>
+
+<br>
+
+⭐ Indice AZ : ${c.indice_az || 0}
+
+<br>
+
+🏆 Rang : ${c.rang || "-"}
+
+</div>
+
+`;
+
+});
+
+
+}else{
+
+
+html = "Liste des partants disponible après analyse.";
+
+}
+
+
+document.getElementById("chevaux").innerHTML = html;
+
+
+
+
+/* TICKET */
+
+
+if(data.tickets){
+
+
+document.getElementById("ticket").innerHTML = `
+
+🔥 Quinté :
+
+<b>
+${data.tickets.quinte.join(" - ")}
+</b>
+
+<br><br>
+
+🎯 Trio :
+
+<b>
+${data.tickets.trio.join(" - ")}
+</b>
+
+`;
+
+}
 
 
 
@@ -112,278 +177,52 @@ afficherTickets(data.tickets);
 
 catch(error){
 
-
-console.error(error);
-
-
-}
+console.log(error);
 
 }
 
 
+}
 
 
 
 
-/* =====================================
-   INFORMATIONS COURSE
-===================================== */
+
+chargerAnalyse();
 
 
-function afficherCourse(data){
 
 
-const elements = {
 
-"course-nom" :
-"🏇 " + (data.course || "Course AZ"),
+// BOUTON ANALYSE
 
-
-"hippodrome" :
-data.hippodrome || "--",
+document.getElementById("analyseBtn").onclick = () => {
 
 
-"discipline" :
-data.discipline || "--",
+let zone = document.getElementById("resultat");
 
 
-"distance" :
-(data.distance_course || "--") + " m",
+zone.innerHTML = `
+
+⏳ Analyse AZ en cours...
+
+`;
 
 
-"partants" :
-(data.partants || 0) + " chevaux",
+
+setTimeout(()=>{
+
+chargerAnalyse();
 
 
-"date-course" :
-data.date || "--"
+zone.innerHTML = `
+
+✅ Analyse terminée
+
+`;
+
+},1500);
+
 
 
 };
-
-
-
-for(const id in elements){
-
-
-const element =
-document.getElementById(id);
-
-
-if(element){
-
-element.textContent = elements[id];
-
-}
-
-
-}
-
-
-}
-
-
-
-
-
-
-
-
-/* =====================================
-   TABLEAU CHEVAUX
-===================================== */
-
-
-function afficherChevaux(chevaux){
-
-
-const tableau =
-document.getElementById("table-partants");
-
-
-
-if(!tableau){
-
-return;
-
-}
-
-
-
-tableau.innerHTML = "";
-
-
-
-chevaux.forEach(cheval => {
-
-
-const ligne =
-document.createElement("tr");
-
-
-
-ligne.innerHTML = `
-
-<td>${cheval.rang}</td>
-
-<td>${cheval.numero}</td>
-
-<td>${cheval.nom}</td>
-
-<td>${cheval.jockey}</td>
-
-<td>${cheval.entraineur}</td>
-
-<td>${cheval.indice_az}</td>
-
-<td>${cheval.confiance}%</td>
-
-`;
-
-
-
-tableau.appendChild(ligne);
-
-
-
-});
-
-
-}
-
-
-
-
-
-
-
-
-/* =====================================
-   FAVORI / BASE / OUTSIDERS
-===================================== */
-
-
-function afficherFavori(favori){
-
-
-if(!favori){
-
-return;
-
-}
-
-
-
-const bloc =
-document.getElementById("favori-az");
-
-
-
-if(bloc){
-
-
-bloc.innerHTML = `
-
-N° ${favori.numero}<br>
-
-${favori.nom}<br>
-
-Indice AZ : ${favori.indice_az}<br>
-
-Confiance : ${favori.confiance}%
-
-`;
-
-}
-
-
-const base =
-document.getElementById("base-az");
-
-
-if(base){
-
-
-base.textContent =
-"N° " + favori.numero +
-" - " + favori.nom;
-
-}
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function afficherTickets(tickets){
-
-
-if(!tickets){
-
-return;
-
-}
-
-
-
-const quinte =
-document.getElementById("quinte");
-
-
-const quarte =
-document.getElementById("quarte");
-
-
-const trio =
-document.getElementById("trio");
-
-
-const couple =
-document.getElementById("couple");
-
-
-
-if(quinte){
-
-quinte.textContent =
-tickets.quinte.join(" - ");
-
-}
-
-
-
-if(quarte){
-
-quarte.textContent =
-tickets.quarte.join(" - ");
-
-}
-
-
-
-if(trio){
-
-trio.textContent =
-tickets.trio.join(" - ");
-
-}
-
-
-
-if(couple){
-
-couple.textContent =
-tickets.couple_gagnant.join(" - ");
-
-}
-
-
-
-}
