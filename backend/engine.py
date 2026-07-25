@@ -1,6 +1,8 @@
 from scoring import calculer_score_az
 from ranking import classer_chevaux
 from quinte import generer_tickets_az
+from learning import enregistrer_course
+
 
 
 def lancer_analyse(chevaux):
@@ -14,6 +16,7 @@ def lancer_analyse(chevaux):
         }
 
 
+
     # Calcul de l'indice AZ
 
     for cheval in chevaux:
@@ -22,7 +25,7 @@ def lancer_analyse(chevaux):
 
 
 
-    # Classement
+    # Classement des chevaux
 
     classement = classer_chevaux(chevaux)
 
@@ -38,6 +41,7 @@ def lancer_analyse(chevaux):
             "score",
             0
         )
+
 
 
         if rang == 1:
@@ -66,34 +70,49 @@ def lancer_analyse(chevaux):
 
         resultat.append({
 
-    "rang": rang,
+            "rang": rang,
 
-    "numero": cheval.get("numero"),
+            "numero": cheval.get("numero"),
 
-    "nom": cheval.get("nom", ""),
+            "nom": cheval.get("nom", ""),
 
-    "age": cheval.get("age", 0),
+            "age": cheval.get("age", 0),
 
-    "sexe": cheval.get("sexe", ""),
+            "sexe": cheval.get("sexe", ""),
 
-    "jockey": cheval.get("jockey", ""),
+            "jockey": cheval.get("jockey", ""),
 
-    "entraineur": cheval.get("entraineur", ""),
+            "entraineur": cheval.get("entraineur", ""),
 
-    "performances": cheval.get("performances", []),
+            "performances": cheval.get(
+                "performances",
+                []
+            ),
 
-    "indice_az": score,
+            "indice_az": score,
 
-    "confiance": confiance,
+            "confiance": confiance,
 
-    "type": categorie
+            "type": categorie
 
-})
+        })
 
 
+
+
+    # Génération des tickets AZ
 
     tickets = generer_tickets_az(
         resultat
+    )
+
+
+
+    # Enregistrement pour apprentissage futur
+
+    enregistrer_course(
+        resultat,
+        []
     )
 
 
