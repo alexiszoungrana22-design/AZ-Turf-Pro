@@ -17,25 +17,16 @@ app = FastAPI(
 app.include_router(router)
 
 
-
-# Dossier racine du projet
+# Racine du projet
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-
-# Servir les fichiers du site
+# Servir directement les fichiers frontend
 app.mount(
-    "/static",
-    StaticFiles(directory=str(BASE_DIR)),
-    name="static"
+    "/",
+    StaticFiles(directory=str(BASE_DIR), html=True),
+    name="frontend"
 )
 
 
-
-# Page d'accueil
-@app.get("/")
-def accueil():
-
-    return FileResponse(
-        str(BASE_DIR / "index.html")
-    )
+# Route API conservée par le router
