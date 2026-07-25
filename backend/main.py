@@ -1,7 +1,8 @@
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from pathlib import Path
 
 from api import router
 
@@ -12,26 +13,29 @@ app = FastAPI(
 )
 
 
-# API analyse
+# Routes API
 app.include_router(router)
 
 
-# Chemin frontend
+
+# Dossier racine du projet
 BASE_DIR = Path(__file__).resolve().parent.parent
-FRONTEND_DIR = BASE_DIR / "frontend"
 
 
-# Servir CSS / JS / images
+
+# Servir les fichiers du site
 app.mount(
     "/static",
-    StaticFiles(directory=FRONTEND_DIR),
+    StaticFiles(directory=str(BASE_DIR)),
     name="static"
 )
 
 
-# Page principale
+
+# Page d'accueil
 @app.get("/")
 def accueil():
+
     return FileResponse(
-        FRONTEND_DIR / "index.html"
+        str(BASE_DIR / "index.html")
     )
