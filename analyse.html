@@ -48,39 +48,41 @@
 
 <section class="course-card">
 
-<h2>🏇 Prix de la Croix</h2>
+<h2 id="course-nom">
+🏇 Chargement de la course...
+</h2>
 
 
 <div class="course-info">
 
 
 <div>
-<strong>Type</strong>
-<span>Attelé / Plat</span>
+<strong>Hippodrome</strong>
+<span id="hippodrome">--</span>
+</div>
+
+
+<div>
+<strong>Discipline</strong>
+<span id="discipline">--</span>
 </div>
 
 
 <div>
 <strong>Distance</strong>
-<span>2150 m</span>
+<span id="distance">--</span>
 </div>
 
 
 <div>
 <strong>Partants</strong>
-<span>16 chevaux</span>
+<span id="partants">--</span>
 </div>
 
 
 <div>
-<strong>Départ</strong>
-<span>14h50</span>
-</div>
-
-
-<div>
-<strong>Arrêt de jeu</strong>
-<span>00:26:01</span>
+<strong>Date</strong>
+<span id="date-course">--</span>
 </div>
 
 
@@ -98,7 +100,7 @@
 
 <section class="welcome">
 
-<h2>Liste des partants</h2>
+<h2>Liste des partants AZ</h2>
 
 
 <div class="table-container">
@@ -108,71 +110,28 @@
 <thead>
 
 <tr>
+<th>Rang</th>
 <th>N°</th>
 <th>Cheval</th>
 <th>Jockey</th>
 <th>Entraîneur</th>
-<th>Forme</th>
-<th>Indice</th>
+<th>Indice AZ</th>
+<th>Confiance</th>
 </tr>
 
 </thead>
 
 
-<tbody>
-
-
-<tr>
-<td>1</td>
-<td>---</td>
-<td>---</td>
-<td>---</td>
-<td>---</td>
-<td>---</td>
-</tr>
-
+<tbody id="table-partants">
 
 <tr>
-<td>2</td>
-<td>---</td>
-<td>---</td>
-<td>---</td>
-<td>---</td>
-<td>---</td>
+<td colspan="7">
+Chargement...
+</td>
 </tr>
-
-
-<tr>
-<td>3</td>
-<td>---</td>
-<td>---</td>
-<td>---</td>
-<td>---</td>
-<td>---</td>
-</tr>
-
-
-<tr>
-<td>4</td>
-<td>---</td>
-<td>---</td>
-<td>---</td>
-<td>---</td>
-<td>---</td>
-</tr>
-
-
-<tr>
-<td>5</td>
-<td>---</td>
-<td>---</td>
-<td>---</td>
-<td>---</td>
-<td>---</td>
-</tr>
-
 
 </tbody>
+
 
 </table>
 
@@ -185,10 +144,11 @@
 
 
 
+
 <section class="analysis-preview">
 
 
-<h2>Analyse spécialisée</h2>
+<h2>Analyse spécialisée AZ</h2>
 
 
 <div class="cards">
@@ -196,10 +156,10 @@
 
 <div class="card favorite">
 
-<h3>⭐ Favoris</h3>
+<h3>⭐ Favori AZ</h3>
 
-<p>
-Chevaux présentant les meilleures garanties selon l'étude de course.
+<p id="favori-az">
+Chargement...
 </p>
 
 </div>
@@ -211,8 +171,8 @@ Chevaux présentant les meilleures garanties selon l'étude de course.
 
 <h3>🔒 Base</h3>
 
-<p>
-Le choix de confiance pour construire vos jeux.
+<p id="base-az">
+Sélection automatique
 </p>
 
 </div>
@@ -224,8 +184,8 @@ Le choix de confiance pour construire vos jeux.
 
 <h3>🎯 Outsiders</h3>
 
-<p>
-Des chevaux capables de créer la surprise.
+<p id="outsiders-az">
+Sélection automatique
 </p>
 
 </div>
@@ -234,10 +194,10 @@ Des chevaux capables de créer la surprise.
 
 <div class="card">
 
-<h3>👀 À surveiller</h3>
+<h3>📊 Analyse</h3>
 
 <p>
-Profils intéressants à ne pas négliger.
+Classement calculé par l'indice AZ.
 </p>
 
 </div>
@@ -248,6 +208,8 @@ Profils intéressants à ne pas négliger.
 
 
 </section>
+
+
 
 
 
@@ -256,34 +218,43 @@ Profils intéressants à ne pas négliger.
 <section class="welcome">
 
 
-<h2>🎟 Sélection conseillée</h2>
+<h2>🎟 Sélection conseillée AZ Turf Pro</h2>
 
 
 <p>
-
 Quinté :
-<strong>-- - -- - -- - -- - --</strong>
-
+<strong id="quinte">
+--
+</strong>
 </p>
 
 
 <p>
-
-Cheval de base :
-<strong>--</strong>
-
+Quarté :
+<strong id="quarte">
+--
+</strong>
 </p>
 
 
 <p>
+Trio :
+<strong id="trio">
+--
+</strong>
+</p>
 
-Coup de poker :
-<strong>--</strong>
 
+<p>
+Couplé gagnant :
+<strong id="couple">
+--
+</strong>
 </p>
 
 
 </section>
+
 
 
 
@@ -301,6 +272,8 @@ AZ Turf Pro - Analyse spécialisée des courses hippiques
 </footer>
 
 
+
+<script src="script.js"></script>
 
 </body>
 
