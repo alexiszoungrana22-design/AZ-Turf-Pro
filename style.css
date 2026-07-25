@@ -1,5 +1,5 @@
 /* =====================================
-   AZ TURF PRO - PREMIUM CLAIR V7
+   AZ TURF PRO - BLEU PREMIUM V8
    Style journal hippique professionnel
 ===================================== */
 
@@ -18,7 +18,7 @@ body{
 /* HEADER */
 
 .header-az{
-    background:#0b5b32;
+    background:#0b3d91;
     display:flex;
     justify-content:space-between;
     align-items:center;
@@ -31,7 +31,7 @@ body{
     font-size:30px;
     font-weight:900;
     letter-spacing:2px;
-    color:#d8b84c;
+    color:#c9a227;
     text-shadow:1px 2px 2px #333;
 }
 
@@ -47,10 +47,9 @@ nav a{
 
 
 nav a:hover{
-    background:#d8b84c;
-    color:#1b1b1b;
+    background:#c9a227;
+    color:#111;
 }
-
 
 
 /* HERO */
@@ -62,7 +61,7 @@ nav a:hover{
     background:
     linear-gradient(
         rgba(255,255,255,.25),
-        rgba(0,80,40,.35)
+        rgba(11,61,145,.35)
     ),
     url("images/banner.jpg");
 
@@ -79,7 +78,7 @@ nav a:hover{
 
 .overlay{
 
-    background:rgba(255,255,255,.85);
+    background:rgba(255,255,255,.88);
     padding:35px;
     border-radius:20px;
     max-width:700px;
@@ -89,44 +88,15 @@ nav a:hover{
 
 
 .overlay h1{
-
-    color:#0b5b32;
+    color:#0b3d91;
     font-size:42px;
-
 }
 
 
 .overlay p{
-
     font-size:20px;
     color:#555;
-
 }
-
-
-
-/* COMPTEUR */
-
-.countdown-box{
-
-    background:white;
-    border:2px solid #c9a227;
-    border-radius:15px;
-    padding:20px;
-    margin:25px auto;
-
-}
-
-
-#countdown{
-
-    color:#0b5b32;
-    font-size:38px;
-    font-weight:bold;
-
-}
-
-
 
 
 
@@ -135,7 +105,7 @@ nav a:hover{
 .btn-az{
 
     display:inline-block;
-    background:#0b5b32;
+    background:#0b3d91;
     color:white;
     padding:14px 28px;
     border-radius:10px;
@@ -149,15 +119,13 @@ nav a:hover{
 .btn-az:hover{
 
     background:#c9a227;
-    color:#222;
+    color:#111;
 
 }
 
 
 
-
-
-/* CONTENEUR */
+/* BLOCS */
 
 .container{
 
@@ -168,78 +136,26 @@ nav a:hover{
 }
 
 
-
-
-
-/* BLOCS PRINCIPAUX */
-
 .course-box,
 .selection-az,
 .ticket-box,
 .publicite{
-
 
     background:white;
     border-radius:18px;
     padding:25px;
     margin-bottom:25px;
 
-    border-top:5px solid #0b5b32;
+    border-top:5px solid #0b3d91;
 
-    box-shadow:
-    0 5px 20px rgba(0,0,0,.08);
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
 
 }
-
 
 
 h1,h2{
-
-    color:#0b5b32;
-
+    color:#0b3d91;
 }
-
-
-
-/* CARTES COURSES */
-
-
-.grid-courses{
-
-    display:grid;
-    grid-template-columns:
-    repeat(auto-fit,minmax(220px,1fr));
-
-    gap:20px;
-
-}
-
-
-
-.course-card{
-
-    background:#faf7ef;
-    padding:20px;
-    border-radius:15px;
-    border-left:5px solid #c9a227;
-
-}
-
-
-.course-card h3{
-
-    color:#0b5b32;
-
-}
-
-
-.course-card span{
-
-    color:#0b5b32;
-    font-weight:bold;
-
-}
-
 
 
 
@@ -253,26 +169,20 @@ h1,h2{
     border-radius:12px;
     border-left:5px solid #c9a227;
 
-    box-shadow:
-    0 3px 10px rgba(0,0,0,.08);
-
 }
 
 
 .cheval strong{
-
-    color:#0b5b32;
-
+    color:#0b3d91;
 }
 
 
 .confiance{
 
-    color:#087f3d;
+    color:#1565c0;
     font-weight:bold;
 
 }
-
 
 
 
@@ -281,7 +191,6 @@ h1,h2{
 .game-grid{
 
     display:grid;
-
     grid-template-columns:
     repeat(auto-fit,minmax(160px,1fr));
 
@@ -292,7 +201,7 @@ h1,h2{
 
 .game-grid div{
 
-    background:#0b5b32;
+    background:#0b3d91;
     color:white;
     padding:20px;
     text-align:center;
@@ -303,18 +212,7 @@ h1,h2{
 
 
 
-
-
 /* PUBLICITES */
-
-.pub-slider{
-
-    height:240px;
-    position:relative;
-    overflow:hidden;
-
-}
-
 
 .pub-slider img{
 
@@ -323,53 +221,7 @@ h1,h2{
     object-fit:cover;
     border-radius:15px;
 
-    position:absolute;
-
-    animation:pub 15s infinite;
-
 }
-
-
-.pub-slider img:nth-child(2){
-
-    animation-delay:5s;
-
-}
-
-
-.pub-slider img:nth-child(3){
-
-    animation-delay:10s;
-
-}
-
-
-
-@keyframes pub{
-
-0%{
-opacity:0;
-}
-
-10%{
-opacity:1;
-}
-
-30%{
-opacity:1;
-}
-
-40%{
-opacity:0;
-}
-
-100%{
-opacity:0;
-}
-
-}
-
-
 
 
 
@@ -377,7 +229,7 @@ opacity:0;
 
 footer{
 
-    background:#0b5b32;
+    background:#0b3d91;
     color:white;
     text-align:center;
     padding:20px;
@@ -387,45 +239,24 @@ footer{
 
 
 
-
 /* MOBILE */
 
 @media(max-width:700px){
 
-
 .header-az{
-
     flex-direction:column;
-
 }
-
 
 .logo{
-
     font-size:24px;
-
 }
-
-
-nav{
-
-    margin-top:15px;
-
-}
-
 
 .overlay h1{
-
     font-size:28px;
-
 }
-
 
 .container{
-
     padding:12px;
-
 }
-
 
 }
