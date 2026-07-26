@@ -19,7 +19,8 @@ async function chargerAnalyse() {
 
         alert("Je lance API : " + API);
 
-const response = await fetch(API);
+const texte = await response.text();
+alert(texte);
 alert(JSON.stringify(data.chevaux));
 alert("Réponse API : " + response.status);
         }
