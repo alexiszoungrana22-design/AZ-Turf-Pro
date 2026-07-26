@@ -383,3 +383,33 @@ td {
 
 
 }
+.selection-horizontal{
+
+display:flex;
+gap:12px;
+overflow-x:auto;
+padding:10px 0;
+
+}
+
+
+
+.cheval-mini{
+
+min-width:130px;
+padding:15px;
+border-radius:15px;
+background:white;
+box-shadow:0 3px 10px rgba(0,0,0,0.15);
+text-align:center;
+
+}
+
+
+
+.mini-numero{
+
+font-size:24px;
+font-weight:bold;
+
+}
