@@ -36,7 +36,10 @@
 
 
 
+
 <main class="content">
+
+
 
 
 
@@ -70,7 +73,7 @@
 
 
 <p>
-🐎 Partants :
+🐎 Nombre de partants :
 <strong id="meta-partants">-</strong>
 </p>
 
@@ -82,13 +85,24 @@
 
 
 
+
 <section class="card countdown">
 
-<h2>⏱️ Prochaine course</h2>
+<h2>⏱️ Départ de la course</h2>
+
 
 <div id="timer">
+
 00:00:00
+
 </div>
+
+
+<p>
+Départ dans la :
+<strong id="heure-depart">-</strong>
+</p>
+
 
 </section>
 
@@ -100,13 +114,15 @@
 
 <section class="card">
 
-<h2>🐎 Partants de la course</h2>
+
+<h2>🐎 Tous les partants</h2>
 
 
 <div class="table-container">
 
 
 <table>
+
 
 <thead>
 
@@ -116,12 +132,22 @@
 
 <th>Cheval</th>
 
+<th>Jockey</th>
+
+<th>Entraîneur</th>
+
+<th>Cote</th>
+
+<th>Statut</th>
+
 </tr>
 
 </thead>
 
 
+
 <tbody id="all-horses">
+
 
 </tbody>
 
@@ -160,7 +186,7 @@
 
 <div class="kpi-card">
 
-<h3>📈 Confiance</h3>
+<h3>📊 Confiance AZ</h3>
 
 <p id="kpi-confidence">
 -
@@ -173,7 +199,7 @@
 
 <div class="kpi-card">
 
-<h3>🔥 Outsider du jour</h3>
+<h3>🔥 Outsider AZ</h3>
 
 <p id="kpi-outsider">
 -
@@ -190,11 +216,10 @@
 
 
 
-
 <section class="card">
 
 
-<h2>💰 Les plus joués du jour</h2>
+<h2>📈 Chevaux les plus joués</h2>
 
 
 <div id="popular-horses">
@@ -212,12 +237,34 @@
 
 
 
+<section class="card">
+
+
+<h2>🏇 Sélection AZ du jour</h2>
+
+
+<div id="home-selection" class="selection-horizontal">
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
 
 <section class="news-bar">
 
+
 📢 AZ Turf Pro : une analyse professionnelle et approfondie au service des pronostics hippiques
 
+
 </section>
+
 
 
 
@@ -236,17 +283,23 @@
 
 
 <a href="ticket.html">
+
 🎟️ Ticket
+
 </a>
 
 
 <a href="historique.html">
+
 🏆 Historique
+
 </a>
 
 
 <a href="espace-vip.html">
+
 ⭐ VIP
+
 </a>
 
 
@@ -256,7 +309,8 @@
 
 
 
-<script src="accueil.js?v=1"></script>
+
+<script src="accueil.js?v=2"></script>
 
 
 </body>
