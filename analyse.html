@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Analyse AZ Turf Pro</title>
+<title>Analyse - AZ Turf Pro</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -15,6 +15,8 @@
 
 <body>
 
+
+<!-- HEADER FIXE -->
 
 <header class="top-header">
 
@@ -35,9 +37,7 @@
 
 </nav>
 
-
 </header>
-
 
 
 
@@ -46,17 +46,48 @@
 
 
 
+<!-- COURSE -->
+
 <section class="card">
 
 <h2>
-📊 Analyse hippique du jour
+📊 Analyse Hippique
 </h2>
 
 
+<div class="course-info">
+
 <p>
-Retrouvez le classement AZ Turf Pro,
-les favoris et les chevaux à suivre.
+Hippodrome :
+<strong id="meta-hippodrome">-</strong>
 </p>
+
+
+<p>
+Course :
+<strong id="meta-course">-</strong>
+</p>
+
+
+<p>
+Discipline :
+<strong id="meta-discipline">-</strong>
+</p>
+
+
+<p>
+Distance :
+<strong id="meta-distance">-</strong>
+</p>
+
+
+<p>
+Partants :
+<strong id="meta-partants">-</strong>
+</p>
+
+
+</div>
 
 
 </section>
@@ -64,6 +95,8 @@ les favoris et les chevaux à suivre.
 
 
 
+
+<!-- KPI -->
 
 <section class="kpi-container">
 
@@ -79,6 +112,7 @@ les favoris et les chevaux à suivre.
 </p>
 
 </div>
+
 
 
 
@@ -119,13 +153,15 @@ les favoris et les chevaux à suivre.
 
 
 
+<!-- TABLEAU CHEVAUX -->
+
+
 <section class="card">
 
 
 <h2>
-🏇 Classement des partants
+🏇 Classement AZ
 </h2>
-
 
 
 <div class="table-container">
@@ -158,16 +194,20 @@ les favoris et les chevaux à suivre.
 </thead>
 
 
+
 <tbody id="table-body">
 
 
 </tbody>
 
 
+
 </table>
 
 
+
 </div>
+
 
 
 </section>
@@ -176,18 +216,23 @@ les favoris et les chevaux à suivre.
 
 
 
+<!-- TICKETS -->
 
 
 <section class="card">
 
 
 <h2>
-🎯 Sélection AZ
+🎟️ Pronostics AZ
 </h2>
 
 
 <div id="top-combination">
 
+</div>
+
+
+<div id="tickets">
 
 </div>
 
@@ -202,6 +247,10 @@ les favoris et les chevaux à suivre.
 
 
 
+
+
+
+<!-- MENU BAS FIXE -->
 
 
 <footer class="bottom-menu">
@@ -227,7 +276,9 @@ les favoris et les chevaux à suivre.
 
 
 
-<script src="script.js"></script>
+
+
+<script src="script.js?v=30"></script>
 
 
 </body>
