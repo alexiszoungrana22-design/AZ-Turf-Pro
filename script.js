@@ -1,3 +1,4 @@
+alert("Script AZ chargé");
 const API = "https://az-turf-pro.onrender.com/api/analyse";
 
 
