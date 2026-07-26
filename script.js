@@ -23,7 +23,7 @@ async function chargerAnalyse() {
         }
 
         const data = await response.json();
-
+         console.log("DONNEES AZ :", data);
 
         // Informations course
 
