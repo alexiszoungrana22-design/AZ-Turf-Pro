@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -10,69 +12,74 @@
 
 </head>
 
+
 <body>
 
-<!-- HEADER FIXE HAUT -->
+
 <header class="top-header">
 
-    <div class="logo">
-        🏇 <span>AZ Turf Pro</span>
-    </div>
+<div class="logo">
+🏇 <span>AZ Turf Pro</span>
+</div>
 
-    <nav class="top-menu">
-        <a href="index.html">🏠 Accueil</a>
-        <a href="analyse.html">📊 Analyse</a>
-    </nav>
+
+<nav class="top-menu">
+
+<a href="index.html">🏠 Accueil</a>
+
+<a href="analyse.html">📊 Analyse</a>
+
+</nav>
 
 </header>
 
 
-<!-- CONTENU QUI DEFILÉ -->
+
+
 <main class="content">
+
 
 
 <!-- COURSE DU JOUR -->
 
-<section class="card course-card">
+<section class="card">
 
 <h2>🏆 Course du jour</h2>
 
+
 <div class="course-info">
+
 
 <p>
 Hippodrome :
 <strong id="meta-hippodrome">-</strong>
 </p>
 
+
 <p>
 Course :
 <strong id="meta-course">-</strong>
 </p>
+
 
 <p>
 Discipline :
 <strong id="meta-discipline">-</strong>
 </p>
 
+
 <p>
 Distance :
 <strong id="meta-distance">-</strong>
 </p>
+
 
 <p>
 Partants :
 <strong id="meta-partants">-</strong>
 </p>
 
-</div>
 
-
-<div class="countdown">
-⏱️ Prochaine course
-<br>
-<span id="timer">
-00:00:00
-</span>
 </div>
 
 
@@ -80,9 +87,108 @@ Partants :
 
 
 
-<!-- CARTES KPI -->
+
+
+<!-- COMPTEUR -->
+
+<section class="card countdown">
+
+<h2>⏱️ Prochaine course</h2>
+
+<span id="timer">
+00:00:00
+</span>
+
+</section>
+
+
+
+
+
+<!-- NOMBRE PARTANTS -->
+
+<section class="card">
+
+<h2>🐎 Nombre de partants</h2>
+
+
+<div class="partants-choice">
+
+
+<span>13</span>
+
+<span>14</span>
+
+<span>16</span>
+
+<span>18</span>
+
+<span>20</span>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+<!-- TABLEAU PARTANTS -->
+
+<section class="card">
+
+
+<h2>📋 Partants de la course</h2>
+
+
+<div class="table-container">
+
+
+<table>
+
+
+<thead>
+
+<tr>
+
+<th>N°</th>
+
+<th>Cheval</th>
+
+<th>Indice AZ</th>
+
+</tr>
+
+
+</thead>
+
+
+
+<tbody id="all-horses">
+
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+<!-- FAVORI -->
 
 <section class="kpi-container">
+
 
 
 <div class="kpi-card">
@@ -109,6 +215,7 @@ Partants :
 
 
 
+
 <div class="kpi-card">
 
 <h3>🔥 Outsider</h3>
@@ -126,45 +233,18 @@ Partants :
 
 
 
-<!-- ANALYSE PARTANTS -->
+
+<!-- PLUS JOUE -->
 
 <section class="card">
 
 
-<h2>📊 Analyse des partants</h2>
+<h2>💰 Les plus joués du jour</h2>
 
 
-<div class="table-container">
+<div id="popular-horses">
 
-
-<table>
-
-
-<thead>
-
-<tr>
-
-<th>N°</th>
-<th>Cheval</th>
-<th>Jockey</th>
-<th>Entraîneur</th>
-<th>Forme</th>
-<th>Indice AZ</th>
-<th>Rang</th>
-
-</tr>
-
-</thead>
-
-
-
-<tbody id="table-body">
-
-</tbody>
-
-
-</table>
-
+Chargement...
 
 </div>
 
@@ -175,68 +255,20 @@ Partants :
 
 
 
-<!-- TICKETS -->
-
-<section class="card">
 
 
-<h2>🎟️ Tickets AZ</h2>
+<!-- MESSAGE -->
+
+<section class="news-bar">
 
 
-<div id="top-combination">
-
-</div>
-
-
-<div id="tickets">
-
-</div>
+📢 AZ Turf Pro : une analyse professionnelle et approfondie au service des pronostics hippiques
 
 
 </section>
 
 
 
-
-
-<!-- COMMENTAIRES -->
-
-<section class="card">
-
-
-<h2>💬 Commentaires</h2>
-
-
-<div class="comments-box">
-
-<p>
-Les avis des visiteurs apparaîtront ici.
-</p>
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-<!-- HISTORIQUE -->
-
-<section class="card">
-
-
-<h2>🏆 Historique</h2>
-
-
-<p>
-Résultats et anciens tickets AZ Turf Pro.
-</p>
-
-
-</section>
 
 
 </main>
@@ -245,7 +277,7 @@ Résultats et anciens tickets AZ Turf Pro.
 
 
 
-<!-- BARRE BASSE FIXE -->
+
 
 <footer class="bottom-menu">
 
@@ -271,7 +303,10 @@ Résultats et anciens tickets AZ Turf Pro.
 
 
 
-<script src="script.js?v=30"></script>
+
+<script src="script.js?v=50"></script>
+
 
 </body>
+
 </html>
