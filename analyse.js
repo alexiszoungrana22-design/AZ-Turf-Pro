@@ -1,7 +1,7 @@
 const API = "https://az-turf-pro.onrender.com/api/analyse";
 
 
-// ELEMENTS COURSE
+// Informations course
 
 const analyseCourse = document.getElementById("analyse-course");
 const analyseHippodrome = document.getElementById("analyse-hippodrome");
@@ -9,12 +9,17 @@ const analyseDiscipline = document.getElementById("analyse-discipline");
 const analyseDistance = document.getElementById("analyse-distance");
 
 
-// TABLEAU 7 RETENUS
+// Tableau
 
 const tableBody = document.getElementById("az-selection");
 
 
-// CARTES HORIZONTALES
+// Commentaires
+
+const commentairesPro = document.getElementById("commentaires-pro");
+
+
+// Cartes horizontales
 
 const selectionHorizontal =
 document.getElementById("selection-az-horizontal");
@@ -23,35 +28,49 @@ document.getElementById("selection-az-horizontal");
 
 
 
-function raisonAZ(cheval,index){
-
-    if(cheval.raison){
-        return cheval.raison;
-    }
-
-    if(cheval.type){
-        return cheval.type;
-    }
+function obtenirRaison(cheval,index){
 
 
-    if(index === 0){
-        return "⭐ Favori AZ";
-    }
+if(cheval.raison){
 
-
-    if(index < 3){
-        return "🔥 Base solide";
-    }
-
-
-    if(index < 5){
-        return "🎯 Chance régulière";
-    }
-
-
-    return "💎 Outsider intéressant";
+return cheval.raison;
 
 }
+
+
+if(cheval.type){
+
+return cheval.type;
+
+}
+
+
+if(index === 0){
+
+return "⭐ Favori AZ";
+
+}
+
+
+if(index < 3){
+
+return "🔥 Base solide";
+
+}
+
+
+if(index < 5){
+
+return "🎯 Chance régulière";
+
+}
+
+
+return "💎 Outsider intéressant";
+
+
+}
+
 
 
 
@@ -71,9 +90,7 @@ const response = await fetch(API);
 
 if(!response.ok){
 
-throw new Error(
-"Erreur API : " + response.status
-);
+throw new Error("Erreur API");
 
 }
 
@@ -84,7 +101,8 @@ const data = await response.json();
 
 
 
-// INFORMATIONS COURSE
+
+// COURSE
 
 
 if(analyseCourse)
@@ -119,16 +137,11 @@ analyseDistance.textContent =
 
 
 
-// RECUPERATION CHEVAUX
-
-
 const chevaux =
-
 data.classement ||
-
 data.chevaux ||
-
 [];
+
 
 
 
@@ -145,95 +158,62 @@ tableBody.innerHTML = "";
 
 
 
-chevaux.slice(0,7).forEach((cheval,index)=>{
+chevaux.slice(0,7)
+.forEach((cheval,index)=>{
 
 
-const tr = document.createElement("tr");
+const tr =
+document.createElement("tr");
 
 
 
 tr.innerHTML = `
 
+
 <td>
-
-<span class="num-badge">
-
 ${cheval.numero || "-"}
-
-</span>
-
 </td>
 
 
-
 <td>
-
 <strong>
-
 ${cheval.nom || "Cheval AZ"}
-
 </strong>
-
 </td>
 
 
-
 <td>
-
 ${cheval.jockey || "-"}
-
 </td>
 
 
-
 <td>
-
 ${cheval.entraineur || "-"}
-
 </td>
 
 
-
 <td>
-
 ${cheval.forme || cheval.musique || "-"}
-
 </td>
 
 
-
 <td>
-
-<strong>
-
 ${cheval.indice_az || cheval.score || 0}
-
-</strong>
-
 </td>
 
 
-
 <td>
-
-${raisonAZ(cheval,index)}
-
+${obtenirRaison(cheval,index)}
 </td>
 
 
-
 <td>
-
-${cheval.commentaire || "-"}
-
+${cheval.commentaire || "Analyse en cours"}
 </td>
 
 
-
 <td>
-
 ${cheval.rang || index+1}
-
 </td>
 
 
@@ -256,8 +236,68 @@ tableBody.appendChild(tr);
 
 
 
+// COMMENTAIRES PROFESSIONNELS
 
-// CARTES HORIZONTALES DES 7 CHEVAUX
+
+if(commentairesPro){
+
+
+commentairesPro.innerHTML = "";
+
+
+
+chevaux.slice(0,7)
+.forEach((cheval)=>{
+
+
+const bloc =
+document.createElement("p");
+
+
+
+bloc.innerHTML = `
+
+
+<strong>
+N°${cheval.numero || "-"} 
+${cheval.nom || "Cheval AZ"}
+</strong>
+
+
+<br>
+
+
+🏇 Jockey :
+${cheval.commentaire_jockey || "Pas de commentaire"}
+
+
+<br>
+
+
+👤 Entraîneur :
+${cheval.commentaire_entraineur || "Pas de commentaire"}
+
+
+`;
+
+
+
+commentairesPro.appendChild(bloc);
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+// CARTES HORIZONTALES
 
 
 if(selectionHorizontal){
@@ -267,13 +307,16 @@ selectionHorizontal.innerHTML = "";
 
 
 
-chevaux.slice(0,7).forEach((cheval,index)=>{
+chevaux.slice(0,7)
+.forEach((cheval,index)=>{
 
 
-const carte = document.createElement("div");
+const carte =
+document.createElement("div");
 
 
-carte.className = "cheval-mini";
+carte.className =
+"cheval-mini";
 
 
 
@@ -287,23 +330,16 @@ N°${cheval.numero || "-"}
 </div>
 
 
-
 <strong>
-
 ${cheval.nom || "Cheval AZ"}
-
 </strong>
 
 
 <br>
 
 
-<span>
-
 Indice AZ :
 ${cheval.indice_az || 0}
-
-</span>
 
 
 <br>
@@ -311,7 +347,7 @@ ${cheval.indice_az || 0}
 
 <small>
 
-${raisonAZ(cheval,index)}
+${obtenirRaison(cheval,index)}
 
 </small>
 
@@ -323,11 +359,11 @@ ${raisonAZ(cheval,index)}
 selectionHorizontal.appendChild(carte);
 
 
-
 });
 
 
 }
+
 
 
 
