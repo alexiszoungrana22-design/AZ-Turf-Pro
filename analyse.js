@@ -2,7 +2,6 @@ const API = "https://az-turf-pro.onrender.com/api/analyse";
 
 
 const tableBody = document.getElementById("table-body");
-const btnRefresh = document.getElementById("btn-refresh");
 
 const kpiFavorite = document.getElementById("kpi-favorite");
 const kpiConfidence = document.getElementById("kpi-confidence");
@@ -16,25 +15,18 @@ const ticketsBox = document.getElementById("tickets");
 function raisonAZ(index){
 
     if(index === 0){
-
-        return "⭐ Favori AZ : meilleur indice";
-
+        return "⭐ Favori AZ";
     }
 
     if(index < 3){
-
-        return "🔥 Base solide : très bon profil";
-
+        return "🔥 Base solide";
     }
 
     if(index < 5){
-
-        return "🎯 Chance : peut confirmer";
-
+        return "🎯 Chance";
     }
 
-
-    return "💎 Outsider : coup intéressant";
+    return "💎 Outsider";
 
 }
 
@@ -43,10 +35,12 @@ function raisonAZ(index){
 
 async function chargerAnalyse(){
 
+
 try{
 
 
 const response = await fetch(API);
+
 
 
 if(!response.ok){
@@ -63,62 +57,32 @@ const data = await response.json();
 
 
 
-// Informations course
-
-
-const elements = {
-
-"meta-course": data.course,
-
-"meta-hippodrome": data.hippodrome,
-
-"meta-discipline": data.discipline,
-
-"meta-distance": data.distance_course + " m",
-
-"meta-partants": data.partants
-
-};
-
-
-
-Object.keys(elements).forEach(id=>{
-
-const el=document.getElementById(id);
-
-if(el){
-
-el.textContent = elements[id] || "-";
-
-}
-
-});
-
-
-
-
-
-
-// Classement 7 retenus
-
+// récupération chevaux
 
 const chevaux =
-data.classement || data.chevaux || [];
+data.classement ||
+data.chevaux ||
+[];
 
 
+
+
+
+
+// Tableau 7 retenus
 
 
 if(tableBody){
 
 
-tableBody.innerHTML="";
+tableBody.innerHTML = "";
 
 
 
 chevaux.forEach((cheval,index)=>{
 
 
-const tr=document.createElement("tr");
+const tr = document.createElement("tr");
 
 
 
@@ -126,84 +90,46 @@ tr.innerHTML = `
 
 
 <td>
-
 <span class="num-badge">
-
 ${cheval.numero || "-"}
-
 </span>
-
 </td>
 
 
 
 <td>
-
 <strong>
-
-${cheval.nom || "Cheval"}
-
+${cheval.nom || "Cheval AZ"}
 </strong>
-
 </td>
 
 
 
-
 <td>
-
 ${cheval.jockey || "-"}
-
 </td>
 
 
 
-
 <td>
-
 ${cheval.entraineur || "-"}
-
 </td>
 
 
 
-
 <td>
-
 ${cheval.forme || cheval.musique || "-"}
-
 </td>
-
-
 
 
 
 <td>
 
-<div class="score-bar-container">
-
-<span>
-
-${cheval.indice_az || 0}
-
-</span>
-
-
-<div class="score-bar">
-
-<div class="score-fill"
-
-style="width:${Math.min((cheval.indice_az || 0)/2.5,100)}%">
-
-</div>
-
-</div>
-
-
-</div>
+<strong>
+${cheval.indice_az || cheval.score || 0}
+</strong>
 
 </td>
-
 
 
 
@@ -212,7 +138,7 @@ style="width:${Math.min((cheval.indice_az || 0)/2.5,100)}%">
 
 <strong>
 
-${cheval.raison || raisonAZ(index)}
+${cheval.raison || cheval.type || raisonAZ(index)}
 
 </strong>
 
@@ -221,25 +147,16 @@ ${cheval.raison || raisonAZ(index)}
 
 
 
-
-
 <td>
 
-<span class="badge-rank ${
-index===0
-?"top1"
-:index<3
-?"top3"
-:"outsider"
+<span class="badge-rank">
 
-}">
-
-${cheval.rang || index+1}
+${cheval.rang || index + 1}
 
 </span>
 
-
 </td>
+
 
 
 `;
@@ -260,11 +177,11 @@ tableBody.appendChild(tr);
 
 
 
+
 // KPI
 
 
 if(chevaux.length){
-
 
 
 if(kpiFavorite){
@@ -273,7 +190,6 @@ kpiFavorite.textContent =
 `${chevaux[0].numero} - ${chevaux[0].nom}`;
 
 }
-
 
 
 
@@ -286,9 +202,8 @@ kpiConfidence.textContent =
 
 
 
-
 const outsider =
-chevaux[chevaux.length-1];
+chevaux[chevaux.length - 1];
 
 
 
@@ -309,49 +224,8 @@ kpiOutsider.textContent =
 
 
 
-// Tickets
 
-
-if(data.tickets && topCombination){
-
-
-topCombination.innerHTML = `
-
-
-<div class="combo-pill">
-
-<span>Q+</span>
-
-${data.tickets.quinte.join(" - ")}
-
-</div>
-
-
-
-<div class="combo-pill">
-
-<span>Q</span>
-
-${data.tickets.quarte.join(" - ")}
-
-</div>
-
-
-
-<div class="combo-pill">
-
-<span>T</span>
-
-${data.tickets.trio.join(" - ")}
-
-</div>
-
-
-`;
-
-}
-
-
+// Carte Tickets AZ
 
 
 if(data.tickets && ticketsBox){
@@ -361,21 +235,50 @@ ticketsBox.innerHTML = `
 
 
 <p>
-🥇 Couplé gagnant :
+🏆 Quinté AZ :
+<br>
+
 <strong>
-${data.tickets.couple_gagnant.join(" - ")}
+${(data.tickets.quinte || []).join(" - ")}
 </strong>
+
 </p>
 
 
 
 <p>
-🥈 Couplés placés :
+🥈 Quarté AZ :
 <br>
 
-${data.tickets.couple_place
-.map(c=>c.join(" - "))
-.join("<br>")}
+<strong>
+${(data.tickets.quarte || []).join(" - ")}
+</strong>
+
+</p>
+
+
+
+
+<p>
+🥉 Tiercé AZ :
+<br>
+
+<strong>
+${(data.tickets.trio || []).join(" - ")}
+</strong>
+
+</p>
+
+
+
+
+<p>
+🎯 Couplé gagnant :
+<br>
+
+<strong>
+${(data.tickets.couple_gagnant || []).join(" - ")}
+</strong>
 
 </p>
 
@@ -387,17 +290,18 @@ ${data.tickets.couple_place
 
 Bases :
 <strong>
-${data.tickets.champ_reduit.bases.join(" - ")}
+${(data.tickets.champ_reduit?.bases || []).join(" - ")}
 </strong>
 
 <br>
 
 Compléments :
 <strong>
-${data.tickets.champ_reduit.complements.join(" - ")}
+${(data.tickets.champ_reduit?.complements || []).join(" - ")}
 </strong>
 
 </p>
+
 
 
 `;
@@ -406,23 +310,63 @@ ${data.tickets.champ_reduit.complements.join(" - ")}
 
 
 
+
+// Combinaison rapide
+
+
+if(data.tickets && topCombination){
+
+
+topCombination.innerHTML = `
+
+
+<div class="combo-pill">
+
+Q+ :
+${(data.tickets.quinte || []).join(" - ")}
+
+</div>
+
+
+
+<div class="combo-pill">
+
+Q :
+${(data.tickets.quarte || []).join(" - ")}
+
+</div>
+
+
+
+<div class="combo-pill">
+
+T :
+${(data.tickets.trio || []).join(" - ")}
+
+</div>
+
+
+`;
+
+}
+
+
+
+
 }
 
 catch(error){
 
-console.log("Erreur Analyse :",error);
+
+console.log(
+"Erreur Analyse :",
+error
+);
+
 
 }
 
 
-}
-
-
-
-
-if(btnRefresh){
-
-btnRefresh.onclick = chargerAnalyse;
 
 }
 
