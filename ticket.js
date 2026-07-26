@@ -1,32 +1,39 @@
+// =================================
+// AZ Turf Pro - Sélection du jour
+// =================================
+
+
 const API = "https://az-turf-pro.onrender.com/api/analyse";
 
 
-// Informations course
 
-const ticketCourse =
+const course =
 document.getElementById("ticket-course");
 
-const ticketHippodrome =
+
+const hippodrome =
 document.getElementById("ticket-hippodrome");
 
 
-// Sélections
 
 const quinte =
 document.getElementById("quinte");
 
+
 const quarte =
 document.getElementById("quarte");
+
 
 const trio =
 document.getElementById("trio");
 
+
 const couples =
 document.getElementById("couples");
 
+
 const champ =
 document.getElementById("champ-reduit");
-
 
 
 
@@ -38,28 +45,28 @@ async function chargerSelection(){
 try{
 
 
-const response =
-await fetch(API);
+const reponse = await fetch(API);
 
 
-const data =
-await response.json();
-
+const data = await reponse.json();
 
 
 
-if(ticketCourse){
 
-ticketCourse.textContent =
+
+// Informations course
+
+if(course){
+
+course.textContent =
 data.course || "-";
 
 }
 
 
+if(hippodrome){
 
-if(ticketHippodrome){
-
-ticketHippodrome.textContent =
+hippodrome.textContent =
 data.hippodrome || "-";
 
 }
@@ -69,6 +76,8 @@ data.hippodrome || "-";
 
 
 
+// Chevaux retenus
+
 const chevaux =
 data.classement ||
 data.chevaux ||
@@ -77,12 +86,12 @@ data.chevaux ||
 
 
 
-// Récupération des 7 retenus
-
 const selection =
-chevaux.slice(0,7).map(
-cheval => cheval.numero
-);
+chevaux
+.slice(0,7)
+.map(cheval => cheval.numero);
+
+
 
 
 
@@ -102,15 +111,19 @@ selection.join(" - ");
 
 
 
+
 // QUARTE
 
 if(quarte){
 
 quarte.innerHTML =
 
-selection.slice(0,5).join(" - ");
+selection
+.slice(0,5)
+.join(" - ");
 
 }
+
 
 
 
@@ -122,9 +135,13 @@ if(trio){
 
 trio.innerHTML =
 
-selection.slice(0,4).join(" - ");
+selection
+.slice(0,4)
+.join(" - ");
 
 }
+
+
 
 
 
@@ -136,19 +153,16 @@ if(couples){
 
 couples.innerHTML = `
 
-🤝 ${selection[0]} - ${selection[1]}
-
+${selection[0]} - ${selection[1]}
 <br><br>
-
-🤝 ${selection[0]} - ${selection[2]}
-
+${selection[0]} - ${selection[2]}
 <br><br>
-
-🤝 ${selection[1]} - ${selection[3]}
+${selection[1]} - ${selection[3]}
 
 `;
 
 }
+
 
 
 
@@ -163,7 +177,7 @@ champ.innerHTML = `
 
 <strong>Base :</strong>
 
-${selection[0]}
+N° ${selection[0]}
 
 
 <br><br>
@@ -182,13 +196,12 @@ ${selection.slice(1).join(" - ")}
 
 }
 
-
-catch(error){
+catch(erreur){
 
 
 console.log(
-"Erreur sélection :",
-error
+"Erreur chargement sélection :",
+erreur
 );
 
 
@@ -196,6 +209,7 @@ error
 
 
 }
+
 
 
 
