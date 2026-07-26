@@ -16,28 +16,30 @@
 <body>
 
 
+
 <header class="top-header">
 
+
 <div class="logo">
+
 🏇 <span>AZ Turf Pro</span>
+
 </div>
+
 
 
 <nav class="top-menu">
 
-<a href="index.html">
-🏠 Accueil
-</a>
+<a href="index.html">🏠 Accueil</a>
 
-
-<a href="analyse.html">
-📊 Analyse
-</a>
-
+<a href="analyse.html">📊 Analyse</a>
 
 </nav>
 
+
 </header>
+
+
 
 
 
@@ -47,15 +49,16 @@
 
 
 
+
+
 <section class="card">
 
-<h2>
-🏆 Historique AZ Turf Pro
-</h2>
+
+<h2>🏆 Historique AZ Turf Pro</h2>
 
 
 <p>
-Consultez les anciennes analyses, tickets et résultats.
+Retrouvez les anciennes analyses et résultats.
 </p>
 
 
@@ -66,42 +69,50 @@ Consultez les anciennes analyses, tickets et résultats.
 
 
 
+
+
 <section class="card">
 
 
-<h2>
-📅 Dernières courses
-</h2>
+<h2>📊 Dernières analyses</h2>
 
 
-<div class="ticket-box">
+
+<div class="table-container">
 
 
-<strong>
-Course :
-</strong>
-
-<p>
-En attente des résultats.
-</p>
+<table>
 
 
-<strong>
-Ticket AZ :
-</strong>
+<thead>
 
-<p>
--
-</p>
+<tr>
+
+<th>Date</th>
+
+<th>Course</th>
+
+<th>Favori AZ</th>
+
+<th>Ticket AZ</th>
+
+<th>Résultat</th>
+
+</tr>
 
 
-<strong>
-Arrivée :
-</strong>
+</thead>
 
-<p>
--
-</p>
+
+
+<tbody id="historique-body">
+
+
+</tbody>
+
+
+
+</table>
 
 
 </div>
@@ -115,56 +126,58 @@ Arrivée :
 
 
 
+
+
 <section class="card">
 
 
-<h2>
-📊 Statistiques
-</h2>
+<h2>📈 Statistiques AZ</h2>
+
 
 
 <div class="kpi-container">
 
 
+
 <div class="kpi-card">
 
-<h3>
-🏇 Courses analysées
-</h3>
+<h3>🏇 Courses analysées</h3>
 
-<p>
--
+<p id="total-courses">
+0
 </p>
 
 </div>
 
 
 
+
+
 <div class="kpi-card">
 
-<h3>
-🎟️ Tickets générés
-</h3>
+<h3>⭐ Favoris AZ</h3>
 
-<p>
--
+<p id="favoris-gagnants">
+0
 </p>
 
 </div>
 
 
 
+
+
 <div class="kpi-card">
 
-<h3>
-⭐ Réussites
-</h3>
+<h3>🎯 Tickets réussis</h3>
 
-<p>
--
+<p id="tickets-reussis">
+0
 </p>
 
 </div>
+
+
 
 
 </div>
@@ -173,29 +186,6 @@ Arrivée :
 </section>
 
 
-
-
-
-
-<section class="card">
-
-
-<h2>
-📝 Archives
-</h2>
-
-
-<div class="ticket-box">
-
-<p>
-Les anciens pronostics AZ Turf Pro apparaîtront ici.
-</p>
-
-
-</div>
-
-
-</section>
 
 
 
@@ -212,18 +202,27 @@ Les anciens pronostics AZ Turf Pro apparaîtront ici.
 
 
 <a href="ticket.html">
+
 🎟️ Ticket
+
 </a>
+
 
 
 <a href="historique.html">
+
 🏆 Historique
+
 </a>
+
 
 
 <a href="espace-vip.html">
+
 ⭐ VIP
+
 </a>
+
 
 
 </footer>
@@ -232,6 +231,12 @@ Les anciens pronostics AZ Turf Pro apparaîtront ici.
 
 
 
+
+
+<script src="historique.js?v=1"></script>
+
+
 </body>
+
 
 </html>
