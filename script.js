@@ -18,7 +18,7 @@ async function chargerAnalyse() {
     try {
 
         const response = await fetch(API);
-
+alert("Chevaux reçus : " + data.chevaux.length);
         if (!response.ok) {
             throw new Error("Erreur API");
         }
