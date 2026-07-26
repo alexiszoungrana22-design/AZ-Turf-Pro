@@ -1,82 +1,4 @@
-// =====================================
-// AZ Turf Pro - Analyse de la course
-// =====================================
-
-
 const API = "https://az-turf-pro.onrender.com/api/analyse";
-
-
-
-// Informations course
-
-const course =
-document.getElementById("analyse-course");
-
-
-const hippodrome =
-document.getElementById("analyse-hippodrome");
-
-
-const discipline =
-document.getElementById("analyse-discipline");
-
-
-const distance =
-document.getElementById("analyse-distance");
-
-
-
-// Tableau chevaux
-
-const tableau =
-document.getElementById("selection-horses");
-
-
-// Commentaires
-
-const commentaires =
-document.getElementById("horse-comments");
-
-
-// Sélection horizontale
-
-const selection =
-document.getElementById("selection-horizontal");
-
-
-
-
-
-
-function raisonCheval(cheval,index){
-
-
-if(cheval.type){
-
-return cheval.type;
-
-}
-
-
-if(index===0){
-
-return "Favori du jour";
-
-}
-
-
-if(index<3){
-
-return "Cheval régulier";
-
-}
-
-
-return "Belle chance";
-
-}
-
-
 
 
 
@@ -86,47 +8,22 @@ async function chargerAnalyse(){
 try{
 
 
-const reponse =
-await fetch(API);
+const response = await fetch(API);
 
 
-const data =
-await reponse.json();
+if(!response.ok){
 
+throw new Error("Erreur API");
 
-
-
-
-// COURSE
-
-
-if(course)
-course.textContent =
-data.course || "-";
-
-
-if(hippodrome)
-hippodrome.textContent =
-data.hippodrome || "-";
-
-
-if(discipline)
-discipline.textContent =
-data.discipline || "-";
-
-
-if(distance)
-distance.textContent =
-(data.distance_course || "-") + " m";
+}
 
 
 
-
+const data = await response.json();
 
 
 
 const chevaux =
-
 data.classement ||
 data.chevaux ||
 [];
@@ -134,17 +31,122 @@ data.chevaux ||
 
 
 
-const retenus =
+// Informations générales
 
-chevaux.slice(0,7);
-
-
-
+const course =
+document.getElementById("analyse-course");
 
 
+const hippodrome =
+document.getElementById("analyse-hippodrome");
 
 
-// TABLEAU
+if(course){
+
+course.textContent =
+data.course || "Course du jour";
+
+}
+
+
+if(hippodrome){
+
+hippodrome.textContent =
+data.hippodrome || "-";
+
+}
+
+
+
+
+
+
+
+// Favori du jour
+
+
+const favori =
+document.getElementById("favori");
+
+
+if(favori && chevaux[0]){
+
+
+favori.innerHTML = `
+
+<h3>⭐ Favori du jour</h3>
+
+<p>
+N°${chevaux[0].numero}
+-
+${chevaux[0].nom || "Cheval"}
+</p>
+
+<p>
+Indice :
+${chevaux[0].indice_az || "-"}
+</p>
+
+<p>
+Confiance :
+${chevaux[0].confiance || "-"} %
+</p>
+
+`;
+
+}
+
+
+
+
+
+
+
+// Outsider du jour
+
+
+const outsider =
+document.getElementById("outsider");
+
+
+if(outsider && chevaux[3]){
+
+
+outsider.innerHTML = `
+
+<h3>🔥 Outsider du jour</h3>
+
+<p>
+N°${chevaux[3].numero}
+-
+${chevaux[3].nom || "Cheval"}
+</p>
+
+<p>
+Indice :
+${chevaux[3].indice_az || "-"}
+</p>
+
+<p>
+Confiance :
+${chevaux[3].confiance || "-"} %
+</p>
+
+`;
+
+}
+
+
+
+
+
+
+
+// Tableau analyse
+
+
+const tableau =
+document.getElementById("analyse-body");
 
 
 if(tableau){
@@ -154,14 +156,12 @@ tableau.innerHTML="";
 
 
 
-retenus.forEach((cheval,index)=>{
+chevaux.forEach((cheval,index)=>{
 
 
 tableau.innerHTML += `
 
-
 <tr>
-
 
 <td>
 ${cheval.numero || "-"}
@@ -169,24 +169,7 @@ ${cheval.numero || "-"}
 
 
 <td>
-<strong>
-${cheval.nom || "Cheval"}
-</strong>
-</td>
-
-
-<td>
-${cheval.jockey || "-"}
-</td>
-
-
-<td>
-${cheval.entraineur || "-"}
-</td>
-
-
-<td>
-${cheval.forme || "-"}
+${cheval.nom || "-"}
 </td>
 
 
@@ -196,21 +179,28 @@ ${cheval.indice_az || "-"}
 
 
 <td>
-${raisonCheval(cheval,index)}
+${cheval.confiance || "-"} %
 </td>
 
 
 <td>
-${index+1}
+
+${
+index===0
+? "Favori du jour"
+:
+index<3
+? "Belle chance"
+:
+"Chance"
+}
+
 </td>
 
 
 </tr>
 
-
 `;
-
-
 
 });
 
@@ -223,136 +213,67 @@ ${index+1}
 
 
 
-
-// COMMENTAIRES
-
-
-if(commentaires){
+// Ticket
 
 
-commentaires.innerHTML="";
+const ticket =
+document.getElementById("analyse-ticket");
 
 
 
-retenus.forEach((cheval)=>{
+if(ticket && data.tickets){
 
 
-commentaires.innerHTML += `
+ticket.innerHTML = `
 
 
-<div class="ticket-box">
+<h3>🎟️ Sélection</h3>
 
 
+<p>
+Quinté :
 <strong>
-N°${cheval.numero} ${cheval.nom || ""}
+${data.tickets.quinte?.join(" - ") || "-"}
 </strong>
+</p>
 
 
-<br><br>
-
-
-🧑 Jockey :
-${cheval.commentaire_jockey || "Aucun commentaire disponible"}
-
-
-<br>
-
-
-🏇 Entraîneur :
-${cheval.commentaire_entraineur || "Aucun commentaire disponible"}
-
-
-</div>
-
-
-`;
-
-
-
-});
-
-
-}
-
-
-
-
-
-
-
-// SELECTION HORIZONTALE
-
-
-if(selection){
-
-
-selection.innerHTML="";
-
-
-
-retenus.forEach((cheval)=>{
-
-
-selection.innerHTML += `
-
-
-<div class="cheval-mini">
-
-
-<div class="mini-numero">
-
-N°${cheval.numero}
-
-</div>
-
-
+<p>
+Tiercé :
 <strong>
-
-${cheval.nom || "Cheval"}
-
+${data.tickets.trio?.join(" - ") || "-"}
 </strong>
-
-
-<br><br>
-
-
-Indice :
-${cheval.indice_az || "-"}
-
-
-</div>
+</p>
 
 
 `;
 
-
-
-});
-
-
 }
 
 
 
 
 
+
+
 }
 
 
-catch(erreur){
+catch(error){
 
 
 console.log(
 "Erreur analyse :",
-erreur
+error
 );
 
 
 }
 
 
-
 }
+
+
 
 
 
