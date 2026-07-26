@@ -1,25 +1,29 @@
 const API = "https://az-turf-pro.onrender.com/api/analyse";
 
 
-// ELEMENTS HTML
+// ELEMENTS COURSE
+
+const analyseCourse = document.getElementById("analyse-course");
+const analyseHippodrome = document.getElementById("analyse-hippodrome");
+const analyseDiscipline = document.getElementById("analyse-discipline");
+const analyseDistance = document.getElementById("analyse-distance");
+
+
+// TABLEAU 7 RETENUS
 
 const tableBody = document.getElementById("az-selection");
 
-const quinte = document.getElementById("quinte");
-const quarte = document.getElementById("quarte");
-const trio = document.getElementById("trio");
 
-const coupleGagnant = document.getElementById("couple-gagnant");
-const couplePlace = document.getElementById("couple-place");
+// CARTES HORIZONTALES
 
-const champReduit = document.getElementById("champ-reduit");
+const selectionHorizontal =
+document.getElementById("selection-az-horizontal");
 
 
 
 
-// RAISON AZ
 
-function raisonAZ(cheval, index){
+function raisonAZ(cheval,index){
 
     if(cheval.raison){
         return cheval.raison;
@@ -31,7 +35,7 @@ function raisonAZ(cheval, index){
 
 
     if(index === 0){
-        return "⭐ Favori AZ : meilleur indice";
+        return "⭐ Favori AZ";
     }
 
 
@@ -41,13 +45,15 @@ function raisonAZ(cheval, index){
 
 
     if(index < 5){
-        return "🎯 Chance pour l'arrivée";
+        return "🎯 Chance régulière";
     }
 
 
     return "💎 Outsider intéressant";
 
 }
+
+
 
 
 
@@ -65,7 +71,9 @@ const response = await fetch(API);
 
 if(!response.ok){
 
-throw new Error("Erreur API : " + response.status);
+throw new Error(
+"Erreur API : " + response.status
+);
 
 }
 
@@ -76,11 +84,50 @@ const data = await response.json();
 
 
 
+// INFORMATIONS COURSE
+
+
+if(analyseCourse)
+
+analyseCourse.textContent =
+data.course || "-";
+
+
+
+if(analyseHippodrome)
+
+analyseHippodrome.textContent =
+data.hippodrome || "-";
+
+
+
+if(analyseDiscipline)
+
+analyseDiscipline.textContent =
+data.discipline || "-";
+
+
+
+if(analyseDistance)
+
+analyseDistance.textContent =
+(data.distance_course || "-") + " m";
+
+
+
+
+
+
+
 // RECUPERATION CHEVAUX
 
+
 const chevaux =
+
 data.classement ||
+
 data.chevaux ||
+
 [];
 
 
@@ -88,7 +135,7 @@ data.chevaux ||
 
 
 
-// AFFICHAGE TABLEAU 7 RETENUS
+// TABLEAU DES 7 RETENUS
 
 
 if(tableBody){
@@ -98,15 +145,14 @@ tableBody.innerHTML = "";
 
 
 
-chevaux.forEach((cheval,index)=>{
+chevaux.slice(0,7).forEach((cheval,index)=>{
 
 
-const ligne = document.createElement("tr");
+const tr = document.createElement("tr");
 
 
 
-ligne.innerHTML = `
-
+tr.innerHTML = `
 
 <td>
 
@@ -132,13 +178,11 @@ ${cheval.nom || "Cheval AZ"}
 
 
 
-
 <td>
 
 ${cheval.jockey || "-"}
 
 </td>
-
 
 
 
@@ -150,13 +194,11 @@ ${cheval.entraineur || "-"}
 
 
 
-
 <td>
 
 ${cheval.forme || cheval.musique || "-"}
 
 </td>
-
 
 
 
@@ -172,13 +214,19 @@ ${cheval.indice_az || cheval.score || 0}
 
 
 
-
 <td>
 
 ${raisonAZ(cheval,index)}
 
 </td>
 
+
+
+<td>
+
+${cheval.commentaire || "-"}
+
+</td>
 
 
 
@@ -193,7 +241,7 @@ ${cheval.rang || index+1}
 
 
 
-tableBody.appendChild(ligne);
+tableBody.appendChild(tr);
 
 
 });
@@ -207,96 +255,79 @@ tableBody.appendChild(ligne);
 
 
 
-// AFFICHAGE TICKETS AZ
 
 
-if(data.tickets){
+// CARTES HORIZONTALES DES 7 CHEVAUX
 
 
+if(selectionHorizontal){
 
-if(quinte){
 
-quinte.textContent =
-(data.tickets.quinte || [])
-.join(" - ");
-
-}
+selectionHorizontal.innerHTML = "";
 
 
 
-if(quarte){
-
-quarte.textContent =
-(data.tickets.quarte || [])
-.join(" - ");
-
-}
+chevaux.slice(0,7).forEach((cheval,index)=>{
 
 
+const carte = document.createElement("div");
 
-if(trio){
 
-trio.textContent =
-(data.tickets.trio || [])
-.join(" - ");
-
-}
+carte.className = "cheval-mini";
 
 
 
-
-if(coupleGagnant){
-
-coupleGagnant.textContent =
-(data.tickets.couple_gagnant || [])
-.join(" - ");
-
-}
+carte.innerHTML = `
 
 
+<div class="mini-numero">
 
+N°${cheval.numero || "-"}
 
-if(couplePlace){
-
-couplePlace.innerHTML =
-(data.tickets.couple_place || [])
-.map(c => c.join(" - "))
-.join("<br>");
-
-}
+</div>
 
 
 
+<strong>
 
-if(champReduit){
+${cheval.nom || "Cheval AZ"}
 
-
-const bases =
-data.tickets.champ_reduit?.bases || [];
-
-
-const complements =
-data.tickets.champ_reduit?.complements || [];
+</strong>
 
 
+<br>
 
-champReduit.innerHTML =
 
-"Bases : " +
-bases.join(" - ")
-+
-"<br>Compléments : "
-+
-complements.join(" - ");
+<span>
 
+Indice AZ :
+${cheval.indice_az || 0}
+
+</span>
+
+
+<br>
+
+
+<small>
+
+${raisonAZ(cheval,index)}
+
+</small>
+
+
+`;
+
+
+
+selectionHorizontal.appendChild(carte);
+
+
+
+});
 
 
 }
-
-
-
-}
-
 
 
 
@@ -307,7 +338,7 @@ catch(error){
 
 
 console.log(
-"Erreur analyse :",
+"Erreur Analyse AZ :",
 error
 );
 
@@ -317,6 +348,7 @@ error
 
 
 }
+
 
 
 
