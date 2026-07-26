@@ -1,140 +1,427 @@
-/* ===== Correction affichage AZ Turf Pro ===== */
+/* =========================
+   AZ TURF PRO - STYLE MOBILE
+========================= */
+
+
+* {
+    box-sizing: border-box;
+}
+
 
 body {
+
     margin: 0;
-    font-family: 'Inter', sans-serif;
-    background: #f8fafc;
+    padding: 0;
+
+    font-family: Arial, sans-serif;
+
+    background: #f4f7f8;
+
+    color: #222;
+
 }
 
-.app-container {
+
+
+/* =========================
+   HEADER FIXE
+========================= */
+
+
+.top-header {
+
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
     width: 100%;
-    max-width: 1200px;
-    margin: auto;
-}
 
+    height: 70px;
 
-/* Entête */
-
-.topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    padding: 15px 20px;
     background: white;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-    flex-wrap: wrap;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 0 15px;
+
+    box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+
+    z-index: 1000;
+
 }
+
 
 
 .logo {
+
     display: flex;
+
     align-items: center;
+
     gap: 8px;
+
+    font-size: 22px;
+
+    font-weight: bold;
+
+    color: #0b8f4d;
+
 }
 
 
-.logo-icon {
-    font-size: 35px;
-}
 
+.top-menu {
 
-.logo h1 {
-    margin: 0;
-    font-size: 24px;
-}
-
-
-.menu {
     display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
+
+    gap: 8px;
+
 }
 
 
-.menu a,
-.btn-primary {
-    padding: 10px 15px;
-    border-radius: 20px;
+
+.top-menu a {
+
     text-decoration: none;
-    font-weight: 600;
-    background: #10b981;
+
+    background: #0b8f4d;
+
     color: white;
+
+    padding: 8px 12px;
+
+    border-radius: 20px;
+
+    font-size: 13px;
+
 }
 
 
-.menu a:hover,
-.btn-primary:hover {
-    opacity: 0.85;
+
+
+
+/* =========================
+   CONTENU DEFILANT
+========================= */
+
+
+.content {
+
+    padding-top: 90px;
+
+    padding-bottom: 90px;
+
+    width: 100%;
+
 }
 
 
 
-/* Centrage des blocs accueil */
+/* =========================
+   CARTES
+========================= */
 
-.banner,
-.countdown-card,
-.live-card,
-.kpi-grid,
-.prediction-card,
-.comments-card,
-.history-card {
-    width: 90%;
+
+.card {
+
+    background: white;
+
+    width: 92%;
+
     max-width: 900px;
+
     margin: 20px auto;
+
+    padding: 20px;
+
+    border-radius: 18px;
+
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+
     text-align: center;
+
 }
 
 
 
-/* Tableau partants */
+.card h2 {
 
-.table-section {
-    width: 100%;
-    margin: 20px auto;
+    margin-top: 0;
+
+    color: #08783f;
+
 }
 
 
-.table-wrapper {
-    width: 100%;
-    overflow-x: auto;
+
+/* =========================
+ COURSE
+========================= */
+
+
+.course-info p {
+
+    margin: 8px;
+
 }
+
+
+
+.countdown {
+
+    margin-top: 15px;
+
+    padding: 15px;
+
+    border-radius: 15px;
+
+    background: #08783f;
+
+    color:white;
+
+    font-size:18px;
+
+}
+
+
+
+/* =========================
+ KPI
+========================= */
+
+
+.kpi-container {
+
+
+    width:92%;
+
+    max-width:900px;
+
+    margin:auto;
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:12px;
+
+
+}
+
+
+
+.kpi-card {
+
+
+    background:white;
+
+    border-radius:15px;
+
+    padding:15px;
+
+    text-align:center;
+
+    box-shadow:0 5px 12px rgba(0,0,0,0.08);
+
+
+}
+
+
+
+.kpi-card h3 {
+
+    font-size:14px;
+
+    color:#08783f;
+
+}
+
+
+
+.kpi-card p {
+
+    font-weight:bold;
+
+}
+
+
+
+
+
+/* =========================
+ TABLEAU PARTANTS
+========================= */
+
+
+.table-container {
+
+    overflow-x:auto;
+
+}
+
 
 
 table {
-    width: 100%;
-    min-width: 900px;
-    border-collapse: collapse;
+
+    width:100%;
+
+    min-width:900px;
+
+    border-collapse:collapse;
+
 }
+
+
+
+th {
+
+    background:#08783f;
+
+    color:white;
+
+    padding:12px;
+
+}
+
+
+
+td {
+
+    padding:12px;
+
+    border-bottom:1px solid #ddd;
+
+}
+
 
 
 .num-badge {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:35px;
+
+    height:35px;
+
+    border-radius:50%;
+
+    background:#08783f;
+
+    color:white;
+
 }
 
 
 
-/* Téléphone */
+
+
+/* =========================
+ BARRE BASSE FIXE
+========================= */
+
+
+.bottom-menu {
+
+
+    position:fixed;
+
+    bottom:0;
+
+    left:0;
+
+    width:100%;
+
+    height:65px;
+
+
+    background:white;
+
+
+    display:flex;
+
+    justify-content:space-around;
+
+    align-items:center;
+
+
+    box-shadow:0 -3px 10px rgba(0,0,0,0.15);
+
+
+    z-index:1000;
+
+
+}
+
+
+
+.bottom-menu a {
+
+
+    text-decoration:none;
+
+    color:#08783f;
+
+    font-weight:bold;
+
+    font-size:14px;
+
+
+}
+
+
+
+
+/* =========================
+ MOBILE
+========================= */
+
 
 @media(max-width:700px){
 
-.topbar {
-    justify-content: center;
+
+.logo {
+
+    font-size:18px;
+
 }
 
-.logo h1 {
-    font-size: 20px;
+
+
+.top-menu a {
+
+    padding:7px 9px;
+
+    font-size:12px;
+
 }
 
-.menu a {
-    padding: 8px 10px;
-    font-size: 13px;
+
+
+.kpi-container {
+
+    grid-template-columns:1fr;
+
+    width:90%;
+
 }
+
+
+
+.card {
+
+    width:94%;
+
+}
+
+
 
 }
