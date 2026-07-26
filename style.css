@@ -1,6 +1,7 @@
 /* ===============================
-   AZ TURF PRO - RESPONSIVE WEB
+   AZ TURF PRO - DESIGN PREMIUM
 ================================ */
+
 
 *{
     box-sizing:border-box;
@@ -17,7 +18,6 @@ body{
     color:#222;
 
 }
-
 
 
 /* HEADER */
@@ -43,12 +43,11 @@ body{
 
     padding:0 30px;
 
-    box-shadow:0 3px 12px rgba(0,0,0,.12);
+    box-shadow:0 4px 15px rgba(0,0,0,.15);
 
     z-index:1000;
 
 }
-
 
 
 .logo{
@@ -67,7 +66,6 @@ body{
 
 
 
-
 .top-menu{
 
     display:flex;
@@ -75,7 +73,6 @@ body{
     gap:15px;
 
 }
-
 
 
 .top-menu a{
@@ -92,19 +89,27 @@ body{
 
     font-weight:bold;
 
+    transition:.3s;
+
 }
 
 
+.top-menu a:hover{
+
+    transform:scale(1.05);
+
+}
 
 
 
 /* CONTENU */
 
+
 .content{
 
     padding-top:100px;
 
-    padding-bottom:50px;
+    padding-bottom:70px;
 
     max-width:1200px;
 
@@ -114,8 +119,8 @@ body{
 
 
 
-
 /* CARTES */
+
 
 .card{
 
@@ -127,9 +132,32 @@ body{
 
     padding:25px;
 
-    border-radius:20px;
+    border-radius:22px;
 
-    box-shadow:0 5px 15px rgba(0,0,0,.08);
+    box-shadow:0 6px 18px rgba(0,0,0,.08);
+
+    animation:apparition .5s ease;
+
+}
+
+
+@keyframes apparition{
+
+from{
+
+opacity:0;
+
+transform:translateY(15px);
+
+}
+
+to{
+
+opacity:1;
+
+transform:translateY(0);
+
+}
 
 }
 
@@ -145,13 +173,14 @@ body{
 
 
 
+/* HORLOGE */
 
-
-/* HORLOGE DEPART */
 
 .countdown{
 
     text-align:center;
+
+    border-top:5px solid #08783f;
 
 }
 
@@ -159,7 +188,7 @@ body{
 
 #timer{
 
-    font-size:45px;
+    font-size:55px;
 
     font-weight:bold;
 
@@ -171,9 +200,72 @@ body{
 
 
 
+/* FAVORI ET OUTSIDER GRAND FORMAT */
+
+
+.favorite-box,
+.outsider-box{
+
+
+    width:95%;
+
+    margin:25px auto;
+
+    padding:30px;
+
+    background:white;
+
+    border-radius:25px;
+
+    text-align:center;
+
+    box-shadow:0 8px 20px rgba(0,0,0,.12);
+
+}
+
+
+
+.favorite-box{
+
+    border-left:8px solid #08783f;
+
+}
+
+
+
+.outsider-box{
+
+    border-left:8px solid #ff9800;
+
+}
+
+
+
+.favorite-number,
+.outsider-number{
+
+    font-size:55px;
+
+    font-weight:bold;
+
+    color:#08783f;
+
+}
+
+
+
+.outsider-number{
+
+    color:#ff9800;
+
+}
+
+
+
 
 
 /* KPI */
+
 
 .kpi-container{
 
@@ -195,7 +287,7 @@ body{
 
     background:white;
 
-    padding:20px;
+    padding:22px;
 
     border-radius:18px;
 
@@ -215,9 +307,8 @@ body{
 
 
 
+/* TABLEAU */
 
-
-/* TABLEAU PARTANTS */
 
 .table-container{
 
@@ -263,8 +354,8 @@ td{
 
 
 
-
 /* SELECTION HORIZONTALE */
+
 
 .selection-horizontal{
 
@@ -274,7 +365,7 @@ td{
 
     overflow-x:auto;
 
-    padding:10px 0;
+    padding:15px 0;
 
 }
 
@@ -282,19 +373,19 @@ td{
 
 .cheval-mini{
 
-    min-width:140px;
+    min-width:145px;
 
-    padding:15px;
+    padding:18px;
 
-    border-radius:15px;
+    border-radius:18px;
 
     background:white;
 
-    box-shadow:0 3px 10px rgba(0,0,0,.15);
+    box-shadow:0 4px 12px rgba(0,0,0,.15);
 
     text-align:center;
 
-    border-top:4px solid #08783f;
+    border-top:5px solid #08783f;
 
 }
 
@@ -302,7 +393,7 @@ td{
 
 .mini-numero{
 
-    font-size:26px;
+    font-size:28px;
 
     font-weight:bold;
 
@@ -312,10 +403,25 @@ td{
 
 
 
+/* VIP */
+
+
+.vip-choice{
+
+    background:#f4f7f8;
+
+    padding:15px;
+
+    border-radius:15px;
+
+    margin:10px 0;
+
+}
 
 
 
 /* MESSAGE */
+
 
 .news-bar{
 
@@ -339,9 +445,33 @@ td{
 
 
 
+/* BOUTONS */
 
 
-/* MENU BAS MOBILE */
+button{
+
+    background:#08783f;
+
+    color:white;
+
+    border:none;
+
+    padding:12px 25px;
+
+    border-radius:25px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+}
+
+
+
+
+
+/* MENU BAS */
+
 
 .bottom-menu{
 
@@ -353,21 +483,20 @@ td{
 
 
 
-
 /* TABLETTE */
+
 
 @media(max-width:900px){
 
 
 .kpi-container{
 
-    grid-template-columns:repeat(2,1fr);
+grid-template-columns:repeat(2,1fr);
 
 }
 
 
 }
-
 
 
 
@@ -375,15 +504,15 @@ td{
 
 /* TELEPHONE */
 
-@media(max-width:600px){
 
+@media(max-width:600px){
 
 
 .top-header{
 
-    height:70px;
+height:70px;
 
-    padding:0 12px;
+padding:0 12px;
 
 }
 
@@ -391,7 +520,7 @@ td{
 
 .logo{
 
-    font-size:18px;
+font-size:18px;
 
 }
 
@@ -399,9 +528,9 @@ td{
 
 .top-menu a{
 
-    padding:7px 10px;
+padding:7px 10px;
 
-    font-size:12px;
+font-size:12px;
 
 }
 
@@ -409,7 +538,7 @@ td{
 
 .content{
 
-    padding-bottom:90px;
+padding-bottom:100px;
 
 }
 
@@ -417,7 +546,7 @@ td{
 
 .card{
 
-    padding:18px;
+padding:18px;
 
 }
 
@@ -425,7 +554,16 @@ td{
 
 #timer{
 
-    font-size:35px;
+font-size:38px;
+
+}
+
+
+
+.favorite-number,
+.outsider-number{
+
+font-size:45px;
 
 }
 
@@ -433,36 +571,38 @@ td{
 
 .kpi-container{
 
-    grid-template-columns:1fr;
+grid-template-columns:1fr;
 
 }
 
 
 
 
+
 .bottom-menu{
 
-    display:flex;
 
-    position:fixed;
+display:flex;
 
-    bottom:0;
+position:fixed;
 
-    left:0;
+bottom:0;
 
-    width:100%;
+left:0;
 
-    height:65px;
+width:100%;
 
-    background:white;
+height:65px;
 
-    justify-content:space-around;
+background:white;
 
-    align-items:center;
+justify-content:space-around;
 
-    box-shadow:0 -3px 12px rgba(0,0,0,.15);
+align-items:center;
 
-    z-index:1000;
+box-shadow:0 -3px 12px rgba(0,0,0,.15);
+
+z-index:1000;
 
 }
 
@@ -470,16 +610,16 @@ td{
 
 .bottom-menu a{
 
-    text-decoration:none;
+text-decoration:none;
 
-    color:#08783f;
+color:#08783f;
 
-    font-size:13px;
+font-size:12px;
 
-    font-weight:bold;
-
-}
-
-
+font-weight:bold;
 
 }
+
+
+
+   }
