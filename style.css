@@ -2,36 +2,43 @@
    AZ TURF PRO - RESPONSIVE WEB
 ================================ */
 
-
-* {
-    box-sizing: border-box;
+*{
+    box-sizing:border-box;
 }
 
 
-body {
+body{
+
     margin:0;
-    font-family: Arial, sans-serif;
+    font-family:Arial,sans-serif;
+
     background:#f4f7f8;
+
     color:#222;
+
 }
 
 
 
 /* HEADER */
 
-.top-header {
+.top-header{
 
     position:fixed;
+
     top:0;
     left:0;
 
     width:100%;
+
     height:75px;
 
-    background:#fff;
+    background:white;
 
     display:flex;
+
     align-items:center;
+
     justify-content:space-between;
 
     padding:0 30px;
@@ -43,12 +50,15 @@ body {
 }
 
 
-.logo {
+
+.logo{
 
     display:flex;
+
     align-items:center;
 
     font-size:24px;
+
     font-weight:bold;
 
     color:#08783f;
@@ -57,16 +67,18 @@ body {
 
 
 
-.top-menu {
+
+.top-menu{
 
     display:flex;
+
     gap:15px;
 
 }
 
 
 
-.top-menu a {
+.top-menu a{
 
     text-decoration:none;
 
@@ -84,13 +96,15 @@ body {
 
 
 
+
+
 /* CONTENU */
 
-
-.content {
+.content{
 
     padding-top:100px;
-    padding-bottom:40px;
+
+    padding-bottom:50px;
 
     max-width:1200px;
 
@@ -100,10 +114,10 @@ body {
 
 
 
+
 /* CARTES */
 
-
-.card {
+.card{
 
     background:white;
 
@@ -121,7 +135,7 @@ body {
 
 
 
-.card h2 {
+.card h2{
 
     text-align:center;
 
@@ -133,10 +147,35 @@ body {
 
 
 
-/* CARTES KPI */
+/* HORLOGE DEPART */
+
+.countdown{
+
+    text-align:center;
+
+}
 
 
-.kpi-container {
+
+#timer{
+
+    font-size:45px;
+
+    font-weight:bold;
+
+    color:#08783f;
+
+    margin:20px;
+
+}
+
+
+
+
+
+/* KPI */
+
+.kpi-container{
 
     display:grid;
 
@@ -146,15 +185,13 @@ body {
 
     width:95%;
 
-    max-width:1200px;
-
     margin:auto;
 
 }
 
 
 
-.kpi-card {
+.kpi-card{
 
     background:white;
 
@@ -170,12 +207,19 @@ body {
 
 
 
+.kpi-card h3{
+
+    color:#08783f;
+
+}
 
 
-/* TABLEAU */
 
 
-.table-container {
+
+/* TABLEAU PARTANTS */
+
+.table-container{
 
     overflow-x:auto;
 
@@ -183,7 +227,7 @@ body {
 
 
 
-table {
+table{
 
     width:100%;
 
@@ -194,7 +238,8 @@ table {
 }
 
 
-th {
+
+th{
 
     background:#08783f;
 
@@ -205,41 +250,100 @@ th {
 }
 
 
-td {
+
+td{
 
     padding:12px;
 
     border-bottom:1px solid #ddd;
 
+    text-align:center;
+
 }
 
 
 
 
-/* TICKETS */
+/* SELECTION HORIZONTALE */
+
+.selection-horizontal{
+
+    display:flex;
+
+    gap:12px;
+
+    overflow-x:auto;
+
+    padding:10px 0;
+
+}
 
 
-.ticket-box {
 
-    background:#f7faf8;
+.cheval-mini{
 
-    border-left:5px solid #08783f;
+    min-width:140px;
 
-    padding:18px;
+    padding:15px;
 
     border-radius:15px;
 
-    margin:15px 0;
+    background:white;
+
+    box-shadow:0 3px 10px rgba(0,0,0,.15);
+
+    text-align:center;
+
+    border-top:4px solid #08783f;
+
+}
+
+
+
+.mini-numero{
+
+    font-size:26px;
+
+    font-weight:bold;
+
+    color:#08783f;
 
 }
 
 
 
 
-/* BARRE BASSE MOBILE */
 
 
-.bottom-menu {
+/* MESSAGE */
+
+.news-bar{
+
+    width:95%;
+
+    margin:25px auto;
+
+    background:#08783f;
+
+    color:white;
+
+    padding:15px;
+
+    border-radius:20px;
+
+    text-align:center;
+
+    font-weight:bold;
+
+}
+
+
+
+
+
+/* MENU BAS MOBILE */
+
+.bottom-menu{
 
     display:none;
 
@@ -249,15 +353,13 @@ td {
 
 
 
-/* ===============================
- TABLETTE
-================================ */
 
+/* TABLETTE */
 
 @media(max-width:900px){
 
 
-.kpi-container {
+.kpi-container{
 
     grid-template-columns:repeat(2,1fr);
 
@@ -270,15 +372,14 @@ td {
 
 
 
-/* ===============================
- TELEPHONE
-================================ */
 
+/* TELEPHONE */
 
 @media(max-width:600px){
 
 
-.top-header {
+
+.top-header{
 
     height:70px;
 
@@ -288,7 +389,7 @@ td {
 
 
 
-.logo {
+.logo{
 
     font-size:18px;
 
@@ -296,15 +397,7 @@ td {
 
 
 
-.top-menu {
-
-    gap:5px;
-
-}
-
-
-
-.top-menu a {
+.top-menu a{
 
     padding:7px 10px;
 
@@ -314,7 +407,7 @@ td {
 
 
 
-.content {
+.content{
 
     padding-bottom:90px;
 
@@ -322,15 +415,7 @@ td {
 
 
 
-.kpi-container {
-
-    grid-template-columns:1fr;
-
-}
-
-
-
-.card {
+.card{
 
     padding:18px;
 
@@ -338,9 +423,24 @@ td {
 
 
 
+#timer{
 
-.bottom-menu {
+    font-size:35px;
 
+}
+
+
+
+.kpi-container{
+
+    grid-template-columns:1fr;
+
+}
+
+
+
+
+.bottom-menu{
 
     display:flex;
 
@@ -368,7 +468,7 @@ td {
 
 
 
-.bottom-menu a {
+.bottom-menu a{
 
     text-decoration:none;
 
@@ -381,35 +481,5 @@ td {
 }
 
 
-
-}
-.selection-horizontal{
-
-display:flex;
-gap:12px;
-overflow-x:auto;
-padding:10px 0;
-
-}
-
-
-
-.cheval-mini{
-
-min-width:130px;
-padding:15px;
-border-radius:15px;
-background:white;
-box-shadow:0 3px 10px rgba(0,0,0,0.15);
-text-align:center;
-
-}
-
-
-
-.mini-numero{
-
-font-size:24px;
-font-weight:bold;
 
 }
