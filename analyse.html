@@ -31,6 +31,7 @@
 
 </nav>
 
+
 </header>
 
 
@@ -42,36 +43,36 @@
 
 <section class="card">
 
-<h2>📋 Tous les partants</h2>
-
-<div class="table-container">
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>N°</th>
-<th>Cheval</th>
-<th>Indice AZ</th>
-<th>Rang</th>
-
-</tr>
-
-</thead>
+<h2>📊 Analyse AZ de la course</h2>
 
 
-<tbody id="all-horses">
+<p>
+🏇 Course :
+<strong id="analyse-course">-</strong>
+</p>
 
-</tbody>
+
+<p>
+📍 Hippodrome :
+<strong id="analyse-hippodrome">-</strong>
+</p>
 
 
-</table>
+<p>
+🏁 Discipline :
+<strong id="analyse-discipline">-</strong>
+</p>
 
-</div>
+
+<p>
+📏 Distance :
+<strong id="analyse-distance">-</strong>
+</p>
+
 
 </section>
+
+
 
 
 
@@ -80,17 +81,114 @@
 <section class="card">
 
 
-<h2>⭐ Les 7 chevaux retenus AZ</h2>
+<h2>⭐ Les 7 retenus AZ</h2>
 
 
-<div id="selected-horses">
+<div class="table-container">
 
 
-Chargement...
+<table>
+
+
+<thead>
+
+<tr>
+
+<th>Rang</th>
+<th>N°</th>
+<th>Cheval</th>
+<th>Indice AZ</th>
+<th>Profil</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="az-selection">
+
+
+</tbody>
+
+
+</table>
 
 
 </div>
 
+
+</section>
+
+
+
+
+
+
+
+<section class="card">
+
+
+<h2>🎟️ Tickets AZ</h2>
+
+
+
+<div class="ticket-box">
+
+
+<h3>🏆 Quinté+</h3>
+
+<p id="quinte">
+-
+</p>
+
+
+
+
+<h3>🥈 Quarté</h3>
+
+<p id="quarte">
+-
+</p>
+
+
+
+
+<h3>🥉 Tiercé</h3>
+
+<p id="trio">
+-
+</p>
+
+
+
+
+<h3>🤝 Couplé gagnant</h3>
+
+<p id="couple-gagnant">
+-
+</p>
+
+
+
+
+<h3>📌 Couplés placés</h3>
+
+<p id="couple-place">
+-
+</p>
+
+
+
+
+<h3>🔒 Champ réduit</h3>
+
+<p id="champ-reduit">
+-
+</p>
+
+
+
+</div>
 
 
 </section>
@@ -105,7 +203,10 @@ Chargement...
 
 
 
+
+
 <footer class="bottom-menu">
+
 
 <a href="ticket.html">
 🎟️ Ticket
@@ -128,172 +229,8 @@ Chargement...
 
 
 
-<script>
 
-
-const API =
-"https://az-turf-pro.onrender.com/api/analyse";
-
-
-
-async function chargerAnalyse(){
-
-
-try{
-
-
-const response = await fetch(API);
-
-const data = await response.json();
-
-
-
-// Tous les partants
-
-const all =
-data.chevaux || [];
-
-
-
-const allBox =
-document.getElementById("all-horses");
-
-
-
-allBox.innerHTML = "";
-
-
-
-all.forEach(cheval=>{
-
-
-allBox.innerHTML += `
-
-<tr>
-
-<td>
-${cheval.numero}
-</td>
-
-
-<td>
-${cheval.nom}
-</td>
-
-
-<td>
-${cheval.indice_az || "-"}
-</td>
-
-
-<td>
--
-</td>
-
-
-</tr>
-
-`;
-
-
-});
-
-
-
-
-
-
-// Les 7 retenus
-
-
-const retenus =
-data.classement || data.chevaux || [];
-
-
-
-const box =
-document.getElementById("selected-horses");
-
-
-
-box.innerHTML = "";
-
-
-
-retenus.slice(0,7).forEach((cheval,index)=>{
-
-
-box.innerHTML += `
-
-
-<div class="card">
-
-
-<h3>
-
-${index+1}️⃣ 
-N°${cheval.numero} 
-${cheval.nom}
-
-</h3>
-
-
-<p>
-📈 Indice AZ :
-<strong>
-${cheval.indice_az}
-</strong>
-</p>
-
-
-<p>
-🏆 Rang AZ :
-<strong>
-${cheval.rang}
-</strong>
-</p>
-
-
-<p>
-
-✅ Retenu pour son profil AZ et son indice de performance.
-
-</p>
-
-
-</div>
-
-
-`;
-
-
-});
-
-
-
-}
-
-
-catch(error){
-
-console.log(error);
-
-}
-
-
-}
-
-
-
-document.addEventListener(
-"DOMContentLoaded",
-chargerAnalyse
-);
-
-
-
-</script>
-
+<script src="analyse.js?v=1"></script>
 
 
 </body>
