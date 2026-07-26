@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Tickets - AZ Turf Pro</title>
+<title>AZ Turf Pro - Sélection du jour</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -15,8 +15,6 @@
 
 <body>
 
-
-<!-- HEADER FIXE -->
 
 <header class="top-header">
 
@@ -47,20 +45,43 @@
 
 
 
+
+
 <section class="card">
 
-
-<h2>
-🎟️ Tickets AZ
-</h2>
-
+<h2>🎟️ Sélection du jour</h2>
 
 <p>
-Les meilleures combinaisons générées par l'analyse AZ.
+🏇 Course :
+<strong id="ticket-course">-</strong>
+</p>
+
+<p>
+📍 Hippodrome :
+<strong id="ticket-hippodrome">-</strong>
+</p>
+
+</section>
+
+
+
+
+
+
+
+<section class="card ticket-box">
+
+
+<h2>🏆 Quinté+</h2>
+
+
+<p id="quinte">
+
+-
+
 </p>
 
 
-
 </section>
 
 
@@ -68,41 +89,19 @@ Les meilleures combinaisons générées par l'analyse AZ.
 
 
 
-<section class="card">
 
 
-<h2>
-🏆 Quinté+
-</h2>
+<section class="card ticket-box">
 
 
-<div id="quinte" class="ticket-box">
-
-Chargement...
-
-</div>
+<h2>🥈 Quarté</h2>
 
 
-</section>
+<p id="quarte">
 
+-
 
-
-
-
-
-<section class="card">
-
-
-<h2>
-🥈 Quarté
-</h2>
-
-
-<div id="quarte" class="ticket-box">
-
-Chargement...
-
-</div>
+</p>
 
 
 </section>
@@ -112,40 +111,19 @@ Chargement...
 
 
 
-<section class="card">
 
 
-<h2>
-🥉 Trio
-</h2>
+<section class="card ticket-box">
 
 
-<div id="trio" class="ticket-box">
-
-Chargement...
-
-</div>
+<h2>🥉 Tiercé</h2>
 
 
-</section>
+<p id="trio">
 
+-
 
-
-
-
-
-<section class="card">
-
-
-<h2>
-🤝 Couplé gagnant</h2>
-
-
-<div id="couple-gagnant" class="ticket-box">
-
-Chargement...
-
-</div>
+</p>
 
 
 </section>
@@ -155,44 +133,47 @@ Chargement...
 
 
 
-<section class="card">
 
 
-<h2>
-📌 Couplés placés
-</h2>
+<section class="card ticket-box">
 
 
-<div id="couple-place" class="ticket-box">
+<h2>🤝 Couplés</h2>
 
-Chargement...
 
-</div>
+<p id="couples">
+
+-
+
+</p>
+
+
+</section>
+
+
+
+
+
+
+
+
+<section class="card ticket-box">
+
+
+<h2>🔒 Champ réduit</h2>
+
+
+<p id="champ-reduit">
+
+-
+
+</p>
 
 
 </section>
 
 
 
-
-
-
-<section class="card">
-
-
-<h2>
-🔒 Champ réduit
-</h2>
-
-
-<div id="champ-reduit" class="ticket-box">
-
-Chargement...
-
-</div>
-
-
-</section>
 
 
 
@@ -205,13 +186,17 @@ Chargement...
 
 
 
-<!-- MENU BAS FIXE -->
 
 <footer class="bottom-menu">
 
 
-<a href="ticket.html">
-🎟️ Ticket
+<a href="index.html">
+🏠 Accueil
+</a>
+
+
+<a href="analyse.html">
+📊 Analyse
 </a>
 
 
@@ -231,89 +216,7 @@ Chargement...
 
 
 
-
-<script>
-
-
-const API =
-"https://az-turf-pro.onrender.com/api/analyse";
-
-
-
-async function chargerTickets(){
-
-
-try{
-
-
-const response = await fetch(API);
-
-const data = await response.json();
-
-
-const tickets = data.tickets;
-
-
-
-document.getElementById("quinte").innerHTML =
-tickets.quinte.join(" - ");
-
-
-
-document.getElementById("quarte").innerHTML =
-tickets.quarte.join(" - ");
-
-
-
-document.getElementById("trio").innerHTML =
-tickets.trio.join(" - ");
-
-
-
-document.getElementById("couple-gagnant").innerHTML =
-tickets.couple_gagnant.join(" - ");
-
-
-
-document.getElementById("couple-place").innerHTML =
-tickets.couple_place
-.map(c => c.join(" - "))
-.join("<br>");
-
-
-
-document.getElementById("champ-reduit").innerHTML =
-
-"Base : " +
-tickets.champ_reduit.bases.join(" - ")
-+
-"<br>Compléments : "
-+
-tickets.champ_reduit.complements.join(" - ");
-
-
-
-}
-
-catch(error){
-
-console.log(error);
-
-}
-
-
-}
-
-
-
-document.addEventListener(
-"DOMContentLoaded",
-chargerTickets
-);
-
-
-</script>
-
+<script src="ticket.js?v=1"></script>
 
 
 </body>
