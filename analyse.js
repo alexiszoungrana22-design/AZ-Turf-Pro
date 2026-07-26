@@ -9,7 +9,7 @@ const analyseDiscipline = document.getElementById("analyse-discipline");
 const analyseDistance = document.getElementById("analyse-distance");
 
 
-// Tableau
+// Tableau 7 retenus
 
 const tableBody = document.getElementById("az-selection");
 
@@ -19,7 +19,7 @@ const tableBody = document.getElementById("az-selection");
 const commentairesPro = document.getElementById("commentaires-pro");
 
 
-// Cartes horizontales
+// Sélection horizontale
 
 const selectionHorizontal =
 document.getElementById("selection-az-horizontal");
@@ -28,50 +28,37 @@ document.getElementById("selection-az-horizontal");
 
 
 
-function obtenirRaison(cheval,index){
+function obtenirRaison(cheval, index){
 
 
-if(cheval.raison){
-
-return cheval.raison;
-
-}
+    if(cheval.raison){
+        return cheval.raison;
+    }
 
 
-if(cheval.type){
-
-return cheval.type;
-
-}
+    if(cheval.type){
+        return cheval.type;
+    }
 
 
-if(index === 0){
-
-return "⭐ Favori AZ";
-
-}
+    if(index === 0){
+        return "⭐ Favori AZ";
+    }
 
 
-if(index < 3){
-
-return "🔥 Base solide";
-
-}
+    if(index < 3){
+        return "🔥 Base solide";
+    }
 
 
-if(index < 5){
+    if(index < 5){
+        return "🎯 Chance";
+    }
 
-return "🎯 Chance régulière";
+
+    return "💎 Outsider";
 
 }
-
-
-return "💎 Outsider intéressant";
-
-
-}
-
-
 
 
 
@@ -90,7 +77,9 @@ const response = await fetch(API);
 
 if(!response.ok){
 
-throw new Error("Erreur API");
+throw new Error(
+"Erreur API : " + response.status
+);
 
 }
 
@@ -101,33 +90,25 @@ const data = await response.json();
 
 
 
-
 // COURSE
 
 
 if(analyseCourse)
-
 analyseCourse.textContent =
 data.course || "-";
 
 
-
 if(analyseHippodrome)
-
 analyseHippodrome.textContent =
 data.hippodrome || "-";
 
 
-
 if(analyseDiscipline)
-
 analyseDiscipline.textContent =
 data.discipline || "-";
 
 
-
 if(analyseDistance)
-
 analyseDistance.textContent =
 (data.distance_course || "-") + " m";
 
@@ -135,6 +116,8 @@ analyseDistance.textContent =
 
 
 
+
+// CHEVAUX
 
 
 const chevaux =
@@ -157,17 +140,14 @@ if(tableBody){
 tableBody.innerHTML = "";
 
 
-
-chevaux.slice(0,7)
-.forEach((cheval,index)=>{
+chevaux.slice(0,7).forEach((cheval,index)=>{
 
 
-const tr =
-document.createElement("tr");
+const ligne = document.createElement("tr");
 
 
 
-tr.innerHTML = `
+ligne.innerHTML = `
 
 
 <td>
@@ -208,7 +188,7 @@ ${obtenirRaison(cheval,index)}
 
 
 <td>
-${cheval.commentaire || "Analyse en cours"}
+${cheval.commentaire || "-"}
 </td>
 
 
@@ -221,14 +201,13 @@ ${cheval.rang || index+1}
 
 
 
-tableBody.appendChild(tr);
+tableBody.appendChild(ligne);
 
 
 });
 
 
 }
-
 
 
 
@@ -246,12 +225,10 @@ commentairesPro.innerHTML = "";
 
 
 
-chevaux.slice(0,7)
-.forEach((cheval)=>{
+chevaux.slice(0,7).forEach((cheval)=>{
 
 
-const bloc =
-document.createElement("p");
+const bloc = document.createElement("p");
 
 
 
@@ -296,8 +273,7 @@ commentairesPro.appendChild(bloc);
 
 
 
-
-// CARTES HORIZONTALES
+// SELECTION HORIZONTALE DES 7 CHEVAUX
 
 
 if(selectionHorizontal){
@@ -307,16 +283,13 @@ selectionHorizontal.innerHTML = "";
 
 
 
-chevaux.slice(0,7)
-.forEach((cheval,index)=>{
+chevaux.slice(0,7).forEach((cheval,index)=>{
 
 
-const carte =
-document.createElement("div");
+const carte = document.createElement("div");
 
 
-carte.className =
-"cheval-mini";
+carte.className = "cheval-mini";
 
 
 
@@ -331,7 +304,9 @@ N°${cheval.numero || "-"}
 
 
 <strong>
+
 ${cheval.nom || "Cheval AZ"}
+
 </strong>
 
 
@@ -339,7 +314,7 @@ ${cheval.nom || "Cheval AZ"}
 
 
 Indice AZ :
-${cheval.indice_az || 0}
+${cheval.indice_az || cheval.score || 0}
 
 
 <br>
@@ -367,6 +342,7 @@ selectionHorizontal.appendChild(carte);
 
 
 
+
 }
 
 
@@ -382,9 +358,7 @@ error
 }
 
 
-
 }
-
 
 
 
