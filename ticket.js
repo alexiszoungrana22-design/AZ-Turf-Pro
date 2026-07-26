@@ -1,167 +1,105 @@
-// =================================
-// AZ Turf Pro - Sélection du jour
-// =================================
-
-
 const API = "https://az-turf-pro.onrender.com/api/analyse";
 
 
 
-const course =
-document.getElementById("ticket-course");
-
-
-const hippodrome =
-document.getElementById("ticket-hippodrome");
-
-
-
-const quinte =
-document.getElementById("quinte");
-
-
-const quarte =
-document.getElementById("quarte");
-
-
-const trio =
-document.getElementById("trio");
-
-
-const couples =
-document.getElementById("couples");
-
-
-const champ =
-document.getElementById("champ-reduit");
-
-
-
-
-
-async function chargerSelection(){
+async function chargerTicket(){
 
 
 try{
 
 
-const reponse = await fetch(API);
-
-
-const data = await reponse.json();
-
+const response =
+await fetch(API);
 
 
 
+if(!response.ok){
 
-// Informations course
-
-if(course){
-
-course.textContent =
-data.course || "-";
-
-}
-
-
-if(hippodrome){
-
-hippodrome.textContent =
-data.hippodrome || "-";
+throw new Error("Erreur API");
 
 }
 
 
 
-
-
-
-// Chevaux retenus
-
-const chevaux =
-data.classement ||
-data.chevaux ||
-[];
+const data =
+await response.json();
 
 
 
 
-const selection =
-chevaux
-.slice(0,7)
-.map(cheval => cheval.numero);
+
+const tickets =
+data.tickets || {};
 
 
 
 
 
 
+// QUINTE
 
-// QUINTE+
+
+const quinte =
+document.getElementById("quinte-ticket");
+
+
 
 if(quinte){
 
-quinte.innerHTML =
 
-selection.join(" - ");
+quinte.innerHTML = `
 
+<p>
+
+<strong>
+${tickets.quinte
+? tickets.quinte.join(" - ")
+: "-"
 }
 
+</strong>
 
-
-
-
-
-// QUARTE
-
-if(quarte){
-
-quarte.innerHTML =
-
-selection
-.slice(0,5)
-.join(" - ");
-
-}
-
-
-
-
-
-
-// TIERCE
-
-if(trio){
-
-trio.innerHTML =
-
-selection
-.slice(0,4)
-.join(" - ");
-
-}
-
-
-
-
-
-
-
-// COUPLES
-
-if(couples){
-
-couples.innerHTML = `
-
-${selection[0]} - ${selection[1]}
-<br><br>
-${selection[0]} - ${selection[2]}
-<br><br>
-${selection[1]} - ${selection[3]}
+</p>
 
 `;
 
 }
+
+
+
+
+
+
+
+// TRIO
+
+
+const trio =
+document.getElementById("trio-ticket");
+
+
+
+if(trio){
+
+
+trio.innerHTML = `
+
+<p>
+
+<strong>
+${tickets.trio
+? tickets.trio.join(" - ")
+: "-"
+}
+
+</strong>
+
+</p>
+
+`;
+
+}
+
 
 
 
@@ -171,21 +109,43 @@ ${selection[1]} - ${selection[3]}
 
 // CHAMP REDUIT
 
-if(champ){
+
+const champ =
+document.getElementById("champ-ticket");
+
+
+
+if(champ && tickets.champ_reduit){
+
+
+const bases =
+tickets.champ_reduit.bases || [];
+
+
+
+const complements =
+tickets.champ_reduit.complements || [];
+
+
 
 champ.innerHTML = `
 
-<strong>Base :</strong>
 
-N° ${selection[0]}
+<p>
+Base principale :
+<strong>
+${bases.join(" - ") || "-"}
+</strong>
+</p>
 
 
-<br><br>
+<p>
+Compléments :
+<strong>
+${complements.join(" - ") || "-"}
+</strong>
+</p>
 
-
-<strong>Associés :</strong>
-
-${selection.slice(1).join(" - ")}
 
 `;
 
@@ -194,14 +154,57 @@ ${selection.slice(1).join(" - ")}
 
 
 
+
+
+
+
+// FAVORI ET CHEVAL SURVEILLE
+
+
+const chevaux =
+data.classement ||
+data.chevaux ||
+[];
+
+
+
+
+const favori =
+document.getElementById("ticket-favori");
+
+
+
+if(favori && chevaux[0]){
+
+
+favori.innerHTML = `
+
+⭐ Favori du jour :
+
+<strong>
+N°${chevaux[0].numero}
+${chevaux[0].nom || ""}
+</strong>
+
+`;
+
 }
 
-catch(erreur){
+
+
+
+
+
+
+}
+
+
+catch(error){
 
 
 console.log(
-"Erreur chargement sélection :",
-erreur
+"Erreur ticket :",
+error
 );
 
 
@@ -216,5 +219,5 @@ erreur
 
 document.addEventListener(
 "DOMContentLoaded",
-chargerSelection
+chargerTicket
 );
