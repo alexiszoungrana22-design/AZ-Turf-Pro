@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Analyse - AZ Turf Pro</title>
+<title>Analyse AZ Turf Pro</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -15,8 +15,6 @@
 
 <body>
 
-
-<!-- HEADER FIXE -->
 
 <header class="top-header">
 
@@ -27,13 +25,9 @@
 
 <nav class="top-menu">
 
-<a href="index.html">
-🏠 Accueil
-</a>
+<a href="index.html">🏠 Accueil</a>
 
-<a href="analyse.html">
-📊 Analyse
-</a>
+<a href="analyse.html">📊 Analyse</a>
 
 </nav>
 
@@ -46,199 +40,61 @@
 
 
 
-<!-- COURSE -->
-
 <section class="card">
 
-<h2>
-📊 Analyse Hippique
-</h2>
-
-
-<div class="course-info">
-
-<p>
-Hippodrome :
-<strong id="meta-hippodrome">-</strong>
-</p>
-
-
-<p>
-Course :
-<strong id="meta-course">-</strong>
-</p>
-
-
-<p>
-Discipline :
-<strong id="meta-discipline">-</strong>
-</p>
-
-
-<p>
-Distance :
-<strong id="meta-distance">-</strong>
-</p>
-
-
-<p>
-Partants :
-<strong id="meta-partants">-</strong>
-</p>
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-<!-- KPI -->
-
-<section class="kpi-container">
-
-
-<div class="kpi-card">
-
-<h3>
-⭐ Favori AZ
-</h3>
-
-<p id="kpi-favorite">
--
-</p>
-
-</div>
-
-
-
-
-<div class="kpi-card">
-
-<h3>
-📈 Confiance
-</h3>
-
-<p id="kpi-confidence">
--
-</p>
-
-</div>
-
-
-
-
-<div class="kpi-card">
-
-<h3>
-🔥 Outsider
-</h3>
-
-<p id="kpi-outsider">
--
-</p>
-
-</div>
-
-
-
-</section>
-
-
-
-
-
-
-
-<!-- TABLEAU CHEVAUX -->
-
-
-<section class="card">
-
-
-<h2>
-🏇 Classement AZ
-</h2>
-
+<h2>📋 Tous les partants</h2>
 
 <div class="table-container">
 
-
 <table>
-
 
 <thead>
 
 <tr>
 
 <th>N°</th>
-
 <th>Cheval</th>
-
-<th>Jockey</th>
-
-<th>Entraîneur</th>
-
-<th>Forme</th>
-
 <th>Indice AZ</th>
-
 <th>Rang</th>
-
 
 </tr>
 
 </thead>
 
 
-
-<tbody id="table-body">
-
+<tbody id="all-horses">
 
 </tbody>
 
 
-
 </table>
 
-
-
 </div>
-
-
 
 </section>
 
 
 
-
-
-<!-- TICKETS -->
 
 
 <section class="card">
 
 
-<h2>
-🎟️ Pronostics AZ
-</h2>
+<h2>⭐ Les 7 chevaux retenus AZ</h2>
 
 
-<div id="top-combination">
-
-</div>
+<div id="selected-horses">
 
 
-<div id="tickets">
+Chargement...
+
 
 </div>
 
 
 
 </section>
+
 
 
 
@@ -249,12 +105,7 @@ Partants :
 
 
 
-
-<!-- MENU BAS FIXE -->
-
-
 <footer class="bottom-menu">
-
 
 <a href="ticket.html">
 🎟️ Ticket
@@ -277,8 +128,172 @@ Partants :
 
 
 
+<script>
 
-<script src="script.js?v=30"></script>
+
+const API =
+"https://az-turf-pro.onrender.com/api/analyse";
+
+
+
+async function chargerAnalyse(){
+
+
+try{
+
+
+const response = await fetch(API);
+
+const data = await response.json();
+
+
+
+// Tous les partants
+
+const all =
+data.chevaux || [];
+
+
+
+const allBox =
+document.getElementById("all-horses");
+
+
+
+allBox.innerHTML = "";
+
+
+
+all.forEach(cheval=>{
+
+
+allBox.innerHTML += `
+
+<tr>
+
+<td>
+${cheval.numero}
+</td>
+
+
+<td>
+${cheval.nom}
+</td>
+
+
+<td>
+${cheval.indice_az || "-"}
+</td>
+
+
+<td>
+-
+</td>
+
+
+</tr>
+
+`;
+
+
+});
+
+
+
+
+
+
+// Les 7 retenus
+
+
+const retenus =
+data.classement || data.chevaux || [];
+
+
+
+const box =
+document.getElementById("selected-horses");
+
+
+
+box.innerHTML = "";
+
+
+
+retenus.slice(0,7).forEach((cheval,index)=>{
+
+
+box.innerHTML += `
+
+
+<div class="card">
+
+
+<h3>
+
+${index+1}️⃣ 
+N°${cheval.numero} 
+${cheval.nom}
+
+</h3>
+
+
+<p>
+📈 Indice AZ :
+<strong>
+${cheval.indice_az}
+</strong>
+</p>
+
+
+<p>
+🏆 Rang AZ :
+<strong>
+${cheval.rang}
+</strong>
+</p>
+
+
+<p>
+
+✅ Retenu pour son profil AZ et son indice de performance.
+
+</p>
+
+
+</div>
+
+
+`;
+
+
+});
+
+
+
+}
+
+
+catch(error){
+
+console.log(error);
+
+}
+
+
+}
+
+
+
+document.addEventListener(
+"DOMContentLoaded",
+chargerAnalyse
+);
+
+
+
+</script>
+
 
 
 </body>
