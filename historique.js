@@ -1,10 +1,4 @@
-// =================================
-// AZ Turf Pro - Historique
-// =================================
-
-
 const API = "https://az-turf-pro.onrender.com/api/analyse";
-
 
 
 async function chargerHistorique(){
@@ -13,7 +7,8 @@ async function chargerHistorique(){
 try{
 
 
-const response = await fetch(API);
+const response =
+await fetch(API);
 
 
 
@@ -25,13 +20,14 @@ throw new Error("Erreur API");
 
 
 
-const data = await response.json();
+const data =
+await response.json();
 
 
 
 
 
-const classement =
+const chevaux =
 data.classement ||
 data.chevaux ||
 [];
@@ -40,10 +36,9 @@ data.chevaux ||
 
 
 
+
 const body =
 document.getElementById("historique-body");
-
-
 
 
 
@@ -60,13 +55,26 @@ new Date()
 
 
 
+const favori =
+chevaux[0]
+?
+"N°"+chevaux[0].numero+
+" "+(chevaux[0].nom || "")
+:
+"-";
+
+
+
+
 
 const selection =
+data.tickets &&
+data.tickets.quinte
+?
+data.tickets.quinte.join(" - ")
+:
+"-";
 
-classement
-.slice(0,7)
-.map(cheval => cheval.numero)
-.join(" - ");
 
 
 
@@ -74,14 +82,11 @@ classement
 
 body.innerHTML = `
 
-
 <tr>
-
 
 <td>
 ${date}
 </td>
-
 
 
 <td>
@@ -89,11 +94,14 @@ Course du jour
 </td>
 
 
-
 <td>
-${selection || "-"}
+${favori}
 </td>
 
+
+<td>
+${selection}
+</td>
 
 
 <td>
@@ -101,14 +109,7 @@ En attente
 </td>
 
 
-
-<td>
-À définir
-</td>
-
-
 </tr>
-
 
 `;
 
@@ -138,15 +139,13 @@ total.textContent = "1";
 
 
 
-
-
-const resultats =
+const favoris =
 document.getElementById("favoris-gagnants");
 
 
-if(resultats){
+if(favoris){
 
-resultats.textContent = "0";
+favoris.textContent = "0";
 
 }
 
@@ -154,16 +153,16 @@ resultats.textContent = "0";
 
 
 
-
-const selections =
+const tickets =
 document.getElementById("tickets-reussis");
 
 
-if(selections){
+if(tickets){
 
-selections.textContent = "0";
+tickets.textContent = "0";
 
 }
+
 
 
 
@@ -185,9 +184,7 @@ error
 }
 
 
-
 }
-
 
 
 
