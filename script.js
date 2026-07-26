@@ -1,4 +1,3 @@
-alert("Script AZ chargé");
 const API = "https://az-turf-pro.onrender.com/api/analyse";
 
 
@@ -13,27 +12,21 @@ const topCombination = document.getElementById("top-combination");
 const ticketsBox = document.getElementById("tickets");
 
 
+
 async function chargerAnalyse() {
 
     try {
 
-        alert("Je lance API : " + API);
+        const response = await fetch(API);
 
-const texte = await response.text();
-alert(texte);
-alert(JSON.stringify(data.chevaux));
-alert("Réponse API : " + response.status);
+        if (!response.ok) {
+            throw new Error("Erreur API : " + response.status);
         }
 
-        let data;
 
-try {
-    data = await response.json();
-    alert("JSON reçu");
-}
-catch(e) {
-    alert("Erreur JSON : " + e);
-}
+        const data = await response.json();
+
+
 
         // Informations course
 
@@ -64,9 +57,10 @@ catch(e) {
 
 
 
-        // Liste chevaux
+        // Chevaux
 
         const chevaux = data.classement || data.chevaux || [];
+
 
 
         if (tableBody) {
@@ -123,7 +117,7 @@ catch(e) {
                     <div class="score-bar">
 
                         <div class="score-fill"
-                        style="width:${Math.min(cheval.indice_az || 0,100)}%">
+                        style="width:${Math.min((cheval.indice_az || 0) / 2.5,100)}%">
                         </div>
 
                     </div>
@@ -158,6 +152,7 @@ catch(e) {
 
 
 
+
         // KPI
 
         if(chevaux.length){
@@ -188,7 +183,7 @@ catch(e) {
 
 
 
-        // Pronostic
+        // Combinaisons
 
         if(data.tickets && topCombination){
 
@@ -276,7 +271,6 @@ catch(e) {
     }
 
 }
-
 
 
 
