@@ -212,7 +212,7 @@ style="width:${Math.min((cheval.indice_az || 0)/2.5,100)}%">
 
 <strong>
 
-${raisonAZ(index)}
+${cheval.raison || raisonAZ(index)}
 
 </strong>
 
