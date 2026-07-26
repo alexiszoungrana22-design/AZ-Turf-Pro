@@ -1,4 +1,10 @@
+// =================================
+// AZ Turf Pro - Historique
+// =================================
+
+
 const API = "https://az-turf-pro.onrender.com/api/analyse";
+
 
 
 async function chargerHistorique(){
@@ -24,14 +30,20 @@ const data = await response.json();
 
 
 
+
 const classement =
-data.classement || data.chevaux || [];
+data.classement ||
+data.chevaux ||
+[];
+
 
 
 
 
 const body =
 document.getElementById("historique-body");
+
+
 
 
 
@@ -42,22 +54,19 @@ body.innerHTML = "";
 
 
 
-const date = new Date()
+const date =
+new Date()
 .toLocaleDateString("fr-FR");
 
 
 
-const favori =
-classement[0]
-? `N°${classement[0].numero} - ${classement[0].nom}`
-: "-";
 
+const selection =
 
-
-const ticket =
-data.tickets && data.tickets.quinte
-? data.tickets.quinte.join(" - ")
-: "-";
+classement
+.slice(0,7)
+.map(cheval => cheval.numero)
+.join(" - ");
 
 
 
@@ -68,9 +77,11 @@ body.innerHTML = `
 
 <tr>
 
+
 <td>
 ${date}
 </td>
+
 
 
 <td>
@@ -78,18 +89,21 @@ Course du jour
 </td>
 
 
-<td>
-${favori}
-</td>
-
 
 <td>
-${ticket}
+${selection || "-"}
 </td>
+
 
 
 <td>
 En attente
+</td>
+
+
+
+<td>
+À définir
 </td>
 
 
@@ -108,7 +122,7 @@ En attente
 
 
 
-// Statistiques simples
+// Statistiques
 
 
 const total =
@@ -124,13 +138,15 @@ total.textContent = "1";
 
 
 
-const favoris =
+
+
+const resultats =
 document.getElementById("favoris-gagnants");
 
 
-if(favoris){
+if(resultats){
 
-favoris.textContent = "0";
+resultats.textContent = "0";
 
 }
 
@@ -138,15 +154,17 @@ favoris.textContent = "0";
 
 
 
-const tickets =
+
+const selections =
 document.getElementById("tickets-reussis");
 
 
-if(tickets){
+if(selections){
 
-tickets.textContent = "0";
+selections.textContent = "0";
 
 }
+
 
 
 
@@ -167,7 +185,10 @@ error
 }
 
 
+
 }
+
+
 
 
 
