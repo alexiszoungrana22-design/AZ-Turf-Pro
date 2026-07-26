@@ -2,10 +2,11 @@
 <html lang="fr">
 
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Analyse spécialisée - AZ Turf Pro</title>
+<title>Analyse AZ Turf Pro</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -15,78 +16,47 @@
 <body>
 
 
-<header class="header-az">
+<header class="top-header">
 
-<div class="horse-watermark"></div>
-
-<div class="logo-area">
-<h1>AZ Turf Pro</h1>
-<p>Analyse spécialisée des courses hippiques</p>
+<div class="logo">
+🏇 <span>AZ Turf Pro</span>
 </div>
 
-<div class="message-icon">
-💬
-</div>
+
+<nav class="top-menu">
+
+<a href="index.html">
+🏠 Accueil
+</a>
+
+<a href="analyse.html">
+📊 Analyse
+</a>
+
+</nav>
+
 
 </header>
 
 
 
-<nav class="menu">
 
-<a href="index.html">Accueil</a>
-<a class="active" href="analyse.html">Analyse</a>
-<a href="pronostics.html">Pronostics</a>
-<a href="ticket.html">Tickets Premium</a>
-<a href="resultats.html">Résultats</a>
-<a href="historique.html">Historique</a>
 
-</nav>
+<main class="content">
 
 
 
+<section class="card">
 
-<section class="course-card">
-
-<h2 id="course-nom">
-🏇 Chargement de la course...
+<h2>
+📊 Analyse hippique du jour
 </h2>
 
 
-<div class="course-info">
-
-
-<div>
-<strong>Hippodrome</strong>
-<span id="hippodrome">--</span>
-</div>
-
-
-<div>
-<strong>Discipline</strong>
-<span id="discipline">--</span>
-</div>
-
-
-<div>
-<strong>Distance</strong>
-<span id="distance">--</span>
-</div>
-
-
-<div>
-<strong>Partants</strong>
-<span id="partants">--</span>
-</div>
-
-
-<div>
-<strong>Date</strong>
-<span id="date-course">--</span>
-</div>
-
-
-</div>
+<p>
+Retrouvez le classement AZ Turf Pro,
+les favoris et les chevaux à suivre.
+</p>
 
 
 </section>
@@ -95,114 +65,107 @@
 
 
 
-<main class="home-content">
+<section class="kpi-container">
 
 
-<section class="welcome">
+<div class="kpi-card">
 
-<h2>Liste des partants AZ</h2>
+<h3>
+⭐ Favori AZ
+</h3>
+
+<p id="kpi-favorite">
+-
+</p>
+
+</div>
+
+
+
+<div class="kpi-card">
+
+<h3>
+📈 Confiance
+</h3>
+
+<p id="kpi-confidence">
+-
+</p>
+
+</div>
+
+
+
+
+<div class="kpi-card">
+
+<h3>
+🔥 Outsider
+</h3>
+
+<p id="kpi-outsider">
+-
+</p>
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<section class="card">
+
+
+<h2>
+🏇 Classement des partants
+</h2>
+
 
 
 <div class="table-container">
 
+
 <table>
+
 
 <thead>
 
 <tr>
-<th>Rang</th>
+
 <th>N°</th>
+
 <th>Cheval</th>
+
 <th>Jockey</th>
+
 <th>Entraîneur</th>
+
+<th>Forme</th>
+
 <th>Indice AZ</th>
-<th>Confiance</th>
+
+<th>Rang</th>
+
+
 </tr>
 
 </thead>
 
 
-<tbody id="table-partants">
+<tbody id="table-body">
 
-<tr>
-<td colspan="7">
-Chargement...
-</td>
-</tr>
 
 </tbody>
 
 
 </table>
 
-</div>
-
-
-</section>
-
-
-
-
-
-
-<section class="analysis-preview">
-
-
-<h2>Analyse spécialisée AZ</h2>
-
-
-<div class="cards">
-
-
-<div class="card favorite">
-
-<h3>⭐ Favori AZ</h3>
-
-<p id="favori-az">
-Chargement...
-</p>
-
-</div>
-
-
-
-
-<div class="card base">
-
-<h3>🔒 Base</h3>
-
-<p id="base-az">
-Sélection automatique
-</p>
-
-</div>
-
-
-
-
-<div class="card outsider">
-
-<h3>🎯 Outsiders</h3>
-
-<p id="outsiders-az">
-Sélection automatique
-</p>
-
-</div>
-
-
-
-<div class="card">
-
-<h3>📊 Analyse</h3>
-
-<p>
-Classement calculé par l'indice AZ.
-</p>
-
-</div>
-
-
 
 </div>
 
@@ -215,42 +178,19 @@ Classement calculé par l'indice AZ.
 
 
 
-<section class="welcome">
+<section class="card">
 
 
-<h2>🎟 Sélection conseillée AZ Turf Pro</h2>
+<h2>
+🎯 Sélection AZ
+</h2>
 
 
-<p>
-Quinté :
-<strong id="quinte">
---
-</strong>
-</p>
+<div id="top-combination">
 
 
-<p>
-Quarté :
-<strong id="quarte">
---
-</strong>
-</p>
+</div>
 
-
-<p>
-Trio :
-<strong id="trio">
---
-</strong>
-</p>
-
-
-<p>
-Couplé gagnant :
-<strong id="couple">
---
-</strong>
-</p>
 
 
 </section>
@@ -263,17 +203,32 @@ Couplé gagnant :
 
 
 
-<footer>
 
-<p>
-AZ Turf Pro - Analyse spécialisée des courses hippiques
-</p>
+<footer class="bottom-menu">
+
+
+<a href="ticket.html">
+🎟️ Ticket
+</a>
+
+
+<a href="historique.html">
+🏆 Historique
+</a>
+
+
+<a href="espace-vip.html">
+⭐ VIP
+</a>
+
 
 </footer>
 
 
 
+
 <script src="script.js"></script>
+
 
 </body>
 
