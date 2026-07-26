@@ -1,6 +1,6 @@
-/* =========================
-   AZ TURF PRO - STYLE MOBILE
-========================= */
+/* =================================
+   AZ TURF PRO - STYLE COMMUN
+================================= */
 
 
 * {
@@ -10,48 +10,48 @@
 
 body {
 
-    margin: 0;
-    padding: 0;
+    margin:0;
+    padding:0;
 
     font-family: Arial, sans-serif;
 
-    background: #f4f7f8;
+    background:#f4f7f8;
 
-    color: #222;
+    color:#222;
 
 }
 
 
 
-/* =========================
-   HEADER FIXE
-========================= */
+/* ===============================
+ HEADER COMMUN
+=============================== */
 
 
 .top-header {
 
-    position: fixed;
+    position:fixed;
 
-    top: 0;
-    left: 0;
+    top:0;
+    left:0;
 
-    width: 100%;
+    width:100%;
 
-    height: 70px;
+    height:70px;
 
-    background: white;
+    background:#ffffff;
 
-    display: flex;
+    display:flex;
 
-    align-items: center;
+    align-items:center;
 
-    justify-content: space-between;
+    justify-content:space-between;
 
-    padding: 0 15px;
+    padding:0 15px;
 
-    box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+    box-shadow:0 3px 12px rgba(0,0,0,.12);
 
-    z-index: 1000;
+    z-index:1000;
 
 }
 
@@ -59,17 +59,17 @@ body {
 
 .logo {
 
-    display: flex;
+    display:flex;
 
-    align-items: center;
+    align-items:center;
 
-    gap: 8px;
+    gap:8px;
 
-    font-size: 22px;
+    font-size:22px;
 
-    font-weight: bold;
+    font-weight:bold;
 
-    color: #0b8f4d;
+    color:#08783f;
 
 }
 
@@ -77,9 +77,9 @@ body {
 
 .top-menu {
 
-    display: flex;
+    display:flex;
 
-    gap: 8px;
+    gap:8px;
 
 }
 
@@ -87,17 +87,17 @@ body {
 
 .top-menu a {
 
-    text-decoration: none;
+    text-decoration:none;
 
-    background: #0b8f4d;
+    color:white;
 
-    color: white;
+    background:#08783f;
 
-    padding: 8px 12px;
+    padding:8px 12px;
 
-    border-radius: 20px;
+    border-radius:20px;
 
-    font-size: 13px;
+    font-size:13px;
 
 }
 
@@ -105,45 +105,36 @@ body {
 
 
 
-/* =========================
-   CONTENU DEFILANT
-========================= */
+/* ===============================
+ CONTENU GENERAL
+=============================== */
 
 
 .content {
 
-    padding-top: 90px;
+    padding-top:90px;
 
-    padding-bottom: 90px;
-
-    width: 100%;
+    padding-bottom:90px;
 
 }
 
 
 
-/* =========================
-   CARTES
-========================= */
-
-
 .card {
 
-    background: white;
+    width:92%;
 
-    width: 92%;
+    max-width:900px;
 
-    max-width: 900px;
+    margin:20px auto;
 
-    margin: 20px auto;
+    background:white;
 
-    padding: 20px;
+    padding:20px;
 
-    border-radius: 18px;
+    border-radius:18px;
 
-    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-
-    text-align: center;
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
 
 }
 
@@ -151,52 +142,22 @@ body {
 
 .card h2 {
 
-    margin-top: 0;
+    text-align:center;
 
-    color: #08783f;
-
-}
-
-
-
-/* =========================
- COURSE
-========================= */
-
-
-.course-info p {
-
-    margin: 8px;
+    color:#08783f;
 
 }
 
 
 
-.countdown {
-
-    margin-top: 15px;
-
-    padding: 15px;
-
-    border-radius: 15px;
-
-    background: #08783f;
-
-    color:white;
-
-    font-size:18px;
-
-}
 
 
-
-/* =========================
- KPI
-========================= */
+/* ===============================
+ CARTES INFORMATIONS
+=============================== */
 
 
 .kpi-container {
-
 
     width:92%;
 
@@ -210,24 +171,21 @@ body {
 
     gap:12px;
 
-
 }
 
 
 
 .kpi-card {
 
-
     background:white;
-
-    border-radius:15px;
 
     padding:15px;
 
+    border-radius:15px;
+
     text-align:center;
 
-    box-shadow:0 5px 12px rgba(0,0,0,0.08);
-
+    box-shadow:0 4px 10px rgba(0,0,0,.08);
 
 }
 
@@ -235,17 +193,9 @@ body {
 
 .kpi-card h3 {
 
-    font-size:14px;
-
     color:#08783f;
 
-}
-
-
-
-.kpi-card p {
-
-    font-weight:bold;
+    font-size:15px;
 
 }
 
@@ -253,9 +203,9 @@ body {
 
 
 
-/* =========================
- TABLEAU PARTANTS
-========================= */
+/* ===============================
+ TABLEAUX
+=============================== */
 
 
 .table-container {
@@ -318,19 +268,51 @@ td {
 
     color:white;
 
+    font-weight:bold;
+
 }
 
 
 
 
 
-/* =========================
- BARRE BASSE FIXE
-========================= */
+/* ===============================
+ TICKETS
+=============================== */
+
+
+.ticket-box {
+
+    background:#f8faf9;
+
+    border-left:5px solid #08783f;
+
+    padding:15px;
+
+    margin:15px 0;
+
+    border-radius:12px;
+
+}
+
+
+
+.ticket-box strong {
+
+    color:#08783f;
+
+}
+
+
+
+
+
+/* ===============================
+ BARRE BASSE MOBILE
+=============================== */
 
 
 .bottom-menu {
-
 
     position:fixed;
 
@@ -342,9 +324,7 @@ td {
 
     height:65px;
 
-
     background:white;
-
 
     display:flex;
 
@@ -352,19 +332,15 @@ td {
 
     align-items:center;
 
-
-    box-shadow:0 -3px 10px rgba(0,0,0,0.15);
-
+    box-shadow:0 -3px 12px rgba(0,0,0,.15);
 
     z-index:1000;
-
 
 }
 
 
 
 .bottom-menu a {
-
 
     text-decoration:none;
 
@@ -374,15 +350,42 @@ td {
 
     font-size:14px;
 
+}
+
+
+
+
+
+/* ===============================
+ BOUTONS
+=============================== */
+
+
+.btn {
+
+    display:inline-block;
+
+    background:#08783f;
+
+    color:white;
+
+    padding:12px 20px;
+
+    border-radius:25px;
+
+    text-decoration:none;
+
+    font-weight:bold;
 
 }
 
 
 
 
-/* =========================
+
+/* ===============================
  MOBILE
-========================= */
+=============================== */
 
 
 @media(max-width:700px){
@@ -398,9 +401,9 @@ td {
 
 .top-menu a {
 
-    padding:7px 9px;
-
     font-size:12px;
+
+    padding:7px 9px;
 
 }
 
@@ -409,8 +412,6 @@ td {
 .kpi-container {
 
     grid-template-columns:1fr;
-
-    width:90%;
 
 }
 
