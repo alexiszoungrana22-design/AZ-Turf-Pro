@@ -24,8 +24,15 @@ alert(JSON.stringify(data.chevaux));
 alert("Réponse API : " + response.status);
         }
 
-        const data = await response.json();
-         console.log("DONNEES AZ :", data);
+        let data;
+
+try {
+    data = await response.json();
+    alert("JSON reçu");
+}
+catch(e) {
+    alert("Erreur JSON : " + e);
+}
 
         // Informations course
 
