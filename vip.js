@@ -1,10 +1,4 @@
-// =================================
-// AZ Turf Pro - Espace VIP
-// =================================
-
-
 const API = "https://az-turf-pro.onrender.com/api/analyse";
-
 
 
 async function chargerVIP(){
@@ -13,7 +7,8 @@ async function chargerVIP(){
 try{
 
 
-const response = await fetch(API);
+const response =
+await fetch(API);
 
 
 
@@ -25,7 +20,8 @@ throw new Error("Erreur API");
 
 
 
-const data = await response.json();
+const data =
+await response.json();
 
 
 
@@ -54,19 +50,19 @@ if(baseBox && chevaux.length){
 
 baseBox.innerHTML = `
 
-
 <div class="vip-choice">
 
 ⭐ Base 1 :
 
 <strong>
 
-N°${chevaux[0].numero} - ${chevaux[0].nom}
+N°${chevaux[0].numero}
+-
+${chevaux[0].nom || ""}
 
 </strong>
 
 </div>
-
 
 
 <div class="vip-choice">
@@ -75,12 +71,13 @@ N°${chevaux[0].numero} - ${chevaux[0].nom}
 
 <strong>
 
-N°${chevaux[1].numero} - ${chevaux[1].nom}
+N°${chevaux[1]?.numero || "-"}
+-
+${chevaux[1]?.nom || ""}
 
 </strong>
 
 </div>
-
 
 `;
 
@@ -93,37 +90,43 @@ N°${chevaux[1].numero} - ${chevaux[1].nom}
 
 
 
-
 // CHAMP REDUIT
 
 
-if(data.tickets && data.tickets.champ_reduit){
+if(data.tickets &&
+data.tickets.champ_reduit){
+
+
+
+const champ =
+data.tickets.champ_reduit;
 
 
 
 const bases =
-data.tickets.champ_reduit.bases || [];
+champ.bases || [];
 
 
 
 const complements =
-data.tickets.champ_reduit.complements || [];
+champ.complements || [];
 
 
 
 
 
-
-const base =
+const vipBase =
 document.getElementById("vip-base");
 
 
-if(base){
 
-base.textContent =
-bases.join(" - ");
+if(vipBase){
+
+vipBase.textContent =
+bases.join(" - ") || "-";
 
 }
+
 
 
 
@@ -137,10 +140,11 @@ document.getElementById("vip-systeme");
 if(systeme){
 
 systeme.textContent =
-
-`${bases.join(" - ")} / ${complements.join(" - ")}`;
+"Bases principales + compléments";
 
 }
+
+
 
 
 
@@ -150,14 +154,16 @@ const comp =
 document.getElementById("vip-complements");
 
 
+
 if(comp){
 
 comp.textContent =
-complements.join(" - ");
+complements.join(" - ") || "-";
 
 }
 
 
+
 }
 
 
@@ -168,7 +174,8 @@ complements.join(" - ");
 
 
 
-// CHEVAL A SURVEILLER
+
+// CHEVAL À SURVEILLER
 
 
 const surveille =
@@ -182,17 +189,26 @@ if(surveille && chevaux[2]){
 surveille.innerHTML = `
 
 
-🎯 Cheval à surveiller
+🎯 Cheval à surveiller :
 
 
-<br><br>
+<br>
 
 
 <strong>
 
-N°${chevaux[2].numero} - ${chevaux[2].nom}
+N°${chevaux[2].numero}
+-
+${chevaux[2].nom || ""}
 
 </strong>
+
+
+<br>
+
+
+Indice :
+${chevaux[2].indice_az || "-"}
 
 
 `;
@@ -207,29 +223,36 @@ N°${chevaux[2].numero} - ${chevaux[2].nom}
 
 
 
-// SELECTION PREMIUM
+
+// TICKET SÉCURITÉ
 
 
-const selection =
+const ticket =
 document.getElementById("ticket-vip");
 
 
 
-if(selection && data.tickets){
+if(ticket && data.tickets){
 
 
-selection.innerHTML = `
+ticket.innerHTML = `
 
 
 <p>
 
-🏆 Quinté+
+🏆 Quinté :
 
 <br>
 
 <strong>
 
-${data.tickets.quinte.join(" - ")}
+${
+data.tickets.quinte
+?
+data.tickets.quinte.join(" - ")
+:
+"-"
+}
 
 </strong>
 
@@ -238,15 +261,22 @@ ${data.tickets.quinte.join(" - ")}
 
 
 
+
 <p>
 
-🥉 Tiercé
+🥉 Tiercé :
 
 <br>
 
 <strong>
 
-${data.tickets.trio.join(" - ")}
+${
+data.tickets.trio
+?
+data.tickets.trio.join(" - ")
+:
+"-"
+}
 
 </strong>
 
@@ -254,30 +284,6 @@ ${data.tickets.trio.join(" - ")}
 
 
 
-
-<p>
-
-🔒 Champ réduit
-
-<br>
-
-<strong>
-
-${data.tickets.champ_reduit.bases.join(" - ")}
-
-</strong>
-
-
-/
-
-
-<strong>
-
-${data.tickets.champ_reduit.complements.join(" - ")}
-
-</strong>
-
-</p>
 
 
 `;
@@ -287,6 +293,7 @@ ${data.tickets.champ_reduit.complements.join(" - ")}
 
 
 }
+
 
 
 catch(error){
@@ -301,8 +308,8 @@ error
 }
 
 
-}
 
+}
 
 
 
