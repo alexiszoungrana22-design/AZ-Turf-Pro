@@ -3,34 +3,87 @@ const API = "https://az-turf-pro.onrender.com/api/analyse";
 
 // Informations course
 
-const hippodrome = document.getElementById("meta-hippodrome");
-const course = document.getElementById("meta-course");
-const discipline = document.getElementById("meta-discipline");
-const distance = document.getElementById("meta-distance");
-const partants = document.getElementById("meta-partants");
+const hippodrome =
+document.getElementById("meta-hippodrome");
+
+const course =
+document.getElementById("meta-course");
+
+const discipline =
+document.getElementById("meta-discipline");
+
+const distance =
+document.getElementById("meta-distance");
+
+const partants =
+document.getElementById("meta-partants");
 
 
-// Tableau partants
 
-const horsesTable = document.getElementById("all-horses");
+// Tableau
+
+const horsesTable =
+document.getElementById("all-horses");
+
+
+
+// Favori
+
+const favoriteNumber =
+document.getElementById("favorite-number");
+
+const favoriteName =
+document.getElementById("favorite-name");
+
+const favoriteIndex =
+document.getElementById("favorite-index");
+
+const favoriteConfidence =
+document.getElementById("favorite-confidence");
+
+
+
+// Outsider
+
+const outsiderNumber =
+document.getElementById("outsider-number");
+
+const outsiderName =
+document.getElementById("outsider-name");
+
+const outsiderIndex =
+document.getElementById("outsider-index");
+
+const outsiderConfidence =
+document.getElementById("outsider-confidence");
+
 
 
 // KPI
 
-const favorite = document.getElementById("kpi-favorite");
-const confidence = document.getElementById("kpi-confidence");
-const outsider = document.getElementById("kpi-outsider");
+const confidence =
+document.getElementById("kpi-confidence");
+
+const kpiPartants =
+document.getElementById("kpi-partants");
+
+const kpiFollow =
+document.getElementById("kpi-follow");
 
 
-// Chevaux populaires
 
-const popular = document.getElementById("popular-horses");
+// Populaires
+
+const popular =
+document.getElementById("popular-horses");
 
 
-// Sélection horizontale
+
+// Sélection
 
 const selection =
 document.getElementById("home-selection");
+
 
 
 // Horloge
@@ -42,21 +95,32 @@ document.getElementById("timer");
 
 
 
+
 function raisonCheval(cheval,index){
 
-    if(cheval.type){
-        return cheval.type;
-    }
 
-    if(index===0){
-        return "⭐ Favori AZ";
-    }
+if(cheval.type){
 
-    if(index<3){
-        return "🔥 Base";
-    }
+return cheval.type;
 
-    return "🎯 Chance";
+}
+
+
+if(index===0){
+
+return "Favori du jour";
+
+}
+
+
+if(index<3){
+
+return "Belle chance";
+
+}
+
+
+return "Chance";
 
 }
 
@@ -68,68 +132,85 @@ function raisonCheval(cheval,index){
 
 function lancerCompteARebours(heure){
 
-    if(!heure || !timer){
-        return;
-    }
 
+if(!heure || !timer){
 
-    setInterval(()=>{
+return;
 
-
-        const maintenant = new Date();
-
-        const depart = new Date();
-
-        const [h,m] = heure.split(":");
-
-
-        depart.setHours(h);
-        depart.setMinutes(m);
-        depart.setSeconds(0);
+}
 
 
 
-        let diff = depart - maintenant;
+setInterval(()=>{
+
+
+const maintenant =
+new Date();
+
+
+const depart =
+new Date();
 
 
 
-        if(diff <=0){
-
-            timer.textContent =
-            "🏇 Course en cours";
-
-            return;
-
-        }
+const [h,m] =
+heure.split(":");
 
 
 
-        let heures =
-        Math.floor(diff / 3600000);
-
-
-        let minutes =
-        Math.floor((diff % 3600000)/60000);
-
-
-        let secondes =
-        Math.floor((diff % 60000)/1000);
+depart.setHours(h);
+depart.setMinutes(m);
+depart.setSeconds(0);
 
 
 
-        timer.textContent =
-
-        `${String(heures).padStart(2,"0")}:
-        ${String(minutes).padStart(2,"0")}:
-        ${String(secondes).padStart(2,"0")}`;
+let diff =
+depart - maintenant;
 
 
 
-    },1000);
+if(diff<=0){
+
+
+timer.textContent =
+"🏇 Course en cours";
+
+return;
 
 
 }
 
+
+
+let heures =
+Math.floor(diff / 3600000);
+
+
+let minutes =
+Math.floor(
+(diff % 3600000)/60000
+);
+
+
+let secondes =
+Math.floor(
+(diff % 60000)/1000
+);
+
+
+
+timer.textContent =
+
+`${String(heures).padStart(2,"0")}:
+${String(minutes).padStart(2,"0")}:
+${String(secondes).padStart(2,"0")}`;
+
+
+
+},1000);
+
+
+}
 
 
 
@@ -155,12 +236,11 @@ await response.json();
 
 
 
-// COURSE
-
 
 if(hippodrome)
 hippodrome.textContent =
 data.hippodrome || "-";
+
 
 
 if(course)
@@ -168,9 +248,11 @@ course.textContent =
 data.course || "-";
 
 
+
 if(discipline)
 discipline.textContent =
 data.discipline || "-";
+
 
 
 if(distance)
@@ -180,7 +262,8 @@ distance.textContent =
 
 
 
-// CHEVAUX
+
+
 
 const chevaux =
 data.classement ||
@@ -190,17 +273,17 @@ data.chevaux ||
 
 
 
+
 if(partants)
 partants.textContent =
-chevaux.length + " chevaux";
+chevaux.length+" chevaux";
 
 
 
 
 
 
-
-// TABLEAU DES PARTANTS
+// TABLEAU PARTANTS
 
 
 if(horsesTable){
@@ -209,14 +292,13 @@ if(horsesTable){
 horsesTable.innerHTML="";
 
 
+
 chevaux.forEach((cheval,index)=>{
 
 
-const ligne =
-document.createElement("tr");
+horsesTable.innerHTML += `
 
-
-ligne.innerHTML = `
+<tr>
 
 <td>${cheval.numero || "-"}</td>
 
@@ -242,11 +324,9 @@ ${cheval.cote || "-"}
 ${raisonCheval(cheval,index)}
 </td>
 
+</tr>
+
 `;
-
-
-horsesTable.appendChild(ligne);
-
 
 });
 
@@ -259,31 +339,117 @@ horsesTable.appendChild(ligne);
 
 
 
-// FAVORI
 
 
-if(favorite && chevaux[0]){
+// FAVORI DU JOUR
 
-favorite.textContent =
 
-"N°"+chevaux[0].numero+
-" "+(chevaux[0].nom || "");
+if(chevaux[0]){
+
+
+const fav =
+chevaux[0];
+
+
+
+if(favoriteNumber)
+favoriteNumber.textContent =
+"N°"+fav.numero;
+
+
+
+if(favoriteName)
+favoriteName.textContent =
+fav.nom || "-";
+
+
+
+if(favoriteIndex)
+favoriteIndex.textContent =
+fav.indice_az || "-";
+
+
+
+if(favoriteConfidence)
+favoriteConfidence.textContent =
+(fav.confiance || "-")+" %";
+
 
 }
 
 
 
 
-// CONFIANCE
+
+
+
+
+// OUTSIDER DU JOUR
+
+
+if(chevaux[3]){
+
+
+const out =
+chevaux[3];
+
+
+
+if(outsiderNumber)
+outsiderNumber.textContent =
+"N°"+out.numero;
+
+
+
+if(outsiderName)
+outsiderName.textContent =
+out.nom || "-";
+
+
+
+if(outsiderIndex)
+outsiderIndex.textContent =
+out.indice_az || "-";
+
+
+
+if(outsiderConfidence)
+outsiderConfidence.textContent =
+(out.confiance || "-")+" %";
+
+
+}
+
+
+
+
+
+
+
+
+// KPI
 
 
 if(confidence && chevaux[0]){
 
 confidence.textContent =
+(chevaux[0].confiance || "-")+" %";
 
-(chevaux[0].confiance || 
-chevaux[0].indice_az || "-")
-+" %";
+}
+
+
+if(kpiPartants){
+
+kpiPartants.textContent =
+chevaux.length;
+
+}
+
+
+if(kpiFollow){
+
+kpiFollow.textContent =
+chevaux.slice(0,5).length;
 
 }
 
@@ -291,24 +457,10 @@ chevaux[0].indice_az || "-")
 
 
 
-// OUTSIDER
-
-
-if(outsider && chevaux[3]){
-
-outsider.textContent =
-
-"N°"+chevaux[3].numero+
-" "+(chevaux[3].nom || "");
-
-}
 
 
 
-
-
-
-// PLUS JOUES
+// CHEVAUX LES PLUS JOUÉS
 
 
 if(popular){
@@ -317,8 +469,9 @@ if(popular){
 popular.innerHTML="";
 
 
+
 chevaux.slice(0,5)
-.forEach((cheval)=>{
+.forEach(cheval=>{
 
 
 popular.innerHTML += `
@@ -340,7 +493,9 @@ ${cheval.nom || ""}
 
 
 
-// SELECTION HORIZONTALE
+
+
+// SELECTION DU JOUR
 
 
 if(selection){
@@ -349,13 +504,15 @@ if(selection){
 selection.innerHTML="";
 
 
+
 chevaux.slice(0,7)
-.forEach((cheval)=>{
+.forEach(cheval=>{
 
 
 selection.innerHTML += `
 
 <div class="cheval-mini">
+
 
 <div class="mini-numero">
 
@@ -365,20 +522,21 @@ N°${cheval.numero}
 
 
 <strong>
+
 ${cheval.nom || "Cheval"}
+
 </strong>
 
 
 <br>
 
-Indice AZ :
+Indice :
 ${cheval.indice_az || "-"}
 
 
 </div>
 
 `;
-
 
 });
 
@@ -388,9 +546,6 @@ ${cheval.indice_az || "-"}
 
 
 
-
-
-// HORLOGE SI DISPONIBLE
 
 
 lancerCompteARebours(
@@ -406,7 +561,7 @@ catch(error){
 
 
 console.log(
-"Erreur accueil : ",
+"Erreur accueil :",
 error
 );
 
@@ -415,6 +570,7 @@ error
 
 
 }
+
 
 
 
