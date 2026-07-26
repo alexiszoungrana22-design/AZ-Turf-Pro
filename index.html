@@ -8,131 +8,71 @@
 
 <link rel="stylesheet" href="style.css">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
 </head>
 
 <body>
 
-<div class="app-container">
+<!-- HEADER FIXE HAUT -->
+<header class="top-header">
 
+    <div class="logo">
+        🏇 <span>AZ Turf Pro</span>
+    </div>
 
-<!-- HEADER -->
-
-<header class="topbar">
-
-<div class="logo">
-
-<span class="logo-icon">🏇</span>
-
-<h1>
-AZ Turf <span>PRO</span>
-</h1>
-
-</div>
-
-
-<nav class="menu">
-
-<a href="index.html">Accueil</a>
-<a href="analyse.html">Analyse</a>
-<a href="partants.html">Partants</a>
-<a href="ticket.html">Tickets</a>
-<a href="historique.html">Historique</a>
-<a href="commentaires.html">Commentaires</a>
-<a href="espace-vip.html">VIP</a>
-
-</nav>
-
-
-<div class="header-actions">
-
-<a href="espace-vip.html" class="btn-primary">
-Espace VIP
-</a>
-
-</div>
-
+    <nav class="top-menu">
+        <a href="index.html">🏠 Accueil</a>
+        <a href="analyse.html">📊 Analyse</a>
+    </nav>
 
 </header>
 
 
-
-<!-- BANNIERE -->
-
-<section class="banner">
-
-<p>
-🏇 Les meilleures analyses hippiques du jour avec AZ Turf Pro
-</p>
-
-</section>
+<!-- CONTENU QUI DEFILÉ -->
+<main class="content">
 
 
+<!-- COURSE DU JOUR -->
 
+<section class="card course-card">
 
-<!-- COMPTE A REBOURS -->
+<h2>🏆 Course du jour</h2>
 
-<section class="countdown-card">
-
-<h2>⏱️ Prochaine course</h2>
-
-<div id="countdown">
-
-00 : 00 : 00
-
-</div>
+<div class="course-info">
 
 <p>
-Départ Quinté+ du jour
-</p>
-
-</section>
-
-
-
-
-
-<!-- DIRECT -->
-
-<section class="live-card">
-
-<h2>🏇 Quinté en direct</h2>
-
-
-<div class="live-info">
-
-<p>
-Réunion : <strong id="live-reunion">R1</strong>
+Hippodrome :
+<strong id="meta-hippodrome">-</strong>
 </p>
 
 <p>
-Course : <strong id="live-course">C1</strong>
+Course :
+<strong id="meta-course">-</strong>
 </p>
 
-
-<p class="status">
-🟢 En attente du départ
+<p>
+Discipline :
+<strong id="meta-discipline">-</strong>
 </p>
 
+<p>
+Distance :
+<strong id="meta-distance">-</strong>
+</p>
+
+<p>
+Partants :
+<strong id="meta-partants">-</strong>
+</p>
 
 </div>
 
 
-<div class="live-ranking">
-
-<h3>Classement provisoire</h3>
-
-<ul>
-
-<li>N° -</li>
-<li>N° -</li>
-<li>N° -</li>
-<li>N° -</li>
-<li>N° -</li>
-
-</ul>
-
+<div class="countdown">
+⏱️ Prochaine course
+<br>
+<span id="timer">
+00:00:00
+</span>
 </div>
 
 
@@ -140,36 +80,18 @@ Course : <strong id="live-course">C1</strong>
 
 
 
+<!-- CARTES KPI -->
 
-
-
-<!-- ANALYSE -->
-
-<main class="dashboard">
-
-
-<section class="kpi-grid">
+<section class="kpi-container">
 
 
 <div class="kpi-card">
 
-<span>Favori</span>
+<h3>⭐ Favori AZ</h3>
 
-<strong id="kpi-favorite">
+<p id="kpi-favorite">
 -
-</strong>
-
-</div>
-
-
-
-<div class="kpi-card highlight">
-
-<span>Confiance</span>
-
-<strong id="kpi-confidence">
--
-</strong>
+</p>
 
 </div>
 
@@ -177,11 +99,23 @@ Course : <strong id="live-course">C1</strong>
 
 <div class="kpi-card">
 
-<span>Outsider</span>
+<h3>📈 Confiance</h3>
 
-<strong id="kpi-outsider">
+<p id="kpi-confidence">
 -
-</strong>
+</p>
+
+</div>
+
+
+
+<div class="kpi-card">
+
+<h3>🔥 Outsider</h3>
+
+<p id="kpi-outsider">
+-
+</p>
 
 </div>
 
@@ -192,18 +126,19 @@ Course : <strong id="live-course">C1</strong>
 
 
 
-<section class="table-section">
+<!-- ANALYSE PARTANTS -->
+
+<section class="card">
 
 
-<h2>
-📊 Analyse des partants
-</h2>
+<h2>📊 Analyse des partants</h2>
 
 
-<div class="table-wrapper">
+<div class="table-container">
 
 
 <table>
+
 
 <thead>
 
@@ -214,12 +149,13 @@ Course : <strong id="live-course">C1</strong>
 <th>Jockey</th>
 <th>Entraîneur</th>
 <th>Forme</th>
-<th>Indice</th>
+<th>Indice AZ</th>
 <th>Rang</th>
 
 </tr>
 
 </thead>
+
 
 
 <tbody id="table-body">
@@ -239,28 +175,21 @@ Course : <strong id="live-course">C1</strong>
 
 
 
-
-
 <!-- TICKETS -->
 
-
-<section class="prediction-card">
-
-
-<h2>
-🎟️ Tickets recommandés
-</h2>
+<section class="card">
 
 
-<div id="top-combination" class="top-combination">
+<h2>🎟️ Tickets AZ</h2>
+
+
+<div id="top-combination">
 
 </div>
-
 
 
 <div id="tickets">
 
-
 </div>
 
 
@@ -270,55 +199,25 @@ Course : <strong id="live-course">C1</strong>
 
 
 
+<!-- COMMENTAIRES -->
+
+<section class="card">
 
 
-<!-- COMMENTAIRES VISIBLES -->
+<h2>💬 Commentaires</h2>
 
 
-<section class="comments-card">
-
-
-<h2>
-💬 Commentaires des membres
-</h2>
-
-
-<div class="comment-list">
-
-
-<div class="comment">
-
-<strong>Membre</strong>
+<div class="comments-box">
 
 <p>
-Les bases du jour sont intéressantes.
+Les avis des visiteurs apparaîtront ici.
 </p>
 
-</div>
-
-
-<div class="comment">
-
-<strong>Pronostiqueur</strong>
-
-<p>
-Bonne analyse, attente du résultat.
-</p>
 
 </div>
-
-
-</div>
-
-
-<a href="commentaires.html" class="btn-primary">
-Voir tous les commentaires
-</a>
 
 
 </section>
-
-
 
 
 
@@ -326,77 +225,53 @@ Voir tous les commentaires
 
 <!-- HISTORIQUE -->
 
+<section class="card">
 
-<section class="history-card">
 
-
-<h2>
-🏆 Derniers résultats
-</h2>
+<h2>🏆 Historique</h2>
 
 
 <p>
-Consultez les performances des précédents pronostics.
+Résultats et anciens tickets AZ Turf Pro.
 </p>
-
-
-<a href="historique.html">
-Voir historique
-</a>
 
 
 </section>
 
 
-
-
 </main>
 
 
-</div>
+
+
+
+<!-- BARRE BASSE FIXE -->
+
+<footer class="bottom-menu">
+
+
+<a href="ticket.html">
+🎟️ Ticket
+</a>
+
+
+<a href="historique.html">
+🏆 Historique
+</a>
+
+
+<a href="espace-vip.html">
+⭐ VIP
+</a>
+
+
+</footer>
+
+
 
 
 
 <script src="script.js"></script>
-
-
-<script>
-
-
-// Compte à rebours simple
-
-let temps = 3600;
-
-
-function countdown(){
-
-let h = Math.floor(temps / 3600);
-
-let m = Math.floor((temps % 3600) / 60);
-
-let s = temps % 60;
-
-
-document.getElementById("countdown").textContent =
-
-`${h.toString().padStart(2,"0")} : ${m.toString().padStart(2,"0")} : ${s.toString().padStart(2,"0")}`;
-
-
-if(temps > 0){
-temps--;
-}
-
-}
-
-
-setInterval(countdown,1000);
-
-countdown();
-
-
-</script>
-
-
 
 </body>
 </html>
