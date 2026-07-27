@@ -1,7 +1,7 @@
 const API = "https://az-turf-pro.onrender.com/api/analyse";
 
 
-// ELEMENTS COURSE
+// Informations course
 
 const hippodrome = document.getElementById("meta-hippodrome");
 const course = document.getElementById("meta-course");
@@ -10,33 +10,38 @@ const distance = document.getElementById("meta-distance");
 const partants = document.getElementById("meta-partants");
 
 
-// TABLEAU
+// Tableau
 
 const horsesTable = document.getElementById("all-horses");
 
 
-// ANALYSE AZ
+// Analyse AZ
 
 const favoriNumero = document.getElementById("favori-numero");
 const favoriNom = document.getElementById("favori-nom");
+const favoriIndice = document.getElementById("favori-indice");
+const favoriConfiance = document.getElementById("favori-confiance");
 const favoriRaison = document.getElementById("favori-raison");
+
 
 const outsiderNumero = document.getElementById("outsider-numero");
 const outsiderNom = document.getElementById("outsider-nom");
+const outsiderIndice = document.getElementById("outsider-indice");
+const outsiderConfiance = document.getElementById("outsider-confiance");
 const outsiderRaison = document.getElementById("outsider-raison");
 
 
-// POPULAR
+// Chevaux joués
 
 const popular = document.getElementById("popular-horses");
 
 
-// TENDANCE
+// Tendance
 
 const tendance = document.getElementById("course-tendance");
 
 
-// CHRONO
+// Chrono
 
 const miniCountdown = document.getElementById("mini-countdown");
 
@@ -47,9 +52,9 @@ const miniCountdown = document.getElementById("mini-countdown");
 function raisonFavori(cheval){
 
 return `
-✅ Indice AZ élevé<br>
-✅ Bonne forme récente<br>
-✅ Confiance forte dans l'analyse
+✅ Indice AZ supérieur<br>
+✅ Bonne régularité<br>
+✅ Profil adapté à la course
 `;
 
 }
@@ -59,9 +64,9 @@ return `
 function raisonOutsider(cheval){
 
 return `
-🔥 Belle cote possible<br>
-🔥 Régularité intéressante<br>
-🔥 Peut créer la surprise
+🔥 Rapport intéressant<br>
+🔥 Peut améliorer sa position<br>
+🔥 Profil pour surprendre
 `;
 
 }
@@ -82,35 +87,32 @@ return;
 }
 
 
-
 setInterval(()=>{
 
 
 const maintenant = new Date();
 
-
 const depart = new Date();
 
 
-let [h,m] = heure.split(":");
+const temps = heure.split(":");
 
 
-depart.setHours(h);
+depart.setHours(temps[0]);
 
-depart.setMinutes(m);
+depart.setMinutes(temps[1]);
 
 depart.setSeconds(0);
 
 
 
-let difference = depart - maintenant;
+let diff = depart - maintenant;
 
 
 
-if(difference <= 0){
+if(diff <= 0){
 
-miniCountdown.innerHTML =
-"🏇 Course en cours";
+miniCountdown.innerHTML="🏇 Course en cours";
 
 return;
 
@@ -118,12 +120,9 @@ return;
 
 
 
-let minutes =
-Math.floor(difference / 60000);
+let minutes = Math.floor(diff / 60000);
 
-
-let secondes =
-Math.floor((difference % 60000)/1000);
+let secondes = Math.floor((diff % 60000)/1000);
 
 
 
@@ -136,9 +135,7 @@ if(minutes <= 5){
 
 miniCountdown.classList.add("urgent");
 
-}
-
-else{
+}else{
 
 miniCountdown.classList.remove("urgent");
 
@@ -149,10 +146,7 @@ miniCountdown.classList.remove("urgent");
 },1000);
 
 
-
 }
-
-
 
 
 
@@ -163,33 +157,21 @@ miniCountdown.classList.remove("urgent");
 function afficherTendance(chevaux){
 
 
-if(!tendance){
-
-return;
-
-}
+if(!tendance) return;
 
 
 
 if(chevaux.length >= 8){
 
+tendance.innerHTML =
+"📈 Course ouverte : plusieurs chevaux peuvent jouer un rôle. Favori solide avec un outsider intéressant.";
+
+}else{
 
 tendance.innerHTML =
-
-"📊 Course avec plusieurs possibilités.<br>Favori solide mais outsiders à surveiller.";
-
-}
-
-
-else{
-
-
-tendance.innerHTML =
-
-"⭐ Course plus lisible avec des bases fortes.";
+"⭐ Course plus lisible : les bases semblent se dégager.";
 
 }
-
 
 
 }
@@ -210,6 +192,14 @@ try{
 const response = await fetch(API);
 
 
+if(!response.ok){
+
+throw new Error("Erreur API");
+
+}
+
+
+
 const data = await response.json();
 
 
@@ -223,32 +213,29 @@ data.chevaux ||
 
 
 
-// INFOS COURSE
+// COURSE
 
 
 if(hippodrome)
-hippodrome.textContent =
-data.hippodrome || "-";
+hippodrome.textContent=data.hippodrome || "-";
 
 
 if(course)
-course.textContent =
-data.course || "-";
+course.textContent=data.course || "-";
 
 
 if(discipline)
-discipline.textContent =
-data.discipline || "-";
+discipline.textContent=data.discipline || "-";
 
 
 if(distance)
-distance.textContent =
-(data.distance_course || "-")+" m";
+distance.textContent=(data.distance_course || "-")+" m";
 
 
 if(partants)
-partants.textContent =
-chevaux.length;
+partants.textContent=chevaux.length;
+
+
 
 
 
@@ -300,43 +287,70 @@ horsesTable.innerHTML += `
 
 
 
-// ANALYSE AZ
+// FAVORI AZ
 
 
 if(chevaux[0]){
 
 
+const favori = chevaux[0];
+
+
 favoriNumero.textContent =
-"N°"+chevaux[0].numero;
+"N°"+favori.numero;
 
 
 favoriNom.textContent =
-chevaux[0].nom || "Favori";
+favori.nom || "Favori AZ";
+
+
+favoriIndice.textContent =
+favori.indice_az || "-";
+
+
+favoriConfiance.textContent =
+(favori.confiance || "-")+" %";
 
 
 favoriRaison.innerHTML =
-raisonFavori(chevaux[0]);
+raisonFavori(favori);
 
 
 }
 
 
 
+
+
+
+
+// OUTSIDER AZ
 
 
 if(chevaux[3]){
 
 
+const outsider = chevaux[3];
+
+
 outsiderNumero.textContent =
-"N°"+chevaux[3].numero;
+"N°"+outsider.numero;
 
 
 outsiderNom.textContent =
-chevaux[3].nom || "Outsider";
+outsider.nom || "Outsider AZ";
+
+
+outsiderIndice.textContent =
+outsider.indice_az || "-";
+
+
+outsiderConfiance.textContent =
+(outsider.confiance || "-")+" %";
 
 
 outsiderRaison.innerHTML =
-raisonOutsider(chevaux[3]);
+raisonOutsider(outsider);
 
 
 }
@@ -348,7 +362,7 @@ raisonOutsider(chevaux[3]);
 
 
 
-// CHEVAUX LES PLUS JOUES
+// CHEVAUX LES PLUS JOUÉS
 
 
 if(popular){
@@ -382,6 +396,7 @@ ${cheval.numero}
 
 
 
+
 // TENDANCE
 
 
@@ -402,12 +417,11 @@ lancerChrono(data.heure_depart);
 }
 
 
-
 catch(error){
 
 
 console.log(
-"Erreur accueil : ",
+"Erreur accueil :",
 error
 );
 
