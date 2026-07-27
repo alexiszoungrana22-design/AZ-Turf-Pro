@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Analyse - AZ Turf Pro</title>
+<title>Analyse AZ - AZ Turf Pro</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -20,9 +20,10 @@
 
 
 <div class="logo">
-🏇 <span>AZ Turf Pro</span>
-</div>
 
+🏇 <span>AZ Turf Pro</span>
+
+</div>
 
 
 <nav class="top-menu">
@@ -31,17 +32,11 @@
 🏠 Accueil
 </a>
 
-<a href="analyse.html">
-📊 Analyse
-</a>
 
 <a href="ticket.html">
 🎟️ Ticket
 </a>
 
-<a href="espace-vip.html" class="btn-vip">
-⭐ VIP
-</a>
 
 </nav>
 
@@ -58,13 +53,28 @@
 
 
 
+<!-- SELECTION AZ -->
+
 <section class="card">
 
-<h2>📊 Analyse complète de la course</h2>
+<h2>⭐ Sélection AZ du jour</h2>
+
 
 <p>
-Analyse détaillée des chevaux engagés avec les critères de forme, performance et conditions de course.
+Les 7 chevaux retenus après analyse :
 </p>
+
+
+<div class="selection-az">
+
+<strong id="selection-az-chevaux">
+
+Chargement...
+
+</strong>
+
+</div>
+
 
 </section>
 
@@ -74,10 +84,42 @@ Analyse détaillée des chevaux engagés avec les critères de forme, performanc
 
 
 
+
+<!-- RAISONS SELECTION -->
+
+
 <section class="card">
 
 
-<h2>🏇 Classement des chevaux</h2>
+<h2>📌 Raisons de la sélection</h2>
+
+
+<div id="raisons-selection">
+
+
+Chargement des analyses...
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- CLASSEMENT -->
+
+
+<section class="card">
+
+
+<h2>📊 Classement AZ complet</h2>
+
 
 
 <div class="table-container">
@@ -91,17 +133,25 @@ Analyse détaillée des chevaux engagés avec les critères de forme, performanc
 <tr>
 
 <th>Rang</th>
+
 <th>N°</th>
+
 <th>Cheval</th>
+
 <th>Indice AZ</th>
+
 <th>Forme</th>
+
 <th>Régularité</th>
+
 <th>Jockey</th>
+
 <th>Entraîneur</th>
+
 <th>Confiance</th>
-<th>Statut</th>
 
 </tr>
+
 
 </thead>
 
@@ -115,6 +165,7 @@ Analyse détaillée des chevaux engagés avec les critères de forme, performanc
 
 </table>
 
+
 </div>
 
 
@@ -126,70 +177,113 @@ Analyse détaillée des chevaux engagés avec les critères de forme, performanc
 
 
 
+
+<!-- AVIS -->
+
+
 <section class="card">
 
 
-<h2>📈 Détails analyse</h2>
+<h2>👤 Avis jockeys et entraîneurs</h2>
 
 
-<div id="details-analyse">
+<div id="avis-course">
+
+
+Informations en préparation...
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ACTUALITES -->
+
+
+<section class="card">
+
+
+<h2>📰 Actualités de la course</h2>
+
+
+<div id="actualites-course">
+
+
+Aucune actualité pour le moment.
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- PROPOSITION SIMPLE -->
+
+
+<section class="card">
+
+
+<h2>🎯 Synthèse AZ</h2>
+
+
+<div id="synthese-az">
+
+
+Analyse en cours...
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- VISITEURS -->
+
+
+<section class="card">
+
+
+<h2>💬 Espace visiteurs</h2>
+
 
 <p>
-Chargement des informations...
+Partagez votre avis sur la course.
 </p>
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-<section class="card">
-
-
-<h2>🎟️ Proposition de ticket</h2>
-
-
-<div id="analyse-ticket">
-
-Chargement...
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-<section class="card">
-
-
-<h2>💬 Espace échanges visiteurs</h2>
-
-
-<div id="messages-visiteurs">
-
-<p>
-Partagez vos analyses et vos propositions de tickets.
-</p>
-
-</div>
 
 
 
 <textarea
+
 id="message-visiteur"
-placeholder="Votre message ou votre ticket..."
-rows="4"></textarea>
+
+placeholder="Votre analyse ou votre pronostic..."
+
+rows="7">
+
+</textarea>
+
+
+
+<br><br>
 
 
 
@@ -200,25 +294,12 @@ Envoyer
 </button>
 
 
-</section>
 
+<div id="messages-visiteurs">
 
-
-
-
-
-
-<section class="card">
-
-
-<h2>🎯 Tickets proposés par les visiteurs</h2>
-
-
-<div id="tickets-visiteurs">
-
-Aucune proposition pour le moment.
 
 </div>
+
 
 
 </section>
@@ -230,6 +311,7 @@ Aucune proposition pour le moment.
 
 
 </main>
+
 
 
 
@@ -273,7 +355,8 @@ Aucune proposition pour le moment.
 
 
 
-<script src="analyse.js?v=4"></script>
+
+<script src="analyse.js?v=5"></script>
 
 
 </body>
