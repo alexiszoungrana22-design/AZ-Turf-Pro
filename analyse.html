@@ -19,9 +19,11 @@
 <header class="top-header">
 
 
-<div class="logo">
+<div class="brand-zone">
 
+<div class="logo">
 🏇 <span>AZ Turf Pro</span>
+</div>
 
 </div>
 
@@ -32,16 +34,29 @@
 🏠 Accueil
 </a>
 
+<a href="analyse.html">
+📊 Analyse
+</a>
 
 <a href="ticket.html">
 🎟️ Ticket
 </a>
 
+<a href="historique.html">
+🏆 Historique
+</a>
 
 </nav>
 
 
+<a href="espace-vip.html" class="btn-vip">
+⭐ VIP
+</a>
+
+
 </header>
+
+
 
 
 
@@ -53,15 +68,15 @@
 
 
 
-<!-- SELECTION AZ -->
 
 <section class="card">
+
 
 <h2>⭐ Sélection AZ du jour</h2>
 
 
 <p>
-Les 7 chevaux retenus après analyse :
+Les 7 chevaux retenus après l'analyse AZ :
 </p>
 
 
@@ -85,19 +100,92 @@ Chargement...
 
 
 
-<!-- RAISONS SELECTION -->
+<section class="card analyse-az">
 
 
-<section class="card">
+<h2>🏇 Points forts AZ</h2>
 
 
-<h2>📌 Raisons de la sélection</h2>
+<div class="analyse-az-container">
 
 
-<div id="raisons-selection">
+
+<div class="az-box favori-az">
 
 
-Chargement des analyses...
+<h3>🟢 Favori AZ</h3>
+
+
+<div class="az-numero" id="favori-numero">
+-
+</div>
+
+
+<h4 id="favori-nom">
+Chargement...
+</h4>
+
+
+<p>
+📊 Indice AZ :
+<strong id="favori-indice">-</strong>
+</p>
+
+
+<p>
+🎯 Confiance :
+<strong id="favori-confiance">-</strong>
+</p>
+
+
+<p id="favori-raison">
+Analyse en cours...
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="az-box outsider-az">
+
+
+<h3>🟠 Outsider AZ</h3>
+
+
+<div class="az-numero outsider-numero" id="outsider-numero">
+-
+</div>
+
+
+<h4 id="outsider-nom">
+Chargement...
+</h4>
+
+
+<p>
+📊 Indice AZ :
+<strong id="outsider-indice">-</strong>
+</p>
+
+
+<p>
+🎯 Confiance :
+<strong id="outsider-confiance">-</strong>
+</p>
+
+
+<p id="outsider-raison">
+Analyse en cours...
+</p>
+
+
+</div>
+
 
 
 </div>
@@ -112,14 +200,32 @@ Chargement des analyses...
 
 
 
-<!-- CLASSEMENT -->
+<section class="card">
+
+
+<h2>📌 Pourquoi cette sélection ?</h2>
+
+
+<div id="raisons-selection">
+
+Chargement des analyses...
+
+</div>
+
+
+</section>
+
+
+
+
+
+
 
 
 <section class="card">
 
 
-<h2>📊 Classement AZ complet</h2>
-
+<h2>📊 Détail des 7 chevaux AZ</h2>
 
 
 <div class="table-container">
@@ -132,29 +238,19 @@ Chargement des analyses...
 
 <tr>
 
-<th>Rang</th>
-
 <th>N°</th>
 
 <th>Cheval</th>
 
 <th>Indice AZ</th>
 
-<th>Forme</th>
-
-<th>Régularité</th>
-
-<th>Jockey</th>
-
-<th>Entraîneur</th>
-
 <th>Confiance</th>
+
+<th>Raison</th>
 
 </tr>
 
-
 </thead>
-
 
 
 <tbody id="analyse-body">
@@ -178,9 +274,6 @@ Chargement des analyses...
 
 
 
-<!-- AVIS -->
-
-
 <section class="card">
 
 
@@ -188,7 +281,6 @@ Chargement des analyses...
 
 
 <div id="avis-course">
-
 
 Informations en préparation...
 
@@ -204,9 +296,6 @@ Informations en préparation...
 
 
 
-<!-- ACTUALITES -->
-
-
 <section class="card">
 
 
@@ -214,7 +303,6 @@ Informations en préparation...
 
 
 <div id="actualites-course">
-
 
 Aucune actualité pour le moment.
 
@@ -230,9 +318,6 @@ Aucune actualité pour le moment.
 
 
 
-<!-- PROPOSITION SIMPLE -->
-
-
 <section class="card">
 
 
@@ -240,7 +325,6 @@ Aucune actualité pour le moment.
 
 
 <div id="synthese-az">
-
 
 Analyse en cours...
 
@@ -256,9 +340,6 @@ Analyse en cours...
 
 
 
-<!-- VISITEURS -->
-
-
 <section class="card">
 
 
@@ -270,21 +351,18 @@ Partagez votre avis sur la course.
 </p>
 
 
-
 <textarea
 
 id="message-visiteur"
 
-placeholder="Votre analyse ou votre pronostic..."
+placeholder="Votre avis sur la course..."
 
-rows="7">
+rows="10">
 
 </textarea>
 
 
-
 <br><br>
-
 
 
 <button id="envoyer-message">
@@ -294,12 +372,9 @@ Envoyer
 </button>
 
 
-
 <div id="messages-visiteurs">
 
-
 </div>
-
 
 
 </section>
@@ -311,7 +386,6 @@ Envoyer
 
 
 </main>
-
 
 
 
@@ -356,7 +430,7 @@ Envoyer
 
 
 
-<script src="analyse.js?v=5"></script>
+<script src="analyse.js?v=6"></script>
 
 
 </body>
