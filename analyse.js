@@ -1,7 +1,6 @@
 const API = "https://az-turf-pro.onrender.com/api/analyse";
 
 
-
 async function chargerAnalyse(){
 
 
@@ -31,7 +30,6 @@ data.chevaux ||
 
 
 
-
 // ===============================
 // SELECTION AZ 7 CHEVAUX
 // ===============================
@@ -48,6 +46,127 @@ selection.textContent = chevaux
 .slice(0,7)
 .map(c => c.numero)
 .join(" - ");
+
+
+}
+
+
+
+
+
+
+
+// ===============================
+// FAVORI AZ
+// ===============================
+
+
+const favori = chevaux[0];
+
+
+if(favori){
+
+
+const numero =
+document.getElementById("favori-numero");
+
+const nom =
+document.getElementById("favori-nom");
+
+const indice =
+document.getElementById("favori-indice");
+
+const confiance =
+document.getElementById("favori-confiance");
+
+const raison =
+document.getElementById("favori-raison");
+
+
+
+if(numero)
+numero.textContent = favori.numero || "-";
+
+
+if(nom)
+nom.textContent = favori.nom || "Cheval";
+
+
+if(indice)
+indice.textContent = favori.indice_az || "-";
+
+
+if(confiance)
+confiance.textContent =
+(favori.confiance || "-") + " %";
+
+
+if(raison)
+raison.textContent =
+"⭐ Base AZ : bonne forme, indice AZ élevé et conditions favorables.";
+
+
+}
+
+
+
+
+
+
+
+
+// ===============================
+// OUTSIDER AZ
+// ===============================
+
+
+const outsider = chevaux[6];
+
+
+if(outsider){
+
+
+const numero =
+document.getElementById("outsider-numero");
+
+
+const nom =
+document.getElementById("outsider-nom");
+
+
+const indice =
+document.getElementById("outsider-indice");
+
+
+const confiance =
+document.getElementById("outsider-confiance");
+
+
+const raison =
+document.getElementById("outsider-raison");
+
+
+
+if(numero)
+numero.textContent = outsider.numero || "-";
+
+
+if(nom)
+nom.textContent = outsider.nom || "Cheval";
+
+
+if(indice)
+indice.textContent = outsider.indice_az || "-";
+
+
+if(confiance)
+confiance.textContent =
+(outsider.confiance || "-") + " %";
+
+
+if(raison)
+raison.textContent =
+"🔥 Outsider AZ : profil intéressant pouvant surprendre.";
 
 
 }
@@ -86,12 +205,9 @@ raisons.innerHTML += `
 
 
 <h3>
-
 N°${cheval.numero || "-"}
 ${cheval.nom || "Cheval"}
-
 </h3>
-
 
 
 <p>
@@ -107,7 +223,6 @@ ${genererRaison(cheval,index)}
 `;
 
 
-
 });
 
 
@@ -122,7 +237,7 @@ ${genererRaison(cheval,index)}
 
 
 // ===============================
-// TABLEAU CLASSEMENT
+// TABLEAU 7 CHEVAUX AZ
 // ===============================
 
 
@@ -138,7 +253,7 @@ tableau.innerHTML = "";
 
 
 
-chevaux.forEach((cheval,index)=>{
+chevaux.slice(0,7).forEach((cheval,index)=>{
 
 
 tableau.innerHTML += `
@@ -154,29 +269,18 @@ tableau.innerHTML += `
 
 
 <td>
-<strong>
-${cheval.nom || "Cheval"}
-</strong>
+<strong>${cheval.nom || "Cheval"}</strong>
 </td>
 
 
 <td>${cheval.indice_az || "-"}</td>
 
 
-<td>${cheval.forme || "-"}</td>
-
-
-<td>${cheval.regularite || "-"}</td>
-
-
-<td>${cheval.jockey || "-"}</td>
-
-
-<td>${cheval.entraineur || "-"}</td>
+<td>${cheval.confiance || "-"} %</td>
 
 
 <td>
-${cheval.confiance || "-"} %
+${genererRaison(cheval,index)}
 </td>
 
 
@@ -186,12 +290,10 @@ ${cheval.confiance || "-"} %
 `;
 
 
-
 });
 
 
 }
-
 
 
 
@@ -218,18 +320,18 @@ avis.innerHTML = `
 
 <p>
 
-👤 <strong>Jockeys :</strong><br>
+👤 <strong>Avis jockeys :</strong><br>
 
-Les chevaux retenus présentent des profils intéressants selon la forme et les conditions de course.
+Les chevaux retenus présentent des profils intéressants selon la forme et les conditions du jour.
 
 </p>
 
 
 <p>
 
-🏇 <strong>Entraîneurs :</strong><br>
+🏇 <strong>Avis entraîneurs :</strong><br>
 
-La préparation et la régularité des chevaux sont prises en compte dans la sélection AZ.
+La préparation, la régularité et l'engagement sont pris en compte dans l'analyse AZ.
 
 </p>
 
@@ -263,18 +365,13 @@ if(actualites){
 actualites.innerHTML = `
 
 
-<p>
-📰 Informations course :
-</p>
-
-
 <ul>
 
-<li>Analyse des conditions de course</li>
+<li>📌 Analyse des conditions de course</li>
 
-<li>Étude des chevaux engagés</li>
+<li>🏇 Étude des chevaux engagés</li>
 
-<li>Surveillance des changements de dernière minute</li>
+<li>⚠️ Surveillance des changements de dernière minute</li>
 
 </ul>
 
@@ -284,7 +381,6 @@ actualites.innerHTML = `
 
 
 }
-
 
 
 
@@ -310,21 +406,19 @@ synthese.innerHTML = `
 
 
 <p>
-
-⭐ La sélection AZ privilégie les chevaux avec :
-
+⭐ La sélection AZ privilégie :
 </p>
 
 
 <ul>
 
-<li>Bonne forme récente</li>
+<li>La forme récente</li>
 
-<li>Régularité</li>
+<li>La régularité</li>
 
-<li>Profil adapté à la course</li>
+<li>L'adaptation au parcours</li>
 
-<li>Capacité à lutter pour les premières places</li>
+<li>Le potentiel pour les premières places</li>
 
 </ul>
 
@@ -385,9 +479,7 @@ affichage.innerHTML += `
 
 
 <p>
-
 💬 ${message}
-
 </p>
 
 
@@ -396,7 +488,6 @@ affichage.innerHTML += `
 
 
 zone.value="";
-
 
 
 });
@@ -437,8 +528,7 @@ if(index===0){
 
 
 return `
-⭐ Base principale :
-bonne forme, indice AZ élevé et profil favorable.
+⭐ Base principale : excellente position AZ, forme et confiance élevées.
 `;
 
 }
@@ -448,8 +538,7 @@ if(index===1){
 
 
 return `
-⭐ Très bonne chance :
-régularité et capacité à confirmer.
+⭐ Très belle chance : régularité et capacité à confirmer.
 `;
 
 }
@@ -459,8 +548,7 @@ if(index<4){
 
 
 return `
-✅ Belle possibilité :
-profil intéressant pour les places.
+✅ Chance solide : profil adapté pour jouer les premiers rôles.
 `;
 
 }
@@ -468,8 +556,7 @@ profil intéressant pour les places.
 
 
 return `
-🔥 Chance à surveiller :
-peut profiter des conditions de course.
+🔥 Chance à surveiller : outsider avec possibilité de surprise.
 `;
 
 
