@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Espace Premium - AZ Turf Pro</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<header class="top-header">
+
+
+<div class="logo">
+
+🏇 <span>AZ Turf Pro</span>
+
+</div>
+
+
+<nav class="top-menu">
+
+
+<a href="index.html">
+🏠 Accueil
+</a>
+
+
+<a href="analyse.html">
+📊 Analyse
+</a>
+
+
+<a href="ticket.html">
+🎟️ Ticket
+</a>
+
+
+<a href="historique.html">
+🏆 Historique
+</a>
+
+
+<a href="espace-vip.html">
+⭐ VIP
+</a>
+
+
+</nav>
+
+
+</header>
+
+
+
+
+
+
+
+
+<main class="content">
+
+
+
+
+
+<section class="card">
+
+
+<h1>🏆 Espace Premium</h1>
+
+
+<p>
+Bienvenue dans votre espace réservé aux membres actifs.
+</p>
+
+
+</section>
+
+
+
+
+
+
+
+
+<section class="card">
+
+
+<h2>📋 Votre abonnement</h2>
+
+
+<div id="infos-premium">
+
+Vérification...
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+<section class="card" id="contenu-premium" style="display:none;">
+
+
+
+<h2>⭐ Accès Premium</h2>
+
+
+
+<div class="vip-content">
+
+
+
+<div class="vip-item">
+
+⭐ Analyse Premium
+
+<p>
+Analyse approfondie des courses et des profils chevaux.
+</p>
+
+</div>
+
+
+
+
+
+<div class="vip-item">
+
+🎯 Sélection avancée
+
+<p>
+Sélection AZ renforcée pour les membres.
+</p>
+
+</div>
+
+
+
+
+
+<div class="vip-item">
+
+📊 Étude des chevaux
+
+<p>
+Analyse de la forme, régularité et conditions.
+</p>
+
+</div>
+
+
+
+
+
+<div class="vip-item">
+
+🏇 Avis jockeys et entraîneurs
+
+<p>
+Informations supplémentaires sur les concurrents.
+</p>
+
+</div>
+
+
+
+
+
+<div class="vip-item">
+
+🔥 Stratégies AZ
+
+<p>
+Approches Premium réservées aux abonnés.
+</p>
+
+</div>
+
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+<section class="card" id="message-blocage" style="display:none;">
+
+
+<h2>🔒 Accès refusé</h2>
+
+
+<p>
+Votre abonnement Premium est expiré ou inactif.
+</p>
+
+
+<a href="espace-vip.html">
+
+Renouveler mon abonnement
+
+</a>
+
+
+</section>
+
+
+
+
+
+
+
+
+</main>
+
+
+
+
+
+
+
+<footer class="bottom-menu">
+
+
+<a href="index.html">
+🏠 Accueil
+</a>
+
+
+<a href="analyse.html">
+📊 Analyse
+</a>
+
+
+<a href="ticket.html">
+🎟️ Ticket
+</a>
+
+
+<a href="historique.html">
+🏆 Historique
+</a>
+
+
+<a href="espace-vip.html">
+⭐ VIP
+</a>
+
+
+</footer>
+
+
+
+
+
+
+
+
+<script>
+
+
+
+function verifierAccesPremium(){
+
+
+
+const statut =
+localStorage.getItem("AZ_TURF_PREMIUM");
+
+
+const offre =
+localStorage.getItem("AZ_TURF_OFFRE");
+
+
+const dateFin =
+localStorage.getItem("AZ_TURF_DATE_FIN");
+
+
+
+
+
+if(
+statut === "ACTIF"
+&&
+dateFin
+){
+
+
+
+const expiration =
+new Date(dateFin);
+
+
+
+const maintenant =
+new Date();
+
+
+
+
+
+if(maintenant < expiration){
+
+
+
+document.getElementById("contenu-premium")
+.style.display="block";
+
+
+
+document.getElementById("infos-premium")
+.innerHTML = `
+
+<p>
+⭐ Formule :
+<strong>${offre}</strong>
+</p>
+
+<p>
+📅 Expire le :
+<strong>${expiration.toLocaleDateString("fr-FR")}</strong>
+</p>
+
+<p>
+✅ Statut : Actif
+</p>
+
+`;
+
+
+
+return;
+
+
+}
+
+
+
+}
+
+
+
+
+
+document.getElementById("message-blocage")
+.style.display="block";
+
+
+
+document.getElementById("infos-premium")
+.innerHTML =
+
+"❌ Aucun abonnement Premium actif.";
+
+
+
+}
+
+
+
+
+
+verifierAccesPremium();
+
+
+
+</script>
+
+
+
+</body>
+
+</html>
