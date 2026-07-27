@@ -2,49 +2,38 @@
    AZ TURF PRO - DESIGN PREMIUM V7
 ================================ */
 
-
 *{
     box-sizing:border-box;
 }
 
 
-
 body{
 
     margin:0;
-
     font-family:Arial,sans-serif;
-
     background:#f4f7f8;
-
     color:#222;
 
 }
 
 
-
-
-/* HEADER */
+/* ===============================
+   HEADER
+================================ */
 
 
 .top-header{
 
     position:fixed;
-
     top:0;
-
     left:0;
-
     width:100%;
-
     height:75px;
 
     background:white;
 
     display:flex;
-
     align-items:center;
-
     justify-content:space-between;
 
     padding:0 30px;
@@ -60,11 +49,9 @@ body{
 .logo{
 
     display:flex;
-
     align-items:center;
 
     font-size:24px;
-
     font-weight:bold;
 
     color:#08783f;
@@ -73,12 +60,9 @@ body{
 
 
 
-
-
 .top-menu{
 
     display:flex;
-
     gap:15px;
 
 }
@@ -114,15 +98,16 @@ body{
 
 
 
-
-/* CONTENU */
+/* ===============================
+   CONTENU
+================================ */
 
 
 .content{
 
     padding-top:100px;
 
-    padding-bottom:80px;
+    padding-bottom:90px;
 
     max-width:1200px;
 
@@ -133,9 +118,9 @@ body{
 
 
 
-
-
-/* CARTES */
+/* ===============================
+   CARTES
+================================ */
 
 
 .card{
@@ -155,7 +140,6 @@ body{
     animation:apparition .5s ease;
 
 }
-
 
 
 
@@ -194,8 +178,9 @@ transform:translateY(0);
 
 
 
-
-/* PUBLICITE */
+/* ===============================
+   PUBLICITE
+================================ */
 
 
 .pub-box{
@@ -223,8 +208,9 @@ transform:translateY(0);
 
 
 
-
-/* COMPTE A REBOURS */
+/* ===============================
+   COMPTE A REBOURS
+================================ */
 
 
 .countdown{
@@ -254,23 +240,22 @@ transform:translateY(0);
 
 
 
-
-/* FAVORI */
+/* ===============================
+   FAVORI
+================================ */
 
 
 .favorite-box{
 
-    width:100%;
-
-    padding:25px;
-
-    text-align:center;
-
-    border-radius:25px;
-
     background:#f4f7f8;
 
     border-left:8px solid #08783f;
+
+    padding:30px;
+
+    border-radius:25px;
+
+    text-align:center;
 
 }
 
@@ -289,7 +274,6 @@ transform:translateY(0);
 
 
 
-
 .favorite-box h3{
 
     font-size:26px;
@@ -301,23 +285,22 @@ transform:translateY(0);
 
 
 
-
-/* OUTSIDER */
+/* ===============================
+   OUTSIDER
+================================ */
 
 
 .outsider-box{
 
-    width:100%;
-
-    padding:25px;
-
-    text-align:center;
-
-    border-radius:25px;
-
     background:#f4f7f8;
 
     border-left:8px solid #ff9800;
+
+    padding:30px;
+
+    border-radius:25px;
+
+    text-align:center;
 
 }
 
@@ -341,14 +324,9 @@ transform:translateY(0);
 
 }
 
-
-
-
-
-
-
-
-/* KPI */
+/* ===============================
+   KPI
+================================ */
 
 
 .kpi-container{
@@ -393,9 +371,9 @@ transform:translateY(0);
 
 
 
-
-
-/* TABLEAU */
+/* ===============================
+   TABLEAUX
+================================ */
 
 
 .table-container{
@@ -445,21 +423,50 @@ td{
 
 
 
+/* ===============================
+   SELECTION CHEVAUX
+================================ */
 
-/* VIP */
+
+.selection-horizontal{
+
+    display:flex;
+
+    gap:12px;
+
+    overflow-x:auto;
+
+}
 
 
-.vip-choice{
 
-    background:#f4f7f8;
+.cheval-mini{
+
+    min-width:145px;
+
+    background:white;
 
     padding:18px;
 
     border-radius:18px;
 
-    margin:12px 0;
+    text-align:center;
 
-    border-left:5px solid #08783f;
+    border-top:5px solid #08783f;
+
+    box-shadow:0 4px 12px rgba(0,0,0,.15);
+
+}
+
+
+
+.mini-numero{
+
+    font-size:28px;
+
+    font-weight:bold;
+
+    color:#08783f;
 
 }
 
@@ -469,7 +476,9 @@ td{
 
 
 
-/* ABONNEMENT */
+/* ===============================
+   TICKET
+================================ */
 
 
 .ticket-box{
@@ -480,12 +489,92 @@ td{
 
 
 
+.ticket-result{
+
+    background:#f4f7f8;
+
+    padding:25px;
+
+    border-radius:20px;
+
+    text-align:center;
+
+    font-size:18px;
+
+}
+
+
+
+.ticket-result strong{
+
+    display:inline-block;
+
+    background:#08783f;
+
+    color:white;
+
+    padding:15px 25px;
+
+    border-radius:30px;
+
+    font-size:22px;
+
+}
 
 
 
 
 
-/* BOUTONS */
+
+
+/* ===============================
+   VIP
+================================ */
+
+
+.vip-banner{
+
+    border-top:5px solid #d4af37;
+
+}
+
+
+
+.vip-choice{
+
+    background:#f4f7f8;
+
+    padding:18px;
+
+    margin:12px 0;
+
+    border-radius:18px;
+
+    border-left:5px solid #08783f;
+
+}
+
+
+
+.champ-vip{
+
+    background:#fff8e1;
+
+    padding:20px;
+
+    border-radius:20px;
+
+}
+
+
+
+
+
+
+
+/* ===============================
+   ABONNEMENT
+================================ */
 
 
 button{
@@ -504,8 +593,6 @@ button{
 
     cursor:pointer;
 
-    transition:.3s;
-
 }
 
 
@@ -521,8 +608,9 @@ button:hover{
 
 
 
-
-/* MESSAGE */
+/* ===============================
+   MESSAGE
+================================ */
 
 
 .news-bar{
@@ -551,7 +639,9 @@ button:hover{
 
 
 
-/* MENU BAS */
+/* ===============================
+   MENU BAS MOBILE
+================================ */
 
 
 .bottom-menu{
@@ -565,8 +655,9 @@ button:hover{
 
 
 
-
-/* TABLETTE */
+/* ===============================
+   TABLETTE
+================================ */
 
 
 @media(max-width:900px){
@@ -586,8 +677,9 @@ grid-template-columns:repeat(2,1fr);
 
 
 
-
-/* MOBILE */
+/* ===============================
+   TELEPHONE
+================================ */
 
 
 @media(max-width:600px){
@@ -612,7 +704,6 @@ font-size:18px;
 
 
 
-
 .top-menu a{
 
 padding:7px 10px;
@@ -620,8 +711,6 @@ padding:7px 10px;
 font-size:12px;
 
 }
-
-
 
 
 
@@ -633,15 +722,11 @@ padding-bottom:100px;
 
 
 
-
-
 .card{
 
 padding:18px;
 
 }
-
-
 
 
 
@@ -653,16 +738,12 @@ font-size:38px;
 
 
 
-
-
 .favorite-number,
 .outsider-number{
 
 font-size:45px;
 
 }
-
-
 
 
 
@@ -705,7 +786,6 @@ z-index:1000;
 
 
 
-
 .bottom-menu a{
 
 text-decoration:none;
@@ -719,4 +799,5 @@ font-weight:bold;
 }
 
 
-}
+
+   }
