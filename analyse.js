@@ -8,8 +8,7 @@ async function chargerAnalyse(){
 try{
 
 
-const response =
-await fetch(API);
+const response = await fetch(API);
 
 
 
@@ -21,10 +20,7 @@ throw new Error("Erreur API");
 
 
 
-const data =
-await response.json();
-
-
+const data = await response.json();
 
 
 
@@ -39,120 +35,7 @@ data.chevaux ||
 
 
 
-
-// FAVORI DU JOUR
-
-
-const favori =
-document.getElementById("favori");
-
-
-
-if(favori && chevaux[0]){
-
-
-favori.innerHTML = `
-
-
-<div class="favorite-number">
-
-N°${chevaux[0].numero}
-
-</div>
-
-
-<h3>
-
-${chevaux[0].nom || "Cheval"}
-
-</h3>
-
-
-<p>
-
-Indice :
-${chevaux[0].indice_az || "-"}
-
-</p>
-
-
-<p>
-
-Confiance :
-${chevaux[0].confiance || "-"} %
-
-</p>
-
-
-`;
-
-}
-
-
-
-
-
-
-
-
-
-// OUTSIDER DU JOUR
-
-
-const outsider =
-document.getElementById("outsider");
-
-
-
-if(outsider && chevaux[3]){
-
-
-outsider.innerHTML = `
-
-
-<div class="outsider-number">
-
-N°${chevaux[3].numero}
-
-</div>
-
-
-<h3>
-
-${chevaux[3].nom || "Cheval"}
-
-</h3>
-
-
-<p>
-
-Indice :
-${chevaux[3].indice_az || "-"}
-
-</p>
-
-
-<p>
-
-Confiance :
-${chevaux[3].confiance || "-"} %
-
-</p>
-
-
-`;
-
-}
-
-
-
-
-
-
-
-
-
-// TABLEAU CLASSEMENT
+// TABLEAU ANALYSE
 
 
 const tableau =
@@ -163,17 +46,27 @@ document.getElementById("analyse-body");
 if(tableau){
 
 
-tableau.innerHTML="";
+tableau.innerHTML = "";
 
 
 
 chevaux.forEach((cheval,index)=>{
 
 
-tableau.innerHTML += `
+const ligne =
+document.createElement("tr");
 
 
-<tr>
+
+ligne.innerHTML = `
+
+
+<td>
+
+${index + 1}
+
+</td>
+
 
 
 <td>
@@ -206,6 +99,38 @@ ${cheval.indice_az || "-"}
 
 <td>
 
+${cheval.forme || "-"}
+
+</td>
+
+
+
+<td>
+
+${cheval.regularite || "-"}
+
+</td>
+
+
+
+<td>
+
+${cheval.jockey || "-"}
+
+</td>
+
+
+
+<td>
+
+${cheval.entraineur || "-"}
+
+</td>
+
+
+
+<td>
+
 ${cheval.confiance || "-"} %
 
 </td>
@@ -215,26 +140,32 @@ ${cheval.confiance || "-"} %
 <td>
 
 ${
-index===0
+cheval.type
+||
+(index===0
 ?
-"Favori du jour"
+"Favori"
 :
 index<3
 ?
-"Belle chance"
+"Base"
 :
-"Chance"
+"Chance")
 }
 
 </td>
 
 
-</tr>
-
-
 `;
 
+
+
+tableau.appendChild(ligne);
+
+
+
 });
+
 
 
 }
@@ -242,6 +173,60 @@ index<3
 
 
 
+
+
+
+
+
+// DETAILS ANALYSE
+
+
+const details =
+document.getElementById("details-analyse");
+
+
+
+if(details && chevaux.length){
+
+
+details.innerHTML = `
+
+
+<h3>
+
+⭐ Point fort du classement
+
+</h3>
+
+
+<p>
+
+N°${chevaux[0].numero || "-"}
+-
+${chevaux[0].nom || "Cheval"}
+
+</p>
+
+
+<p>
+
+Indice AZ :
+${chevaux[0].indice_az || "-"}
+
+</p>
+
+
+<p>
+
+Confiance :
+${chevaux[0].confiance || "-"} %
+
+</p>
+
+
+`;
+
+}
 
 
 
@@ -275,12 +260,12 @@ data.tickets.quinte
 data.tickets.quinte.join(" - ")
 :
 "-"
+
 }
 
 </strong>
 
 </p>
-
 
 
 
@@ -298,6 +283,7 @@ data.tickets.trio
 data.tickets.trio.join(" - ")
 :
 "-"
+
 }
 
 </strong>
@@ -305,8 +291,74 @@ data.tickets.trio.join(" - ")
 </p>
 
 
+`;
+
+}
+
+
+
+
+
+
+
+
+// MESSAGES VISITEURS (LOCAL)
+
+
+const bouton =
+document.getElementById("envoyer-message");
+
+
+const zoneMessage =
+document.getElementById("message-visiteur");
+
+
+const zoneAffichage =
+document.getElementById("messages-visiteurs");
+
+
+
+
+
+if(bouton){
+
+
+bouton.addEventListener("click",()=>{
+
+
+const message =
+zoneMessage.value.trim();
+
+
+
+if(message===""){
+
+return;
+
+}
+
+
+
+zoneAffichage.innerHTML += `
+
+
+<p>
+
+💬 ${message}
+
+</p>
+
 
 `;
+
+
+
+zoneMessage.value="";
+
+
+
+});
+
 
 }
 
@@ -326,6 +378,7 @@ console.log(
 "Erreur analyse :",
 error
 );
+
 
 
 }
