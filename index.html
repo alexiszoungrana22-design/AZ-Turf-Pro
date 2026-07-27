@@ -19,11 +19,24 @@
 <header class="top-header">
 
 
+<div class="brand-zone">
+
 <div class="logo">
 
 🏇 <span>AZ Turf Pro</span>
 
 </div>
+
+
+<div id="mini-countdown" class="mini-countdown">
+
+⏱ Départ : --:--:--
+
+</div>
+
+
+</div>
+
 
 
 <nav class="top-menu">
@@ -45,19 +58,23 @@
 
 
 <a href="historique.html">
-📜 Historique
-</a>
-
-
-<a href="abonnement.html" class="btn-vip">
-⭐ VIP
+🏆 Historique
 </a>
 
 
 </nav>
 
 
+
+<a href="abonnement.html" class="btn-vip">
+
+⭐ VIP
+
+</a>
+
+
 </header>
+
 
 
 
@@ -70,6 +87,7 @@
 
 
 
+<!-- COURSE DU JOUR -->
 
 <section class="card">
 
@@ -102,7 +120,7 @@
 
 
 <p>
-🐎 Nombre de partants :
+🐎 Partants :
 <strong id="meta-partants">-</strong>
 </p>
 
@@ -115,6 +133,8 @@
 
 
 
+<!-- PUBLICITE -->
+
 <section class="card pub-box">
 
 
@@ -123,65 +143,16 @@
 
 <div class="pub-content">
 
-<img id="pub-image" src="images/pub1.jpg" alt="Publicité partenaire">
+
+<img id="pub-image" src="images/pub1.jpg" alt="Publicité AZ Turf">
 
 
-<video id="pub-video" controls autoplay muted loop style="display:none; width:100%; border-radius:18px;">
+<video id="pub-video" controls autoplay muted loop style="display:none;">
 
 <source src="images/pub1.mp4" type="video/mp4">
 
 </video>
 
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-
-<section class="card countdown">
-
-
-<h2>⏱️ Départ de la course</h2>
-
-
-<div id="timer">
-
-00:00:00
-
-</div>
-
-
-<p>
-Départ dans la :
-<strong id="heure-depart">-</strong>
-</p>
-
-
-</section>
-
-
-
-
-
-
-
-<section class="card">
-
-
-<h2>⭐ Favori du jour</h2>
-
-
-<div id="favorite-home" class="favorite-box">
-
-
-Chargement...
-
 
 </div>
 
@@ -194,28 +165,7 @@ Chargement...
 
 
 
-<section class="card">
-
-
-<h2>🔥 Outsider du jour</h2>
-
-
-<div id="outsider-home" class="outsider-box">
-
-
-Chargement...
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-
+<!-- PARTANTS -->
 
 <section class="card">
 
@@ -247,9 +197,7 @@ Chargement...
 
 </tr>
 
-
 </thead>
-
 
 
 <tbody id="all-horses">
@@ -272,43 +220,79 @@ Chargement...
 
 
 
-<section class="kpi-container">
+
+<!-- ANALYSE AZ -->
+
+<section class="card analyse-az">
+
+
+<h2>⭐ Analyse AZ du jour</h2>
 
 
 
-<div class="kpi-card">
+<div class="analyse-horizontal">
 
-<h3>⭐ Favori</h3>
 
-<p id="kpi-favorite">
+
+<div class="analyse-cheval favori">
+
+
+<div class="analyse-numero" id="favori-numero">
+
 -
+
+</div>
+
+
+<h3 id="favori-nom">
+
+Favori
+
+</h3>
+
+
+<p id="favori-raison">
+
+Chargement...
+
 </p>
+
 
 </div>
 
 
 
 
-<div class="kpi-card">
 
-<h3>📊 Confiance</h3>
 
-<p id="kpi-confidence">
+
+<div class="analyse-cheval outsider">
+
+
+<div class="analyse-numero" id="outsider-numero">
+
 -
-</p>
 
 </div>
 
 
+<h3 id="outsider-nom">
+
+Outsider
+
+</h3>
 
 
-<div class="kpi-card">
+<p id="outsider-raison">
 
-<h3>🔥 Outsider</h3>
+Chargement...
 
-<p id="kpi-outsider">
--
 </p>
+
+
+</div>
+
+
 
 </div>
 
@@ -322,15 +306,18 @@ Chargement...
 
 
 
+
+<!-- CHEVAUX JOUES -->
+
 <section class="card">
 
 
-<h2>📈 Chevaux les plus joués</h2>
+<h2>🔥 Chevaux les plus joués</h2>
 
 
-<div id="popular-horses">
 
--
+<div id="popular-horses" class="popular-horizontal">
+
 
 </div>
 
@@ -356,6 +343,7 @@ Chargement...
 
 
 
+
 </main>
 
 
@@ -368,37 +356,27 @@ Chargement...
 
 
 <a href="index.html">
-
 🏠 Accueil
-
 </a>
 
 
 <a href="analyse.html">
-
 📊 Analyse
-
 </a>
 
 
 <a href="ticket.html">
-
 🎟️ Ticket
-
 </a>
 
 
 <a href="historique.html">
-
 🏆 Historique
-
 </a>
 
 
 <a href="abonnement.html">
-
 ⭐ VIP
-
 </a>
 
 
@@ -410,7 +388,7 @@ Chargement...
 
 
 
-<script src="accueil.js?v=3"></script>
+<script src="accueil.js?v=8"></script>
 
 
 </body>
