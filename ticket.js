@@ -26,10 +26,9 @@ await response.json();
 
 
 
-
-
 const tickets =
 data.tickets || {};
+
 
 
 
@@ -49,21 +48,38 @@ if(quinte){
 
 quinte.innerHTML = `
 
-<p>
+
+<div class="ticket-result">
+
+
+🏆 Sélection Quinté
+
+
+<br><br>
+
 
 <strong>
-${tickets.quinte
-? tickets.quinte.join(" - ")
-: "-"
+
+${
+tickets.quinte
+?
+tickets.quinte.join(" - ")
+:
+"-"
+
 }
 
 </strong>
 
-</p>
+
+</div>
+
 
 `;
 
 }
+
+
 
 
 
@@ -84,21 +100,37 @@ if(trio){
 
 trio.innerHTML = `
 
-<p>
+
+<div class="ticket-result">
+
+
+🥉 Sélection Tiercé
+
+
+<br><br>
+
 
 <strong>
-${tickets.trio
-? tickets.trio.join(" - ")
-: "-"
+
+${
+tickets.trio
+?
+tickets.trio.join(" - ")
+:
+"-"
+
 }
 
 </strong>
 
-</p>
+
+</div>
+
 
 `;
 
 }
+
 
 
 
@@ -115,7 +147,10 @@ document.getElementById("champ-ticket");
 
 
 
-if(champ && tickets.champ_reduit){
+if(champ){
+
+
+if(tickets.champ_reduit){
 
 
 const bases =
@@ -128,66 +163,71 @@ tickets.champ_reduit.complements || [];
 
 
 
+
 champ.innerHTML = `
 
 
+<div class="ticket-result">
+
+
 <p>
-Base principale :
+
+🔒 Bases :
+
+<br>
+
+
 <strong>
+
 ${bases.join(" - ") || "-"}
+
 </strong>
+
 </p>
+
+
+
 
 
 <p>
+
+➕
+
 Compléments :
+
+<br>
+
+
 <strong>
+
 ${complements.join(" - ") || "-"}
+
 </strong>
+
 </p>
 
 
-`;
 
-}
+</div>
 
-
-
-
-
-
-
-
-// FAVORI ET CHEVAL SURVEILLE
-
-
-const chevaux =
-data.classement ||
-data.chevaux ||
-[];
-
-
-
-
-const favori =
-document.getElementById("ticket-favori");
-
-
-
-if(favori && chevaux[0]){
-
-
-favori.innerHTML = `
-
-⭐ Favori du jour :
-
-<strong>
-N°${chevaux[0].numero}
-${chevaux[0].nom || ""}
-</strong>
 
 `;
 
+
+
+}
+
+else{
+
+
+champ.innerHTML =
+"Champ réduit non disponible";
+
+
+}
+
+
+
 }
 
 
@@ -197,6 +237,7 @@ ${chevaux[0].nom || ""}
 
 
 }
+
 
 
 catch(error){
@@ -208,7 +249,9 @@ error
 );
 
 
+
 }
+
 
 
 }
