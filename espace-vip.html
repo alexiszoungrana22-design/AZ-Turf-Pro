@@ -229,7 +229,17 @@ AZ Turf Pro propose une analyse spécialisée basée sur les données disponible
 
 <script src="script.js"></script>
 
+<script>
 
+const accesVIP = localStorage.getItem("az_vip_access");
+
+if(accesVIP !== "true"){
+
+    window.location.href = "vip.html";
+
+}
+
+</script>
 </body>
 
 </html>
