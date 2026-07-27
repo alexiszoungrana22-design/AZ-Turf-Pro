@@ -1,4 +1,125 @@
+// ===============================
+// AZ TURF PRO - VIP.JS COMPLET
+// ===============================
+
+
 const API = "https://az-turf-pro.onrender.com/api/analyse";
+
+
+// ===============================
+// CODE ACCES VIP
+// ===============================
+
+
+const CODE_VIP = "AZVIP2026";
+
+
+
+function connexionVIP(){
+
+
+    const champ =
+    document.getElementById("code-vip");
+
+
+    const message =
+    document.getElementById("message-vip");
+
+
+
+    if(!champ) return;
+
+
+
+    const code =
+    champ.value.trim();
+
+
+
+    if(code === CODE_VIP){
+
+
+        localStorage.setItem(
+            "az_vip_access",
+            "true"
+        );
+
+
+        window.location.href =
+        "espace-vip.html";
+
+
+    } else {
+
+
+        if(message){
+
+            message.innerHTML =
+            "❌ Code VIP invalide";
+
+            message.style.color =
+            "red";
+
+        }
+
+    }
+
+
+}
+
+
+
+
+
+// ===============================
+// VERIFICATION ACCES ESPACE VIP
+// ===============================
+
+
+function verifierAccesVIP(){
+
+
+    const page =
+    window.location.pathname;
+
+
+
+    const acces =
+    localStorage.getItem(
+        "az_vip_access"
+    );
+
+
+
+    if(
+        page.includes("espace-vip.html")
+        &&
+        acces !== "true"
+    ){
+
+
+        window.location.href =
+        "vip.html";
+
+
+    }
+
+
+}
+
+
+
+
+verifierAccesVIP();
+
+
+
+
+
+
+// ===============================
+// CHARGEMENT DES DONNEES VIP
+// ===============================
 
 
 async function chargerVIP(){
@@ -25,7 +146,6 @@ await response.json();
 
 
 
-
 const chevaux =
 data.classement ||
 data.chevaux ||
@@ -34,10 +154,9 @@ data.chevaux ||
 
 
 
-
-
-
+// ===============================
 // BASE DU JOUR
+// ===============================
 
 
 const baseBox =
@@ -49,6 +168,7 @@ if(baseBox && chevaux.length){
 
 
 baseBox.innerHTML = `
+
 
 <div class="vip-choice">
 
@@ -65,6 +185,7 @@ ${chevaux[0].nom || ""}
 </div>
 
 
+
 <div class="vip-choice">
 
 ⭐ Base 2 :
@@ -79,6 +200,7 @@ ${chevaux[1]?.nom || ""}
 
 </div>
 
+
 `;
 
 }
@@ -89,17 +211,20 @@ ${chevaux[1]?.nom || ""}
 
 
 
-
+// ===============================
 // CHAMP REDUIT
+// ===============================
 
 
-if(data.tickets &&
-data.tickets.champ_reduit){
-
+if(
+data.tickets &&
+data.tickets.vip &&
+data.tickets.vip.champ_reduit
+){
 
 
 const champ =
-data.tickets.champ_reduit;
+data.tickets.vip.champ_reduit;
 
 
 
@@ -110,8 +235,6 @@ champ.bases || [];
 
 const complements =
 champ.complements || [];
-
-
 
 
 
@@ -126,7 +249,6 @@ vipBase.textContent =
 bases.join(" - ") || "-";
 
 }
-
 
 
 
@@ -148,8 +270,6 @@ systeme.textContent =
 
 
 
-
-
 const comp =
 document.getElementById("vip-complements");
 
@@ -163,7 +283,6 @@ complements.join(" - ") || "-";
 }
 
 
-
 }
 
 
@@ -172,18 +291,22 @@ complements.join(" - ") || "-";
 
 
 
-
-
-
-// CHEVAL À SURVEILLER
+// ===============================
+// CHEVAL A SURVEILLER
+// ===============================
 
 
 const surveille =
-document.getElementById("cheval-surveille");
+document.getElementById(
+"cheval-surveille"
+);
 
 
 
-if(surveille && chevaux[2]){
+if(
+surveille &&
+chevaux[2]
+){
 
 
 surveille.innerHTML = `
@@ -222,30 +345,157 @@ ${chevaux[2].indice_az || "-"}
 
 
 
+// ===============================
+// TICKETS VIP
+// ===============================
 
 
-// TICKET SÉCURITÉ
+if(data.tickets){
+
+
+
+const vip =
+data.tickets.vip || {};
+
+
+
+
+
+const ticket7 =
+document.getElementById(
+"vip-ticket-7"
+);
+
+
+
+if(ticket7){
+
+ticket7.innerHTML =
+vip.ticket_7
+?
+vip.ticket_7.join(" - ")
+:
+"-";
+
+}
+
+
+
+
+
+const ticket5 =
+document.getElementById(
+"vip-ticket-5"
+);
+
+
+
+if(ticket5){
+
+ticket5.innerHTML =
+vip.ticket_5
+?
+vip.ticket_5.join(" - ")
+:
+"-";
+
+}
+
+
+
+
+
+
+
+const champ =
+document.getElementById(
+"vip-champ"
+);
+
+
+
+if(champ && vip.champ_reduit){
+
+
+champ.innerHTML =
+vip.champ_reduit.format
+||
+"-";
+
+
+}
+
+
+
+
+
+
+const gagnant =
+document.getElementById(
+"couple-gagnant"
+);
+
+
+
+if(gagnant){
+
+gagnant.innerHTML =
+data.tickets.couple_gagnant
+?
+data.tickets.couple_gagnant.join(" - ")
+:
+"-";
+
+}
+
+
+
+
+
+const place =
+document.getElementById(
+"couple-place"
+);
+
+
+
+if(place){
+
+place.innerHTML =
+data.tickets.couple_place
+?
+data.tickets.couple_place
+.map(
+c => c.join("-")
+)
+.join("<br>")
+:
+"-";
+
+}
+
+
+
 
 
 const ticket =
-document.getElementById("ticket-vip");
+document.getElementById(
+"ticket-vip"
+);
 
 
 
-if(ticket && data.tickets){
+if(ticket){
 
 
 ticket.innerHTML = `
 
 
 <p>
-
 🏆 Quinté :
-
 <br>
 
 <strong>
-
 ${
 data.tickets.quinte
 ?
@@ -260,16 +510,11 @@ data.tickets.quinte.join(" - ")
 
 
 
-
-
 <p>
-
 🥉 Tiercé :
-
 <br>
 
 <strong>
-
 ${
 data.tickets.trio
 ?
@@ -283,10 +528,12 @@ data.tickets.trio.join(" - ")
 </p>
 
 
-
-
-
 `;
+
+
+}
+
+
 
 }
 
@@ -310,6 +557,7 @@ error
 
 
 }
+
 
 
 
