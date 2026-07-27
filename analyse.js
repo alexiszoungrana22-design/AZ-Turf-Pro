@@ -11,7 +11,6 @@ try{
 const response = await fetch(API);
 
 
-
 if(!response.ok){
 
 throw new Error("Erreur API");
@@ -33,9 +32,98 @@ data.chevaux ||
 
 
 
+// ===============================
+// SELECTION AZ 7 CHEVAUX
+// ===============================
 
 
-// TABLEAU ANALYSE
+const selection =
+document.getElementById("selection-az-chevaux");
+
+
+if(selection){
+
+
+selection.textContent = chevaux
+.slice(0,7)
+.map(c => c.numero)
+.join(" - ");
+
+
+}
+
+
+
+
+
+
+
+
+// ===============================
+// RAISONS SELECTION
+// ===============================
+
+
+const raisons =
+document.getElementById("raisons-selection");
+
+
+
+if(raisons){
+
+
+raisons.innerHTML = "";
+
+
+
+chevaux.slice(0,7).forEach((cheval,index)=>{
+
+
+raisons.innerHTML += `
+
+
+<div class="raison-cheval">
+
+
+<h3>
+
+N°${cheval.numero || "-"}
+${cheval.nom || "Cheval"}
+
+</h3>
+
+
+
+<p>
+
+${genererRaison(cheval,index)}
+
+</p>
+
+
+</div>
+
+
+`;
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+
+// ===============================
+// TABLEAU CLASSEMENT
+// ===============================
 
 
 const tableau =
@@ -53,121 +141,55 @@ tableau.innerHTML = "";
 chevaux.forEach((cheval,index)=>{
 
 
-const ligne =
-document.createElement("tr");
+tableau.innerHTML += `
 
 
+<tr>
 
-ligne.innerHTML = `
+
+<td>${index+1}</td>
 
 
-<td>
-
-${index + 1}
-
-</td>
-
+<td>${cheval.numero || "-"}</td>
 
 
 <td>
-
-${cheval.numero || "-"}
-
-</td>
-
-
-
-<td>
-
 <strong>
-
 ${cheval.nom || "Cheval"}
-
 </strong>
-
 </td>
 
 
-
-<td>
-
-${cheval.indice_az || "-"}
-
-</td>
+<td>${cheval.indice_az || "-"}</td>
 
 
+<td>${cheval.forme || "-"}</td>
 
-<td>
 
-${cheval.forme || "-"}
+<td>${cheval.regularite || "-"}</td>
 
-</td>
 
+<td>${cheval.jockey || "-"}</td>
+
+
+<td>${cheval.entraineur || "-"}</td>
 
 
 <td>
-
-${cheval.regularite || "-"}
-
-</td>
-
-
-
-<td>
-
-${cheval.jockey || "-"}
-
-</td>
-
-
-
-<td>
-
-${cheval.entraineur || "-"}
-
-</td>
-
-
-
-<td>
-
 ${cheval.confiance || "-"} %
-
 </td>
 
 
-
-<td>
-
-${
-cheval.type
-||
-(index===0
-?
-"Favori"
-:
-index<3
-?
-"Base"
-:
-"Chance")
-}
-
-</td>
+</tr>
 
 
 `;
-
-
-
-tableau.appendChild(ligne);
 
 
 
 });
 
 
-
 }
 
 
@@ -178,121 +200,89 @@ tableau.appendChild(ligne);
 
 
 
-// DETAILS ANALYSE
+// ===============================
+// AVIS JOCKEYS / ENTRAINEURS
+// ===============================
 
 
-const details =
-document.getElementById("details-analyse");
+const avis =
+document.getElementById("avis-course");
 
 
 
-if(details && chevaux.length){
+if(avis && chevaux.length){
 
 
-details.innerHTML = `
-
-
-<h3>
-
-⭐ Point fort du classement
-
-</h3>
+avis.innerHTML = `
 
 
 <p>
 
-N°${chevaux[0].numero || "-"}
--
-${chevaux[0].nom || "Cheval"}
+👤 <strong>Jockeys :</strong><br>
+
+Les chevaux retenus présentent des profils intéressants selon la forme et les conditions de course.
 
 </p>
 
 
 <p>
 
-Indice AZ :
-${chevaux[0].indice_az || "-"}
+🏇 <strong>Entraîneurs :</strong><br>
 
-</p>
-
-
-<p>
-
-Confiance :
-${chevaux[0].confiance || "-"} %
+La préparation et la régularité des chevaux sont prises en compte dans la sélection AZ.
 
 </p>
 
 
 `;
 
+
+
 }
 
 
 
 
 
-// TICKET
-
-
-const ticket =
-document.getElementById("analyse-ticket");
 
 
 
-if(ticket && data.tickets){
+// ===============================
+// ACTUALITES COURSE
+// ===============================
 
 
-ticket.innerHTML = `
+const actualites =
+document.getElementById("actualites-course");
+
+
+
+if(actualites){
+
+
+actualites.innerHTML = `
 
 
 <p>
-
-🏆 Quinté :
-
-<br>
-
-<strong>
-
-${
-data.tickets.quinte
-?
-data.tickets.quinte.join(" - ")
-:
-"-"
-
-}
-
-</strong>
-
+📰 Informations course :
 </p>
 
 
+<ul>
 
-<p>
+<li>Analyse des conditions de course</li>
 
-🥉 Tiercé :
+<li>Étude des chevaux engagés</li>
 
-<br>
+<li>Surveillance des changements de dernière minute</li>
 
-<strong>
-
-${
-data.tickets.trio
-?
-data.tickets.trio.join(" - ")
-:
-"-"
-
-}
-
-</strong>
-
-</p>
+</ul>
 
 
 `;
 
+
+
 }
 
 
@@ -302,18 +292,70 @@ data.tickets.trio.join(" - ")
 
 
 
-// MESSAGES VISITEURS (LOCAL)
+
+// ===============================
+// SYNTHESE AZ
+// ===============================
+
+
+const synthese =
+document.getElementById("synthese-az");
+
+
+
+if(synthese && chevaux.length){
+
+
+synthese.innerHTML = `
+
+
+<p>
+
+⭐ La sélection AZ privilégie les chevaux avec :
+
+</p>
+
+
+<ul>
+
+<li>Bonne forme récente</li>
+
+<li>Régularité</li>
+
+<li>Profil adapté à la course</li>
+
+<li>Capacité à lutter pour les premières places</li>
+
+</ul>
+
+
+`;
+
+
+
+}
+
+
+
+
+
+
+
+
+// ===============================
+// MESSAGES VISITEURS
+// ===============================
 
 
 const bouton =
 document.getElementById("envoyer-message");
 
 
-const zoneMessage =
+const zone =
 document.getElementById("message-visiteur");
 
 
-const zoneAffichage =
+const affichage =
 document.getElementById("messages-visiteurs");
 
 
@@ -327,11 +369,11 @@ bouton.addEventListener("click",()=>{
 
 
 const message =
-zoneMessage.value.trim();
+zone.value.trim();
 
 
 
-if(message===""){
+if(message === ""){
 
 return;
 
@@ -339,7 +381,7 @@ return;
 
 
 
-zoneAffichage.innerHTML += `
+affichage.innerHTML += `
 
 
 <p>
@@ -353,7 +395,7 @@ zoneAffichage.innerHTML += `
 
 
 
-zoneMessage.value="";
+zone.value="";
 
 
 
@@ -365,11 +407,7 @@ zoneMessage.value="";
 
 
 
-
-
 }
-
-
 
 catch(error){
 
@@ -380,18 +418,74 @@ error
 );
 
 
-
 }
 
 
 
 }
+
+
+
+
+
+
+
+function genererRaison(cheval,index){
+
+
+if(index===0){
+
+
+return `
+⭐ Base principale :
+bonne forme, indice AZ élevé et profil favorable.
+`;
+
+}
+
+
+if(index===1){
+
+
+return `
+⭐ Très bonne chance :
+régularité et capacité à confirmer.
+`;
+
+}
+
+
+if(index<4){
+
+
+return `
+✅ Belle possibilité :
+profil intéressant pour les places.
+`;
+
+}
+
+
+
+return `
+🔥 Chance à surveiller :
+peut profiter des conditions de course.
+`;
+
+
+
+}
+
+
 
 
 
 
 
 document.addEventListener(
+
 "DOMContentLoaded",
+
 chargerAnalyse
+
 );
