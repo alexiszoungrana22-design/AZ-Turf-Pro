@@ -21,29 +21,25 @@
 
 <div class="logo">
 
-🏇 <span>AZ Turf Pro Premium</span>
+🏇 <span>AZ Turf Pro</span>
 
 </div>
 
 
 <nav class="top-menu">
 
-
 <a href="index.html">
 🏠 Accueil
 </a>
 
-
 <a href="espace-vip.html">
-⭐ VIP
+⭐ Premium
 </a>
-
 
 </nav>
 
 
 </header>
-
 
 
 
@@ -59,16 +55,18 @@
 <section class="card">
 
 
-<h2>💎 Votre abonnement</h2>
+<h2>⭐ Espace Premium</h2>
 
 
 <p>
-Offre sélectionnée :
+Votre abonnement sélectionné :
 </p>
 
 
 <h3 id="offre-choisie">
+
 Chargement...
+
 </h3>
 
 
@@ -80,10 +78,12 @@ Chargement...
 
 
 
+
+
 <section class="card">
 
 
-<h2>💳 Mode de paiement</h2>
+<h2>💳 Paiement Premium</h2>
 
 
 <p>
@@ -91,21 +91,60 @@ Choisissez votre moyen de paiement :
 </p>
 
 
-<div class="paiement-box">
+
+<div class="paiement-options">
+
+
+
+
+
+<div class="paiement-card">
+
+
+<h3>📱 Mobile Money</h3>
+
+
+<p>
+Paiement rapide par téléphone.
+</p>
 
 
 <button onclick="choisirPaiement('Mobile Money')">
 
-📱 Mobile Money
+Continuer
 
 </button>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="paiement-card">
+
+
+<h3>💳 Autre paiement</h3>
+
+
+<p>
+Autre solution de paiement disponible.
+</p>
 
 
 <button onclick="choisirPaiement('Autre paiement')">
 
-💳 Autre paiement
+Continuer
 
 </button>
+
+
+</div>
+
+
 
 
 </div>
@@ -119,10 +158,11 @@ Choisissez votre moyen de paiement :
 
 
 
+
 <section class="card">
 
 
-<h2>✅ Validation</h2>
+<h2>✅ Confirmation</h2>
 
 
 <p id="paiement-info">
@@ -132,10 +172,9 @@ Aucun moyen de paiement sélectionné.
 </p>
 
 
-
 <button id="confirmer-paiement">
 
-Confirmer le paiement
+Activer mon accès Premium
 
 </button>
 
@@ -148,15 +187,16 @@ Confirmer le paiement
 
 
 
+
 <section class="card">
 
 
-<h2>🏆 Activation Premium</h2>
+<h2>🏆 Activation</h2>
 
 
 <p id="activation">
 
-Votre compte sera activé après confirmation.
+Votre accès sera activé après confirmation.
 
 </p>
 
@@ -200,7 +240,7 @@ Votre compte sera activé après confirmation.
 
 
 <a href="espace-vip.html">
-⭐ VIP
+⭐ Premium
 </a>
 
 
@@ -212,34 +252,27 @@ Votre compte sera activé après confirmation.
 
 
 
+
 <script>
 
 
-const params = new URLSearchParams(window.location.search);
+const params =
+new URLSearchParams(window.location.search);
 
 
-const offre = params.get("offre");
-
-
-
-const affichageOffre =
-document.getElementById("offre-choisie");
+const offre =
+params.get("offre");
 
 
 
-if(offre){
+document.getElementById("offre-choisie").innerHTML =
 
-affichageOffre.innerHTML =
-"⭐ Abonnement " + offre;
+offre ?
 
-}
+"⭐ " + offre :
 
-else{
-
-affichageOffre.innerHTML =
 "Aucune offre sélectionnée";
 
-}
 
 
 
@@ -256,14 +289,19 @@ function choisirPaiement(type){
 moyenPaiement = type;
 
 
+
 document.getElementById("paiement-info").innerHTML =
 
-"Paiement choisi : <strong>" 
-+ type +
+"Mode choisi : <strong>" 
++
+type
++
 "</strong>";
 
 
+
 }
+
 
 
 
@@ -272,14 +310,15 @@ document.getElementById("paiement-info").innerHTML =
 
 
 document.getElementById("confirmer-paiement")
-.onclick = function(){
+.onclick=function(){
 
 
 
 if(!moyenPaiement){
 
 
-alert("Veuillez choisir un moyen de paiement.");
+alert("Choisissez un moyen de paiement.");
+
 
 return;
 
@@ -288,25 +327,18 @@ return;
 
 
 
-let duree = 0;
+let duree = 30;
 
 
 
-if(offre === "Mensuel"){
-
-duree = 30;
-
-}
-
-
-if(offre === "Trimestriel"){
+if(offre==="Trimestriel"){
 
 duree = 90;
 
 }
 
 
-if(offre === "Annuel"){
+if(offre==="Annuel"){
 
 duree = 365;
 
@@ -315,15 +347,15 @@ duree = 365;
 
 
 
-const dateDebut = new Date();
+
+const debut = new Date();
 
 
+const fin = new Date();
 
-const dateFin = new Date();
 
-
-dateFin.setDate(
-dateFin.getDate() + duree
+fin.setDate(
+fin.getDate()+duree
 );
 
 
@@ -346,15 +378,16 @@ offre
 
 localStorage.setItem(
 "AZ_TURF_DATE_DEBUT",
-dateDebut.toISOString()
+debut.toISOString()
 );
 
 
 
 localStorage.setItem(
 "AZ_TURF_DATE_FIN",
-dateFin.toISOString()
+fin.toISOString()
 );
+
 
 
 
@@ -363,11 +396,12 @@ dateFin.toISOString()
 
 document.getElementById("activation").innerHTML =
 
-"✅ Compte Premium activé jusqu'au : <strong>"
+"✅ Accès Premium activé jusqu'au <strong>"
 +
-dateFin.toLocaleDateString("fr-FR")
+fin.toLocaleDateString("fr-FR")
 +
 "</strong>";
+
 
 
 
@@ -375,11 +409,11 @@ dateFin.toLocaleDateString("fr-FR")
 setTimeout(function(){
 
 
-window.location.href =
-"espace-vip.html";
+window.location.href="espace-vip.html";
 
 
 },2000);
+
 
 
 
