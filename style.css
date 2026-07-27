@@ -573,3 +573,106 @@ font-weight:bold;
 
 
 }
+/* ===============================
+   PAIEMENT PREMIUM
+================================ */
+
+
+.payment-choice{
+
+display:flex;
+
+gap:15px;
+
+justify-content:center;
+
+flex-wrap:wrap;
+
+margin-top:20px;
+
+}
+
+
+
+.payment-choice button{
+
+min-width:150px;
+
+background:white;
+
+color:#08783f;
+
+border:2px solid #08783f;
+
+padding:15px;
+
+border-radius:20px;
+
+font-weight:bold;
+
+font-size:16px;
+
+transition:.3s;
+
+}
+
+
+
+.payment-choice button:hover{
+
+transform:scale(1.05);
+
+background:#08783f;
+
+color:white;
+
+}
+
+
+
+
+
+.btn-payment{
+
+display:block;
+
+margin:20px auto;
+
+background:#d4af37;
+
+color:#111;
+
+padding:14px 35px;
+
+border-radius:30px;
+
+font-size:18px;
+
+font-weight:bold;
+
+}
+
+
+
+
+
+@media(max-width:600px){
+
+
+.payment-choice{
+
+flex-direction:column;
+
+align-items:center;
+
+}
+
+
+.payment-choice button{
+
+width:90%;
+
+}
+
+
+}
