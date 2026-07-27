@@ -1,81 +1,147 @@
+// ===============================
+// AZ TURF PRO - SCRIPT PRINCIPAL
+// ===============================
+
+
+const API_URL =
+    "https://az-turf-pro.onrender.com/api/analyse";
+
+
+
 async function chargerAnalyse() {
 
     try {
 
-        const reponse = await fetch(
-            "https://az-turf-pro.onrender.com/api/analyse"
-        );
+        const reponse = await fetch(API_URL);
 
         const data = await reponse.json();
+
+
+
+        console.log("Analyse AZ :", data);
+
 
 
         const tickets = data.tickets || {};
 
 
-        // =====================
+
+        // ===============================
         // TICKETS GRATUITS
-        // =====================
-
-        document.getElementById("quinte").innerHTML =
-            afficherListe(tickets.quinte);
-
-        document.getElementById("quarte").innerHTML =
-            afficherListe(tickets.quarte);
-
-        document.getElementById("trio").innerHTML =
-            afficherListe(tickets.trio);
-
-        document.getElementById("deux-sur-quatre").innerHTML =
-            afficherListe(tickets.deux_sur_quatre);
+        // ===============================
 
 
+        afficher(
+            "quinte",
+            tickets.quinte
+        );
 
-        // =====================
-        // VIP
-        // =====================
+
+        afficher(
+            "quarte",
+            tickets.quarte
+        );
+
+
+        afficher(
+            "trio",
+            tickets.trio
+        );
+
+
+        afficher(
+            "deux-sur-quatre",
+            tickets.deux_sur_quatre
+        );
+
+
+
+
+
+        // ===============================
+        // ESPACE VIP
+        // ===============================
+
 
         const vip = tickets.vip || {};
 
 
-        document.getElementById("vip-ticket-7").innerHTML =
-            afficherListe(vip.ticket_7);
+
+        afficher(
+            "vip-ticket-7",
+            vip.ticket_7
+        );
 
 
-        document.getElementById("vip-ticket-5").innerHTML =
-            afficherListe(vip.ticket_5);
+
+        afficher(
+            "vip-ticket-5",
+            vip.ticket_5
+        );
 
 
 
-        if (vip.champ_reduit) {
+        if (
+            document.getElementById("vip-champ")
+            &&
+            vip.champ_reduit
+        ) {
 
-            document.getElementById("vip-champ").innerHTML =
-                vip.champ_reduit.format || "Non disponible";
+            document.getElementById(
+                "vip-champ"
+            ).innerHTML =
+                vip.champ_reduit.format;
 
         }
 
 
 
-        document.getElementById("couple-gagnant").innerHTML =
-            afficherListe(tickets.couple_gagnant);
 
+        if (
+            document.getElementById("couple-gagnant")
+        ) {
 
-
-        document.getElementById("couple-place").innerHTML =
-            afficherCombinaisons(
-                tickets.couple_place
+            afficher(
+                "couple-gagnant",
+                tickets.couple_gagnant
             );
 
+        }
+
+
+
+
+        if (
+            document.getElementById("couple-place")
+        ) {
+
+            const place =
+                tickets.couple_place || [];
+
+            document.getElementById(
+                "couple-place"
+            ).innerHTML =
+
+                place
+                .map(
+                    c => c.join("-")
+                )
+                .join("<br>");
+
+        }
 
 
     }
 
     catch(error) {
 
+
         console.error(
-            "Erreur chargement AZ Turf :",
+            "Erreur AZ Turf Pro :",
             error
         );
 
+
     }
 
 }
@@ -83,38 +149,44 @@ async function chargerAnalyse() {
 
 
 
-function afficherListe(liste) {
 
-    if (!liste || liste.length === 0) {
-
-        return "Aucun ticket";
-
-    }
+function afficher(id, liste) {
 
 
-    return liste.join(" - ");
-
-}
+    const element =
+        document.getElementById(id);
 
 
 
-function afficherCombinaisons(data) {
+    if (!element) {
 
-    if (!data || data.length === 0) {
-
-        return "Aucun ticket";
+        return;
 
     }
 
 
-    return data
-        .map(
-            combinaison =>
-            combinaison.join("-")
-        )
-        .join("<br>");
+
+    if (
+        !liste
+        ||
+        liste.length === 0
+    ) {
+
+        element.innerHTML =
+            "Non disponible";
+
+        return;
+
+    }
+
+
+
+    element.innerHTML =
+        liste.join(" - ");
 
 }
+
+
 
 
 
