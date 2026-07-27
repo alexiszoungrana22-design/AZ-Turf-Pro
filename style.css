@@ -803,59 +803,36 @@ font-weight:bold;
    }
 
 /* ==========================
-   AZ TURF PRO - TICKETS
+   AZ TURF PRO - VIP TICKETS
 ========================== */
 
-
-.tickets-section {
-    padding: 20px;
-}
-
-
-.tickets-section h2 {
-    margin-bottom: 15px;
-    color: #f5b700;
-    text-align: center;
-}
-
-
-/* Conteneur horizontal */
-
-.cards-container {
+.vip-container {
 
     display: flex;
-
     gap: 15px;
-
     overflow-x: auto;
-
-    padding: 10px;
-
+    padding: 15px;
     scroll-behavior: smooth;
 
 }
 
 
-/* Barre de défilement mobile */
-
-.cards-container::-webkit-scrollbar {
+.vip-container::-webkit-scrollbar {
 
     height: 6px;
 
 }
 
 
-/* Cartes tickets */
+.vip-card {
 
-.ticket-card {
+    min-width: 240px;
 
-    min-width: 230px;
-
-    background: #ffffff;
+    background: white;
 
     border-radius: 15px;
 
-    padding: 20px;
+    padding: 18px;
 
     text-align: center;
 
@@ -866,77 +843,65 @@ font-weight:bold;
 }
 
 
-.ticket-card h3 {
+.vip-card h3 {
 
-    margin-bottom: 15px;
+    color: #d89b00;
 
-    font-size: 18px;
+    margin-bottom: 12px;
 
 }
 
 
-.ticket-card p {
+.vip-card p {
 
     font-size: 18px;
 
     font-weight: bold;
 
-    color: #222;
+}
 
-    word-break: break-word;
+
+.vip-card.champ {
+
+    border: 2px solid #d89b00;
 
 }
 
 
+.vip-card small {
 
-/* Cartes VIP */
+    display: block;
 
-.ticket-card.vip {
+    margin-top: 10px;
 
-    border: 2px solid #f5b700;
-
-    background: linear-gradient(
-        145deg,
-        #fff8dc,
-        #ffffff
-    );
+    color: #555;
 
 }
 
 
-.vip-title {
+@media(min-width:900px){
 
-    margin-top: 35px;
+    .vip-container {
 
-}
+        justify-content: center;
 
+        overflow: visible;
 
-
-/* Champ réduit */
-
-#vip-champ {
-
-    color: #c00000;
-
-    font-size: 20px;
+    }
 
 }
 
-
-
-/* Mobile */
 
 @media(max-width:600px){
 
-
-    .ticket-card {
+    .vip-card {
 
         min-width: 85%;
 
     }
 
-
 }
+
 
 
 
