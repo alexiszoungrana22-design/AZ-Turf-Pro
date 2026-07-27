@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>AZ Turf Pro Premium</title>
+<title>Espace Premium - AZ Turf Pro</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -21,7 +21,7 @@
 
 <div class="logo">
 
-🏇 <span>AZ Turf Pro Premium</span>
+🏇 <span>AZ Turf Pro</span>
 
 </div>
 
@@ -69,11 +69,11 @@
 <section class="card vip-banner">
 
 
-<h1>⭐ AZ Turf Pro Premium</h1>
+<h1>⭐ Espace Premium</h1>
 
 
 <p>
-L'espace réservé aux analyses avancées et aux stratégies VIP.
+Accédez aux analyses avancées et aux stratégies réservées aux membres.
 </p>
 
 
@@ -85,25 +85,16 @@ L'espace réservé aux analyses avancées et aux stratégies VIP.
 
 
 
-
-<!-- OFFRES NON PREMIUM -->
+<!-- OFFRES -->
 
 <section class="card" id="zone-offres">
 
 
-<h2>💎 Choisir votre abonnement</h2>
-
-
-<p>
-Accédez aux fonctionnalités Premium AZ Turf Pro.
-</p>
-
+<h2>💎 Choisissez votre formule</h2>
 
 
 
 <div class="vip-offres">
-
-
 
 
 
@@ -114,23 +105,24 @@ Accédez aux fonctionnalités Premium AZ Turf Pro.
 
 
 <p>
-Accès Premium 30 jours
+Accès Premium pendant 30 jours
 </p>
 
 
 <p>
-💰 Prix : À définir
+💰 Tarif : À définir
 </p>
 
 
-<button onclick="allerPaiement('Mensuel')">
+<button onclick="ouvrirPaiement('Mensuel')">
 
-S'abonner
+Choisir
 
 </button>
 
 
 </div>
+
 
 
 
@@ -145,23 +137,24 @@ S'abonner
 
 
 <p>
-Accès Premium 90 jours
+Accès Premium pendant 90 jours
 </p>
 
 
 <p>
-💰 Prix : À définir
+💰 Tarif : À définir
 </p>
 
 
-<button onclick="allerPaiement('Trimestriel')">
+<button onclick="ouvrirPaiement('Trimestriel')">
 
-S'abonner
+Choisir
 
 </button>
 
 
 </div>
+
 
 
 
@@ -176,25 +169,23 @@ S'abonner
 
 
 <p>
-Accès Premium 365 jours
+Accès Premium pendant 365 jours
 </p>
 
 
 <p>
-💰 Prix : À définir
+💰 Tarif : À définir
 </p>
 
 
-<button onclick="allerPaiement('Annuel')">
+<button onclick="ouvrirPaiement('Annuel')">
 
-S'abonner
+Choisir
 
 </button>
 
 
 </div>
-
-
 
 
 
@@ -209,48 +200,40 @@ S'abonner
 
 
 
-
-<!-- ESPACE PREMIUM -->
+<!-- MEMBRE PREMIUM -->
 
 <section class="card" id="zone-premium" style="display:none;">
 
 
 
-<h2>
-🏆 Bienvenue dans AZ Turf Pro Premium
-</h2>
+<h2>🏆 Votre accès Premium est actif</h2>
 
 
 <p>
-Votre abonnement est actif ✅
+Bienvenue dans l'espace réservé aux membres.
 </p>
 
 
 
-<p id="information-abonnement">
+<div id="infos-abonnement">
 
-</p>
+</div>
+
 
 
 
 
 <ul>
 
-
-<li>⭐ Analyses Premium approfondies</li>
-
+<li>⭐ Analyses détaillées</li>
 
 <li>🎯 Combinaisons avancées</li>
 
+<li>📊 Étude des champs réduits</li>
 
-<li>📊 Champs réduits étudiés</li>
+<li>🏇 Avis jockeys et entraîneurs</li>
 
-
-<li>🏇 Avis jockeys et entraîneurs détaillés</li>
-
-
-<li>🔥 Stratégies VIP AZ</li>
-
+<li>🔥 Stratégies Premium AZ</li>
 
 </ul>
 
@@ -271,7 +254,9 @@ Votre abonnement est actif ✅
 
 
 <a href="index.html">
-Retour Accueil
+
+Retour à l'accueil
+
 </a>
 
 
@@ -315,7 +300,7 @@ Retour Accueil
 
 
 <a href="espace-vip.html">
-⭐ VIP
+⭐ Premium
 </a>
 
 
@@ -331,11 +316,11 @@ Retour Accueil
 
 
 
-function allerPaiement(offre){
+function ouvrirPaiement(offre){
 
 
 window.location.href =
-"paiement.html?offre=" + offre;
+"paiement.html?offre="+offre;
 
 
 }
@@ -345,7 +330,7 @@ window.location.href =
 
 
 
-function verifierPremium(){
+function verifierAcces(){
 
 
 
@@ -364,23 +349,22 @@ localStorage.getItem("AZ_TURF_DATE_FIN");
 
 
 
-if(
-statut === "ACTIF"
-&&
-dateFin
-){
+if(statut==="ACTIF" && dateFin){
 
 
 
-const aujourdHui = new Date();
-
-const expiration = new Date(dateFin);
-
+const maintenant =
+new Date();
 
 
+const expiration =
+new Date(dateFin);
 
 
-if(aujourdHui < expiration){
+
+
+
+if(maintenant < expiration){
 
 
 
@@ -394,15 +378,15 @@ document.getElementById("zone-premium")
 
 
 
-
-document.getElementById("information-abonnement")
+document.getElementById("infos-abonnement")
 .innerHTML =
 
-"Abonnement : <strong>"
+"Formule : <strong>"
 +
 offre
 +
-"</strong><br>Expire le : <strong>"
+"</strong><br>"+
+"Expiration : <strong>"
 +
 expiration.toLocaleDateString("fr-FR")
 +
@@ -412,47 +396,7 @@ expiration.toLocaleDateString("fr-FR")
 
 return;
 
-
 }
-
-
-
-}
-
-
-
-
-// EXPIRATION
-
-localStorage.removeItem(
-"AZ_TURF_PREMIUM"
-);
-
-
-localStorage.removeItem(
-"AZ_TURF_OFFRE"
-);
-
-
-localStorage.removeItem(
-"AZ_TURF_DATE_DEBUT"
-);
-
-
-localStorage.removeItem(
-"AZ_TURF_DATE_FIN"
-);
-
-
-
-document.getElementById("zone-offres")
-.style.display="block";
-
-
-
-document.getElementById("zone-premium")
-.style.display="none";
-
 
 
 }
@@ -460,13 +404,24 @@ document.getElementById("zone-premium")
 
 
 
+// abonnement terminé
 
-verifierPremium();
+localStorage.removeItem("AZ_TURF_PREMIUM");
+localStorage.removeItem("AZ_TURF_OFFRE");
+localStorage.removeItem("AZ_TURF_DATE_DEBUT");
+localStorage.removeItem("AZ_TURF_DATE_FIN");
+
+
+
+}
+
+
+
+verifierAcces();
 
 
 
 </script>
-
 
 
 </body>
