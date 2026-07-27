@@ -8,8 +8,7 @@ async function chargerTicket(){
 try{
 
 
-const response =
-await fetch(API);
+const response = await fetch(API);
 
 
 
@@ -21,8 +20,14 @@ throw new Error("Erreur API");
 
 
 
-const data =
-await response.json();
+const data = await response.json();
+
+
+
+const chevaux =
+data.classement ||
+data.chevaux ||
+[];
 
 
 
@@ -35,39 +40,36 @@ data.tickets || {};
 
 
 
-// QUINTE
+
+// Fonction affichage ticket
+
+function afficherSelection(element, liste){
 
 
-const quinte =
-document.getElementById("quinte-ticket");
+const zone =
+document.getElementById(element);
 
 
 
-if(quinte){
+if(!zone){
+
+return;
+
+}
 
 
-quinte.innerHTML = `
+
+if(liste && liste.length){
+
+
+zone.innerHTML = `
 
 
 <div class="ticket-result">
 
-
-🏆 Sélection Quinté
-
-
-<br><br>
-
-
 <strong>
 
-${
-tickets.quinte
-?
-tickets.quinte.join(" - ")
-:
-"-"
-
-}
+${liste.join(" - ")}
 
 </strong>
 
@@ -79,156 +81,101 @@ tickets.quinte.join(" - ")
 
 }
 
-
-
-
-
-
-
-
-
-// TRIO
-
-
-const trio =
-document.getElementById("trio-ticket");
-
-
-
-if(trio){
-
-
-trio.innerHTML = `
-
-
-<div class="ticket-result">
-
-
-🥉 Sélection Tiercé
-
-
-<br><br>
-
-
-<strong>
-
-${
-tickets.trio
-?
-tickets.trio.join(" - ")
-:
-"-"
-
-}
-
-</strong>
-
-
-</div>
-
-
-`;
-
-}
-
-
-
-
-
-
-
-
-
-// CHAMP REDUIT
-
-
-const champ =
-document.getElementById("champ-ticket");
-
-
-
-if(champ){
-
-
-if(tickets.champ_reduit){
-
-
-const bases =
-tickets.champ_reduit.bases || [];
-
-
-
-const complements =
-tickets.champ_reduit.complements || [];
-
-
-
-
-champ.innerHTML = `
-
-
-<div class="ticket-result">
-
-
-<p>
-
-🔒 Bases :
-
-<br>
-
-
-<strong>
-
-${bases.join(" - ") || "-"}
-
-</strong>
-
-</p>
-
-
-
-
-
-<p>
-
-➕
-
-Compléments :
-
-<br>
-
-
-<strong>
-
-${complements.join(" - ") || "-"}
-
-</strong>
-
-</p>
-
-
-
-</div>
-
-
-`;
-
-
-
-}
 
 else{
 
 
-champ.innerHTML =
-"Champ réduit non disponible";
+zone.innerHTML =
+"Indisponible";
+
+
+}
 
 
 }
 
 
 
-}
+
+
+
+
+
+// QUINTE 8 CHEVAUX GRATUIT
+
+
+afficherSelection(
+
+"quinte-ticket",
+
+tickets.quinte ||
+chevaux.slice(0,8)
+.map(c=>c.numero)
+
+);
+
+
+
+
+
+
+
+
+
+// QUARTE 5 CHEVAUX GRATUIT
+
+
+afficherSelection(
+
+"quarte-ticket",
+
+tickets.quarte ||
+chevaux.slice(0,5)
+.map(c=>c.numero)
+
+);
+
+
+
+
+
+
+
+
+
+// TIERCE 4 CHEVAUX GRATUIT
+
+
+afficherSelection(
+
+"trio-ticket",
+
+tickets.trio ||
+chevaux.slice(0,4)
+.map(c=>c.numero)
+
+);
+
+
+
+
+
+
+
+
+
+// 2 SUR 4 4 CHEVAUX GRATUIT
+
+
+afficherSelection(
+
+"deux-quatre-ticket",
+
+tickets.deux_sur_quatre ||
+chevaux.slice(0,4)
+.map(c=>c.numero)
+
+);
 
 
 
@@ -249,7 +196,6 @@ error
 );
 
 
-
 }
 
 
@@ -261,6 +207,9 @@ error
 
 
 document.addEventListener(
+
 "DOMContentLoaded",
+
 chargerTicket
+
 );
