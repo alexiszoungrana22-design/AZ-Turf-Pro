@@ -1138,3 +1138,264 @@ display:block;
     display:block;
 
 }
+
+/* ==============================
+   ESPACE PREMIUM AZ TURF PRO
+============================== */
+
+
+.vip-banner {
+
+text-align:center;
+
+}
+
+
+.vip-banner h1 {
+
+font-size:28px;
+
+margin-bottom:10px;
+
+}
+
+
+
+
+
+/* CARTES ABONNEMENTS */
+
+.vip-offres {
+
+display:flex;
+
+gap:20px;
+
+justify-content:center;
+
+flex-wrap:wrap;
+
+margin-top:20px;
+
+}
+
+
+
+.vip-box {
+
+background:rgba(255,255,255,0.08);
+
+border-radius:15px;
+
+padding:20px;
+
+width:260px;
+
+text-align:center;
+
+box-shadow:0 4px 15px rgba(0,0,0,0.2);
+
+}
+
+
+
+.vip-box h3 {
+
+font-size:22px;
+
+margin-bottom:15px;
+
+}
+
+
+
+.vip-box p {
+
+line-height:1.5;
+
+}
+
+
+
+
+
+.vip-box button {
+
+
+background:#d4af37;
+
+color:#111;
+
+border:none;
+
+padding:12px 25px;
+
+border-radius:25px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+margin-top:15px;
+
+}
+
+
+
+.vip-box button:hover {
+
+
+transform:scale(1.05);
+
+}
+
+
+
+
+
+
+
+
+/* ==============================
+   PAIEMENT PREMIUM
+============================== */
+
+
+.paiement-options {
+
+
+display:flex;
+
+gap:20px;
+
+justify-content:center;
+
+flex-wrap:wrap;
+
+margin-top:20px;
+
+}
+
+
+
+
+.paiement-card {
+
+
+background:rgba(255,255,255,0.08);
+
+border-radius:15px;
+
+padding:25px;
+
+width:280px;
+
+text-align:center;
+
+box-shadow:0 4px 15px rgba(0,0,0,0.2);
+
+}
+
+
+
+.paiement-card h3 {
+
+
+font-size:22px;
+
+margin-bottom:10px;
+
+}
+
+
+
+.paiement-card button {
+
+
+background:#0066ff;
+
+color:white;
+
+border:none;
+
+padding:12px 30px;
+
+border-radius:25px;
+
+cursor:pointer;
+
+font-weight:bold;
+
+margin-top:15px;
+
+}
+
+
+
+.paiement-card button:hover {
+
+
+transform:scale(1.05);
+
+}
+
+
+
+
+
+
+
+/* BOUTON ACTIVATION */
+
+
+#confirmer-paiement {
+
+
+background:#009933;
+
+color:white;
+
+border:none;
+
+padding:14px 35px;
+
+border-radius:30px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+}
+
+
+
+#confirmer-paiement:hover {
+
+
+transform:scale(1.05);
+
+}
+
+
+
+
+
+
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+
+.vip-box,
+.paiement-card {
+
+
+width:90%;
+
+
+}
+
+
+
+}
