@@ -957,3 +957,11 @@ font-weight:bold;
     transform: scale(1.05);
 
 }
+.btn-vip {
+    background:#d4af37;
+    color:#000;
+    padding:10px 18px;
+    border-radius:20px;
+    font-weight:bold;
+    text-decoration:none;
+}
