@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>AZ Turf Pro VIP</title>
+<title>AZ Turf Pro Premium</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -18,40 +18,34 @@
 
 <header class="top-header">
 
+
 <div class="logo">
-🏇 <span>AZ Turf Pro</span>
+🏇 <span>AZ Turf Pro Premium</span>
 </div>
 
-</header>
 
-
-
-
-
-<!-- Navigation rapide VIP -->
-
-<div class="vip-navigation">
+<nav class="top-menu">
 
 <a href="index.html">
 🏠 Accueil
 </a>
 
-
 <a href="analyse.html">
 📊 Analyse
 </a>
-
 
 <a href="ticket.html">
 🎟️ Ticket
 </a>
 
-
 <a href="historique.html">
 🏆 Historique
 </a>
 
-</div>
+</nav>
+
+
+</header>
 
 
 
@@ -65,23 +59,47 @@
 
 
 
+<section class="card vip-banner">
 
-<section class="card vip-main">
 
-
-<h2>
-⭐ AZ Turf Pro VIP
-</h2>
+<h1>⭐ AZ Turf Pro Premium</h1>
 
 
 <p>
-Bienvenue dans l'espace Premium AZ Turf Pro.
+Accédez aux analyses avancées et aux stratégies VIP pour vos pronostics hippiques.
 </p>
+
+
+</section>
+
+
+
+
+
+
+
+<section class="card">
+
+
+<h2>🎁 Offre découverte</h2>
 
 
 <p>
-Un espace réservé aux passionnés souhaitant accéder à des analyses plus poussées et des stratégies avancées.
+
+Profitez d'une période découverte pour découvrir les fonctionnalités Premium.
+
 </p>
+
+
+<ul>
+
+<li>⭐ Analyses approfondies</li>
+
+<li>⭐ Sélections Premium</li>
+
+<li>⭐ Étude des combinaisons</li>
+
+</ul>
 
 
 </section>
@@ -96,32 +114,93 @@ Un espace réservé aux passionnés souhaitant accéder à des analyses plus pou
 <section class="card">
 
 
-<h2>
-🏆 Quinté Premium
-</h2>
+<h2>💎 Choisir votre abonnement</h2>
+
+
+
+<div class="vip-offres">
+
+
+
+
+
+<div class="vip-box">
+
+
+<h3>🟢 Mensuel</h3>
 
 
 <p>
-Des analyses et constructions de jeux plus avancées :
+Accès Premium pendant 1 mois
 </p>
 
 
-<ul>
+<button onclick="ouvrirPaiement('Mensuel')">
 
-<li>Base(s) solides</li>
+S'abonner
 
-<li>Chevaux associés</li>
-
-<li>Quinté ordre et désordre</li>
-
-<li>Champ réduit optimisé</li>
-
-</ul>
+</button>
 
 
-<div class="vip-lock">
+</div>
 
-🔒 Contenu réservé VIP
+
+
+
+
+
+
+
+<div class="vip-box">
+
+
+<h3>🔵 Trimestriel</h3>
+
+
+<p>
+Accès Premium pendant 3 mois
+</p>
+
+
+<button onclick="ouvrirPaiement('Trimestriel')">
+
+S'abonner
+
+</button>
+
+
+</div>
+
+
+
+
+
+
+
+
+<div class="vip-box">
+
+
+<h3>🟡 Annuel</h3>
+
+
+<p>
+Accès Premium pendant 12 mois
+</p>
+
+
+<button onclick="ouvrirPaiement('Annuel')">
+
+S'abonner
+
+</button>
+
+
+</div>
+
+
+
+
 
 </div>
 
@@ -138,30 +217,25 @@ Des analyses et constructions de jeux plus avancées :
 <section class="card">
 
 
-<h2>
-📊 Analyse Premium
-</h2>
+<h2>🏆 Contenu VIP</h2>
 
 
 <ul>
 
-<li>Étude détaillée des chevaux</li>
+<li>🔥 Combinaisons avancées</li>
 
-<li>Forme récente</li>
+<li>🎯 Champ réduit étudié</li>
 
-<li>Régularité</li>
+<li>📊 Analyse complète des chevaux</li>
 
-<li>Distance et terrain</li>
+<li>🏇 Avis jockeys et entraîneurs</li>
 
-<li>Jockey et entraîneur</li>
-
-<li>Indice AZ avancé</li>
+<li>⭐ Stratégies Premium AZ</li>
 
 </ul>
 
 
 </section>
-
 
 
 
@@ -172,130 +246,19 @@ Des analyses et constructions de jeux plus avancées :
 <section class="card">
 
 
-<h2>
-🔥 Stratégies VIP
-</h2>
+<h2>💳 Paiement</h2>
 
 
-<p>
-Différentes approches selon le profil de la course :
-</p>
+<p id="choix-abonnement">
 
-
-<ul>
-
-<li>🎯 Jeu sécurité</li>
-
-<li>⚖️ Jeu équilibre</li>
-
-<li>🔥 Jeu outsider</li>
-
-<li>⭐ Cheval surprise</li>
-
-</ul>
-
-
-</section>
-
-
-
-
-
-
-
-
-<section class="card vip-lock-card">
-
-
-<h2>
-🔒 Zone Premium
-</h2>
-
-
-<p>
-
-Aperçu du contenu membre :
+Sélectionnez un abonnement pour continuer.
 
 </p>
 
 
-<ul>
+<button id="bouton-paiement">
 
-<li>Ticket Premium du jour</li>
-
-<li>Combinaisons avancées</li>
-
-<li>Conseils stratégiques</li>
-
-<li>Analyses exclusives</li>
-
-</ul>
-
-
-<div class="vip-lock">
-
-Contenu réservé aux membres VIP
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-
-<section class="card">
-
-
-<h2>
-💎 Avantages VIP
-</h2>
-
-
-<ul>
-
-<li>✅ Analyses plus détaillées</li>
-
-<li>✅ Sélections avancées</li>
-
-<li>✅ Stratégies AZ</li>
-
-<li>✅ Meilleure lecture de la course</li>
-
-</ul>
-
-
-</section>
-
-
-
-
-
-
-
-
-<section class="card">
-
-
-<h2>
-⭐ AZ Turf Pro Premium
-</h2>
-
-
-<p>
-
-Accédez prochainement à toutes les fonctionnalités Premium.
-
-</p>
-
-
-<button>
-
-Accéder au Premium
+Accéder au paiement
 
 </button>
 
@@ -309,7 +272,6 @@ Accéder au Premium
 
 
 </main>
-
 
 
 
@@ -349,6 +311,52 @@ Accéder au Premium
 
 
 
+
+
+
+
+<script>
+
+let abonnementChoisi = "";
+
+
+function ouvrirPaiement(type){
+
+
+abonnementChoisi = type;
+
+
+document.getElementById("choix-abonnement").innerHTML =
+
+"Abonnement choisi : <strong>" + type + "</strong>";
+
+
+}
+
+
+document.getElementById("bouton-paiement").onclick = function(){
+
+
+if(abonnementChoisi === ""){
+
+
+alert("Veuillez choisir un abonnement.");
+
+return;
+
+
+}
+
+
+window.location.href =
+"paiement.html?offre=" + abonnementChoisi;
+
+
+};
+
+
+
+</script>
 
 
 </body>
