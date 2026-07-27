@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Paiement Premium - AZ Turf Pro</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<header class="top-header">
+
+
+<div class="logo">
+
+🏇 <span>AZ Turf Pro Premium</span>
+
+</div>
+
+
+<nav class="top-menu">
+
+
+<a href="index.html">
+🏠 Accueil
+</a>
+
+
+<a href="espace-vip.html">
+⭐ VIP
+</a>
+
+
+</nav>
+
+
+</header>
+
+
+
+
+
+
+
+<main class="content">
+
+
+
+
+
+<section class="card">
+
+
+<h2>💎 Votre abonnement Premium</h2>
+
+
+<p>
+
+Offre sélectionnée :
+
+</p>
+
+
+<h3 id="offre-choisie">
+
+Chargement...
+
+</h3>
+
+
+</section>
+
+
+
+
+
+
+
+<section class="card">
+
+
+<h2>💳 Mode de paiement</h2>
+
+
+<p>
+
+Choisissez votre moyen de paiement :
+
+</p>
+
+
+
+<div class="paiement-box">
+
+
+<button onclick="choisirPaiement('Mobile Money')">
+
+📱 Mobile Money
+
+</button>
+
+
+
+<button onclick="choisirPaiement('Autre')">
+
+💳 Autre paiement
+
+</button>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+<section class="card">
+
+
+<h2>✅ Confirmation</h2>
+
+
+<p id="paiement-info">
+
+Aucun moyen de paiement sélectionné.
+
+</p>
+
+
+
+<button id="confirmer-paiement">
+
+Confirmer le paiement
+
+</button>
+
+
+</section>
+
+
+
+
+
+
+
+
+<section class="card">
+
+
+<h2>🏇 Activation Premium</h2>
+
+
+<p id="activation">
+
+Votre accès sera activé après validation du paiement.
+
+</p>
+
+
+</section>
+
+
+
+
+
+
+
+
+</main>
+
+
+
+
+
+
+
+<footer class="bottom-menu">
+
+
+<a href="index.html">
+🏠 Accueil
+</a>
+
+
+<a href="analyse.html">
+📊 Analyse
+</a>
+
+
+<a href="ticket.html">
+🎟️ Ticket
+</a>
+
+
+<a href="historique.html">
+🏆 Historique
+</a>
+
+
+<a href="espace-vip.html">
+⭐ VIP
+</a>
+
+
+</footer>
+
+
+
+
+
+
+
+<script>
+
+
+const params = new URLSearchParams(window.location.search);
+
+
+const offre = params.get("offre");
+
+
+const affichageOffre =
+document.getElementById("offre-choisie");
+
+
+
+if(offre){
+
+affichageOffre.innerHTML =
+"⭐ Abonnement " + offre;
+
+}
+else{
+
+affichageOffre.innerHTML =
+"Aucune offre sélectionnée";
+
+}
+
+
+
+let moyenPaiement = "";
+
+
+
+function choisirPaiement(type){
+
+
+moyenPaiement = type;
+
+
+document.getElementById("paiement-info").innerHTML =
+
+"Paiement choisi : <strong>" + type + "</strong>";
+
+
+
+}
+
+
+
+
+document.getElementById("confirmer-paiement").onclick = function(){
+
+
+
+if(moyenPaiement === ""){
+
+
+alert("Veuillez choisir un moyen de paiement.");
+
+return;
+
+}
+
+
+
+document.getElementById("activation").innerHTML =
+
+"✅ Paiement en attente de validation. Votre compte Premium sera activé après confirmation.";
+
+
+
+};
+
+
+
+</script>
+
+
+
+</body>
+
+</html>
