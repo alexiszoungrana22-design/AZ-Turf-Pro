@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Activation Premium - AZ Turf Pro</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<header class="top-header">
+
+
+<div class="logo">
+
+🏇 <span>AZ Turf Pro</span>
+
+</div>
+
+
+<nav class="top-menu">
+
+<a href="index.html">
+🏠 Accueil
+</a>
+
+
+<a href="espace-vip.html">
+⭐ Premium
+</a>
+
+</nav>
+
+
+</header>
+
+
+
+
+
+
+
+<main class="content">
+
+
+
+
+
+<section class="card">
+
+
+<h1>🏆 Activation Premium</h1>
+
+
+<p>
+Votre abonnement AZ Turf Pro est prêt.
+</p>
+
+
+</section>
+
+
+
+
+
+
+
+
+<section class="card">
+
+
+<h2>📋 Informations du compte</h2>
+
+
+<div id="infos-compte">
+
+Chargement...
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+<section class="card">
+
+
+<h2>⭐ Statut</h2>
+
+
+<p id="statut-compte">
+
+Vérification...
+
+</p>
+
+
+<button id="acceder-premium">
+
+Accéder à mon espace Premium
+
+</button>
+
+
+</section>
+
+
+
+
+
+
+
+</main>
+
+
+
+
+
+
+
+<footer class="bottom-menu">
+
+
+<a href="index.html">
+🏠 Accueil
+</a>
+
+
+<a href="analyse.html">
+📊 Analyse
+</a>
+
+
+<a href="ticket.html">
+🎟️ Ticket
+</a>
+
+
+<a href="historique.html">
+🏆 Historique
+</a>
+
+
+<a href="espace-vip.html">
+⭐ Premium
+</a>
+
+
+</footer>
+
+
+
+
+
+
+
+
+<script>
+
+
+
+const offre =
+localStorage.getItem("AZ_TURF_OFFRE");
+
+
+const debut =
+localStorage.getItem("AZ_TURF_DATE_DEBUT");
+
+
+const fin =
+localStorage.getItem("AZ_TURF_DATE_FIN");
+
+
+const statut =
+localStorage.getItem("AZ_TURF_PREMIUM");
+
+
+
+
+
+const infos =
+document.getElementById("infos-compte");
+
+
+
+const statutTexte =
+document.getElementById("statut-compte");
+
+
+
+
+
+
+if(
+statut === "ACTIF"
+&&
+fin
+){
+
+
+
+const dateFin =
+new Date(fin);
+
+
+const dateDebut =
+new Date(debut);
+
+
+
+infos.innerHTML = `
+
+<p>
+⭐ Formule :
+<strong>${offre}</strong>
+</p>
+
+<p>
+📅 Début :
+<strong>${dateDebut.toLocaleDateString("fr-FR")}</strong>
+</p>
+
+
+<p>
+📅 Expiration :
+<strong>${dateFin.toLocaleDateString("fr-FR")}</strong>
+</p>
+
+`;
+
+
+
+
+const maintenant =
+new Date();
+
+
+
+
+if(maintenant < dateFin){
+
+
+
+statutTexte.innerHTML =
+
+"✅ Compte Premium actif";
+
+
+
+}
+else{
+
+
+statutTexte.innerHTML =
+
+"❌ Abonnement expiré";
+
+
+}
+
+
+
+}
+else{
+
+
+infos.innerHTML =
+"Aucun abonnement trouvé.";
+
+
+statutTexte.innerHTML =
+"❌ Compte non actif";
+
+
+}
+
+
+
+
+
+document.getElementById("acceder-premium")
+.onclick=function(){
+
+
+window.location.href =
+"espace-premium.html";
+
+
+};
+
+
+
+</script>
+
+
+
+</body>
+
+</html>
