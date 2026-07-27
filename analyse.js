@@ -8,7 +8,9 @@ async function chargerAnalyse(){
 try{
 
 
-const response = await fetch(API);
+const response =
+await fetch(API);
+
 
 
 if(!response.ok){
@@ -19,7 +21,10 @@ throw new Error("Erreur API");
 
 
 
-const data = await response.json();
+const data =
+await response.json();
+
+
 
 
 
@@ -31,42 +36,16 @@ data.chevaux ||
 
 
 
-// Informations générales
-
-const course =
-document.getElementById("analyse-course");
-
-
-const hippodrome =
-document.getElementById("analyse-hippodrome");
-
-
-if(course){
-
-course.textContent =
-data.course || "Course du jour";
-
-}
-
-
-if(hippodrome){
-
-hippodrome.textContent =
-data.hippodrome || "-";
-
-}
 
 
 
 
-
-
-
-// Favori du jour
+// FAVORI DU JOUR
 
 
 const favori =
 document.getElementById("favori");
+
 
 
 if(favori && chevaux[0]){
@@ -74,23 +53,36 @@ if(favori && chevaux[0]){
 
 favori.innerHTML = `
 
-<h3>⭐ Favori du jour</h3>
 
-<p>
+<div class="favorite-number">
+
 N°${chevaux[0].numero}
--
+
+</div>
+
+
+<h3>
+
 ${chevaux[0].nom || "Cheval"}
-</p>
+
+</h3>
+
 
 <p>
+
 Indice :
 ${chevaux[0].indice_az || "-"}
+
 </p>
 
+
 <p>
+
 Confiance :
 ${chevaux[0].confiance || "-"} %
+
 </p>
+
 
 `;
 
@@ -102,11 +94,14 @@ ${chevaux[0].confiance || "-"} %
 
 
 
-// Outsider du jour
+
+
+// OUTSIDER DU JOUR
 
 
 const outsider =
 document.getElementById("outsider");
+
 
 
 if(outsider && chevaux[3]){
@@ -114,23 +109,36 @@ if(outsider && chevaux[3]){
 
 outsider.innerHTML = `
 
-<h3>🔥 Outsider du jour</h3>
 
-<p>
+<div class="outsider-number">
+
 N°${chevaux[3].numero}
--
+
+</div>
+
+
+<h3>
+
 ${chevaux[3].nom || "Cheval"}
-</p>
+
+</h3>
+
 
 <p>
+
 Indice :
 ${chevaux[3].indice_az || "-"}
+
 </p>
 
+
 <p>
+
 Confiance :
 ${chevaux[3].confiance || "-"} %
+
 </p>
+
 
 `;
 
@@ -142,11 +150,14 @@ ${chevaux[3].confiance || "-"} %
 
 
 
-// Tableau analyse
+
+
+// TABLEAU CLASSEMENT
 
 
 const tableau =
 document.getElementById("analyse-body");
+
 
 
 if(tableau){
@@ -161,36 +172,56 @@ chevaux.forEach((cheval,index)=>{
 
 tableau.innerHTML += `
 
+
 <tr>
 
+
 <td>
+
 ${cheval.numero || "-"}
+
 </td>
 
 
+
 <td>
-${cheval.nom || "-"}
+
+<strong>
+
+${cheval.nom || "Cheval"}
+
+</strong>
+
 </td>
 
 
+
 <td>
+
 ${cheval.indice_az || "-"}
+
 </td>
+
 
 
 <td>
+
 ${cheval.confiance || "-"} %
+
 </td>
+
 
 
 <td>
 
 ${
 index===0
-? "Favori du jour"
+?
+"Favori du jour"
 :
 index<3
-? "Belle chance"
+?
+"Belle chance"
 :
 "Chance"
 }
@@ -199,6 +230,7 @@ index<3
 
 
 </tr>
+
 
 `;
 
@@ -213,7 +245,9 @@ index<3
 
 
 
-// Ticket
+
+
+// TICKET
 
 
 const ticket =
@@ -227,23 +261,49 @@ if(ticket && data.tickets){
 ticket.innerHTML = `
 
 
-<h3>🎟️ Sélection</h3>
-
-
 <p>
-Quinté :
+
+🏆 Quinté :
+
+<br>
+
 <strong>
-${data.tickets.quinte?.join(" - ") || "-"}
+
+${
+data.tickets.quinte
+?
+data.tickets.quinte.join(" - ")
+:
+"-"
+}
+
 </strong>
+
 </p>
 
 
+
+
 <p>
-Tiercé :
+
+🥉 Tiercé :
+
+<br>
+
 <strong>
-${data.tickets.trio?.join(" - ") || "-"}
+
+${
+data.tickets.trio
+?
+data.tickets.trio.join(" - ")
+:
+"-"
+}
+
 </strong>
+
 </p>
+
 
 
 `;
@@ -255,8 +315,8 @@ ${data.tickets.trio?.join(" - ") || "-"}
 
 
 
-
 }
+
 
 
 catch(error){
@@ -271,8 +331,8 @@ error
 }
 
 
-}
 
+}
 
 
 
