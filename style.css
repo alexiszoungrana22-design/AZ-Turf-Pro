@@ -1118,3 +1118,23 @@ object-fit:cover;
 display:block;
 
 }
+
+/* BANNIERE PUBLICITAIRE */
+
+.pub-box{
+    padding:10px;
+}
+
+.pub-content img{
+
+    width:100%;
+
+    height:160px;
+
+    object-fit:cover;
+
+    border-radius:12px;
+
+    display:block;
+
+}
