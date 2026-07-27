@@ -801,3 +801,157 @@ font-weight:bold;
 
 
    }
+
+/* ==========================
+   AZ TURF PRO - TICKETS
+========================== */
+
+
+.tickets-section {
+    padding: 20px;
+}
+
+
+.tickets-section h2 {
+    margin-bottom: 15px;
+    color: #f5b700;
+    text-align: center;
+}
+
+
+/* Conteneur horizontal */
+
+.cards-container {
+
+    display: flex;
+
+    gap: 15px;
+
+    overflow-x: auto;
+
+    padding: 10px;
+
+    scroll-behavior: smooth;
+
+}
+
+
+/* Barre de défilement mobile */
+
+.cards-container::-webkit-scrollbar {
+
+    height: 6px;
+
+}
+
+
+/* Cartes tickets */
+
+.ticket-card {
+
+    min-width: 230px;
+
+    background: #ffffff;
+
+    border-radius: 15px;
+
+    padding: 20px;
+
+    text-align: center;
+
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+
+    flex-shrink: 0;
+
+}
+
+
+.ticket-card h3 {
+
+    margin-bottom: 15px;
+
+    font-size: 18px;
+
+}
+
+
+.ticket-card p {
+
+    font-size: 18px;
+
+    font-weight: bold;
+
+    color: #222;
+
+    word-break: break-word;
+
+}
+
+
+
+/* Cartes VIP */
+
+.ticket-card.vip {
+
+    border: 2px solid #f5b700;
+
+    background: linear-gradient(
+        145deg,
+        #fff8dc,
+        #ffffff
+    );
+
+}
+
+
+.vip-title {
+
+    margin-top: 35px;
+
+}
+
+
+
+/* Champ réduit */
+
+#vip-champ {
+
+    color: #c00000;
+
+    font-size: 20px;
+
+}
+
+
+
+/* Mobile */
+
+@media(max-width:600px){
+
+
+    .ticket-card {
+
+        min-width: 85%;
+
+    }
+
+
+}
+
+
+
+/* Ordinateur */
+
+@media(min-width:900px){
+
+
+    .cards-container {
+
+        justify-content: center;
+
+        flex-wrap: wrap;
+
+    }
+
+
+}
