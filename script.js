@@ -1,276 +1,121 @@
-const API = "https://az-turf-pro.onrender.com/api/analyse";
-
-
-async function chargerAccueil() {
+async function chargerAnalyse() {
 
     try {
 
-        const response = await fetch(API);
+        const reponse = await fetch(
+            "https://az-turf-pro.onrender.com/api/analyse"
+        );
 
-        if (!response.ok) {
-            throw new Error("Erreur API " + response.status);
-        }
-
-
-        const data = await response.json();
+        const data = await reponse.json();
 
 
-
-        // Informations course
-
-        const elements = {
-
-            "meta-course": data.course,
-            "meta-hippodrome": data.hippodrome,
-            "meta-discipline": data.discipline,
-            "meta-distance": data.distance_course + " m",
-            "meta-partants": data.partants
-
-        };
+        const tickets = data.tickets || {};
 
 
-        Object.keys(elements).forEach(id => {
+        // =====================
+        // TICKETS GRATUITS
+        // =====================
 
-            const el = document.getElementById(id);
+        document.getElementById("quinte").innerHTML =
+            afficherListe(tickets.quinte);
 
-            if (el) {
-                el.textContent = elements[id] || "-";
-            }
+        document.getElementById("quarte").innerHTML =
+            afficherListe(tickets.quarte);
 
-        });
+        document.getElementById("trio").innerHTML =
+            afficherListe(tickets.trio);
+
+        document.getElementById("deux-sur-quatre").innerHTML =
+            afficherListe(tickets.deux_sur_quatre);
 
 
 
+        // =====================
+        // VIP
+        // =====================
+
+        const vip = tickets.vip || {};
 
 
-        // Tableau des partants
-
-        const table = document.getElementById("all-horses");
-
-
-        if (table) {
+        document.getElementById("vip-ticket-7").innerHTML =
+            afficherListe(vip.ticket_7);
 
 
-            table.innerHTML = "";
+        document.getElementById("vip-ticket-5").innerHTML =
+            afficherListe(vip.ticket_5);
 
 
-            const chevaux = data.chevaux || data.classement || [];
 
+        if (vip.champ_reduit) {
 
-            chevaux.forEach(cheval => {
-
-
-                table.innerHTML += `
-
-                <tr>
-
-                <td>
-                ${cheval.numero || "-"}
-                </td>
-
-
-                <td>
-                ${cheval.nom || "Cheval"}
-                </td>
-
-
-                <td>
-                ${cheval.indice_az || "-"}
-                </td>
-
-
-                </tr>
-
-                `;
-
-
-            });
-
+            document.getElementById("vip-champ").innerHTML =
+                vip.champ_reduit.format || "Non disponible";
 
         }
 
 
 
-
-
-        // Favori AZ
-
-        const classement =
-        data.classement || data.chevaux || [];
+        document.getElementById("couple-gagnant").innerHTML =
+            afficherListe(tickets.couple_gagnant);
 
 
 
-        if (classement.length) {
-
-
-            const favori = classement[0];
-
-            const outsider =
-            classement[classement.length - 1];
-
-
-
-            const favBox =
-            document.getElementById("kpi-favorite");
-
-
-            if(favBox){
-
-                favBox.textContent =
-                `${favori.numero} - ${favori.nom}`;
-
-            }
-
-
-
-            const confBox =
-            document.getElementById("kpi-confidence");
-
-
-            if(confBox){
-
-                confBox.textContent =
-                (favori.confiance || 90) + "%";
-
-            }
-
-
-
-            const outBox =
-            document.getElementById("kpi-outsider");
-
-
-            if(outBox){
-
-                outBox.textContent =
-                `${outsider.numero} - ${outsider.nom}`;
-
-            }
-
-
-
-        }
-
-
-
-
-
-
-        // Plus joués du jour
-
-        const popular =
-        document.getElementById("popular-horses");
-
-
-        if(popular){
-
-
-            popular.innerHTML = "";
-
-
-            classement.slice(0,3)
-            .forEach((cheval,index)=>{
-
-
-                popular.innerHTML += `
-
-                <p>
-
-                ${index+1}️⃣
-                N°${cheval.numero}
-                ${cheval.nom}
-
-                </p>
-
-                `;
-
-
-            });
-
-
-        }
-
-
+        document.getElementById("couple-place").innerHTML =
+            afficherCombinaisons(
+                tickets.couple_place
+            );
 
 
 
     }
 
+    catch(error) {
 
-    catch(error){
-
-        console.log("Erreur chargement :", error);
+        console.error(
+            "Erreur chargement AZ Turf :",
+            error
+        );
 
     }
-
 
 }
 
 
 
 
+function afficherListe(liste) {
 
-// Décompte simple
+    if (!liste || liste.length === 0) {
 
-function lancerTimer(){
+        return "Aucun ticket";
 
-
-    const timer =
-    document.getElementById("timer");
-
-
-    if(!timer) return;
+    }
 
 
-
-    let secondes = 3600;
-
-
-
-    setInterval(()=>{
-
-
-        let h =
-        Math.floor(secondes / 3600);
-
-
-        let m =
-        Math.floor((secondes % 3600)/60);
-
-
-        let s =
-        secondes % 60;
-
-
-
-        timer.textContent =
-        `${String(h).padStart(2,"0")}:`+
-        `${String(m).padStart(2,"0")}:`+
-        `${String(s).padStart(2,"0")}`;
-
-
-
-        if(secondes > 0){
-            secondes--;
-        }
-
-
-
-    },1000);
-
+    return liste.join(" - ");
 
 }
 
 
 
+function afficherCombinaisons(data) {
+
+    if (!data || data.length === 0) {
+
+        return "Aucun ticket";
+
+    }
 
 
-document.addEventListener(
-"DOMContentLoaded",
-()=>{
+    return data
+        .map(
+            combinaison =>
+            combinaison.join("-")
+        )
+        .join("<br>");
 
-    chargerAccueil();
+}
 
-    lancerTimer();
 
-});
+
+chargerAnalyse();
