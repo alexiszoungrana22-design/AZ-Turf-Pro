@@ -1,46 +1,57 @@
 /* ===============================
-   AZ TURF PRO - DESIGN PREMIUM V7
+   AZ TURF PRO DESIGN V8 PREMIUM
 ================================ */
 
+
 *{
-    box-sizing:border-box;
+box-sizing:border-box;
 }
 
 
 body{
 
-    margin:0;
-    font-family:Arial,sans-serif;
-    background:#f4f7f8;
-    color:#222;
+margin:0;
+font-family:Arial,sans-serif;
+background:#f4f7f8;
+color:#222;
 
 }
 
 
+
 /* ===============================
-   HEADER
+ HEADER
 ================================ */
 
 
 .top-header{
 
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:75px;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:75px;
 
-    background:white;
+background:white;
 
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
+display:flex;
+align-items:center;
+justify-content:space-between;
 
-    padding:0 30px;
+padding:0 25px;
 
-    box-shadow:0 4px 15px rgba(0,0,0,.15);
+box-shadow:0 4px 15px rgba(0,0,0,.15);
 
-    z-index:1000;
+z-index:1000;
+
+}
+
+
+
+.brand-zone{
+
+display:flex;
+flex-direction:column;
 
 }
 
@@ -48,22 +59,39 @@ body{
 
 .logo{
 
-    display:flex;
-    align-items:center;
-
-    font-size:24px;
-    font-weight:bold;
-
-    color:#08783f;
+font-size:23px;
+font-weight:bold;
+color:#08783f;
 
 }
 
 
 
+.mini-countdown{
+
+font-size:12px;
+font-weight:bold;
+color:#08783f;
+
+margin-top:3px;
+
+}
+
+
+
+.mini-countdown.urgent{
+
+color:red;
+
+}
+
+
+
+
 .top-menu{
 
-    display:flex;
-    gap:15px;
+display:flex;
+gap:10px;
 
 }
 
@@ -71,96 +99,72 @@ body{
 
 .top-menu a{
 
-    text-decoration:none;
+text-decoration:none;
+background:#08783f;
+color:white;
 
-    color:white;
+padding:8px 15px;
 
-    background:#08783f;
+border-radius:25px;
 
-    padding:10px 18px;
-
-    border-radius:25px;
-
-    font-weight:bold;
-
-    transition:.3s;
+font-size:14px;
+font-weight:bold;
 
 }
 
 
 
-.top-menu a:hover{
 
-    transform:scale(1.05);
+.btn-vip{
+
+background:linear-gradient(45deg,#d4af37,#ffe680);
+
+color:#111;
+
+padding:10px 18px;
+
+border-radius:25px;
+
+font-weight:bold;
+
+text-decoration:none;
 
 }
-
 
 
 
 /* ===============================
-   CONTENU
+ CONTENU
 ================================ */
 
 
 .content{
 
-    padding-top:100px;
+padding-top:100px;
 
-    padding-bottom:90px;
+padding-bottom:90px;
 
-    max-width:1200px;
+max-width:1200px;
 
-    margin:auto;
+margin:auto;
 
 }
 
-
-
-
-/* ===============================
-   CARTES
-================================ */
 
 
 .card{
 
-    background:white;
+background:white;
 
-    width:95%;
+width:95%;
 
-    margin:25px auto;
+margin:20px auto;
 
-    padding:25px;
+padding:22px;
 
-    border-radius:22px;
+border-radius:20px;
 
-    box-shadow:0 6px 18px rgba(0,0,0,.08);
-
-    animation:apparition .5s ease;
-
-}
-
-
-
-@keyframes apparition{
-
-from{
-
-opacity:0;
-
-transform:translateY(15px);
-
-}
-
-
-to{
-
-opacity:1;
-
-transform:translateY(0);
-
-}
+box-shadow:0 5px 15px rgba(0,0,0,.08);
 
 }
 
@@ -168,217 +172,42 @@ transform:translateY(0);
 
 .card h2{
 
-    text-align:center;
+text-align:center;
 
-    color:#08783f;
+color:#08783f;
 
 }
 
 
 
-
-
 /* ===============================
-   PUBLICITE
+ PUBLICITE
 ================================ */
 
 
-.pub-box{
+.pub-content img,
+.pub-content video{
 
-    border-top:5px solid #08783f;
+width:100%;
 
-}
+height:150px;
 
+object-fit:cover;
 
-
-.pub-content img{
-
-    width:100%;
-
-    height:130px;
-
-    object-fit:cover;
-
-    border-radius:18px;
+border-radius:18px;
 
 }
-
-
-
 
 
 
 /* ===============================
-   COMPTE A REBOURS
-================================ */
-
-
-.countdown{
-
-    text-align:center;
-
-    border-top:5px solid #08783f;
-
-}
-
-
-
-#timer{
-
-    font-size:55px;
-
-    font-weight:bold;
-
-    color:#08783f;
-
-    margin:20px;
-
-}
-
-
-
-
-
-
-/* ===============================
-   FAVORI
-================================ */
-
-
-.favorite-box{
-
-    background:#f4f7f8;
-
-    border-left:8px solid #08783f;
-
-    padding:30px;
-
-    border-radius:25px;
-
-    text-align:center;
-
-}
-
-
-
-.favorite-number{
-
-    font-size:60px;
-
-    font-weight:bold;
-
-    color:#08783f;
-
-}
-
-
-
-
-.favorite-box h3{
-
-    font-size:26px;
-
-}
-
-
-
-
-
-
-/* ===============================
-   OUTSIDER
-================================ */
-
-
-.outsider-box{
-
-    background:#f4f7f8;
-
-    border-left:8px solid #ff9800;
-
-    padding:30px;
-
-    border-radius:25px;
-
-    text-align:center;
-
-}
-
-
-
-.outsider-number{
-
-    font-size:60px;
-
-    font-weight:bold;
-
-    color:#ff9800;
-
-}
-
-
-
-.outsider-box h3{
-
-    font-size:26px;
-
-}
-
-/* ===============================
-   KPI
-================================ */
-
-
-.kpi-container{
-
-    display:grid;
-
-    grid-template-columns:repeat(3,1fr);
-
-    gap:20px;
-
-    width:95%;
-
-    margin:auto;
-
-}
-
-
-
-.kpi-card{
-
-    background:white;
-
-    padding:22px;
-
-    border-radius:18px;
-
-    text-align:center;
-
-    box-shadow:0 5px 12px rgba(0,0,0,.08);
-
-}
-
-
-
-.kpi-card h3{
-
-    color:#08783f;
-
-}
-
-
-
-
-
-/* ===============================
-   TABLEAUX
+ TABLEAU PARTANTS
 ================================ */
 
 
 .table-container{
 
-    overflow-x:auto;
+overflow-x:auto;
 
 }
 
@@ -386,11 +215,11 @@ transform:translateY(0);
 
 table{
 
-    width:100%;
+width:100%;
 
-    min-width:900px;
+min-width:850px;
 
-    border-collapse:collapse;
+border-collapse:collapse;
 
 }
 
@@ -398,11 +227,11 @@ table{
 
 th{
 
-    background:#08783f;
+background:#08783f;
 
-    color:white;
+color:white;
 
-    padding:14px;
+padding:12px;
 
 }
 
@@ -410,290 +239,189 @@ th{
 
 td{
 
-    padding:12px;
+padding:12px;
 
-    border-bottom:1px solid #ddd;
+text-align:center;
 
-    text-align:center;
+border-bottom:1px solid #ddd;
 
 }
 
 
 
-
-
-
 /* ===============================
-   SELECTION CHEVAUX
+ ANALYSE AZ HORIZONTAL
 ================================ */
 
 
-.selection-horizontal{
+.analyse-horizontal{
 
-    display:flex;
+display:flex;
 
-    gap:12px;
+gap:20px;
 
-    overflow-x:auto;
-
-}
-
-
-
-.cheval-mini{
-
-    min-width:145px;
-
-    background:white;
-
-    padding:18px;
-
-    border-radius:18px;
-
-    text-align:center;
-
-    border-top:5px solid #08783f;
-
-    box-shadow:0 4px 12px rgba(0,0,0,.15);
+justify-content:center;
 
 }
 
 
 
-.mini-numero{
+.analyse-cheval{
 
-    font-size:28px;
+flex:1;
 
-    font-weight:bold;
+background:#f4f7f8;
 
-    color:#08783f;
+padding:20px;
+
+border-radius:20px;
+
+text-align:center;
+
+border-top:5px solid #08783f;
 
 }
 
 
 
+.analyse-cheval.outsider{
 
+border-top-color:#ff9800;
+
+}
+
+
+
+.analyse-numero{
+
+font-size:45px;
+
+font-weight:bold;
+
+color:#08783f;
+
+}
+
+
+
+.outsider .analyse-numero{
+
+color:#ff9800;
+
+}
+
+
+
+.analyse-cheval p{
+
+font-size:14px;
+
+line-height:1.5;
+
+}
 
 
 
 /* ===============================
-   TICKET
+ CHEVAUX JOUES HORIZONTAL
 ================================ */
 
 
-.ticket-box{
+.popular-horizontal{
 
-    border-top:5px solid #08783f;
+display:flex;
 
-}
+gap:15px;
 
+overflow-x:auto;
 
-
-.ticket-result{
-
-    background:#f4f7f8;
-
-    padding:25px;
-
-    border-radius:20px;
-
-    text-align:center;
-
-    font-size:18px;
+padding:10px;
 
 }
 
 
 
-.ticket-result strong{
+.popular-card{
 
-    display:inline-block;
+min-width:140px;
 
-    background:#08783f;
+background:white;
 
-    color:white;
+border-radius:18px;
 
-    padding:15px 25px;
+padding:18px;
 
-    border-radius:30px;
+text-align:center;
 
-    font-size:22px;
+box-shadow:0 4px 12px rgba(0,0,0,.15);
+
+border-top:5px solid #08783f;
 
 }
 
 
 
+.popular-card strong{
 
+font-size:28px;
+
+color:#08783f;
+
+}
 
 
 
 /* ===============================
-   VIP
-================================ */
-
-
-.vip-banner{
-
-    border-top:5px solid #d4af37;
-
-}
-
-
-
-.vip-choice{
-
-    background:#f4f7f8;
-
-    padding:18px;
-
-    margin:12px 0;
-
-    border-radius:18px;
-
-    border-left:5px solid #08783f;
-
-}
-
-
-
-.champ-vip{
-
-    background:#fff8e1;
-
-    padding:20px;
-
-    border-radius:20px;
-
-}
-
-
-
-
-
-
-
-/* ===============================
-   ABONNEMENT
-================================ */
-
-
-button{
-
-    background:#08783f;
-
-    color:white;
-
-    border:none;
-
-    padding:12px 28px;
-
-    border-radius:25px;
-
-    font-weight:bold;
-
-    cursor:pointer;
-
-}
-
-
-
-button:hover{
-
-    transform:scale(1.05);
-
-}
-
-
-
-
-
-
-/* ===============================
-   MESSAGE
+ BANDEAU
 ================================ */
 
 
 .news-bar{
 
-    width:95%;
+width:95%;
 
-    margin:25px auto;
+margin:20px auto;
 
-    background:#08783f;
+background:#08783f;
 
-    color:white;
+color:white;
 
-    padding:15px;
+padding:15px;
 
-    border-radius:20px;
+border-radius:20px;
 
-    text-align:center;
+text-align:center;
 
-    font-weight:bold;
+font-weight:bold;
 
 }
 
 
 
-
-
-
-
 /* ===============================
-   MENU BAS MOBILE
+ MENU MOBILE
 ================================ */
 
 
 .bottom-menu{
 
-    display:none;
+display:none;
 
 }
 
 
 
 
-
-
-/* ===============================
-   TABLETTE
-================================ */
-
-
-@media(max-width:900px){
-
-
-.kpi-container{
-
-grid-template-columns:repeat(2,1fr);
-
-}
-
-
-}
-
-
-
-
-
-
-/* ===============================
-   TELEPHONE
-================================ */
-
-
-@media(max-width:600px){
-
+@media(max-width:700px){
 
 
 .top-header{
 
 height:70px;
 
-padding:0 12px;
+padding:0 10px;
 
 }
-
 
 
 .logo{
@@ -706,7 +434,15 @@ font-size:18px;
 
 .top-menu a{
 
-padding:7px 10px;
+display:none;
+
+}
+
+
+
+.btn-vip{
+
+padding:8px 12px;
 
 font-size:12px;
 
@@ -716,7 +452,7 @@ font-size:12px;
 
 .content{
 
-padding-bottom:100px;
+padding-top:90px;
 
 }
 
@@ -724,37 +460,27 @@ padding-bottom:100px;
 
 .card{
 
-padding:18px;
+padding:15px;
 
 }
 
 
 
-#timer{
+.analyse-horizontal{
 
-font-size:38px;
+overflow-x:auto;
 
-}
-
-
-
-.favorite-number,
-.outsider-number{
-
-font-size:45px;
+justify-content:flex-start;
 
 }
 
 
 
-.kpi-container{
+.analyse-cheval{
 
-grid-template-columns:1fr;
+min-width:85%;
 
 }
-
-
-
 
 
 
@@ -798,193 +524,5 @@ font-weight:bold;
 
 }
 
-
-
-   }
-
-/* ==========================
-   AZ TURF PRO - VIP TICKETS
-========================== */
-
-.vip-container {
-
-    display: flex;
-    gap: 15px;
-    overflow-x: auto;
-    padding: 15px;
-    scroll-behavior: smooth;
-
-}
-
-
-.vip-container::-webkit-scrollbar {
-
-    height: 6px;
-
-}
-
-
-.vip-card {
-
-    min-width: 240px;
-
-    background: white;
-
-    border-radius: 15px;
-
-    padding: 18px;
-
-    text-align: center;
-
-    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-
-    flex-shrink: 0;
-
-}
-
-
-.vip-card h3 {
-
-    color: #d89b00;
-
-    margin-bottom: 12px;
-
-}
-
-
-.vip-card p {
-
-    font-size: 18px;
-
-    font-weight: bold;
-
-}
-
-
-.vip-card.champ {
-
-    border: 2px solid #d89b00;
-
-}
-
-
-.vip-card small {
-
-    display: block;
-
-    margin-top: 10px;
-
-    color: #555;
-
-}
-
-
-@media(min-width:900px){
-
-    .vip-container {
-
-        justify-content: center;
-
-        overflow: visible;
-
-    }
-
-}
-
-
-@media(max-width:600px){
-
-    .vip-card {
-
-        min-width: 85%;
-
-    }
-
-}
-
-
-
-
-/* Ordinateur */
-
-@media(min-width:900px){
-
-
-    .cards-container {
-
-        justify-content: center;
-
-        flex-wrap: wrap;
-
-    }
-
-
-}
-/* ==========================
-   BOUTON ACCES VIP
-========================== */
-
-.btn-vip {
-
-    background: linear-gradient(
-        45deg,
-        #d4af37,
-        #ffe680
-    );
-
-    color: #111;
-
-    padding: 10px 18px;
-
-    border-radius: 25px;
-
-    font-weight: bold;
-
-    text-decoration: none;
-
-    display: inline-block;
-
-    box-shadow:
-    0 4px 12px rgba(212,175,55,0.45);
-
-    transition: 0.3s;
-
-}
-
-
-.btn-vip:hover {
-
-    transform: scale(1.05);
-
-}
-.btn-vip {
-    background:#d4af37;
-    color:#000;
-    padding:10px 18px;
-    border-radius:20px;
-    font-weight:bold;
-    text-decoration:none;
-}
-.btn-vip {
-
-    background: linear-gradient(45deg,#d4af37,#ffe680);
-
-    color:#000;
-
-    padding:10px 18px;
-
-    border-radius:25px;
-
-    font-weight:bold;
-
-    text-decoration:none;
-
-    position:absolute;
-
-    right:15px;
-
-    top:15px;
-
-    z-index:10;
 
 }
