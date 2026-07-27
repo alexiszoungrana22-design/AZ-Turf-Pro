@@ -29,23 +29,22 @@
 
 <nav class="top-menu">
 
-
 <a href="index.html">
 🏠 Accueil
 </a>
-
 
 <a href="analyse.html">
 📊 Analyse
 </a>
 
+<a href="ticket.html">
+🎟️ Ticket
+</a>
 
 </nav>
 
 
 </header>
-
-
 
 
 
@@ -57,62 +56,16 @@
 
 
 
+
 <section class="card">
 
-
-<h2>📊 Analyse de la course</h2>
-
+<h2>📊 Analyse complète de la course</h2>
 
 <p>
-Retrouvez l'analyse complète des chevaux engagés.
+Analyse détaillée des chevaux engagés avec les critères de forme, performance et conditions de course.
 </p>
 
-
 </section>
-
-
-
-
-
-
-
-<section class="card">
-
-
-<h2>⭐ Favori du jour</h2>
-
-
-<div id="favori" class="favorite-box">
-
-Chargement...
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-
-<section class="card">
-
-
-<h2>🔥 Outsider du jour</h2>
-
-
-<div id="outsider" class="outsider-box">
-
-Chargement...
-
-</div>
-
-
-</section>
-
 
 
 
@@ -136,19 +89,31 @@ Chargement...
 
 <tr>
 
+<th>Rang</th>
+
 <th>N°</th>
 
 <th>Cheval</th>
 
-<th>Indice</th>
+<th>Indice AZ</th>
+
+<th>Forme</th>
+
+<th>Régularité</th>
+
+<th>Jockey</th>
+
+<th>Entraîneur</th>
 
 <th>Confiance</th>
 
 <th>Statut</th>
 
+
 </tr>
 
 </thead>
+
 
 
 <tbody id="analyse-body">
@@ -171,11 +136,35 @@ Chargement...
 
 
 
+<section class="card">
+
+
+<h2>📈 Détails analyse</h2>
+
+
+<div id="details-analyse">
+
+
+<p>
+Chargement des informations...
+</p>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
 
 <section class="card">
 
 
-<h2>🎟️ Sélection</h2>
+<h2>🎟️ Proposition de ticket</h2>
 
 
 <div id="analyse-ticket">
@@ -193,8 +182,71 @@ Chargement...
 
 
 
-</main>
 
+<section class="card">
+
+
+<h2>💬 Espace échanges visiteurs</h2>
+
+
+<div id="messages-visiteurs">
+
+
+<p>
+Partagez vos analyses et vos propositions de tickets.
+</p>
+
+
+</div>
+
+
+
+<textarea 
+id="message-visiteur"
+placeholder="Votre message ou votre ticket..."
+rows="4">
+</textarea>
+
+
+
+<button id="envoyer-message">
+
+Envoyer
+
+</button>
+
+
+</section>
+
+
+
+
+
+
+
+<section class="card">
+
+
+<h2>🎯 Tickets proposés par les visiteurs</h2>
+
+
+<div id="tickets-visiteurs">
+
+
+Aucune proposition pour le moment.
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+</main>
 
 
 
@@ -206,27 +258,37 @@ Chargement...
 
 
 <a href="index.html">
+
 🏠 Accueil
+
 </a>
 
 
 <a href="analyse.html">
+
 📊 Analyse
+
 </a>
 
 
 <a href="ticket.html">
+
 🎟️ Ticket
+
 </a>
 
 
 <a href="historique.html">
+
 🏆 Historique
+
 </a>
 
 
-<a href="abonnement.html">
-⭐ Abonnement
+<a href="espace-vip.html">
+
+⭐ VIP
+
 </a>
 
 
@@ -238,10 +300,9 @@ Chargement...
 
 
 
-<script src="analyse.js?v=3"></script>
+<script src="analyse.js?v=4"></script>
 
 
 </body>
-
 
 </html>
