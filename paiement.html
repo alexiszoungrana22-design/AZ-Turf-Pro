@@ -59,20 +59,16 @@
 <section class="card">
 
 
-<h2>💎 Votre abonnement Premium</h2>
+<h2>💎 Votre abonnement</h2>
 
 
 <p>
-
 Offre sélectionnée :
-
 </p>
 
 
 <h3 id="offre-choisie">
-
 Chargement...
-
 </h3>
 
 
@@ -91,11 +87,8 @@ Chargement...
 
 
 <p>
-
 Choisissez votre moyen de paiement :
-
 </p>
-
 
 
 <div class="paiement-box">
@@ -108,8 +101,7 @@ Choisissez votre moyen de paiement :
 </button>
 
 
-
-<button onclick="choisirPaiement('Autre')">
+<button onclick="choisirPaiement('Autre paiement')">
 
 💳 Autre paiement
 
@@ -127,11 +119,10 @@ Choisissez votre moyen de paiement :
 
 
 
-
 <section class="card">
 
 
-<h2>✅ Confirmation</h2>
+<h2>✅ Validation</h2>
 
 
 <p id="paiement-info">
@@ -157,23 +148,20 @@ Confirmer le paiement
 
 
 
-
 <section class="card">
 
 
-<h2>🏇 Activation Premium</h2>
+<h2>🏆 Activation Premium</h2>
 
 
 <p id="activation">
 
-Votre accès sera activé après validation du paiement.
+Votre compte sera activé après confirmation.
 
 </p>
 
 
 </section>
-
-
 
 
 
@@ -233,6 +221,7 @@ const params = new URLSearchParams(window.location.search);
 const offre = params.get("offre");
 
 
+
 const affichageOffre =
 document.getElementById("offre-choisie");
 
@@ -244,6 +233,7 @@ affichageOffre.innerHTML =
 "⭐ Abonnement " + offre;
 
 }
+
 else{
 
 affichageOffre.innerHTML =
@@ -253,7 +243,10 @@ affichageOffre.innerHTML =
 
 
 
+
 let moyenPaiement = "";
+
+
 
 
 
@@ -265,8 +258,9 @@ moyenPaiement = type;
 
 document.getElementById("paiement-info").innerHTML =
 
-"Paiement choisi : <strong>" + type + "</strong>";
-
+"Paiement choisi : <strong>" 
++ type +
+"</strong>";
 
 
 }
@@ -274,24 +268,118 @@ document.getElementById("paiement-info").innerHTML =
 
 
 
-document.getElementById("confirmer-paiement").onclick = function(){
 
 
 
-if(moyenPaiement === ""){
+document.getElementById("confirmer-paiement")
+.onclick = function(){
+
+
+
+if(!moyenPaiement){
 
 
 alert("Veuillez choisir un moyen de paiement.");
 
 return;
 
+
 }
+
+
+
+let duree = 0;
+
+
+
+if(offre === "Mensuel"){
+
+duree = 30;
+
+}
+
+
+if(offre === "Trimestriel"){
+
+duree = 90;
+
+}
+
+
+if(offre === "Annuel"){
+
+duree = 365;
+
+}
+
+
+
+
+const dateDebut = new Date();
+
+
+
+const dateFin = new Date();
+
+
+dateFin.setDate(
+dateFin.getDate() + duree
+);
+
+
+
+
+
+localStorage.setItem(
+"AZ_TURF_PREMIUM",
+"ACTIF"
+);
+
+
+
+localStorage.setItem(
+"AZ_TURF_OFFRE",
+offre
+);
+
+
+
+localStorage.setItem(
+"AZ_TURF_DATE_DEBUT",
+dateDebut.toISOString()
+);
+
+
+
+localStorage.setItem(
+"AZ_TURF_DATE_FIN",
+dateFin.toISOString()
+);
+
+
+
 
 
 
 document.getElementById("activation").innerHTML =
 
-"✅ Paiement en attente de validation. Votre compte Premium sera activé après confirmation.";
+"✅ Compte Premium activé jusqu'au : <strong>"
++
+dateFin.toLocaleDateString("fr-FR")
++
+"</strong>";
+
+
+
+
+setTimeout(function(){
+
+
+window.location.href =
+"espace-vip.html";
+
+
+},2000);
 
 
 
