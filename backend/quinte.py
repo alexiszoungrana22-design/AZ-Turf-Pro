@@ -1,9 +1,14 @@
 def generer_tickets_az(classement):
     """
     Génération des tickets AZ Turf Pro :
-    - Quinté
-    - Quarté
-    - Trio
+
+    Partie gratuite :
+    - Quinté : 8 chevaux
+    - Quarté : 5 chevaux
+    - Tiercé : 4 chevaux
+    - 2 sur 4 : 4 chevaux
+
+    Partie avancée :
     - Couplé gagnant
     - Couplé placé
     - Champ réduit
@@ -15,6 +20,7 @@ def generer_tickets_az(classement):
             "quinte": [],
             "quarte": [],
             "trio": [],
+            "deux_sur_quatre": [],
             "couple_gagnant": [],
             "couple_place": [],
             "champ_reduit": {
@@ -25,6 +31,7 @@ def generer_tickets_az(classement):
 
 
     numeros = []
+
 
     for cheval in classement:
 
@@ -38,54 +45,101 @@ def generer_tickets_az(classement):
     if len(numeros) < 2:
 
         return {
+
             "quinte": numeros,
+
             "quarte": numeros,
+
             "trio": numeros,
+
+            "deux_sur_quatre": numeros,
+
             "couple_gagnant": [],
+
             "couple_place": [],
+
             "champ_reduit": {
+
                 "bases": numeros,
+
                 "complements": []
+
             }
+
         }
 
 
 
+    # Base AZ principale
+
     base = numeros[:7]
+
+
+    # Base gratuite élargie
+
+    base_gratuite = numeros[:8]
+
 
 
     return {
 
-        "quinte": base[:5],
 
-        "quarte": base[:4],
+        # =========================
+        # TICKETS GRATUITS
+        # =========================
 
-        "trio": base[:3],
+
+        "quinte": base_gratuite[:8],
 
 
-        # Les 2 premiers AZ
-        # pour le couplé gagnant
+        "quarte": base_gratuite[:5],
+
+
+        "trio": base_gratuite[:4],
+
+
+        "deux_sur_quatre": base_gratuite[:4],
+
+
+
+
+
+        # =========================
+        # TICKETS AVANCES
+        # =========================
+
+
         "couple_gagnant": [
+
             base[0],
+
             base[1]
+
         ],
 
 
-        # Plusieurs possibilités couplé placé
+
         "couple_place": [
+
             [
                 base[0],
                 base[1]
             ],
+
             [
                 base[0],
                 base[2]
             ],
+
             [
                 base[1],
                 base[2]
             ]
+
         ],
+
+
+
 
 
         "champ_reduit": {
@@ -95,5 +149,6 @@ def generer_tickets_az(classement):
             "complements": base[3:7]
 
         }
+
 
     }
