@@ -20,7 +20,9 @@
 
 
 <div class="logo">
+
 🏇 <span>AZ Turf Pro Premium</span>
+
 </div>
 
 
@@ -61,14 +63,11 @@
 
 <section class="card vip-banner">
 
-
 <h1>⭐ AZ Turf Pro Premium</h1>
 
-
 <p>
-Accédez aux analyses avancées et aux stratégies VIP pour vos pronostics hippiques.
+L'espace réservé aux analyses avancées et aux stratégies Premium.
 </p>
-
 
 </section>
 
@@ -78,43 +77,17 @@ Accédez aux analyses avancées et aux stratégies VIP pour vos pronostics hippi
 
 
 
-<section class="card">
+<!-- ZONE NON PREMIUM -->
 
-
-<h2>🎁 Offre découverte</h2>
-
-
-<p>
-
-Profitez d'une période découverte pour découvrir les fonctionnalités Premium.
-
-</p>
-
-
-<ul>
-
-<li>⭐ Analyses approfondies</li>
-
-<li>⭐ Sélections Premium</li>
-
-<li>⭐ Étude des combinaisons</li>
-
-</ul>
-
-
-</section>
-
-
-
-
-
-
-
-
-<section class="card">
+<section class="card" id="zone-offres">
 
 
 <h2>💎 Choisir votre abonnement</h2>
+
+
+<p>
+Accédez aux fonctionnalités Premium AZ Turf Pro.
+</p>
 
 
 
@@ -122,25 +95,21 @@ Profitez d'une période découverte pour découvrir les fonctionnalités Premium
 
 
 
-
-
 <div class="vip-box">
-
 
 <h3>🟢 Mensuel</h3>
 
-
 <p>
-Accès Premium pendant 1 mois
+Accès Premium 30 jours
 </p>
 
+<p>
+💰 Prix : À définir
+</p>
 
-<button onclick="ouvrirPaiement('Mensuel')">
-
+<button onclick="allerPaiement('Mensuel')">
 S'abonner
-
 </button>
-
 
 </div>
 
@@ -150,27 +119,23 @@ S'abonner
 
 
 
-
 <div class="vip-box">
-
 
 <h3>🔵 Trimestriel</h3>
 
-
 <p>
-Accès Premium pendant 3 mois
+Accès Premium 90 jours
 </p>
 
+<p>
+💰 Prix : À définir
+</p>
 
-<button onclick="ouvrirPaiement('Trimestriel')">
-
+<button onclick="allerPaiement('Trimestriel')">
 S'abonner
-
 </button>
 
-
 </div>
-
 
 
 
@@ -180,25 +145,21 @@ S'abonner
 
 <div class="vip-box">
 
-
 <h3>🟡 Annuel</h3>
 
-
 <p>
-Accès Premium pendant 12 mois
+Accès Premium 365 jours
 </p>
 
+<p>
+💰 Prix : À définir
+</p>
 
-<button onclick="ouvrirPaiement('Annuel')">
-
+<button onclick="allerPaiement('Annuel')">
 S'abonner
-
 </button>
 
-
 </div>
-
-
 
 
 
@@ -213,24 +174,33 @@ S'abonner
 
 
 
+<!-- ZONE PREMIUM ACTIVE -->
 
-<section class="card">
+
+<section class="card" id="zone-premium" style="display:none;">
 
 
-<h2>🏆 Contenu VIP</h2>
+<h2>
+🏆 Bienvenue dans AZ Turf Pro Premium
+</h2>
+
+
+<p>
+Votre compte Premium est actif ✅
+</p>
 
 
 <ul>
 
-<li>🔥 Combinaisons avancées</li>
+<li>⭐ Analyses Premium approfondies</li>
 
-<li>🎯 Champ réduit étudié</li>
+<li>🎯 Combinaisons avancées</li>
 
-<li>📊 Analyse complète des chevaux</li>
+<li>📊 Champs réduits étudiés</li>
 
-<li>🏇 Avis jockeys et entraîneurs</li>
+<li>🏇 Avis jockeys et entraîneurs détaillés</li>
 
-<li>⭐ Stratégies Premium AZ</li>
+<li>🔥 Stratégies VIP AZ</li>
 
 </ul>
 
@@ -246,21 +216,12 @@ S'abonner
 <section class="card">
 
 
-<h2>💳 Paiement</h2>
+<h2>🔙 Navigation</h2>
 
 
-<p id="choix-abonnement">
-
-Sélectionnez un abonnement pour continuer.
-
-</p>
-
-
-<button id="bouton-paiement">
-
-Accéder au paiement
-
-</button>
+<a href="index.html">
+Retour Accueil
+</a>
 
 
 </section>
@@ -315,44 +276,53 @@ Accéder au paiement
 
 
 
+
 <script>
 
-let abonnementChoisi = "";
 
-
-function ouvrirPaiement(type){
-
-
-abonnementChoisi = type;
-
-
-document.getElementById("choix-abonnement").innerHTML =
-
-"Abonnement choisi : <strong>" + type + "</strong>";
-
-
-}
-
-
-document.getElementById("bouton-paiement").onclick = function(){
-
-
-if(abonnementChoisi === ""){
-
-
-alert("Veuillez choisir un abonnement.");
-
-return;
-
-
-}
+function allerPaiement(offre){
 
 
 window.location.href =
-"paiement.html?offre=" + abonnementChoisi;
+"paiement.html?offre=" + offre;
 
 
-};
+}
+
+
+
+
+
+
+function verifierPremium(){
+
+
+
+const premium =
+localStorage.getItem("AZ_TURF_PREMIUM");
+
+
+
+if(premium === "ACTIF"){
+
+
+
+document.getElementById("zone-offres").style.display="none";
+
+
+document.getElementById("zone-premium").style.display="block";
+
+
+}
+
+
+
+}
+
+
+
+
+verifierPremium();
 
 
 
