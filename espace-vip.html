@@ -7,7 +7,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>AZ Turf Pro - Espace VIP</title>
+<title>Espace VIP - AZ Turf Pro</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -17,32 +17,30 @@
 <body>
 
 
-    
 <header class="header">
 
-    
-</a>
-    <h1>⭐ AZ TURF PRO VIP</h1>
+<h1>⭐ Espace VIP</h1>
 
-    <p>
-        Sélections premium et tickets avancés
-    </p>
+<p>
+Sélections premium et tickets avancés
+</p>
 
 </header>
 
-<a href="vip.html" class="btn-vip">
-⭐ VIP
+
+
+
 
 <main class="vip-page">
+
 
 
 <section class="vip-intro">
 
 <h2>🔥 Espace VIP</h2>
-<a href="vip.html" class="btn-vip">
-⭐ VIP
+
 <p>
-Retrouvez vos tickets premium issus de l'analyse spécialisée AZ Turf Pro.
+Retrouvez vos tickets premium et vos sélections du jour.
 </p>
 
 </section>
@@ -50,11 +48,12 @@ Retrouvez vos tickets premium issus de l'analyse spécialisée AZ Turf Pro.
 
 
 
+
+
+
 <div class="vip-container">
 
 
-
-<!-- Ticket 7 chevaux -->
 
 <div class="vip-card">
 
@@ -70,7 +69,6 @@ Chargement...
 
 
 
-<!-- Ticket 5 chevaux -->
 
 <div class="vip-card">
 
@@ -86,7 +84,6 @@ Chargement...
 
 
 
-<!-- Champ réduit -->
 
 <div class="vip-card champ">
 
@@ -102,7 +99,6 @@ Chargement...
 
 
 
-<!-- Couplé gagnant -->
 
 <div class="vip-card">
 
@@ -118,7 +114,6 @@ Chargement...
 
 
 
-<!-- Couplé placé -->
 
 <div class="vip-card">
 
@@ -138,25 +133,25 @@ Chargement...
 
 
 
-<!-- EXPLICATIONS EN DEHORS DES CARTES -->
+
 
 
 <section class="vip-explications">
 
 
-<h2>📌 Explications des tickets VIP</h2>
+<h2>📌 Explications</h2>
+
+
 
 
 
 <div class="explication-bloc">
-
 
 <h3>🏆 Ticket 7 chevaux</h3>
 
 <p>
-Une sélection élargie regroupant les chevaux ayant les meilleurs profils selon l'analyse AZ : forme, régularité et potentiel.
+Une sélection large regroupant les chevaux présentant les meilleurs profils de la course.
 </p>
-
 
 </div>
 
@@ -164,15 +159,14 @@ Une sélection élargie regroupant les chevaux ayant les meilleurs profils selon
 
 
 
-<div class="explication-bloc">
 
+<div class="explication-bloc">
 
 <h3>🎯 Ticket 5 chevaux</h3>
 
 <p>
-La base principale VIP avec les chevaux les plus compétitifs pour construire les combinaisons principales.
+La combinaison principale avec les chevaux les plus compétitifs pour construire le jeu.
 </p>
-
 
 </div>
 
@@ -180,17 +174,19 @@ La base principale VIP avec les chevaux les plus compétitifs pour construire le
 
 
 
-<div class="explication-bloc">
 
+
+<div class="explication-bloc">
 
 <h3>🔥 Champ réduit</h3>
 
 <p>
-Une combinaison optimisée avec des bases solides et des chevaux complémentaires. Les X peuvent changer de position selon l'analyse de la course.
+Une formule optimisée avec des bases principales et des chevaux complémentaires.
 </p>
 
-
 </div>
+
+
 
 
 
@@ -198,19 +194,22 @@ Une combinaison optimisée avec des bases solides et des chevaux complémentaire
 
 <div class="explication-bloc">
 
-
 <h3>💰 Couplé gagnant et placé</h3>
 
 <p>
-Des associations sélectionnées parmi les chevaux les plus réguliers pour proposer différentes possibilités de jeu.
+Des associations de chevaux sélectionnées pour proposer plusieurs possibilités de jeu.
 </p>
-
 
 </div>
 
 
 
+
+
 </section>
+
+
+
 
 
 
@@ -221,10 +220,13 @@ Des associations sélectionnées parmi les chevaux les plus réguliers pour prop
 <h3>⚠️ Information</h3>
 
 <p>
-AZ Turf Pro propose une analyse spécialisée basée sur les données disponibles. Les résultats des courses restent imprévisibles.
+Les pronostics sont basés sur les données disponibles. Une course hippique reste imprévisible.
 </p>
 
 </section>
+
+
+
 
 
 
@@ -232,19 +234,29 @@ AZ Turf Pro propose une analyse spécialisée basée sur les données disponible
 
 
 
+
+
+
 <script src="script.js"></script>
+
 
 <script>
 
+
 const accesVIP = localStorage.getItem("az_vip_access");
+
 
 if(accesVIP !== "true"){
 
-    window.location.href = "vip.html";
+window.location.href = "vip.html";
 
 }
 
+
 </script>
+
+
+
 </body>
 
 </html>
