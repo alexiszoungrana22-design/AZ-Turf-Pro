@@ -1,5 +1,5 @@
 /* ===============================
-   AZ TURF PRO DESIGN V8 PREMIUM
+   AZ TURF PRO DESIGN V9 PREMIUM
 ================================ */
 
 
@@ -30,15 +30,18 @@ position:fixed;
 top:0;
 left:0;
 width:100%;
+
 height:75px;
 
 background:white;
 
 display:flex;
+
 align-items:center;
+
 justify-content:space-between;
 
-padding:0 25px;
+padding:0 20px;
 
 box-shadow:0 4px 15px rgba(0,0,0,.15);
 
@@ -51,6 +54,7 @@ z-index:1000;
 .brand-zone{
 
 display:flex;
+
 flex-direction:column;
 
 }
@@ -60,7 +64,9 @@ flex-direction:column;
 .logo{
 
 font-size:23px;
+
 font-weight:bold;
+
 color:#08783f;
 
 }
@@ -70,10 +76,10 @@ color:#08783f;
 .mini-countdown{
 
 font-size:12px;
-font-weight:bold;
-color:#08783f;
 
-margin-top:3px;
+font-weight:bold;
+
+color:#08783f;
 
 }
 
@@ -88,9 +94,11 @@ color:red;
 
 
 
+
 .top-menu{
 
 display:flex;
+
 gap:10px;
 
 }
@@ -99,19 +107,21 @@ gap:10px;
 
 .top-menu a{
 
-text-decoration:none;
 background:#08783f;
+
 color:white;
 
-padding:8px 15px;
+text-decoration:none;
+
+padding:8px 14px;
 
 border-radius:25px;
 
-font-size:14px;
+font-size:13px;
+
 font-weight:bold;
 
 }
-
 
 
 
@@ -250,7 +260,7 @@ border-bottom:1px solid #ddd;
 
 
 /* ===============================
- ANALYSE AZ HORIZONTAL
+ ANALYSE AZ
 ================================ */
 
 
@@ -259,8 +269,6 @@ border-bottom:1px solid #ddd;
 display:flex;
 
 gap:20px;
-
-justify-content:center;
 
 }
 
@@ -272,13 +280,13 @@ flex:1;
 
 background:#f4f7f8;
 
-padding:20px;
-
 border-radius:20px;
+
+padding:20px;
 
 text-align:center;
 
-border-top:5px solid #08783f;
+border-top:6px solid #08783f;
 
 }
 
@@ -294,7 +302,7 @@ border-top-color:#ff9800;
 
 .analyse-numero{
 
-font-size:45px;
+font-size:55px;
 
 font-weight:bold;
 
@@ -316,14 +324,14 @@ color:#ff9800;
 
 font-size:14px;
 
-line-height:1.5;
+line-height:1.6;
 
 }
 
 
 
 /* ===============================
- CHEVAUX JOUES HORIZONTAL
+ CHEVAUX LES PLUS JOUES
 ================================ */
 
 
@@ -332,6 +340,8 @@ line-height:1.5;
 display:flex;
 
 gap:15px;
+
+justify-content:center;
 
 overflow-x:auto;
 
@@ -343,17 +353,40 @@ padding:10px;
 
 .popular-card{
 
-min-width:140px;
+min-width:65px;
+
+height:65px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
 
 background:white;
 
-border-radius:18px;
+border-radius:50%;
 
-padding:18px;
-
-text-align:center;
+border-top:5px solid #08783f;
 
 box-shadow:0 4px 12px rgba(0,0,0,.15);
+
+font-size:25px;
+
+font-weight:bold;
+
+color:#08783f;
+
+}
+
+
+
+/* ===============================
+ TENDANCE
+================================ */
+
+
+.tendance-box{
 
 border-top:5px solid #08783f;
 
@@ -361,11 +394,17 @@ border-top:5px solid #08783f;
 
 
 
-.popular-card strong{
+#course-tendance{
 
-font-size:28px;
+background:#f4f7f8;
 
-color:#08783f;
+padding:20px;
+
+border-radius:18px;
+
+text-align:center;
+
+font-weight:bold;
 
 }
 
@@ -415,6 +454,7 @@ display:none;
 @media(max-width:700px){
 
 
+
 .top-header{
 
 height:70px;
@@ -422,6 +462,7 @@ height:70px;
 padding:0 10px;
 
 }
+
 
 
 .logo{
@@ -432,7 +473,7 @@ font-size:18px;
 
 
 
-.top-menu a{
+.top-menu{
 
 display:none;
 
@@ -470,8 +511,6 @@ padding:15px;
 
 overflow-x:auto;
 
-justify-content:flex-start;
-
 }
 
 
@@ -479,6 +518,14 @@ justify-content:flex-start;
 .analyse-cheval{
 
 min-width:85%;
+
+}
+
+
+
+.popular-horizontal{
+
+justify-content:flex-start;
 
 }
 
