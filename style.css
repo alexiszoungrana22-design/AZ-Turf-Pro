@@ -1,5 +1,5 @@
 /* ===============================
-   AZ TURF PRO - DESIGN PREMIUM
+   AZ TURF PRO - DESIGN PREMIUM V7
 ================================ */
 
 
@@ -8,9 +8,11 @@
 }
 
 
+
 body{
 
     margin:0;
+
     font-family:Arial,sans-serif;
 
     background:#f4f7f8;
@@ -20,13 +22,17 @@ body{
 }
 
 
+
+
 /* HEADER */
+
 
 .top-header{
 
     position:fixed;
 
     top:0;
+
     left:0;
 
     width:100%;
@@ -50,6 +56,7 @@ body{
 }
 
 
+
 .logo{
 
     display:flex;
@@ -66,6 +73,8 @@ body{
 
 
 
+
+
 .top-menu{
 
     display:flex;
@@ -73,6 +82,7 @@ body{
     gap:15px;
 
 }
+
 
 
 .top-menu a{
@@ -94,11 +104,14 @@ body{
 }
 
 
+
 .top-menu a:hover{
 
     transform:scale(1.05);
 
 }
+
+
 
 
 
@@ -109,13 +122,16 @@ body{
 
     padding-top:100px;
 
-    padding-bottom:70px;
+    padding-bottom:80px;
 
     max-width:1200px;
 
     margin:auto;
 
 }
+
+
+
 
 
 
@@ -141,6 +157,8 @@ body{
 }
 
 
+
+
 @keyframes apparition{
 
 from{
@@ -150,6 +168,7 @@ opacity:0;
 transform:translateY(15px);
 
 }
+
 
 to{
 
@@ -173,7 +192,39 @@ transform:translateY(0);
 
 
 
-/* HORLOGE */
+
+
+
+/* PUBLICITE */
+
+
+.pub-box{
+
+    border-top:5px solid #08783f;
+
+}
+
+
+
+.pub-content img{
+
+    width:100%;
+
+    height:130px;
+
+    object-fit:cover;
+
+    border-radius:18px;
+
+}
+
+
+
+
+
+
+
+/* COMPTE A REBOURS */
 
 
 .countdown{
@@ -200,32 +251,24 @@ transform:translateY(0);
 
 
 
-/* FAVORI ET OUTSIDER GRAND FORMAT */
 
 
-.favorite-box,
-.outsider-box{
 
 
-    width:95%;
-
-    margin:25px auto;
-
-    padding:30px;
-
-    background:white;
-
-    border-radius:25px;
-
-    text-align:center;
-
-    box-shadow:0 8px 20px rgba(0,0,0,.12);
-
-}
-
+/* FAVORI */
 
 
 .favorite-box{
+
+    width:100%;
+
+    padding:25px;
+
+    text-align:center;
+
+    border-radius:25px;
+
+    background:#f4f7f8;
 
     border-left:8px solid #08783f;
 
@@ -233,18 +276,9 @@ transform:translateY(0);
 
 
 
-.outsider-box{
+.favorite-number{
 
-    border-left:8px solid #ff9800;
-
-}
-
-
-
-.favorite-number,
-.outsider-number{
-
-    font-size:55px;
+    font-size:60px;
 
     font-weight:bold;
 
@@ -254,11 +288,61 @@ transform:translateY(0);
 
 
 
+
+
+.favorite-box h3{
+
+    font-size:26px;
+
+}
+
+
+
+
+
+
+
+/* OUTSIDER */
+
+
+.outsider-box{
+
+    width:100%;
+
+    padding:25px;
+
+    text-align:center;
+
+    border-radius:25px;
+
+    background:#f4f7f8;
+
+    border-left:8px solid #ff9800;
+
+}
+
+
+
 .outsider-number{
+
+    font-size:60px;
+
+    font-weight:bold;
 
     color:#ff9800;
 
 }
+
+
+
+.outsider-box h3{
+
+    font-size:26px;
+
+}
+
+
+
 
 
 
@@ -304,6 +388,10 @@ transform:translateY(0);
     color:#08783f;
 
 }
+
+
+
+
 
 
 
@@ -354,52 +442,7 @@ td{
 
 
 
-/* SELECTION HORIZONTALE */
 
-
-.selection-horizontal{
-
-    display:flex;
-
-    gap:12px;
-
-    overflow-x:auto;
-
-    padding:15px 0;
-
-}
-
-
-
-.cheval-mini{
-
-    min-width:145px;
-
-    padding:18px;
-
-    border-radius:18px;
-
-    background:white;
-
-    box-shadow:0 4px 12px rgba(0,0,0,.15);
-
-    text-align:center;
-
-    border-top:5px solid #08783f;
-
-}
-
-
-
-.mini-numero{
-
-    font-size:28px;
-
-    font-weight:bold;
-
-    color:#08783f;
-
-}
 
 
 
@@ -410,13 +453,72 @@ td{
 
     background:#f4f7f8;
 
-    padding:15px;
+    padding:18px;
 
-    border-radius:15px;
+    border-radius:18px;
 
-    margin:10px 0;
+    margin:12px 0;
+
+    border-left:5px solid #08783f;
 
 }
+
+
+
+
+
+
+
+/* ABONNEMENT */
+
+
+.ticket-box{
+
+    border-top:5px solid #08783f;
+
+}
+
+
+
+
+
+
+
+
+/* BOUTONS */
+
+
+button{
+
+    background:#08783f;
+
+    color:white;
+
+    border:none;
+
+    padding:12px 28px;
+
+    border-radius:25px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+
+
+button:hover{
+
+    transform:scale(1.05);
+
+}
+
+
+
+
 
 
 
@@ -445,27 +547,6 @@ td{
 
 
 
-/* BOUTONS */
-
-
-button{
-
-    background:#08783f;
-
-    color:white;
-
-    border:none;
-
-    padding:12px 25px;
-
-    border-radius:25px;
-
-    font-weight:bold;
-
-    cursor:pointer;
-
-}
-
 
 
 
@@ -478,6 +559,8 @@ button{
     display:none;
 
 }
+
+
 
 
 
@@ -502,10 +585,13 @@ grid-template-columns:repeat(2,1fr);
 
 
 
-/* TELEPHONE */
+
+
+/* MOBILE */
 
 
 @media(max-width:600px){
+
 
 
 .top-header{
@@ -526,6 +612,7 @@ font-size:18px;
 
 
 
+
 .top-menu a{
 
 padding:7px 10px;
@@ -533,6 +620,8 @@ padding:7px 10px;
 font-size:12px;
 
 }
+
+
 
 
 
@@ -544,11 +633,15 @@ padding-bottom:100px;
 
 
 
+
+
 .card{
 
 padding:18px;
 
 }
+
+
 
 
 
@@ -560,12 +653,16 @@ font-size:38px;
 
 
 
+
+
 .favorite-number,
 .outsider-number{
 
 font-size:45px;
 
 }
+
+
 
 
 
@@ -579,8 +676,8 @@ grid-template-columns:1fr;
 
 
 
-.bottom-menu{
 
+.bottom-menu{
 
 display:flex;
 
@@ -608,6 +705,7 @@ z-index:1000;
 
 
 
+
 .bottom-menu a{
 
 text-decoration:none;
@@ -621,5 +719,4 @@ font-weight:bold;
 }
 
 
-
-   }
+}
