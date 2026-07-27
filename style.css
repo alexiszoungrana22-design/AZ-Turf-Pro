@@ -676,3 +676,170 @@ width:90%;
 
 
 }
+/* ===============================
+   ANALYSE AZ PREMIUM
+================================ */
+
+
+.analyse-az{
+
+border-top:5px solid #08783f;
+
+}
+
+
+
+.analyse-az-container{
+
+display:flex;
+
+gap:20px;
+
+}
+
+
+
+.az-box{
+
+flex:1;
+
+background:#f4f7f8;
+
+padding:22px;
+
+border-radius:22px;
+
+text-align:center;
+
+box-shadow:0 4px 12px rgba(0,0,0,.08);
+
+}
+
+
+
+.favori-az{
+
+border-top:6px solid #08783f;
+
+}
+
+
+
+.outsider-az{
+
+border-top:6px solid #ff9800;
+
+}
+
+
+
+.az-box h3{
+
+font-size:18px;
+
+margin-bottom:15px;
+
+}
+
+
+
+.az-numero{
+
+font-size:60px;
+
+font-weight:bold;
+
+color:#08783f;
+
+}
+
+
+
+.outsider-numero{
+
+color:#ff9800;
+
+}
+
+
+
+.az-box h4{
+
+font-size:22px;
+
+margin:10px 0;
+
+}
+
+
+
+.az-box p{
+
+line-height:1.6;
+
+}
+
+
+
+.az-box strong{
+
+color:#08783f;
+
+}
+
+
+
+.outsider-az strong{
+
+color:#ff9800;
+
+}
+
+
+
+#favori-raison,
+#outsider-raison{
+
+background:white;
+
+padding:15px;
+
+border-radius:15px;
+
+margin-top:15px;
+
+font-weight:bold;
+
+}
+
+
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+
+.analyse-az-container{
+
+flex-direction:column;
+
+}
+
+
+
+.az-box{
+
+width:100%;
+
+}
+
+
+
+.az-numero{
+
+font-size:50px;
+
+}
+
+
+}
