@@ -28,21 +28,26 @@
 
 <nav class="top-menu">
 
+
 <a href="index.html">
 🏠 Accueil
 </a>
+
 
 <a href="analyse.html">
 📊 Analyse
 </a>
 
+
 <a href="ticket.html">
 🎟️ Ticket
 </a>
 
+
 <a href="historique.html">
 🏆 Historique
 </a>
+
 
 </nav>
 
@@ -63,11 +68,14 @@
 
 <section class="card vip-banner">
 
+
 <h1>⭐ AZ Turf Pro Premium</h1>
 
+
 <p>
-L'espace réservé aux analyses avancées et aux stratégies Premium.
+L'espace réservé aux analyses avancées et aux stratégies VIP.
 </p>
+
 
 </section>
 
@@ -77,7 +85,8 @@ L'espace réservé aux analyses avancées et aux stratégies Premium.
 
 
 
-<!-- ZONE NON PREMIUM -->
+
+<!-- OFFRES NON PREMIUM -->
 
 <section class="card" id="zone-offres">
 
@@ -91,25 +100,35 @@ Accédez aux fonctionnalités Premium AZ Turf Pro.
 
 
 
+
 <div class="vip-offres">
+
+
 
 
 
 <div class="vip-box">
 
+
 <h3>🟢 Mensuel</h3>
+
 
 <p>
 Accès Premium 30 jours
 </p>
 
+
 <p>
 💰 Prix : À définir
 </p>
 
+
 <button onclick="allerPaiement('Mensuel')">
+
 S'abonner
+
 </button>
+
 
 </div>
 
@@ -121,19 +140,26 @@ S'abonner
 
 <div class="vip-box">
 
+
 <h3>🔵 Trimestriel</h3>
+
 
 <p>
 Accès Premium 90 jours
 </p>
 
+
 <p>
 💰 Prix : À définir
 </p>
 
+
 <button onclick="allerPaiement('Trimestriel')">
+
 S'abonner
+
 </button>
+
 
 </div>
 
@@ -145,21 +171,30 @@ S'abonner
 
 <div class="vip-box">
 
+
 <h3>🟡 Annuel</h3>
+
 
 <p>
 Accès Premium 365 jours
 </p>
 
+
 <p>
 💰 Prix : À définir
 </p>
 
+
 <button onclick="allerPaiement('Annuel')">
+
 S'abonner
+
 </button>
 
+
 </div>
+
+
 
 
 
@@ -174,10 +209,11 @@ S'abonner
 
 
 
-<!-- ZONE PREMIUM ACTIVE -->
 
+<!-- ESPACE PREMIUM -->
 
 <section class="card" id="zone-premium" style="display:none;">
+
 
 
 <h2>
@@ -186,23 +222,38 @@ S'abonner
 
 
 <p>
-Votre compte Premium est actif ✅
+Votre abonnement est actif ✅
 </p>
+
+
+
+<p id="information-abonnement">
+
+</p>
+
+
 
 
 <ul>
 
+
 <li>⭐ Analyses Premium approfondies</li>
+
 
 <li>🎯 Combinaisons avancées</li>
 
+
 <li>📊 Champs réduits étudiés</li>
+
 
 <li>🏇 Avis jockeys et entraîneurs détaillés</li>
 
+
 <li>🔥 Stratégies VIP AZ</li>
 
+
 </ul>
+
 
 
 </section>
@@ -276,8 +327,8 @@ Retour Accueil
 
 
 
-
 <script>
+
 
 
 function allerPaiement(offre){
@@ -298,19 +349,68 @@ function verifierPremium(){
 
 
 
-const premium =
+const statut =
 localStorage.getItem("AZ_TURF_PREMIUM");
 
 
-
-if(premium === "ACTIF"){
-
-
-
-document.getElementById("zone-offres").style.display="none";
+const offre =
+localStorage.getItem("AZ_TURF_OFFRE");
 
 
-document.getElementById("zone-premium").style.display="block";
+const dateFin =
+localStorage.getItem("AZ_TURF_DATE_FIN");
+
+
+
+
+
+if(
+statut === "ACTIF"
+&&
+dateFin
+){
+
+
+
+const aujourdHui = new Date();
+
+const expiration = new Date(dateFin);
+
+
+
+
+
+if(aujourdHui < expiration){
+
+
+
+document.getElementById("zone-offres")
+.style.display="none";
+
+
+
+document.getElementById("zone-premium")
+.style.display="block";
+
+
+
+
+document.getElementById("information-abonnement")
+.innerHTML =
+
+"Abonnement : <strong>"
++
+offre
++
+"</strong><br>Expire le : <strong>"
++
+expiration.toLocaleDateString("fr-FR")
++
+"</strong>";
+
+
+
+return;
 
 
 }
@@ -318,6 +418,45 @@ document.getElementById("zone-premium").style.display="block";
 
 
 }
+
+
+
+
+// EXPIRATION
+
+localStorage.removeItem(
+"AZ_TURF_PREMIUM"
+);
+
+
+localStorage.removeItem(
+"AZ_TURF_OFFRE"
+);
+
+
+localStorage.removeItem(
+"AZ_TURF_DATE_DEBUT"
+);
+
+
+localStorage.removeItem(
+"AZ_TURF_DATE_FIN"
+);
+
+
+
+document.getElementById("zone-offres")
+.style.display="block";
+
+
+
+document.getElementById("zone-premium")
+.style.display="none";
+
+
+
+}
+
 
 
 
@@ -327,6 +466,7 @@ verifierPremium();
 
 
 </script>
+
 
 
 </body>
