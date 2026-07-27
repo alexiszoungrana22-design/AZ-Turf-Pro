@@ -32,8 +32,9 @@ data.chevaux ||
 
 
 
+
 // ===============================
-// 7 CHEVAUX RETENUS AZ
+// SELECTION AZ 7 CHEVAUX
 // ===============================
 
 
@@ -65,45 +66,6 @@ chevaux
 
 }
 
-
-
-
-
-
-
-
-// ===============================
-// QUINTE 8 CHEVAUX
-// ===============================
-
-
-const quinte =
-document.getElementById("quinte-ticket");
-
-
-if(quinte){
-
-
-quinte.innerHTML = `
-
-
-<strong>
-
-${
-chevaux
-.slice(0,8)
-.map(c => c.numero)
-.join(" - ")
-}
-
-</strong>
-
-
-`;
-
-
-
-}
 
 
 
@@ -153,6 +115,7 @@ chevaux
 
 
 
+
 // ===============================
 // OUTSIDER AZ
 // ===============================
@@ -186,6 +149,7 @@ N°${cheval ? cheval.numero : "-"}
 
 
 }
+
 
 
 
@@ -235,6 +199,7 @@ N°${cheval ? cheval.numero : "-"}
 
 
 
+
 // ===============================
 // ACTUALITES
 // ===============================
@@ -252,19 +217,17 @@ actualites.innerHTML = `
 
 
 <p>
-
 📰 Informations course du jour
-
 </p>
 
 
 <ul>
 
-<li>Analyse des chevaux engagés</li>
+<li>Analyse des engagés</li>
 
-<li>Suivi de la forme et des conditions</li>
+<li>Suivi de la forme des chevaux</li>
 
-<li>Dernières informations avant le départ</li>
+<li>Informations importantes avant le départ</li>
 
 </ul>
 
@@ -274,6 +237,7 @@ actualites.innerHTML = `
 
 
 }
+
 
 
 
@@ -345,7 +309,10 @@ zone.value = "";
 
 
 
+
+
 }
+
 
 
 catch(error){
@@ -362,6 +329,7 @@ error
 
 
 }
+
 
 
 
