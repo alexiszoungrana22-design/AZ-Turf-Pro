@@ -367,11 +367,8 @@ raisonOutsider(outsider);
 if(popular){
 
 
-const numeros = chevaux
-.slice(0,5)
-.map(cheval => cheval.numero);
-
-
+const numeros = data.plus_joues || [];
+const source = data.source_plus_joues || "";
 
 popular.innerHTML = `
 
@@ -381,14 +378,13 @@ ${numeros.join(" - ")}
 
 </div>
 
-
 <p>
-Source : Turf.fr
+
+Source : ${source}
+
 </p>
 
 `;
-
-}
 
 
 
