@@ -3,82 +3,55 @@ def generer_tickets_az(classement):
     Génération des tickets AZ Turf Pro
 
     GRATUIT :
-    - Quinté 8 chevaux
-    - Quarté 5 chevaux
-    - Tiercé 4 chevaux
+    - Quinté 7 chevaux
     - 2 sur 4 4 chevaux
+    - Couplé placé 2 chevaux
 
     VIP :
-    - Ticket 7 chevaux
-    - Ticket 5 chevaux
-    - Champ réduit dynamique
-    - Couplé gagnant
-    - Couplé placé
+    - Quinté Premium 7 chevaux
+    - Quarté 5 chevaux
+    - Trio 4 chevaux
+    - Champ réduit
+    - Couplé gagnant/placé 3 chevaux
     """
 
     if not isinstance(classement, list) or not classement:
-        return {
-            "quinte": [],
-            "quarte": [],
-            "trio": [],
-            "deux_sur_quatre": [],
-            "couple_gagnant": [],
-            "couple_place": [],
-            "vip": {
-                "ticket_7": [],
-                "ticket_5": [],
-                "champ_reduit": {
-                    "format": "",
-                    "bases": [],
-                    "complements": []
-                }
-            }
-        }
+        return {}
 
 
     numeros = []
 
     for cheval in classement:
         numero = cheval.get("numero")
-
         if numero is not None:
             numeros.append(numero)
 
 
-    if len(numeros) < 2:
-        return {
-            "quinte": numeros,
-            "quarte": numeros,
-            "trio": numeros,
-            "deux_sur_quatre": numeros,
-            "couple_gagnant": [],
-            "couple_place": [],
-            "vip": {
-                "ticket_7": numeros,
-                "ticket_5": numeros,
-                "champ_reduit": {
-                    "format": "",
-                    "bases": numeros,
-                    "complements": []
-                }
-            }
-        }
+    base7 = numeros[:7]
+    base5 = numeros[:5]
+    base4 = numeros[:4]
 
 
-    # Base analyse AZ
-    base_az = numeros[:7]
+    # Couplé VIP 3 chevaux
+    couple_vip = base7[:3]
 
-    # Base gratuite
-    base_gratuite = numeros[:8]
+    couples = [
+        [couple_vip[0], couple_vip[1]],
+        [couple_vip[0], couple_vip[2]],
+        [couple_vip[1], couple_vip[2]]
+    ]
 
 
-    # -------------------------
-    # Champ réduit dynamique
-    # -------------------------
+    # Couplé placé gratuit 2 chevaux
+    couple_place_gratuit = [
+        base7[0],
+        base7[1]
+    ]
 
-    bases = base_az[:5]
 
-    # Placement dynamique des X
+    # Champ réduit
+    bases = base7[:5]
+
     champ = [
         bases[0],
         "X",
@@ -87,7 +60,8 @@ def generer_tickets_az(classement):
         "X"
     ]
 
-    complements = base_az[3:7]
+    complements = base7[3:7]
+
 
     format_champ = (
         f"{champ[0]}-{champ[1]}-{champ[2]}-"
@@ -98,50 +72,31 @@ def generer_tickets_az(classement):
 
     return {
 
+
         # GRATUIT
 
-        "quinte": base_gratuite[:8],
+        "gratuit": {
 
-        "quarte": base_gratuite[:5],
+            "quinte": base7,
 
-        "trio": base_gratuite[:4],
+            "deux_sur_quatre": base4,
 
-        "deux_sur_quatre": base_gratuite[:4],
+            "couple_place": couple_place_gratuit
 
-
-
-        # COUPLES
-
-        "couple_gagnant": [
-            base_az[0],
-            base_az[1]
-        ],
-
-
-        "couple_place": [
-            [
-                base_az[0],
-                base_az[1]
-            ],
-            [
-                base_az[0],
-                base_az[2]
-            ],
-            [
-                base_az[1],
-                base_az[2]
-            ]
-        ],
-
+        },
 
 
         # VIP
 
         "vip": {
 
-            "ticket_7": base_az[:7],
+            "quinte": base7,
 
-            "ticket_5": base_az[:5],
+            "quarte": base5,
+
+            "trio": base4,
+
+            "couple_gagnant_place": couples,
 
             "champ_reduit": {
 
