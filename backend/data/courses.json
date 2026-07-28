@@ -118,7 +118,7 @@
       "experience": 7
     },
 
-    {
+    { 
       "numero": 7,
       "nom": "Cheval AZ 7",
       "age": 5,
@@ -137,3 +137,5 @@
     }
 
   ]
+
+}
