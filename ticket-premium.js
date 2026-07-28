@@ -17,7 +17,6 @@ async function chargerTicketPremium(){
         console.log("Données Premium :", data);
 
 
-
         const tickets = data.tickets || {};
 
 
@@ -69,13 +68,14 @@ async function chargerTicketPremium(){
     catch(error){
 
         console.error(
-            "Erreur Premium :",
+            "Erreur chargement Premium :",
             error
         );
 
     }
 
 }
+
 
 
 
@@ -148,6 +148,7 @@ function afficherClassement(classement){
 
 
 
+
 function afficherTicket(id,ticket){
 
     const zone =
@@ -161,6 +162,7 @@ function afficherTicket(id,ticket){
     ticket.join(" - ");
 
 }
+
 
 
 
@@ -203,7 +205,8 @@ function afficherChampReduit(champ){
     if(!zone || !champ) return;
 
 
-    zone.innerHTML = champ.format;
+    zone.innerHTML =
+    champ.format;
 
 }
 
