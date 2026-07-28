@@ -363,9 +363,7 @@ raisonOutsider(outsider);
 
 // CHEVAUX LES PLUS JOUÉS
 
-
 if(popular){
-
 
 const numeros = data.plus_joues || [];
 const source = data.source_plus_joues || "";
@@ -373,18 +371,16 @@ const source = data.source_plus_joues || "";
 popular.innerHTML = `
 
 <div class="ticket-grand">
-
 ${numeros.join(" - ")}
-
 </div>
 
 <p>
-
 Source : ${source}
-
 </p>
 
 `;
+
+}
 
 
 
