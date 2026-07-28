@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Ticket Premium - AZ Turf Pro</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<header class="top-header">
+
+
+<div class="logo">
+
+🏇 <span>AZ Turf Pro</span>
+
+</div>
+
+
+<nav class="top-menu">
+
+<a href="index.html">
+🏠 Accueil
+</a>
+
+<a href="espace-premium.html">
+⭐ Premium
+</a>
+
+</nav>
+
+
+</header>
+
+
+
+
+
+
+
+<main class="content">
+
+
+
+
+
+<section class="card">
+
+
+<h1>🎟️ Ticket Premium AZ</h1>
+
+
+<p>
+Réservé aux membres Premium actifs.
+</p>
+
+
+</section>
+
+
+
+
+
+
+
+
+<section class="card">
+
+
+<h2>🏇 Course du jour</h2>
+
+
+<p>
+📍 Hippodrome :
+<strong id="hippodrome">-</strong>
+</p>
+
+
+<p>
+🏆 Course :
+<strong id="course">-</strong>
+</p>
+
+
+</section>
+
+
+
+
+
+
+
+
+<section class="card">
+
+
+<h2>⭐ Sélection Premium (7 chevaux)</h2>
+
+
+<div id="selection-premium">
+
+Chargement...
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+<section class="card">
+
+
+<h2>🏆 Tickets Premium</h2>
+
+
+
+
+<div class="ticket-box">
+
+
+<h3>🏆 Quinté Premium</h3>
+
+<p id="quinte-premium">
+
+Chargement...
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+<div class="ticket-box">
+
+
+<h3>🎯 Quarté Premium</h3>
+
+<p id="quarte-premium">
+
+Chargement...
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="ticket-box">
+
+
+<h3>🔥 Trio Premium</h3>
+
+<p id="trio-premium">
+
+Chargement...
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="ticket-box">
+
+
+<h3>🔒 Champ réduit</h3>
+
+<p id="champ-premium">
+
+Chargement...
+
+</p>
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<section class="card">
+
+
+<h2>📊 Analyse Premium</h2>
+
+
+<div id="analyse-premium">
+
+
+Chargement des informations avancées...
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+<section class="card">
+
+
+<a href="espace-premium.html">
+
+⬅️ Retour Espace Premium
+
+</a>
+
+
+</section>
+
+
+
+
+
+</main>
+
+
+
+
+
+
+
+
+<footer class="bottom-menu">
+
+
+<a href="index.html">
+🏠 Accueil
+</a>
+
+
+<a href="analyse.html">
+📊 Analyse
+</a>
+
+
+<a href="ticket.html">
+🎟️ Ticket
+</a>
+
+
+<a href="historique.html">
+🏆 Historique
+</a>
+
+
+<a href="espace-premium.html">
+⭐ Premium
+</a>
+
+
+</footer>
+
+
+
+
+
+
+
+<script>
+
+
+function verifierPremium(){
+
+
+const statut =
+localStorage.getItem("AZ_TURF_PREMIUM");
+
+
+const fin =
+localStorage.getItem("AZ_TURF_DATE_FIN");
+
+
+
+if(
+statut !== "ACTIF"
+||
+!fin
+||
+new Date() > new Date(fin)
+
+){
+
+
+alert("Accès Premium expiré.");
+
+window.location.href =
+"espace-vip.html";
+
+
+return false;
+
+
+}
+
+
+return true;
+
+
+}
+
+
+
+if(verifierPremium()){
+
+
+const script =
+document.createElement("script");
+
+
+script.src =
+"ticket-premium.js?v=1";
+
+
+document.body.appendChild(script);
+
+
+}
+
+
+</script>
+
+
+
+</body>
+
+  </html>
