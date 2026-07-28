@@ -1399,3 +1399,33 @@ width:90%;
 
 
 }
+
+.ticket-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: bold;
+    margin: 15px 0;
+}
+
+
+.ticket-box span,
+.numero-cheval {
+    font-size: 30px;
+    font-weight: 800;
+    padding: 8px 14px;
+    border-radius: 10px;
+}
+
+
+#classement-premium {
+    font-size: 18px;
+}
+
+
+.cheval-premium {
+    padding: 8px;
+    margin: 5px 0;
+}
