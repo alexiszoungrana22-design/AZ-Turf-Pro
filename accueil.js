@@ -1,21 +1,12 @@
 const API = "https://az-turf-pro.onrender.com/api/analyse";
 
-
-// Informations course
-
 const hippodrome = document.getElementById("meta-hippodrome");
 const course = document.getElementById("meta-course");
 const discipline = document.getElementById("meta-discipline");
 const distance = document.getElementById("meta-distance");
 const partants = document.getElementById("meta-partants");
 
-
-// Tableau
-
 const horsesTable = document.getElementById("all-horses");
-
-
-// Analyse
 
 const favoriNumero = document.getElementById("favori-numero");
 const favoriNom = document.getElementById("favori-nom");
@@ -23,168 +14,72 @@ const favoriIndice = document.getElementById("favori-indice");
 const favoriConfiance = document.getElementById("favori-confiance");
 const favoriRaison = document.getElementById("favori-raison");
 
-
 const outsiderNumero = document.getElementById("outsider-numero");
 const outsiderNom = document.getElementById("outsider-nom");
 const outsiderIndice = document.getElementById("outsider-indice");
 const outsiderConfiance = document.getElementById("outsider-confiance");
 const outsiderRaison = document.getElementById("outsider-raison");
 
-
-// Chevaux joués
-
 const popular = document.getElementById("popular-horses");
 
-
-// Tendance
-
 const tendance = document.getElementById("course-tendance");
-
-
-// Chrono
 
 const miniCountdown = document.getElementById("mini-countdown");
 
 
-
-
-
-function raisonFavori(cheval){
-
+function raisonFavori(){
 return `
-✅ Indice supérieur<br>
+✅ Meilleur indice<br>
 ✅ Bonne régularité<br>
-✅ Profil adapté à la course
+✅ Profil adapté
 `;
-
 }
 
 
-
-function raisonOutsider(cheval){
-
+function raisonOutsider(){
 return `
 🔥 Rapport intéressant<br>
-🔥 Peut améliorer sa position<br>
-🔥 Profil pour surprendre
+🔥 Peut surprendre
 `;
-
 }
-
-
-
-
-
-
-
-function lancerChrono(heure){
-
-
-if(!heure || !miniCountdown){
-
-return;
-
-}
-
-
-setInterval(()=>{
-
-
-const maintenant = new Date();
-
-const depart = new Date();
-
-
-const temps = heure.split(":");
-
-
-depart.setHours(temps[0]);
-
-depart.setMinutes(temps[1]);
-
-depart.setSeconds(0);
-
-
-
-let diff = depart - maintenant;
-
-
-
-if(diff <= 0){
-
-miniCountdown.innerHTML="🏇 Course en cours";
-
-return;
-
-}
-
-
-
-let minutes = Math.floor(diff / 60000);
-
-let secondes = Math.floor((diff % 60000)/1000);
-
-
-
-miniCountdown.innerHTML =
-"⏱ "+minutes+"m "+secondes+"s";
-
-
-
-if(minutes <= 5){
-
-miniCountdown.classList.add("urgent");
-
-}else{
-
-miniCountdown.classList.remove("urgent");
-
-}
-
-
-
-},1000);
-
-
-}
-
-
-
-
 
 
 
 function afficherTendance(chevaux){
 
-
 if(!tendance) return;
-
-
 
 if(chevaux.length >= 8){
 
 tendance.innerHTML =
-"📈 Course ouverte : plusieurs chevaux peuvent jouer un rôle. Favori solide avec un outsider intéressant.";
+"📈 Course ouverte";
 
 }else{
 
 tendance.innerHTML =
-"⭐ Course plus lisible : les bases semblent se dégager.";
+"⭐ Course plus lisible";
+
+}
 
 }
 
 
+
+function lancerChrono(){
+
+if(miniCountdown){
+
+miniCountdown.innerHTML="⏱ Départ : --:--:--";
+
 }
 
-
-
+}
 
 
 
 
 
 async function chargerAccueil(){
-
 
 try{
 
@@ -194,10 +89,9 @@ const response = await fetch(API);
 
 if(!response.ok){
 
-throw new Error("Erreur API");
+throw new Error("API inaccessible");
 
 }
-
 
 
 const data = await response.json();
@@ -212,9 +106,7 @@ data.chevaux ||
 
 
 
-
 // COURSE
-
 
 if(hippodrome)
 hippodrome.textContent=data.hippodrome || "-";
@@ -233,26 +125,20 @@ distance.textContent=(data.distance_course || "-")+" m";
 
 
 if(partants)
-partants.textContent=chevaux.length;
+partants.textContent=data.partants || chevaux.length;
 
 
 
 
 
-
-
-
-// TABLEAU PARTANTS
-
+// PARTANTS
 
 if(horsesTable){
-
 
 horsesTable.innerHTML="";
 
 
 chevaux.forEach((cheval)=>{
-
 
 horsesTable.innerHTML += `
 
@@ -260,7 +146,7 @@ horsesTable.innerHTML += `
 
 <td>${cheval.numero || "-"}</td>
 
-<td><strong>${cheval.nom || "Cheval"}</strong></td>
+<td>${cheval.nom || "-"}</td>
 
 <td>${cheval.jockey || "-"}</td>
 
@@ -268,19 +154,13 @@ horsesTable.innerHTML += `
 
 <td>${cheval.cote || "-"}</td>
 
-<td>${cheval.type || "Chance"}</td>
-
 </tr>
 
 `;
 
 });
 
-
 }
-
-
-
 
 
 
@@ -288,36 +168,31 @@ horsesTable.innerHTML += `
 
 // FAVORI
 
-
 if(chevaux[0]){
 
-
-const favori = chevaux[0];
-
-
-favoriNumero.textContent =
-"N°"+favori.numero;
+let favori=chevaux[0];
 
 
-favoriNom.textContent =
-favori.nom || "Favori";
+if(favoriNumero)
+favoriNumero.textContent="N°"+favori.numero;
 
 
-favoriIndice.textContent =
-favori.indice_az || "-";
+if(favoriNom)
+favoriNom.textContent=favori.nom;
 
 
-favoriConfiance.textContent =
-(favori.confiance || "-")+" %";
+if(favoriIndice)
+favoriIndice.textContent=favori.indice_az;
 
 
-favoriRaison.innerHTML =
-raisonFavori(favori);
+if(favoriConfiance)
+favoriConfiance.textContent=(favori.confiance || "-")+" %";
 
+
+if(favoriRaison)
+favoriRaison.innerHTML=raisonFavori();
 
 }
-
-
 
 
 
@@ -325,32 +200,29 @@ raisonFavori(favori);
 
 // OUTSIDER
 
-
 if(chevaux[3]){
 
-
-const outsider = chevaux[3];
-
-
-outsiderNumero.textContent =
-"N°"+outsider.numero;
+let outsider=chevaux[3];
 
 
-outsiderNom.textContent =
-outsider.nom || "Outsider";
+if(outsiderNumero)
+outsiderNumero.textContent="N°"+outsider.numero;
 
 
-outsiderIndice.textContent =
-outsider.indice_az || "-";
+if(outsiderNom)
+outsiderNom.textContent=outsider.nom;
 
 
-outsiderConfiance.textContent =
-(outsider.confiance || "-")+" %";
+if(outsiderIndice)
+outsiderIndice.textContent=outsider.indice_az;
 
 
-outsiderRaison.innerHTML =
-raisonOutsider(outsider);
+if(outsiderConfiance)
+outsiderConfiance.textContent=(outsider.confiance || "-")+" %";
 
+
+if(outsiderRaison)
+outsiderRaison.innerHTML=raisonOutsider();
 
 }
 
@@ -358,24 +230,28 @@ raisonOutsider(outsider);
 
 
 
-
-
-
-// CHEVAUX LES PLUS JOUÉS
+// PLUS JOUÉS SOURCE API
 
 if(popular){
 
-const numeros = data.plus_joues || [];
-const source = data.source_plus_joues || "";
+
+let numeros = data.plus_joues || [];
+
+let source = data.source_plus_joues || "";
+
 
 popular.innerHTML = `
 
 <div class="ticket-grand">
+
 ${numeros.join(" - ")}
+
 </div>
 
 <p>
+
 Source : ${source}
+
 </p>
 
 `;
@@ -386,45 +262,24 @@ Source : ${source}
 
 
 
-
-
-
-// TENDANCE
-
-
 afficherTendance(chevaux);
 
 
-
-
-
-
-// CHRONO
-
-
-lancerChrono(data.heure_depart);
+lancerChrono();
 
 
 
 }
-
-
 catch(error){
-
 
 console.log(
 "Erreur accueil :",
 error
 );
 
-
 }
 
-
-
 }
-
-
 
 
 
