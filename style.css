@@ -1431,7 +1431,8 @@ width:90%;
 }
 
  /* ==============================
-   AZ Turf Pro - Design Ticket Premium
+   AZ Turf Pro - Boules Ticket Premium
+   Grande taille numéros
    ============================== */
 
 
@@ -1440,8 +1441,8 @@ width:90%;
     display:flex;
     flex-wrap:wrap;
     justify-content:center;
-    gap:12px;
-    margin:15px 0;
+    gap:14px;
+    margin:20px 0;
 
 }
 
@@ -1449,8 +1450,8 @@ width:90%;
 
 .boule-numero {
 
-    width:55px;
-    height:55px;
+    width:65px;
+    height:65px;
 
     display:flex;
     align-items:center;
@@ -1458,7 +1459,7 @@ width:90%;
 
     border-radius:50%;
 
-    font-size:28px;
+    font-size:34px;
     font-weight:900;
 
     background:#ffffff;
@@ -1466,7 +1467,7 @@ width:90%;
     border:3px solid #d4af37;
 
     box-shadow:
-    0 3px 8px rgba(0,0,0,0.25);
+    0 4px 10px rgba(0,0,0,0.25);
 
 }
 
@@ -1476,11 +1477,11 @@ width:90%;
 
     margin-top:15px;
 
-    padding:12px;
+    padding:15px;
 
     text-align:center;
 
-    font-size:20px;
+    font-size:22px;
 
     font-weight:bold;
 
@@ -1492,7 +1493,7 @@ width:90%;
 
     text-align:center;
 
-    line-height:1.6;
+    line-height:1.7;
 
 }
 
@@ -1502,11 +1503,11 @@ width:90%;
 
     text-align:center;
 
-    font-size:24px;
+    font-size:28px;
 
     font-weight:bold;
 
-    padding:15px;
+    padding:20px;
 
 }
 
@@ -1514,34 +1515,27 @@ width:90%;
 
 #classement-premium div {
 
-    padding:8px;
+    padding:10px;
 
-    margin:5px 0;
+    margin:6px 0;
 
-    font-size:18px;
+    font-size:20px;
 
 }
 
 
 
-/* Mobile */
+/* Téléphone */
 
 @media(max-width:600px){
 
     .boule-numero {
 
-        width:48px;
+        width:60px;
 
-        height:48px;
+        height:60px;
 
-        font-size:24px;
-
-    }
-
-
-    .champ-reduit {
-
-        font-size:20px;
+        font-size:32px;
 
     }
 
