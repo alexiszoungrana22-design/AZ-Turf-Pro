@@ -230,29 +230,29 @@ outsiderRaison.innerHTML=raisonOutsider();
 
 
 
-// PLUS JOUÉS SOURCE API
+// CHEVAUX LES PLUS JOUÉS
 
 if(popular){
 
+const numeros = data.plus_joues || [];
 
-let numeros = data.plus_joues || [];
-
-let source = data.source_plus_joues || "";
+const source = data.source_plus_joues || "";
 
 
 popular.innerHTML = `
 
-<div class="ticket-grand">
+<div style="font-size:32px;font-weight:bold;text-align:center;">
 
 ${numeros.join(" - ")}
 
 </div>
 
-<p>
+
+<div style="text-align:center;margin-top:10px;">
 
 Source : ${source}
 
-</p>
+</div>
 
 `;
 
