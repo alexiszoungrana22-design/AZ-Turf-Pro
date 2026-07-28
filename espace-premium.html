@@ -44,11 +44,6 @@
 </a>
 
 
-<a href="historique.html">
-🏆 Historique
-</a>
-
-
 <a href="espace-vip.html">
 ⭐ VIP
 </a>
@@ -75,11 +70,11 @@
 <section class="card">
 
 
-<h1>🏆 Espace Premium</h1>
+<h1>🏆 Espace Premium AZ Turf Pro</h1>
 
 
 <p>
-Bienvenue dans votre espace réservé aux membres actifs.
+Bienvenue dans votre espace réservé aux membres Premium actifs.
 </p>
 
 
@@ -95,17 +90,18 @@ Bienvenue dans votre espace réservé aux membres actifs.
 <section class="card">
 
 
-<h2>📋 Votre abonnement</h2>
+<h2>📋 Mon abonnement</h2>
 
 
 <div id="infos-premium">
 
-Vérification...
+Vérification de votre compte...
 
 </div>
 
 
 </section>
+
 
 
 
@@ -118,7 +114,7 @@ Vérification...
 
 
 
-<h2>⭐ Accès Premium</h2>
+<h2>⭐ Services Premium</h2>
 
 
 
@@ -131,10 +127,11 @@ Vérification...
 ⭐ Analyse Premium
 
 <p>
-Analyse approfondie des courses et des profils chevaux.
+Analyse approfondie des courses et profils chevaux.
 </p>
 
 </div>
+
 
 
 
@@ -145,10 +142,11 @@ Analyse approfondie des courses et des profils chevaux.
 🎯 Sélection avancée
 
 <p>
-Sélection AZ renforcée pour les membres.
+Sélection AZ renforcée avec plus d'informations.
 </p>
 
 </div>
+
 
 
 
@@ -159,10 +157,11 @@ Sélection AZ renforcée pour les membres.
 📊 Étude des chevaux
 
 <p>
-Analyse de la forme, régularité et conditions.
+Forme, régularité, conditions et potentiel.
 </p>
 
 </div>
+
 
 
 
@@ -173,7 +172,7 @@ Analyse de la forme, régularité et conditions.
 🏇 Avis jockeys et entraîneurs
 
 <p>
-Informations supplémentaires sur les concurrents.
+Informations complémentaires réservées aux membres.
 </p>
 
 </div>
@@ -182,22 +181,27 @@ Informations supplémentaires sur les concurrents.
 
 
 
-<div class="vip-item">
-
-🔥 Stratégies AZ
-
-<p>
-Approches Premium réservées aux abonnés.
-</p>
-
 </div>
 
 
 
-</div>
+
+
+
+<br>
+
+
+<a href="ticket-premium.html" class="btn-vip">
+
+🎟️ Voir mon Ticket Premium
+
+</a>
+
 
 
 </section>
+
+
 
 
 
@@ -231,8 +235,8 @@ Renouveler mon abonnement
 
 
 
-
 </main>
+
 
 
 
@@ -277,11 +281,11 @@ Renouveler mon abonnement
 
 
 
+
 <script>
 
 
-
-function verifierAccesPremium(){
+function verifierPremium(){
 
 
 
@@ -324,27 +328,37 @@ if(maintenant < expiration){
 
 
 
-document.getElementById("contenu-premium")
-.style.display="block";
+document.getElementById(
+"contenu-premium"
+).style.display="block";
 
 
 
-document.getElementById("infos-premium")
-.innerHTML = `
+
+
+document.getElementById(
+"infos-premium"
+).innerHTML = `
+
 
 <p>
 ⭐ Formule :
-<strong>${offre}</strong>
+<strong>${offre || "Premium"}</strong>
 </p>
 
+
 <p>
-📅 Expire le :
-<strong>${expiration.toLocaleDateString("fr-FR")}</strong>
+📅 Expiration :
+<strong>
+${expiration.toLocaleDateString("fr-FR")}
+</strong>
 </p>
+
 
 <p>
 ✅ Statut : Actif
 </p>
+
 
 `;
 
@@ -363,13 +377,15 @@ return;
 
 
 
-document.getElementById("message-blocage")
-.style.display="block";
+document.getElementById(
+"message-blocage"
+).style.display="block";
 
 
 
-document.getElementById("infos-premium")
-.innerHTML =
+document.getElementById(
+"infos-premium"
+).innerHTML =
 
 "❌ Aucun abonnement Premium actif.";
 
@@ -381,7 +397,7 @@ document.getElementById("infos-premium")
 
 
 
-verifierAccesPremium();
+verifierPremium();
 
 
 
