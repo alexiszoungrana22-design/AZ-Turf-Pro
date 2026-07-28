@@ -16,13 +16,31 @@ def generer_tickets_az(classement):
     """
 
     if not isinstance(classement, list) or not classement:
-        return {}
+        return {
+            "gratuit": {
+                "quinte": [],
+                "deux_sur_quatre": [],
+                "couple_place": []
+            },
+            "vip": {
+                "quinte": [],
+                "quarte": [],
+                "trio": [],
+                "couple_gagnant_place": [],
+                "champ_reduit": {
+                    "format": "",
+                    "bases": [],
+                    "complements": []
+                }
+            }
+        }
 
 
     numeros = []
 
     for cheval in classement:
         numero = cheval.get("numero")
+
         if numero is not None:
             numeros.append(numero)
 
@@ -32,48 +50,68 @@ def generer_tickets_az(classement):
     base4 = numeros[:4]
 
 
-    # Couplé VIP 3 chevaux
+    # -------------------------
+    # COUPLE PLACE GRATUIT
+    # -------------------------
+
+    couple_place = []
+
+    if len(base7) >= 2:
+        couple_place = [
+            base7[0],
+            base7[1]
+        ]
+
+
+    # -------------------------
+    # COUPLE GAGNANT/PLACE VIP
+    # 3 chevaux
+    # -------------------------
+
     couple_vip = base7[:3]
 
-    couples = [
-        [couple_vip[0], couple_vip[1]],
-        [couple_vip[0], couple_vip[2]],
-        [couple_vip[1], couple_vip[2]]
-    ]
+    couples = []
+
+    if len(couple_vip) >= 3:
+        couples = [
+            [
+                couple_vip[0],
+                couple_vip[1]
+            ],
+            [
+                couple_vip[0],
+                couple_vip[2]
+            ],
+            [
+                couple_vip[1],
+                couple_vip[2]
+            ]
+        ]
 
 
-    # Couplé placé gratuit 2 chevaux
-    couple_place_gratuit = [
-        base7[0],
-        base7[1]
-    ]
+    # -------------------------
+    # CHAMP REDUIT
+    # -------------------------
 
-
-    # Champ réduit
     bases = base7[:5]
-
-    champ = [
-        bases[0],
-        "X",
-        bases[1],
-        bases[2],
-        "X"
-    ]
-
     complements = base7[3:7]
 
 
-    format_champ = (
-        f"{champ[0]}-{champ[1]}-{champ[2]}-"
-        f"{champ[3]}-{champ[4]}/"
-        f"{'-'.join(map(str, complements))}"
-    )
+    format_champ = ""
+
+    if bases:
+        format_champ = (
+            "-".join(map(str, bases))
+            + "/"
+            + "-".join(map(str, complements))
+        )
 
 
     return {
 
-
+        # =====================
         # GRATUIT
+        # =====================
 
         "gratuit": {
 
@@ -81,12 +119,14 @@ def generer_tickets_az(classement):
 
             "deux_sur_quatre": base4,
 
-            "couple_place": couple_place_gratuit
+            "couple_place": couple_place
 
         },
 
 
+        # =====================
         # VIP
+        # =====================
 
         "vip": {
 
@@ -102,7 +142,7 @@ def generer_tickets_az(classement):
 
                 "format": format_champ,
 
-                "bases": champ,
+                "bases": bases,
 
                 "complements": complements
 
