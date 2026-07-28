@@ -6,6 +6,7 @@
 const API_URL = "https://az-turf-pro.onrender.com/api/analyse";
 
 
+
 async function chargerTicketPremium(){
 
     try{
@@ -14,15 +15,20 @@ async function chargerTicketPremium(){
 
         const data = await response.json();
 
+
         console.log("Données Premium :", data);
+
 
 
         const tickets = data.tickets || {};
 
 
+
         afficherInfosCourse(data);
 
+
         afficherFavori(data.favori);
+
 
 
         afficherClassement(
@@ -30,11 +36,24 @@ async function chargerTicketPremium(){
         );
 
 
-        afficherTicket("ticket-quinte", tickets.quinte);
 
-        afficherTicket("ticket-quarte", tickets.quarte);
+        afficherTicket(
+            "ticket-quinte",
+            tickets.quinte
+        );
 
-        afficherTicket("ticket-trio", tickets.trio);
+
+        afficherTicket(
+            "ticket-quarte",
+            tickets.quarte
+        );
+
+
+        afficherTicket(
+            "ticket-trio",
+            tickets.trio
+        );
+
 
         afficherTicket(
             "ticket-couple-gagnant",
@@ -42,9 +61,11 @@ async function chargerTicketPremium(){
         );
 
 
+
         afficherCouplePlace(
             tickets.couple_place
         );
+
 
 
         afficherChampReduit(
@@ -52,9 +73,11 @@ async function chargerTicketPremium(){
         );
 
 
+
         afficherTicketDeuxHeures(
             tickets.ticket_2h_avant
         );
+
 
 
     }
@@ -72,10 +95,13 @@ async function chargerTicketPremium(){
 
 
 
+
 function afficherInfosCourse(data){
 
     const zone =
-    document.getElementById("infos-course");
+    document.getElementById(
+        "infos-course"
+    );
 
 
     if(!zone) return;
@@ -84,9 +110,13 @@ function afficherInfosCourse(data){
     zone.innerHTML = `
 
     ${data.course || ""}<br>
+
     ${data.date || ""}<br>
+
     ${data.hippodrome || ""}<br>
+
     ${data.reunion || ""} ${data.course_numero || ""}<br>
+
     Distance : ${data.distance_course || ""} m
 
     `;
@@ -96,16 +126,20 @@ function afficherInfosCourse(data){
 
 
 
+
 function afficherFavori(favori){
 
     const zone =
-    document.getElementById("favori-az");
+    document.getElementById(
+        "favori-az"
+    );
 
 
     if(!zone || !favori) return;
 
 
     zone.innerHTML =
+
     `Favori AZ : N°${favori.numero}`;
 
 }
@@ -113,10 +147,13 @@ function afficherFavori(favori){
 
 
 
+
 function afficherClassement(classement){
 
     const zone =
-    document.getElementById("classement-premium");
+    document.getElementById(
+        "classement-premium"
+    );
 
 
     if(!zone) return;
@@ -135,6 +172,10 @@ function afficherClassement(classement){
 
 
 
+
+
+// Quinté - Quarté - Trio - Couplé gagnant
+
 function afficherTicket(id,ticket){
 
     const zone =
@@ -144,19 +185,26 @@ function afficherTicket(id,ticket){
     if(!zone || !ticket) return;
 
 
-    zone.innerHTML = ticket.map(numero => `
 
-    <span class="numero-ticket">
-    ${numero}
-    </span>
+    zone.innerHTML = `
 
-    `).join(" - ");
+    <div class="ticket-grand">
+
+    ${ticket.join(" - ")}
+
+    </div>
+
+    `;
 
 }
 
 
 
 
+
+
+
+// Couplé placé vertical sans numéro 1 2 3
 
 function afficherCouplePlace(ticket){
 
@@ -169,17 +217,21 @@ function afficherCouplePlace(ticket){
     if(!zone || !ticket) return;
 
 
-    zone.innerHTML = ticket.map((couple,index)=>`
 
-    ${index + 1} - 
-    <span class="numero-ticket">${couple[0]}</span>
-    /
-    <span class="numero-ticket">${couple[1]}</span>
-    <br>
+    zone.innerHTML = ticket.map(couple => `
+
+    <div class="ticket-grand">
+
+    ${couple[0]} / ${couple[1]}
+
+    </div>
+
 
     `).join("");
 
 }
+
+
 
 
 
@@ -196,10 +248,19 @@ function afficherChampReduit(champ){
     if(!zone || !champ) return;
 
 
-    zone.innerHTML =
-    champ.format;
+    zone.innerHTML = `
+
+    <div class="ticket-grand">
+
+    ${champ.format}
+
+    </div>
+
+    `;
 
 }
+
+
 
 
 
@@ -216,6 +277,7 @@ function afficherTicketDeuxHeures(ticket){
     if(!zone) return;
 
 
+
     if(!ticket){
 
         zone.innerHTML =
@@ -226,15 +288,19 @@ function afficherTicketDeuxHeures(ticket){
     }
 
 
-    zone.innerHTML = ticket.map(numero => `
 
-    <span class="numero-ticket">
-    ${numero}
-    </span>
+    zone.innerHTML = `
 
-    `).join(" - ");
+    <div class="ticket-grand">
+
+    ${ticket.join(" - ")}
+
+    </div>
+
+    `;
 
 }
+
 
 
 
