@@ -18,11 +18,8 @@
 
 <header class="top-header">
 
-
 <div class="logo">
-
 🏇 <span>AZ Turf Pro</span>
-
 </div>
 
 
@@ -38,10 +35,7 @@
 
 </nav>
 
-
 </header>
-
-
 
 
 
@@ -49,14 +43,9 @@
 <main class="content">
 
 
-
-
-
 <section class="card">
 
-
 <h2>⭐ Espace Premium</h2>
-
 
 <p>
 Votre abonnement sélectionné :
@@ -64,9 +53,7 @@ Votre abonnement sélectionné :
 
 
 <h3 id="offre-choisie">
-
 Chargement...
-
 </h3>
 
 
@@ -76,33 +63,21 @@ Chargement...
 
 
 
-
-
-
-
 <section class="card">
 
-
 <h2>💳 Paiement Premium</h2>
-
 
 <p>
 Choisissez votre moyen de paiement :
 </p>
 
 
-
 <div class="paiement-options">
-
-
-
 
 
 <div class="paiement-card">
 
-
 <h3>📱 Mobile Money</h3>
-
 
 <p>
 Paiement rapide par téléphone.
@@ -122,16 +97,12 @@ Continuer
 
 
 
-
-
 <div class="paiement-card">
-
 
 <h3>💳 Autre paiement</h3>
 
-
 <p>
-Autre solution de paiement disponible.
+Autre solution disponible.
 </p>
 
 
@@ -145,15 +116,10 @@ Continuer
 </div>
 
 
-
-
 </div>
 
 
 </section>
-
-
-
 
 
 
@@ -185,11 +151,7 @@ Activer mon accès Premium
 
 
 
-
-
-
 <section class="card">
-
 
 <h2>🏆 Activation</h2>
 
@@ -205,12 +167,7 @@ Votre accès sera activé après confirmation.
 
 
 
-
-
-
 </main>
-
-
 
 
 
@@ -251,29 +208,24 @@ Votre accès sera activé après confirmation.
 
 
 
-
-
 <script>
 
 
-const params =
-new URLSearchParams(window.location.search);
+const params = new URLSearchParams(
+window.location.search
+);
 
 
-const offre =
-params.get("offre");
-
+const offre = params.get("offre");
 
 
 document.getElementById("offre-choisie").innerHTML =
 
-offre ?
-
-"⭐ " + offre :
-
+offre
+?
+"⭐ " + offre
+:
 "Aucune offre sélectionnée";
-
-
 
 
 
@@ -281,47 +233,29 @@ let moyenPaiement = "";
 
 
 
-
-
 function choisirPaiement(type){
-
 
 moyenPaiement = type;
 
 
-
 document.getElementById("paiement-info").innerHTML =
 
-"Mode choisi : <strong>" 
-+
-type
-+
-"</strong>";
-
-
+"Mode choisi : <strong>" + type + "</strong>";
 
 }
 
 
 
 
-
-
-
-
 document.getElementById("confirmer-paiement")
-.onclick=function(){
-
+.onclick = function(){
 
 
 if(!moyenPaiement){
 
-
 alert("Choisissez un moyen de paiement.");
 
-
 return;
-
 
 }
 
@@ -330,15 +264,14 @@ return;
 let duree = 30;
 
 
-
-if(offre==="Trimestriel"){
+if(offre === "Trimestriel"){
 
 duree = 90;
 
 }
 
 
-if(offre==="Annuel"){
+if(offre === "Annuel"){
 
 duree = 365;
 
@@ -347,18 +280,13 @@ duree = 365;
 
 
 
-
 const debut = new Date();
-
 
 const fin = new Date();
 
-
 fin.setDate(
-fin.getDate()+duree
+fin.getDate() + duree
 );
-
-
 
 
 
@@ -377,18 +305,9 @@ offre
 
 
 localStorage.setItem(
-"AZ_TURF_DATE_DEBUT",
-debut.toISOString()
-);
-
-
-
-localStorage.setItem(
 "AZ_TURF_DATE_FIN",
 fin.toISOString()
 );
-
-
 
 
 
@@ -405,20 +324,15 @@ fin.toLocaleDateString("fr-FR")
 
 
 
-
-setTimeout(function(){
-
+setTimeout(()=>{
 
 window.location.href="espace-vip.html";
-
 
 },2000);
 
 
 
-
 };
-
 
 
 </script>
