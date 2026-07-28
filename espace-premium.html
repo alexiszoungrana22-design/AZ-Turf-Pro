@@ -18,42 +18,25 @@
 
 <header class="top-header">
 
-
 <div class="logo">
-
 🏇 <span>AZ Turf Pro</span>
-
 </div>
 
 
 <nav class="top-menu">
 
+<a href="index.html">🏠 Accueil</a>
 
-<a href="index.html">
-🏠 Accueil
-</a>
+<a href="analyse.html">📊 Analyse</a>
 
+<a href="ticket.html">🎟️ Ticket</a>
 
-<a href="analyse.html">
-📊 Analyse
-</a>
-
-
-<a href="ticket.html">
-🎟️ Ticket
-</a>
-
-
-<a href="espace-vip.html">
-⭐ VIP
-</a>
-
+<a href="espace-vip.html">⭐ VIP</a>
 
 </nav>
 
 
 </header>
-
 
 
 
@@ -69,12 +52,13 @@
 
 <section class="card">
 
-
-<h1>🏆 Espace Premium AZ Turf Pro</h1>
+<h1>
+⭐ Espace Premium
+</h1>
 
 
 <p>
-Bienvenue dans votre espace réservé aux membres Premium actifs.
+Accédez aux analyses avancées et aux stratégies réservées aux membres.
 </p>
 
 
@@ -90,12 +74,9 @@ Bienvenue dans votre espace réservé aux membres Premium actifs.
 <section class="card">
 
 
-<h2>📋 Mon abonnement</h2>
-
-
 <div id="infos-premium">
 
-Vérification de votre compte...
+Vérification de votre abonnement...
 
 </div>
 
@@ -113,76 +94,25 @@ Vérification de votre compte...
 <section class="card" id="contenu-premium" style="display:none;">
 
 
-
-<h2>⭐ Services Premium</h2>
-
-
-
-<div class="vip-content">
+<h2>
+🏆 Services Premium AZ Turf Pro
+</h2>
 
 
 
-<div class="vip-item">
+<ul>
 
-⭐ Analyse Premium
+<li>⭐ Analyses détaillées</li>
 
-<p>
-Analyse approfondie des courses et profils chevaux.
-</p>
+<li>🎯 Combinaisons avancées</li>
 
-</div>
+<li>📊 Étude des champs réduits</li>
 
+<li>🏇 Avis jockeys et entraîneurs</li>
 
+<li>🔥 Stratégies Premium AZ</li>
 
-
-
-
-<div class="vip-item">
-
-🎯 Sélection avancée
-
-<p>
-Sélection AZ renforcée avec plus d'informations.
-</p>
-
-</div>
-
-
-
-
-
-
-<div class="vip-item">
-
-📊 Étude des chevaux
-
-<p>
-Forme, régularité, conditions et potentiel.
-</p>
-
-</div>
-
-
-
-
-
-
-<div class="vip-item">
-
-🏇 Avis jockeys et entraîneurs
-
-<p>
-Informations complémentaires réservées aux membres.
-</p>
-
-</div>
-
-
-
-
-
-</div>
-
+</ul>
 
 
 
@@ -212,11 +142,13 @@ Informations complémentaires réservées aux membres.
 <section class="card" id="message-blocage" style="display:none;">
 
 
-<h2>🔒 Accès refusé</h2>
+<h2>
+🔒 Accès refusé
+</h2>
 
 
 <p>
-Votre abonnement Premium est expiré ou inactif.
+Votre abonnement Premium est expiré.
 </p>
 
 
@@ -236,7 +168,6 @@ Renouveler mon abonnement
 
 
 </main>
-
 
 
 
@@ -268,11 +199,12 @@ Renouveler mon abonnement
 
 
 <a href="espace-vip.html">
-⭐ VIP
+⭐ Premium
 </a>
 
 
 </footer>
+
 
 
 
@@ -316,7 +248,6 @@ const expiration =
 new Date(dateFin);
 
 
-
 const maintenant =
 new Date();
 
@@ -341,22 +272,27 @@ document.getElementById(
 ).innerHTML = `
 
 
+<h2>
+🏆 Votre accès Premium est actif
+</h2>
+
+
 <p>
-⭐ Formule :
+Bienvenue dans l'espace réservé aux membres.
+</p>
+
+
+<p>
+Formule :
 <strong>${offre || "Premium"}</strong>
 </p>
 
 
 <p>
-📅 Expiration :
+Expiration :
 <strong>
 ${expiration.toLocaleDateString("fr-FR")}
 </strong>
-</p>
-
-
-<p>
-✅ Statut : Actif
 </p>
 
 
@@ -366,9 +302,7 @@ ${expiration.toLocaleDateString("fr-FR")}
 
 return;
 
-
 }
-
 
 
 }
@@ -382,7 +316,6 @@ document.getElementById(
 ).style.display="block";
 
 
-
 document.getElementById(
 "infos-premium"
 ).innerHTML =
@@ -392,7 +325,6 @@ document.getElementById(
 
 
 }
-
 
 
 
