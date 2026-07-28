@@ -1,15 +1,14 @@
 // ticket-premium.js
-// AZ Turf Pro - Affichage Premium
-// L'API calcule, Premium affiche
+// AZ Turf Pro Premium
+// API calcule - Premium affiche
 
 
 const API_URL = "https://az-turf-pro.onrender.com/api/analyse";
 
 
+async function chargerTicketPremium(){
 
-async function chargerTicketPremium() {
-
-    try {
+    try{
 
         const response = await fetch(API_URL);
 
@@ -18,60 +17,40 @@ async function chargerTicketPremium() {
         console.log("Données Premium :", data);
 
 
+        afficherInfosCourse(data);
 
-        const classement = data.classement || [];
+        afficherFavori(data.favori);
+
 
         const tickets = data.tickets || {};
 
 
+        afficherTicket("ticket-quinte", tickets.quinte);
 
-        afficherClassement(classement);
+        afficherTicket("ticket-quarte", tickets.quarte);
 
+        afficherTicket("ticket-trio", tickets.trio);
 
+        afficherTicket("ticket-couple-gagnant", tickets.couple_gagnant);
 
-        afficherTicket(
-            "ticket-quinte",
-            tickets.quinte
-        );
-
-
-        afficherTicket(
-            "ticket-quarte",
-            tickets.quarte
-        );
-
-
-        afficherTicket(
-            "ticket-trio",
-            tickets.trio
-        );
-
-
-        afficherTicket(
-            "ticket-couple-gagnant",
-            tickets.couple_gagnant
-        );
-
-
-        afficherCouplesPlace(
-            tickets.couple_place
-        );
-
+        afficherCouplePlace(tickets.couple_place);
 
         afficherChampReduit(
             tickets.vip?.champ_reduit
         );
 
 
+        afficherClassement(
+            data.classement || []
+        );
 
-    } catch(error) {
 
+    }catch(error){
 
         console.error(
             "Erreur Premium :",
             error
         );
-
 
     }
 
@@ -80,28 +59,122 @@ async function chargerTicketPremium() {
 
 
 
-function afficherClassement(classement){
-
+function afficherInfosCourse(data){
 
     const zone =
     document.getElementById(
-        "classement-premium"
+        "infos-course"
     );
 
 
     if(!zone) return;
 
 
+    zone.innerHTML = `
 
-    zone.innerHTML = classement.map(cheval => `
+    <h2>🏇 ${data.course || ""}</h2>
 
-        <div class="cheval-premium">
+    <p>
+    📅 ${data.date || ""}
+    </p>
 
-            ${cheval.rang} - N°${cheval.numero}
+    <p>
+    🏟️ ${data.hippodrome || ""}
+    </p>
 
-            <span>
-            Indice AZ : ${cheval.indice_az}
+    <p>
+    ${data.reunion || ""} - ${data.course_numero || ""}
+    </p>
+
+    <p>
+    📏 Distance : ${data.distance_course || ""} m
+    </p>
+
+    `;
+
+}
+
+
+
+
+
+function afficherFavori(favori){
+
+    const zone =
+    document.getElementById(
+        "favori-az"
+    );
+
+
+    if(!zone || !favori) return;
+
+
+    zone.innerHTML = `
+
+    ⭐ Favori AZ :
+
+    <strong>
+    N°${favori.numero}
+    </strong>
+
+    - Indice AZ :
+    ${favori.indice_az}
+
+    `;
+
+}
+
+
+
+
+
+function afficherTicket(id,ticket){
+
+    const zone =
+    document.getElementById(id);
+
+
+    if(!zone || !ticket) return;
+
+
+    zone.innerHTML = ticket.map(numero => `
+
+        <span class="boule-numero">
+        ${numero}
+        </span>
+
+    `).join("");
+
+}
+
+
+
+
+
+function afficherCouplePlace(ticket){
+
+    const zone =
+    document.getElementById(
+        "ticket-couple-place"
+    );
+
+
+    if(!zone || !ticket) return;
+
+
+    zone.innerHTML = ticket.map(couple => `
+
+        <div>
+
+        ${
+            couple.map(numero => `
+
+            <span class="boule-numero">
+            ${numero}
             </span>
+
+            `).join("")
+        }
 
         </div>
 
@@ -113,72 +186,7 @@ function afficherClassement(classement){
 
 
 
-function afficherTicket(id,ticket){
-
-
-    const zone =
-    document.getElementById(id);
-
-
-    if(!zone || !ticket) return;
-
-
-
-    zone.innerHTML = `
-
-    <div class="ticket-box">
-
-        ${ticket.join(" - ")}
-
-    </div>
-
-    `;
-
-}
-
-
-
-
-
-
-function afficherCouplesPlace(ticket){
-
-
-    const zone =
-    document.getElementById(
-        "ticket-couple-place"
-    );
-
-
-    if(!zone || !ticket) return;
-
-
-
-    zone.innerHTML = `
-
-    <div class="ticket-box">
-
-    ${
-        ticket
-        .map(couple =>
-            couple.join(" - ")
-        )
-        .join(" / ")
-    }
-
-    </div>
-
-    `;
-
-}
-
-
-
-
-
-
 function afficherChampReduit(champ){
-
 
     const zone =
     document.getElementById(
@@ -189,12 +197,11 @@ function afficherChampReduit(champ){
     if(!zone || !champ) return;
 
 
-
     zone.innerHTML = `
 
-    <div class="ticket-box">
+    <div class="champ-reduit">
 
-        ${champ.format}
+    ${champ.format}
 
     </div>
 
@@ -206,8 +213,36 @@ function afficherChampReduit(champ){
 
 
 
+function afficherClassement(classement){
+
+    const zone =
+    document.getElementById(
+        "classement-premium"
+    );
+
+
+    if(!zone) return;
+
+
+    zone.innerHTML = classement.map(c => `
+
+    <div>
+
+    ${c.rang} - N°${c.numero}
+
+    Indice AZ : ${c.indice_az}
+
+    </div>
+
+    `).join("");
+
+}
+
+
+
+
 
 document.addEventListener(
-    "DOMContentLoaded",
-    chargerTicketPremium
+"DOMContentLoaded",
+chargerTicketPremium
 );
