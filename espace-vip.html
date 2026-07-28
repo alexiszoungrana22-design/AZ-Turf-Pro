@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Espace Premium - AZ Turf Pro</title>
+<title>Espace VIP - AZ Turf Pro</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -18,43 +18,24 @@
 
 <header class="top-header">
 
-
 <div class="logo">
-
 🏇 <span>AZ Turf Pro</span>
-
 </div>
 
 
 <nav class="top-menu">
 
-
 <a href="index.html">
 🏠 Accueil
 </a>
-
 
 <a href="analyse.html">
 📊 Analyse
 </a>
 
-
-<a href="ticket.html">
-🎟️ Ticket
-</a>
-
-
-<a href="historique.html">
-🏆 Historique
-</a>
-
-
 </nav>
 
-
 </header>
-
-
 
 
 
@@ -64,184 +45,15 @@
 
 
 
+<section class="card">
 
-
-<section class="card vip-banner">
-
-
-<h1>⭐ Espace Premium</h1>
-
+<h2>⭐ Espace Premium AZ Turf Pro</h2>
 
 <p>
-Accédez aux analyses avancées et aux stratégies réservées aux membres.
+Accès aux tickets professionnels générés par l'analyse.
 </p>
-
 
 </section>
-
-
-
-
-
-
-
-<!-- OFFRES -->
-
-<section class="card" id="zone-offres">
-
-
-<h2>💎 Choisissez votre formule</h2>
-
-
-
-<div class="vip-offres">
-
-
-
-<div class="vip-box">
-
-
-<h3>🟢 Mensuel</h3>
-
-
-<p>
-Accès Premium pendant 30 jours
-</p>
-
-
-<p>
-💰 Tarif : À définir
-</p>
-
-
-<button onclick="ouvrirPaiement('Mensuel')">
-
-Choisir
-
-</button>
-
-
-</div>
-
-
-
-
-
-
-
-
-<div class="vip-box">
-
-
-<h3>🔵 Trimestriel</h3>
-
-
-<p>
-Accès Premium pendant 90 jours
-</p>
-
-
-<p>
-💰 Tarif : À définir
-</p>
-
-
-<button onclick="ouvrirPaiement('Trimestriel')">
-
-Choisir
-
-</button>
-
-
-</div>
-
-
-
-
-
-
-
-
-<div class="vip-box">
-
-
-<h3>🟡 Annuel</h3>
-
-
-<p>
-Accès Premium pendant 365 jours
-</p>
-
-
-<p>
-💰 Tarif : À définir
-</p>
-
-
-<button onclick="ouvrirPaiement('Annuel')">
-
-Choisir
-
-</button>
-
-
-</div>
-
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-<!-- MEMBRE PREMIUM -->
-
-<section class="card" id="zone-premium" style="display:none;">
-
-
-
-<h2>🏆 Votre accès Premium est actif</h2>
-
-
-<p>
-Bienvenue dans l'espace réservé aux membres.
-</p>
-
-
-
-<div id="infos-abonnement">
-
-</div>
-
-
-
-
-
-<ul>
-
-<li>⭐ Analyses détaillées</li>
-
-<li>🎯 Combinaisons avancées</li>
-
-<li>📊 Étude des champs réduits</li>
-
-<li>🏇 Avis jockeys et entraîneurs</li>
-
-<li>🔥 Stratégies Premium AZ</li>
-
-</ul>
-
-
-
-</section>
-
-
 
 
 
@@ -249,21 +61,95 @@ Bienvenue dans l'espace réservé aux membres.
 
 <section class="card">
 
+<h2>🏆 Classement AZ</h2>
 
-<h2>🔙 Navigation</h2>
+<div id="classement-premium">
 
+Chargement...
 
-<a href="index.html">
-
-Retour à l'accueil
-
-</a>
-
+</div>
 
 </section>
 
 
 
+
+
+<section class="card">
+
+<h2>🎯 Quinté Premium (7 chevaux)</h2>
+
+<div id="ticket-quinte">
+
+Chargement...
+
+</div>
+
+</section>
+
+
+
+
+
+<section class="card">
+
+<h2>🎟️ Quarté Premium (5 chevaux)</h2>
+
+<div id="ticket-quarte">
+
+Chargement...
+
+</div>
+
+</section>
+
+
+
+
+
+<section class="card">
+
+<h2>🏇 Trio Premium (4 chevaux)</h2>
+
+<div id="ticket-trio">
+
+Chargement...
+
+</div>
+
+</section>
+
+
+
+
+
+<section class="card">
+
+<h2>🥇 Couplé Gagnant</h2>
+
+<div id="ticket-couple-gagnant">
+
+Chargement...
+
+</div>
+
+</section>
+
+
+
+
+
+<section class="card">
+
+<h2>🥈 Couplé Placé</h2>
+
+<div id="ticket-couple-place">
+
+Chargement...
+
+</div>
+
+</section>
 
 
 
@@ -311,117 +197,7 @@ Retour à l'accueil
 
 
 
-
-<script>
-
-
-
-function ouvrirPaiement(offre){
-
-
-window.location.href =
-"paiement.html?offre="+offre;
-
-
-}
-
-
-
-
-
-
-function verifierAcces(){
-
-
-
-const statut =
-localStorage.getItem("AZ_TURF_PREMIUM");
-
-
-const offre =
-localStorage.getItem("AZ_TURF_OFFRE");
-
-
-const dateFin =
-localStorage.getItem("AZ_TURF_DATE_FIN");
-
-
-
-
-
-if(statut==="ACTIF" && dateFin){
-
-
-
-const maintenant =
-new Date();
-
-
-const expiration =
-new Date(dateFin);
-
-
-
-
-
-if(maintenant < expiration){
-
-
-
-document.getElementById("zone-offres")
-.style.display="none";
-
-
-
-document.getElementById("zone-premium")
-.style.display="block";
-
-
-
-document.getElementById("infos-abonnement")
-.innerHTML =
-
-"Formule : <strong>"
-+
-offre
-+
-"</strong><br>"+
-"Expiration : <strong>"
-+
-expiration.toLocaleDateString("fr-FR")
-+
-"</strong>";
-
-
-
-return;
-
-}
-
-
-}
-
-
-
-
-// abonnement terminé
-
-localStorage.removeItem("AZ_TURF_PREMIUM");
-localStorage.removeItem("AZ_TURF_OFFRE");
-localStorage.removeItem("AZ_TURF_DATE_DEBUT");
-localStorage.removeItem("AZ_TURF_DATE_FIN");
-
-
-
-}
-
-
-
-verifierAcces();
-
-
-
-</script>
+<script src="ticket-premium.js?v=3"></script>
 
 
 </body>
