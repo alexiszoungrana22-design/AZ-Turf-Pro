@@ -14,9 +14,11 @@ async function chargerTicketPremium(){
 
         const data = await response.json();
 
-
         console.log("Données Premium :", data);
 
+
+
+        const tickets = data.tickets || {};
 
 
         afficherInfosCourse(data);
@@ -24,9 +26,9 @@ async function chargerTicketPremium(){
         afficherFavori(data.favori);
 
 
-
-        const tickets = data.tickets || {};
-
+        afficherClassement(
+            data.classement || []
+        );
 
 
         afficherTicket(
@@ -63,12 +65,8 @@ async function chargerTicketPremium(){
         );
 
 
-        afficherClassement(
-            data.classement || []
-        );
-
-
-    }catch(error){
+    }
+    catch(error){
 
         console.error(
             "Erreur Premium :",
@@ -78,7 +76,6 @@ async function chargerTicketPremium(){
     }
 
 }
-
 
 
 
@@ -94,23 +91,11 @@ function afficherInfosCourse(data){
 
     zone.innerHTML = `
 
-    <h2>🏇 ${data.course || ""}</h2>
-
-    <p>
-    📅 ${data.date || ""}
-    </p>
-
-    <p>
-    🏟️ ${data.hippodrome || ""}
-    </p>
-
-    <p>
-    ${data.reunion || ""} ${data.course_numero || ""}
-    </p>
-
-    <p>
-    📏 ${data.distance_course || ""} m
-    </p>
+    ${data.course || ""}<br>
+    ${data.date || ""}<br>
+    ${data.hippodrome || ""}<br>
+    ${data.reunion || ""} ${data.course_numero || ""}<br>
+    Distance : ${data.distance_course || ""} m
 
     `;
 
@@ -131,11 +116,31 @@ function afficherFavori(favori){
 
     zone.innerHTML = `
 
-    ⭐ Favori AZ :
-    <strong>N°${favori.numero}</strong>
-    - Indice AZ ${favori.indice_az}
+    Favori AZ : N°${favori.numero}
 
     `;
+
+}
+
+
+
+
+
+function afficherClassement(classement){
+
+    const zone =
+    document.getElementById("classement-premium");
+
+
+    if(!zone) return;
+
+
+    zone.innerHTML = classement.map(c => `
+
+    ${c.rang} - N°${c.numero}
+    Indice AZ : ${c.indice_az}<br>
+
+    `).join("");
 
 }
 
@@ -152,16 +157,10 @@ function afficherTicket(id,ticket){
     if(!zone || !ticket) return;
 
 
-    zone.innerHTML = ticket.map(numero => `
-
-        <span class="boule-numero">
-        ${numero}
-        </span>
-
-    `).join("");
+    zone.innerHTML =
+    ticket.join(" - ");
 
 }
-
 
 
 
@@ -179,15 +178,9 @@ function afficherCouplePlace(ticket){
     if(!zone || !ticket) return;
 
 
-
     zone.innerHTML = ticket.map((couple,index)=>`
 
-        <div class="couple-ligne">
-
-            ${index + 1}️⃣ 
-            ${couple[0]} - ${couple[1]}
-
-        </div>
+    ${index + 1} - ${couple[0]} / ${couple[1]}<br>
 
     `).join("");
 
@@ -210,46 +203,7 @@ function afficherChampReduit(champ){
     if(!zone || !champ) return;
 
 
-    zone.innerHTML = `
-
-    <div class="champ-reduit">
-
-    ${champ.format}
-
-    </div>
-
-    `;
-
-}
-
-
-
-
-
-
-
-function afficherClassement(classement){
-
-    const zone =
-    document.getElementById(
-        "classement-premium"
-    );
-
-
-    if(!zone) return;
-
-
-    zone.innerHTML = classement.map(c=>`
-
-        <div>
-
-        ${c.rang} - N°${c.numero}
-
-        Indice AZ : ${c.indice_az}
-
-        </div>
-
-    `).join("");
+    zone.innerHTML = champ.format;
 
 }
 
