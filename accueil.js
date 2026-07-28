@@ -15,7 +15,7 @@ const partants = document.getElementById("meta-partants");
 const horsesTable = document.getElementById("all-horses");
 
 
-// Analyse AZ
+// Analyse
 
 const favoriNumero = document.getElementById("favori-numero");
 const favoriNom = document.getElementById("favori-nom");
@@ -52,7 +52,7 @@ const miniCountdown = document.getElementById("mini-countdown");
 function raisonFavori(cheval){
 
 return `
-✅ Indice AZ supérieur<br>
+✅ Indice supérieur<br>
 ✅ Bonne régularité<br>
 ✅ Profil adapté à la course
 `;
@@ -274,7 +274,6 @@ horsesTable.innerHTML += `
 
 `;
 
-
 });
 
 
@@ -287,7 +286,7 @@ horsesTable.innerHTML += `
 
 
 
-// FAVORI AZ
+// FAVORI
 
 
 if(chevaux[0]){
@@ -301,7 +300,7 @@ favoriNumero.textContent =
 
 
 favoriNom.textContent =
-favori.nom || "Favori AZ";
+favori.nom || "Favori";
 
 
 favoriIndice.textContent =
@@ -324,7 +323,7 @@ raisonFavori(favori);
 
 
 
-// OUTSIDER AZ
+// OUTSIDER
 
 
 if(chevaux[3]){
@@ -338,7 +337,7 @@ outsiderNumero.textContent =
 
 
 outsiderNom.textContent =
-outsider.nom || "Outsider AZ";
+outsider.nom || "Outsider";
 
 
 outsiderIndice.textContent =
@@ -368,25 +367,26 @@ raisonOutsider(outsider);
 if(popular){
 
 
-popular.innerHTML="";
+const numeros = chevaux
+.slice(0,5)
+.map(cheval => cheval.numero);
 
 
-chevaux.slice(0,8).forEach((cheval)=>{
 
+popular.innerHTML = `
 
-popular.innerHTML += `
+<div class="ticket-grand">
 
-<div class="popular-card">
-
-${cheval.numero}
+${numeros.join(" - ")}
 
 </div>
 
+
+<p>
+Source : Turf.fr
+</p>
+
 `;
-
-
-});
-
 
 }
 
