@@ -1465,6 +1465,7 @@ width:90%;
 }
 
 
+
 #ticket-quinte,
 #ticket-quarte,
 #ticket-trio,
@@ -1548,6 +1549,9 @@ width:90%;
     }
 
 }
+
+
+
 .couple-ligne {
 
     text-align:center;
@@ -1560,7 +1564,12 @@ width:90%;
 
 }
 
-.numero-ticket{
+
+
+.numero-ticket {
+
     font-size:30px;
+
     font-weight:bold;
+
 }
