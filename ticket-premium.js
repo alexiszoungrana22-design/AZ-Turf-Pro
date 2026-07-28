@@ -30,23 +30,11 @@ async function chargerTicketPremium(){
         );
 
 
-        afficherTicket(
-            "ticket-quinte",
-            tickets.quinte
-        );
+        afficherTicket("ticket-quinte", tickets.quinte);
 
+        afficherTicket("ticket-quarte", tickets.quarte);
 
-        afficherTicket(
-            "ticket-quarte",
-            tickets.quarte
-        );
-
-
-        afficherTicket(
-            "ticket-trio",
-            tickets.trio
-        );
-
+        afficherTicket("ticket-trio", tickets.trio);
 
         afficherTicket(
             "ticket-couple-gagnant",
@@ -64,18 +52,22 @@ async function chargerTicketPremium(){
         );
 
 
+        afficherTicketDeuxHeures(
+            tickets.ticket_2h_avant
+        );
+
+
     }
     catch(error){
 
         console.error(
-            "Erreur chargement Premium :",
+            "Erreur Premium :",
             error
         );
 
     }
 
 }
-
 
 
 
@@ -104,7 +96,6 @@ function afficherInfosCourse(data){
 
 
 
-
 function afficherFavori(favori){
 
     const zone =
@@ -114,14 +105,10 @@ function afficherFavori(favori){
     if(!zone || !favori) return;
 
 
-    zone.innerHTML = `
-
-    Favori AZ : N°${favori.numero}
-
-    `;
+    zone.innerHTML =
+    `Favori AZ : N°${favori.numero}`;
 
 }
-
 
 
 
@@ -148,7 +135,6 @@ function afficherClassement(classement){
 
 
 
-
 function afficherTicket(id,ticket){
 
     const zone =
@@ -158,12 +144,15 @@ function afficherTicket(id,ticket){
     if(!zone || !ticket) return;
 
 
-    zone.innerHTML =
-    ticket.join(" - ");
+    zone.innerHTML = ticket.map(numero => `
+
+    <span class="numero-ticket">
+    ${numero}
+    </span>
+
+    `).join(" - ");
 
 }
-
-
 
 
 
@@ -182,13 +171,15 @@ function afficherCouplePlace(ticket){
 
     zone.innerHTML = ticket.map((couple,index)=>`
 
-    ${index + 1} - ${couple[0]} / ${couple[1]}<br>
+    ${index + 1} - 
+    <span class="numero-ticket">${couple[0]}</span>
+    /
+    <span class="numero-ticket">${couple[1]}</span>
+    <br>
 
     `).join("");
 
 }
-
-
 
 
 
@@ -210,6 +201,40 @@ function afficherChampReduit(champ){
 
 }
 
+
+
+
+
+function afficherTicketDeuxHeures(ticket){
+
+    const zone =
+    document.getElementById(
+        "ticket-2h-avant"
+    );
+
+
+    if(!zone) return;
+
+
+    if(!ticket){
+
+        zone.innerHTML =
+        "Ticket 2h avant en préparation";
+
+        return;
+
+    }
+
+
+    zone.innerHTML = ticket.map(numero => `
+
+    <span class="numero-ticket">
+    ${numero}
+    </span>
+
+    `).join(" - ");
+
+}
 
 
 
