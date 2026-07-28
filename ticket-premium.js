@@ -1,362 +1,140 @@
-const API =
-"https://az-turf-pro.onrender.com/api/analyse";
+// ticket-premium.js
+// AZ Turf Pro - Affichage Ticket Premium
+// L'API calcule, la page Premium affiche
+
+async function chargerTicketPremium() {
+
+    try {
+
+        const reponse = await fetch("https://az-turf-pro.onrender.com/api/analyse");
+
+        const data = await reponse.json();
+
+        console.log("Données API Premium :", data);
 
 
-
-async function chargerTicketPremium(){
-
-
-try{
+        // Classement général fourni par l'API
+        const classement = data.classement || [];
 
 
-const response =
-await fetch(API);
+        // Tickets déjà générés par l'API
+        const tickets = data.tickets || {};
+
+        const quinte = tickets.quinte || [];
+        const quarte = tickets.quarte || [];
+        const trio = tickets.trio || [];
+        const coupleGagnant = tickets.couple_gagnant || [];
+        const couplePlace = tickets.couple_place || [];
 
 
+        afficherClassement(classement);
 
-if(!response.ok){
+        afficherTicket("ticket-quinte", quinte);
+        afficherTicket("ticket-quarte", quarte);
+        afficherTicket("ticket-trio", trio);
+        afficherTicket("ticket-couple-gagnant", coupleGagnant);
+        afficherTicket("ticket-couple-place", couplePlace);
 
-throw new Error("Erreur API");
+
+    } catch (erreur) {
+
+        console.error("Erreur chargement ticket premium :", erreur);
+
+        const zone = document.getElementById("premium-resultat");
+
+        if (zone) {
+            zone.innerHTML = `
+                <p class="erreur">
+                Impossible de charger le ticket Premium.
+                </p>
+            `;
+        }
+    }
+}
+
+
+// Affichage classement AZ
+
+function afficherClassement(classement) {
+
+    const zone = document.getElementById("classement-premium");
+
+    if (!zone) return;
+
+
+    zone.innerHTML = "";
+
+
+    classement.forEach(cheval => {
+
+        zone.innerHTML += `
+            <div class="cheval-premium">
+
+                <span class="rang">
+                ${cheval.rang}
+                </span>
+
+                <span>
+                N° ${cheval.numero}
+                </span>
+
+                <span>
+                Indice AZ : ${cheval.indice_az || cheval.score || "-"}
+                </span>
+
+                <span>
+                ${cheval.type || "Cheval sélectionné"}
+                </span>
+
+            </div>
+        `;
+
+    });
 
 }
 
 
+// Affichage tickets
 
-const data =
-await response.json();
+function afficherTicket(id, ticket) {
 
+    const zone = document.getElementById(id);
 
-
-
-const chevaux =
-data.classement ||
-data.chevaux ||
-[];
+    if (!zone) return;
 
 
+    if (!ticket.length) {
+
+        zone.innerHTML = `
+            <p>Aucun ticket disponible</p>
+        `;
+
+        return;
+    }
 
 
+    zone.innerHTML = `
 
-if(chevaux.length === 0){
+        <div class="ticket-box">
 
-throw new Error("Aucun cheval reçu");
+            ${ticket.map(numero => `
 
-}
+                <span class="numero-cheval">
+                ${numero}
+                </span>
 
+            `).join("")}
 
+        </div>
 
-
-
-
-// Sélection des 7 meilleurs AZ
-
-const premium =
-chevaux.slice(0,7);
-
-
-
-
-
-
-
-// ============================
-// SELECTION PREMIUM
-// ============================
-
-
-const selection =
-document.getElementById(
-"selection-premium"
-);
-
-
-
-if(selection){
-
-
-selection.innerHTML =
-
-premium.map(c =>
-
-`
-<strong>${c.numero}</strong>
-${c.nom || "Cheval"}
-
-`
-
-).join(" - ");
-
+    `;
 
 }
 
 
-
-
-
-
-
-
-
-// ============================
-// QUINTE PREMIUM 6 CHEVAUX
-// ============================
-
-
-const quinte =
-premium.slice(0,6)
-.map(c=>c.numero)
-.join(" - ");
-
-
-
-document.getElementById(
-"quinte-premium"
-).textContent = quinte;
-
-
-
-
-
-
-
-
-
-// ============================
-// QUARTE PREMIUM 5 CHEVAUX
-// ============================
-
-
-const quarte =
-premium.slice(0,5)
-.map(c=>c.numero)
-.join(" - ");
-
-
-
-document.getElementById(
-"quarte-premium"
-).textContent = quarte;
-
-
-
-
-
-
-
-
-
-// ============================
-// TRIO PREMIUM 4 CHEVAUX
-// ============================
-
-
-const trio =
-premium.slice(0,4)
-.map(c=>c.numero)
-.join(" - ");
-
-
-
-document.getElementById(
-"trio-premium"
-).textContent = trio;
-
-
-
-
-
-
-
-
-
-// ============================
-// CHAMP REDUIT
-// ============================
-
-
-const champ =
-premium.map(c=>c.numero)
-.join(" - ");
-
-
-
-document.getElementById(
-"champ-premium"
-).textContent = champ;
-
-
-
-
-
-
-
-
-
-// ============================
-// COUPLE GAGNANT
-// ============================
-
-
-const coupleGagnant =
-
-premium
-.slice(0,2)
-.map(c=>c.numero)
-.join(" - ");
-
-
-
-
-document.getElementById(
-"couple-gagnant"
-).textContent = coupleGagnant;
-
-
-
-
-
-
-
-
-
-// ============================
-// COUPLE PLACE
-// ============================
-
-
-const couplePlace =
-
-premium
-.filter(c => c.confiance)
-.sort(
-(a,b)=>
-b.confiance - a.confiance
-)
-.slice(0,2)
-.map(c=>c.numero)
-.join(" - ");
-
-
-
-
-document.getElementById(
-"couple-place"
-).textContent = couplePlace;
-
-
-
-
-
-
-
-
-
-// ============================
-// ANALYSE PREMIUM
-// ============================
-
-
-const analyse =
-document.getElementById(
-"analyse-premium"
-);
-
-
-
-if(analyse){
-
-
-const favori =
-premium[0];
-
-
-const outsider =
-premium[5];
-
-
-
-analyse.innerHTML = `
-
-
-<p>
-⭐ Base Premium :
-<strong>
-N°${favori.numero}
-${favori.nom || ""}
-</strong>
-</p>
-
-
-
-<p>
-🔥 Cheval à surveiller :
-<strong>
-N°${outsider.numero}
-${outsider.nom || ""}
-</strong>
-</p>
-
-
-
-<p>
-📊 Confiance :
-<strong>
-${favori.confiance || "-"} %
-</strong>
-</p>
-
-
-`;
-
-
-
-}
-
-
-
-
-
-}
-
-catch(error){
-
-
-console.log(
-"Erreur Ticket Premium :",
-error
-);
-
-
-const zone =
-document.getElementById(
-"analyse-premium"
-);
-
-
-
-if(zone){
-
-zone.innerHTML =
-"❌ Impossible de charger le ticket Premium.";
-
-}
-
-
-
-}
-
-
-
-}
-
-
-
-
+// Lancement automatique
 
 document.addEventListener(
-
-"DOMContentLoaded",
-
-chargerTicketPremium
-
+    "DOMContentLoaded",
+    chargerTicketPremium
 );
