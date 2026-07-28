@@ -1,7 +1,10 @@
 // ticket-premium.js
-// AZ Turf Pro Premium
+// AZ Turf Pro - Affichage Premium
+// L'API calcule, Premium affiche
+
 
 const API_URL = "https://az-turf-pro.onrender.com/api/analyse";
+
 
 
 async function chargerTicketPremium() {
@@ -9,58 +12,66 @@ async function chargerTicketPremium() {
     try {
 
         const response = await fetch(API_URL);
+
         const data = await response.json();
 
-        console.log("API Premium :", data);
+        console.log("Données Premium :", data);
+
 
 
         const classement = data.classement || [];
+
         const tickets = data.tickets || {};
+
 
 
         afficherClassement(classement);
 
 
+
         afficherTicket(
             "ticket-quinte",
-            tickets.quinte,
-            classement
+            tickets.quinte
         );
 
 
         afficherTicket(
             "ticket-quarte",
-            tickets.quarte,
-            classement
+            tickets.quarte
         );
 
 
         afficherTicket(
             "ticket-trio",
-            tickets.trio,
-            classement
+            tickets.trio
         );
 
 
         afficherTicket(
             "ticket-couple-gagnant",
-            tickets.couple_gagnant,
-            classement
+            tickets.couple_gagnant
         );
 
 
         afficherCouplesPlace(
-            tickets.couple_place,
-            classement
+            tickets.couple_place
         );
+
+
+        afficherChampReduit(
+            tickets.vip?.champ_reduit
+        );
+
 
 
     } catch(error) {
 
-        console.error(error);
 
-        document.body.innerHTML +=
-        "<p>Erreur chargement Premium</p>";
+        console.error(
+            "Erreur Premium :",
+            error
+        );
+
 
     }
 
@@ -68,38 +79,28 @@ async function chargerTicketPremium() {
 
 
 
-function nomCheval(numero, classement){
-
-    const cheval = classement.find(
-        c => c.numero === numero
-    );
-
-    return cheval 
-        ? `N°${numero} - ${cheval.nom}`
-        : `N°${numero}`;
-
-}
-
-
 
 function afficherClassement(classement){
 
-    const zone = document.getElementById(
+
+    const zone =
+    document.getElementById(
         "classement-premium"
     );
+
 
     if(!zone) return;
 
 
-    zone.innerHTML = classement.map(c => `
+
+    zone.innerHTML = classement.map(cheval => `
 
         <div class="cheval-premium">
 
-            <b>${c.rang}e</b>
-            ${c.nom}
+            ${cheval.rang} - N°${cheval.numero}
 
             <span>
-            Indice AZ : ${c.indice_az}
+            Indice AZ : ${cheval.indice_az}
             </span>
 
         </div>
@@ -111,26 +112,23 @@ function afficherClassement(classement){
 
 
 
-function afficherTicket(id,ticket,classement){
 
-    const zone = document.getElementById(id);
+function afficherTicket(id,ticket){
+
+
+    const zone =
+    document.getElementById(id);
+
 
     if(!zone || !ticket) return;
+
 
 
     zone.innerHTML = `
 
     <div class="ticket-box">
 
-    ${
-        ticket.map(numero => 
-        `
-        <div class="numero-cheval">
-        ${nomCheval(numero,classement)}
-        </div>
-        `
-        ).join("")
-    }
+        ${ticket.join(" - ")}
 
     </div>
 
@@ -140,7 +138,11 @@ function afficherTicket(id,ticket,classement){
 
 
 
-function afficherCouplesPlace(ticket,classement){
+
+
+
+function afficherCouplesPlace(ticket){
+
 
     const zone =
     document.getElementById(
@@ -151,24 +153,61 @@ function afficherCouplesPlace(ticket,classement){
     if(!zone || !ticket) return;
 
 
-    zone.innerHTML = ticket.map(couple => `
 
-        <div class="ticket-box">
+    zone.innerHTML = `
 
-        ${couple.map(numero =>
-            nomCheval(numero,classement)
-        ).join(" - ")}
+    <div class="ticket-box">
 
-        </div>
+    ${
+        ticket
+        .map(couple =>
+            couple.join(" - ")
+        )
+        .join(" / ")
+    }
 
-    `).join("");
+    </div>
+
+    `;
 
 }
 
 
 
 
+
+
+function afficherChampReduit(champ){
+
+
+    const zone =
+    document.getElementById(
+        "ticket-champ-reduit"
+    );
+
+
+    if(!zone || !champ) return;
+
+
+
+    zone.innerHTML = `
+
+    <div class="ticket-box">
+
+        ${champ.format}
+
+    </div>
+
+    `;
+
+}
+
+
+
+
+
+
 document.addEventListener(
-"DOMContentLoaded",
-chargerTicketPremium
+    "DOMContentLoaded",
+    chargerTicketPremium
 );
