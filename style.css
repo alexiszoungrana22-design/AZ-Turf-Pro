@@ -1448,26 +1448,34 @@ width:90%;
 
 
 
-.boule-numero {
+.ticket-grand {
 
-    width:65px;
-    height:65px;
+    width:100%;
 
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    border-radius:50%;
+    text-align:center;
 
     font-size:34px;
-    font-weight:900;
 
-    background:#ffffff;
+    font-weight:bold;
 
-    border:3px solid #d4af37;
+    display:block;
 
-    box-shadow:
-    0 4px 10px rgba(0,0,0,0.25);
+    margin:20px auto;
+
+}
+
+
+#ticket-quinte,
+#ticket-quarte,
+#ticket-trio,
+#ticket-couple-gagnant,
+#ticket-couple-place,
+#ticket-champ-reduit,
+#ticket-2h-avant {
+
+    text-align:center;
+
+    width:100%;
 
 }
 
