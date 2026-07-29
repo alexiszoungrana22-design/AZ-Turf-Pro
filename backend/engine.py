@@ -5,6 +5,7 @@ from quinte import generer_tickets_az
 try:
     from database import enregistrer_course
 except Exception:
+
     def enregistrer_course(data):
         pass
 
@@ -69,9 +70,15 @@ def lancer_analyse(chevaux):
 
 
     return {
-    "message": "Analyse AZ Turf terminée",
-    "chevaux": classement,
-    "classement": classement,
-    "favori": classement[0] if classement else {},
-    "tickets": tickets
+
+        "message": "Analyse AZ Turf terminée",
+
+        "chevaux": classement,
+
+        "classement": classement,
+
+        "favori": classement[0] if classement else {},
+
+        "tickets": tickets
+
     }
