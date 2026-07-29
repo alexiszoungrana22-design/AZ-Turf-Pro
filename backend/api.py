@@ -20,6 +20,7 @@ def analyse():
             "courses.json"
         )
 
+
         with open(
             chemin,
             "r",
@@ -46,82 +47,86 @@ def analyse():
         )
 
 
+        print("RESULTAT ENGINE :", resultat)
+
+
         return {
 
-    "message": "Analyse AZ Turf terminée",
+            "message": "Analyse AZ Turf terminée",
 
-    "course": course.get(
-        "course",
-        "Course"
-    ),
+            "course": course.get(
+                "course",
+                "Course"
+            ),
 
-    "date": course.get(
-        "date",
-        ""
-    ),
+            "date": course.get(
+                "date",
+                ""
+            ),
 
-    "reunion": course.get(
-        "reunion",
-        ""
-    ),
+            "reunion": course.get(
+                "reunion",
+                ""
+            ),
 
-    "course_numero": course.get(
-        "course_numero",
-        ""
-    ),
+            "course_numero": course.get(
+                "course_numero",
+                ""
+            ),
 
-    "hippodrome": course.get(
-        "hippodrome",
-        ""
-    ),
+            "hippodrome": course.get(
+                "hippodrome",
+                ""
+            ),
 
-    "discipline": course.get(
-        "discipline",
-        ""
-    ),
+            "discipline": course.get(
+                "discipline",
+                ""
+            ),
 
-    "distance_course": course.get(
-        "distance_course",
-        0
-    ),
+            "distance_course": course.get(
+                "distance_course",
+                0
+            ),
 
-    "allocation": course.get(
-        "allocation",
-        0
-    ),
+            "allocation": course.get(
+                "allocation",
+                0
+            ),
 
-    "partants": len(chevaux),
+            "partants": len(chevaux),
 
-    "chevaux": resultat.get(
-        "chevaux",
-        []
-    ),
 
-    "classement": resultat.get(
-        "classement",
-        []
-    ),
+            "chevaux": resultat.get(
+                "chevaux",
+                []
+            ),
 
-    "favori": resultat.get(
-        "favori",
-        {}
-    ),
+            "classement": resultat.get(
+                "classement",
+                []
+            ),
 
-    "tickets": resultat.get(
-        "tickets",
-        {}
-    ),
+            "favori": resultat.get(
+                "favori",
+                {}
+            ),
 
-    # Les plus joués provenant de la source
-    "plus_joues": course.get(
-        "plus_joues",
-        []
-    ),
+            "tickets": resultat.get(
+                "tickets",
+                {}
+            ),
 
-    "source_plus_joues": course.get(
-        "source_plus_joues",
-        "Turf.fr"
-    )
+
+            "plus_joues": course.get(
+                "plus_joues",
+                []
+            ),
+
+            "source_plus_joues": course.get(
+                "source_plus_joues",
+                "Turf.fr"
+            )
 
         }
 
