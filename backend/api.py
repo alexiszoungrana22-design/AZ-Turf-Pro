@@ -20,6 +20,7 @@ def analyse():
             "courses.json"
         )
 
+
         with open(
             chemin,
             "r",
@@ -36,18 +37,23 @@ def analyse():
 
 
         if not chevaux:
+
             raise Exception(
                 "Aucun cheval trouvé dans courses.json"
             )
 
 
-        resultat = lancer_analyse(chevaux)
+        resultat = lancer_analyse(
+            chevaux
+        )
 
 
-        # Sécurité : récupération directe si clé absente
         classement = resultat.get(
             "classement",
-            resultat.get("chevaux", [])
+            resultat.get(
+                "chevaux",
+                []
+            )
         )
 
 
@@ -55,34 +61,78 @@ def analyse():
 
             "message": "Analyse AZ Turf terminée",
 
-            "course": course.get("course", "Course"),
+            "course": course.get(
+                "course",
+                "Course"
+            ),
 
-            "date": course.get("date", ""),
+            "date": course.get(
+                "date",
+                ""
+            ),
 
-            "reunion": course.get("reunion", ""),
+            "reunion": course.get(
+                "reunion",
+                ""
+            ),
 
-            "course_numero": course.get("course_numero", ""),
+            "course_numero": course.get(
+                "course_numero",
+                ""
+            ),
 
-            "hippodrome": course.get("hippodrome", ""),
+            "hippodrome": course.get(
+                "hippodrome",
+                ""
+            ),
 
-            "discipline": course.get("discipline", ""),
+            "discipline": course.get(
+                "discipline",
+                ""
+            ),
 
-            "distance_course": course.get("distance_course", 0),
+            "distance_course": course.get(
+                "distance_course",
+                0
+            ),
 
-            "allocation": course.get("allocation", 0),
+            "allocation": course.get(
+                "allocation",
+                0
+            ),
 
             "partants": len(chevaux),
 
+
+            # Résultat analyse
 
             "chevaux": classement,
 
             "classement": classement,
 
-            "favori": classement[0] if classement else {},
+            "favori": (
+                classement[0]
+                if classement
+                else {}
+            ),
+
+
+            # Tickets AZ
 
             "tickets": resultat.get(
                 "tickets",
                 {}
+            ),
+
+
+            "plus_joues": course.get(
+                "plus_joues",
+                []
+            ),
+
+            "source_plus_joues": course.get(
+                "source_plus_joues",
+                "Turf.fr"
             )
 
         }
