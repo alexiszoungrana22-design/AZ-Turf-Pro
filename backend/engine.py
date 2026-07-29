@@ -2,6 +2,7 @@ from scoring import calculer_score_az
 from ranking import classer_chevaux
 from quinte import generer_tickets_az
 
+
 try:
     from database import enregistrer_course
 except Exception:
@@ -10,10 +11,8 @@ except Exception:
         pass
 
 
+
 def lancer_analyse(chevaux):
-
-    print("NOMBRE CHEVAUX RECUS :", len(chevaux))
-
 
     chevaux_scores = []
 
@@ -33,23 +32,14 @@ def lancer_analyse(chevaux):
         })
 
 
-    print("CHEVAUX SCORES :", chevaux_scores)
-
-
     classement = classer_chevaux(
         chevaux_scores
     )
 
 
-    print("CLASSEMENT :", classement)
-
-
     tickets = generer_tickets_az(
         classement
     )
-
-
-    print("TICKETS :", tickets)
 
 
     try:
@@ -67,6 +57,7 @@ def lancer_analyse(chevaux):
     except Exception:
 
         pass
+
 
 
     return {
