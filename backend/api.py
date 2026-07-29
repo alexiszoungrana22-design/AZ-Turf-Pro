@@ -48,12 +48,16 @@ def analyse():
         )
 
 
+        # DEBUG TEMPORAIRE
+        print(
+            "RESULTAT ENGINE :",
+            resultat
+        )
+
+
         classement = resultat.get(
-            "classement",
-            resultat.get(
-                "chevaux",
-                []
-            )
+            "chevaux",
+            []
         )
 
 
@@ -104,11 +108,10 @@ def analyse():
             "partants": len(chevaux),
 
 
-            # Résultat analyse
-
             "chevaux": classement,
 
             "classement": classement,
+
 
             "favori": (
                 classement[0]
@@ -117,22 +120,9 @@ def analyse():
             ),
 
 
-            # Tickets AZ
-
             "tickets": resultat.get(
                 "tickets",
                 {}
-            ),
-
-
-            "plus_joues": course.get(
-                "plus_joues",
-                []
-            ),
-
-            "source_plus_joues": course.get(
-                "source_plus_joues",
-                "Turf.fr"
             )
 
         }
