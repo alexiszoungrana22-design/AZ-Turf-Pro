@@ -1,7 +1,6 @@
 // =====================================
 // AZ TURF PRO - TICKET PREMIUM
-// Compatible ticket-premium.html
-// Lecture API : tickets.vip
+// Version corrigée
 // =====================================
 
 
@@ -14,6 +13,7 @@ document.addEventListener(
 "DOMContentLoaded",
 chargerTicketPremium
 );
+
 
 
 
@@ -49,15 +49,31 @@ data
 
 
 
+
+
+const classement =
+data.classement || [];
+
+
+
+const tickets =
+data.tickets || {};
+
+
+
 const vip =
-data.tickets?.vip || {};
+tickets.vip || {};
 
 
 
 
-// ===============================
-// SELECTION PREMIUM
-// ===============================
+
+
+
+
+// =====================================
+// SELECTION 7 CHEVAUX
+// =====================================
 
 
 const selection =
@@ -75,9 +91,10 @@ selection.innerHTML = `
 <strong>
 
 ${
-(vip.quinte || [])
+classement
+.slice(0,7)
+.map(c => c.numero)
 .join(" - ")
-
 }
 
 </strong>
@@ -89,9 +106,90 @@ ${
 
 
 
-// ===============================
-// QUINTE PREMIUM
-// ===============================
+
+
+
+// =====================================
+// EXPLICATION DES CHOIX
+// =====================================
+
+
+const explication =
+document.getElementById(
+"explication-premium"
+);
+
+
+
+if(explication){
+
+
+if(data.explication_premium){
+
+
+explication.innerHTML =
+
+data.explication_premium
+.map(e => `
+
+<p>
+
+🏇 N°${e.numero}
+
+<br>
+
+${e.raison}
+
+</p>
+
+`)
+.join("");
+
+
+}
+
+else{
+
+
+explication.innerHTML = `
+
+<p>
+Les chevaux retenus sont étudiés selon :
+</p>
+
+<ul>
+
+<li>Forme récente</li>
+
+<li>Régularité</li>
+
+<li>Distance</li>
+
+<li>Jockey et entourage</li>
+
+<li>Indice AZ</li>
+
+<li>Conditions de course</li>
+
+</ul>
+
+`;
+
+}
+
+}
+
+
+
+
+
+
+
+
+
+// =====================================
+// TICKETS PREMIUM
+// =====================================
 
 
 afficherListe(
@@ -101,23 +199,11 @@ vip.quinte
 
 
 
-
-// ===============================
-// QUARTE PREMIUM
-// ===============================
-
-
 afficherListe(
 "quarte-premium",
 vip.quarte
 );
 
-
-
-
-// ===============================
-// TRIO PREMIUM
-// ===============================
 
 
 afficherListe(
@@ -128,9 +214,16 @@ vip.trio
 
 
 
-// ===============================
-// COUPLES GAGNANT / PLACE
-// ===============================
+
+
+
+
+
+
+// =====================================
+// COUPLE GAGNANT / PLACE
+// FORMAT 3-5-2
+// =====================================
 
 
 const couple =
@@ -140,16 +233,54 @@ document.getElementById(
 
 
 
-if(couple && vip.couple_gagnant_place){
+if(couple){
+
+
+let valeur =
+vip.couple_gagnant_place;
+
+
+
+if(Array.isArray(valeur)){
+
+
+if(
+typeof valeur[0] === "object"
+){
 
 
 couple.innerHTML =
 
-vip.couple_gagnant_place
-.map(
-c => c.join("-")
-)
+valeur
+.map(c => c.join("-"))
 .join(" | ");
+
+
+}
+
+else{
+
+
+couple.innerHTML =
+
+valeur.join(" - ");
+
+}
+
+
+}
+
+else{
+
+
+couple.innerHTML =
+
+classement
+.slice(0,3)
+.map(c => c.numero)
+.join(" - ");
+
+}
 
 
 }
@@ -157,38 +288,14 @@ c => c.join("-")
 
 
 
-// ===============================
-// COUPLE PLACE
-// ===============================
-
-
-const couplePlace =
-document.getElementById(
-"couple-place"
-);
-
-
-
-if(couplePlace){
-
-
-couplePlace.innerHTML =
-
-(vip.couple_gagnant_place || [])
-.map(
-c => c.join("-")
-)
-.join(" | ");
-
-
-}
 
 
 
 
-// ===============================
+
+// =====================================
 // CHAMP REDUIT
-// ===============================
+// =====================================
 
 
 const champ =
@@ -198,7 +305,10 @@ document.getElementById(
 
 
 
-if(champ && vip.champ_reduit){
+if(champ){
+
+
+if(vip.champ_reduit){
 
 
 champ.innerHTML = `
@@ -209,26 +319,33 @@ ${vip.champ_reduit.format}
 
 </strong>
 
-<br>
-
-Bases :
-${vip.champ_reduit.bases.join("-")}
-
-<br>
-
-Compléments :
-${vip.champ_reduit.complements.join("-")}
-
 `;
+
+}
+
+else{
+
+
+champ.innerHTML =
+"Champ réduit en préparation";
+
+
+}
+
 
 }
 
 
 
 
-// ===============================
-// ANALYSE PREMIUM
-// ===============================
+
+
+
+
+
+// =====================================
+// ANALYSE PERFORMANCE
+// =====================================
 
 
 const analyse =
@@ -244,24 +361,31 @@ if(analyse){
 analyse.innerHTML = `
 
 <p>
-Course :
+📈 Bonnes performances :
+Analyse de la forme, de la régularité,
+de la distance et des conditions favorables.
+</p>
+
+
+<p>
+📉 Mauvaises performances :
+Recherche des causes possibles :
+mauvais parcours, distance,
+niveau d'opposition ou circonstances de course.
+</p>
+
+
+<p>
+🏇 Course :
 ${data.course || ""}
 </p>
 
+
 <p>
-Hippodrome :
+🏟 Hippodrome :
 ${data.hippodrome || ""}
 </p>
 
-<p>
-Distance :
-${data.distance_course || ""} m
-</p>
-
-<p>
-Discipline :
-${data.discipline || ""}
-</p>
 
 `;
 
@@ -270,13 +394,127 @@ ${data.discipline || ""}
 
 
 
+
+
+
+
+
+// =====================================
+// DERNIERE MINUTE
+// =====================================
+
+
+const derniere =
+document.getElementById(
+"derniere-minute-premium"
+);
+
+
+
+if(derniere){
+
+
+const minute =
+data.derniere_minute;
+
+
+
+if(minute){
+
+
+derniere.innerHTML = `
+
+<strong>
+
+${minute.selection.join(" - ")}
+
+</strong>
+
+
+<br><br>
+
+🎯 Joker :
+${minute.joker || "-"}
+
+
+<br><br>
+
+${minute.raison || ""}
+
+`;
+
 }
+
+else{
+
+
+derniere.innerHTML =
+
+"⚡ La dernière minute sera ajustée avant le départ.";
+
+
+}
+
+
+}
+
+
+
+
+
+
+
+
+
+// =====================================
+// MESSAGE BONNE CHANCE
+// =====================================
+
+
+const message =
+document.getElementById(
+"message-bonne-chance"
+);
+
+
+
+if(message){
+
+
+message.innerHTML = `
+
+🍀 Bonne chance à tous les membres Premium.
+
+<br><br>
+
+Notre analyse repose sur l'étude des performances,
+de la forme des chevaux et des conditions de course.
+
+<br><br>
+
+Jouez avec stratégie et responsabilité.
+
+<br><br>
+
+🏇 Que vos chevaux soient à l'arrivée !
+
+`;
+
+}
+
+
+
+}
+
+
+
+
 
 catch(error){
 
 
 console.error(
-"Erreur Premium AZ Turf :",
+"Erreur Ticket Premium AZ :",
 error
 );
 
@@ -286,6 +524,10 @@ error
 
 
 }
+
+
+
+
 
 
 
@@ -307,7 +549,10 @@ return;
 
 
 
-if(!liste || liste.length === 0){
+if(
+!liste ||
+liste.length === 0
+){
 
 
 zone.textContent =
@@ -330,4 +575,4 @@ ${liste.join(" - ")}
 
 `;
 
-}
+  }
