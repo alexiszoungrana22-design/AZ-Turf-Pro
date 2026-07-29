@@ -24,6 +24,10 @@ def lancer_analyse(chevaux):
 
 classement = classer_chevaux(chevaux_scores)
 
+print("CHEVAUX RECUS :", chevaux)
+print("CHEVAUX SCORES :", chevaux_scores)
+print("CLASSEMENT :", classement)
+
 tickets = generer_tickets_az(classement)
 
 print("CHEVAUX SCORES :", chevaux_scores)
