@@ -1,5 +1,6 @@
 // ===============================
-// AZ TURF PRO - SCRIPT TICKETS
+// AZ TURF PRO - AFFICHAGE TICKETS
+// Compatible ticket.html + JSON API
 // ===============================
 
 
@@ -22,54 +23,37 @@ async function chargerTickets(){
 try{
 
 
-const reponse =
-await fetch(API_URL);
+const response = await fetch(API_URL);
 
 
 
-const data =
-await reponse.json();
+if(!response.ok){
+
+throw new Error("Erreur API");
+
+}
+
+
+
+const data = await response.json();
 
 
 
 console.log(
-"Analyse AZ :",
+"JSON AZ Turf :",
 data
 );
 
 
 
-afficherTickets(
-data.tickets || {}
-);
+const tickets =
+data.tickets || {};
 
-
-
-}
-
-catch(error){
-
-
-console.error(
-"Erreur AZ Turf Pro :",
-error
-);
-
-
-}
-
-
-
-}
-
-
-
-
-function afficherTickets(tickets){
 
 
 const gratuit =
 tickets.gratuit || {};
+
 
 
 const vip =
@@ -124,10 +108,29 @@ vip.trio
 
 
 
-afficherCouples(
-"couple-gagnant-place",
-vip.couple_gagnant_place
+
+// Couplé gagnant placé
+
+const couple =
+document.getElementById(
+"couple-gagnant-place"
 );
+
+
+
+if(couple && vip.couple_gagnant_place){
+
+
+couple.innerHTML =
+
+vip.couple_gagnant_place
+.map(
+c => c.join("-")
+)
+.join(" | ");
+
+
+}
 
 
 
@@ -184,7 +187,7 @@ vip.ticket_derniere_minute.format;
 
 
 
-// Message final
+// Message Premium
 
 const message =
 document.getElementById(
@@ -199,6 +202,22 @@ if(message){
 message.textContent =
 
 vip.message_fin || "";
+
+
+}
+
+
+
+
+}
+
+catch(error){
+
+
+console.error(
+"Erreur affichage tickets :",
+error
+);
 
 
 }
@@ -227,7 +246,7 @@ return;
 
 
 
-if(!liste || liste.length===0){
+if(!liste || liste.length === 0){
 
 
 element.textContent =
@@ -239,6 +258,9 @@ return;
 }
 
 
+
+
+// Gestion des couples sous forme tableau
 
 if(Array.isArray(liste[0])){
 
@@ -263,51 +285,6 @@ liste.join(" - ");
 
 
 }
-
-
-
-}
-
-
-
-
-
-function afficherCouples(id, couples){
-
-
-const element =
-document.getElementById(id);
-
-
-
-if(!element){
-
-return;
-
-}
-
-
-
-if(!couples || couples.length===0){
-
-
-element.textContent =
-"Non disponible";
-
-
-return;
-
-}
-
-
-
-element.textContent =
-
-couples
-.map(
-c => c.join("-")
-)
-.join(" | ");
 
 
 
