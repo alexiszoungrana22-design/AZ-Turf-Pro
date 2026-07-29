@@ -1,10 +1,10 @@
 // =====================================
 // AZ TURF PRO - PREMIUM.JS
-// Nouvel espace Premium indépendant
+// Espace Premium indépendant
 // =====================================
 
 
-const API_PREMIUM =
+const API_URL =
 "https://az-turf-pro.onrender.com/api/analyse";
 
 
@@ -17,6 +17,7 @@ chargerPremium
 
 
 
+
 async function chargerPremium(){
 
 
@@ -24,7 +25,7 @@ try{
 
 
 const response =
-await fetch(API_PREMIUM);
+await fetch(API_URL);
 
 
 
@@ -42,9 +43,11 @@ await response.json();
 
 
 console.log(
-"Données Premium :",
+"Données Premium AZ :",
 data
 );
+
+
 
 
 
@@ -53,16 +56,23 @@ data.classement || [];
 
 
 
+const tickets =
+data.tickets || {};
+
+
+
 const vip =
-data.tickets?.vip || {};
+tickets.vip || {};
 
 
 
 
 
-// =====================================
+
+
+// ===============================
 // SELECTION 7 CHEVAUX
-// =====================================
+// ===============================
 
 
 const selection =
@@ -78,7 +88,7 @@ if(selection){
 const chevaux =
 classement
 .slice(0,7)
-.map(c => c.numero);
+.map(c => `N°${c.numero}`);
 
 
 
@@ -100,9 +110,11 @@ ${chevaux.join(" - ")}
 
 
 
-// =====================================
+
+
+// ===============================
 // EXPLICATION DES CHOIX
-// =====================================
+// ===============================
 
 
 const explication =
@@ -121,18 +133,25 @@ if(data.explication_premium){
 explication.innerHTML =
 
 data.explication_premium
-.map(e => `
+.map(item => `
+
+<div class="analyse-cheval">
+
+<h3>
+🏇 N°${item.numero}
+</h3>
 
 <p>
-🏇 N°${e.numero} :
-${e.raison}
+${item.raison}
 </p>
+
+</div>
 
 `)
 .join("");
 
-}
 
+}
 
 else{
 
@@ -140,7 +159,7 @@ else{
 explication.innerHTML = `
 
 <p>
-Analyse basée sur :
+Analyse des chevaux retenus selon :
 </p>
 
 <ul>
@@ -153,9 +172,9 @@ Analyse basée sur :
 
 <li>Jockey et entourage</li>
 
-<li>Expérience</li>
-
 <li>Indice AZ</li>
+
+<li>Conditions de course</li>
 
 </ul>
 
@@ -163,6 +182,7 @@ Analyse basée sur :
 
 }
 
+
 }
 
 
@@ -171,9 +191,11 @@ Analyse basée sur :
 
 
 
-// =====================================
-// ANALYSE PERFORMANCE
-// =====================================
+
+
+// ===============================
+// BONNES / MAUVAISES PERFORMANCES
+// ===============================
 
 
 const analyse =
@@ -190,22 +212,34 @@ if(data.analyse_performance){
 
 
 analyse.innerHTML =
-
 data.analyse_performance;
 
 
 }
 
-
 else{
 
 
-analyse.innerHTML =
+analyse.innerHTML = `
 
-"Étude des bonnes et mauvaises performances en cours.";
+<p>
+📈 Étude des bonnes performances :
+Les réussites sont analysées selon les conditions favorables,
+la distance, la forme et l'adaptation au parcours.
+</p>
+
+
+<p>
+📉 Étude des mauvaises performances :
+Les échecs sont analysés selon les causes possibles :
+mauvais parcours, distance, niveau d'opposition ou circonstances de course.
+</p>
+
+`;
 
 }
 
+
 }
 
 
@@ -214,10 +248,11 @@ analyse.innerHTML =
 
 
 
-// =====================================
+
+
+// ===============================
 // TICKETS PREMIUM
-// =====================================
-
+// ===============================
 
 
 afficherTicket(
@@ -245,10 +280,12 @@ vip.trio
 
 
 
-// =====================================
+
+
+// ===============================
 // COUPLE GAGNANT PLACE
-// FORMAT : 3-5-2
-// =====================================
+// FORMAT 3-5-2
+// ===============================
 
 
 const couple =
@@ -261,12 +298,15 @@ document.getElementById(
 if(couple){
 
 
-const base =
-vip.couple_gagnant_place ||
-[classement[0]?.numero,
- classement[1]?.numero,
- classement[2]?.numero];
+let base =
+vip.couple_gagnant_place;
 
+
+
+if(
+Array.isArray(base)
+&& base.length > 0
+){
 
 
 couple.innerHTML = `
@@ -281,15 +321,42 @@ ${base.join(" - ")}
 
 }
 
+else{
+
+
+const trois =
+classement
+.slice(0,3)
+.map(c => c.numero);
+
+
+
+couple.innerHTML = `
+
+<strong>
+
+${trois.join(" - ")}
+
+</strong>
+
+`;
+
+}
+
+
+}
 
 
 
 
 
 
-// =====================================
+
+
+
+// ===============================
 // CHAMP REDUIT
-// =====================================
+// ===============================
 
 
 const champ =
@@ -308,7 +375,9 @@ if(vip.champ_reduit){
 champ.innerHTML = `
 
 <strong>
+
 ${vip.champ_reduit.format}
+
 </strong>
 
 `;
@@ -319,22 +388,25 @@ else{
 
 
 champ.innerHTML =
-"Préparation du champ réduit.";
-
-}
+"Champ réduit en préparation";
 
 
 }
 
 
+}
 
 
 
 
 
-// =====================================
-// DERNIERE MINUTE INDEPENDANTE
-// =====================================
+
+
+
+
+// ===============================
+// DERNIERE MINUTE
+// ===============================
 
 
 const derniere =
@@ -345,6 +417,7 @@ document.getElementById(
 
 
 if(derniere){
+
 
 
 const minute =
@@ -361,9 +434,13 @@ derniere.innerHTML = `
 
 ${minute.selection.join(" - ")}
 
-+ Joker ${minute.joker}
-
 </strong>
+
+
+<br>
+
+🎯 Joker :
+${minute.joker || "-"}
 
 
 <br><br>
@@ -381,22 +458,25 @@ else{
 
 derniere.innerHTML =
 
-"⚡ Dernière minute en préparation avant le départ.";
-
-}
+"⚡ Sélection dernière minute préparée avant le départ.";
 
 
 }
 
 
+}
 
 
 
 
 
-// =====================================
+
+
+
+
+// ===============================
 // MESSAGE FINAL
-// =====================================
+// ===============================
 
 
 const message =
@@ -413,8 +493,7 @@ message.textContent =
 
 vip.message_fin ||
 
-"🍀 Bonne chance aux membres Premium. Jouez avec stratégie et responsabilité. Que vos chevaux soient à l'arrivée !";
-
+"🍀 Bonne chance aux membres Premium. Analysez vos jeux avec discipline et responsabilité.";
 
 }
 
@@ -445,6 +524,8 @@ error
 
 
 
+
+
 function afficherTicket(id,ticket){
 
 
@@ -461,7 +542,10 @@ return;
 
 
 
-if(!ticket || ticket.length === 0){
+if(
+!ticket ||
+ticket.length === 0
+){
 
 
 zone.textContent =
