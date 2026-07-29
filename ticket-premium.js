@@ -6,7 +6,7 @@
 
 const API_URL =
 "https://az-turf-pro.onrender.com/api/analyse";
-
+console.log("TICKET PREMIUM JS CHARGE");
 
 document.addEventListener(
 "DOMContentLoaded",
