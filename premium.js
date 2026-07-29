@@ -1,7 +1,6 @@
 // =====================================
 // AZ TURF PRO - PREMIUM.JS
-// Nouvel espace Premium
-// Lecture directe API : tickets.vip
+// Nouvel espace Premium indépendant
 // =====================================
 
 
@@ -43,9 +42,14 @@ await response.json();
 
 
 console.log(
-"Premium AZ :",
+"Données Premium :",
 data
 );
+
+
+
+const classement =
+data.classement || [];
 
 
 
@@ -55,43 +59,10 @@ data.tickets?.vip || {};
 
 
 
-// ===============================
-// INFORMATIONS COURSE
-// ===============================
 
-
-const analyse =
-document.getElementById(
-"analyse-premium"
-);
-
-
-
-if(analyse){
-
-
-analyse.innerHTML = `
-
-<strong>${data.course || ""}</strong><br>
-
-${data.hippodrome || ""}<br>
-
-${data.reunion || ""} ${data.course_numero || ""}<br>
-
-${data.discipline || ""}<br>
-
-Distance : ${data.distance_course || ""} m
-
-`;
-
-}
-
-
-
-
-// ===============================
-// SELECTION PREMIUM
-// ===============================
+// =====================================
+// SELECTION 7 CHEVAUX
+// =====================================
 
 
 const selection =
@@ -104,11 +75,18 @@ document.getElementById(
 if(selection){
 
 
+const chevaux =
+classement
+.slice(0,7)
+.map(c => c.numero);
+
+
+
 selection.innerHTML = `
 
 <strong>
 
-${(vip.quinte || []).join(" - ")}
+${chevaux.join(" - ")}
 
 </strong>
 
@@ -120,56 +98,70 @@ ${(vip.quinte || []).join(" - ")}
 
 
 
-// ===============================
-// TICKETS
-// ===============================
 
 
-afficher(
-"quinte-premium",
-vip.quinte
-);
+// =====================================
+// EXPLICATION DES CHOIX
+// =====================================
 
 
-
-afficher(
-"quarte-premium",
-vip.quarte
-);
-
-
-
-afficher(
-"trio-premium",
-vip.trio
-);
-
-
-
-
-// ===============================
-// COUPLES
-// ===============================
-
-
-const couples =
+const explication =
 document.getElementById(
-"couples-premium"
+"explication-premium"
 );
 
 
 
-if(couples){
+if(explication){
 
 
-couples.innerHTML =
+if(data.explication_premium){
 
-(vip.couple_gagnant_place || [])
-.map(
-c => c.join("-")
-)
-.join(" | ");
 
+explication.innerHTML =
+
+data.explication_premium
+.map(e => `
+
+<p>
+🏇 N°${e.numero} :
+${e.raison}
+</p>
+
+`)
+.join("");
+
+}
+
+
+else{
+
+
+explication.innerHTML = `
+
+<p>
+Analyse basée sur :
+</p>
+
+<ul>
+
+<li>Forme récente</li>
+
+<li>Régularité</li>
+
+<li>Distance</li>
+
+<li>Jockey et entourage</li>
+
+<li>Expérience</li>
+
+<li>Indice AZ</li>
+
+</ul>
+
+`;
+
+}
 
 }
 
@@ -177,9 +169,127 @@ c => c.join("-")
 
 
 
-// ===============================
+
+
+// =====================================
+// ANALYSE PERFORMANCE
+// =====================================
+
+
+const analyse =
+document.getElementById(
+"analyse-performance"
+);
+
+
+
+if(analyse){
+
+
+if(data.analyse_performance){
+
+
+analyse.innerHTML =
+
+data.analyse_performance;
+
+
+}
+
+
+else{
+
+
+analyse.innerHTML =
+
+"Étude des bonnes et mauvaises performances en cours.";
+
+}
+
+}
+
+
+
+
+
+
+
+// =====================================
+// TICKETS PREMIUM
+// =====================================
+
+
+
+afficherTicket(
+"quinte-premium",
+vip.quinte
+);
+
+
+
+afficherTicket(
+"quarte-premium",
+vip.quarte
+);
+
+
+
+afficherTicket(
+"trio-premium",
+vip.trio
+);
+
+
+
+
+
+
+
+// =====================================
+// COUPLE GAGNANT PLACE
+// FORMAT : 3-5-2
+// =====================================
+
+
+const couple =
+document.getElementById(
+"couple-premium"
+);
+
+
+
+if(couple){
+
+
+const base =
+vip.couple_gagnant_place ||
+[classement[0]?.numero,
+ classement[1]?.numero,
+ classement[2]?.numero];
+
+
+
+couple.innerHTML = `
+
+<strong>
+
+${base.join(" - ")}
+
+</strong>
+
+`;
+
+}
+
+
+
+
+
+
+
+// =====================================
 // CHAMP REDUIT
-// ===============================
+// =====================================
 
 
 const champ =
@@ -189,7 +299,10 @@ document.getElementById(
 
 
 
-if(champ && vip.champ_reduit){
+if(champ){
+
+
+if(vip.champ_reduit){
 
 
 champ.innerHTML = `
@@ -198,26 +311,30 @@ champ.innerHTML = `
 ${vip.champ_reduit.format}
 </strong>
 
-<br>
-
-Bases :
-${vip.champ_reduit.bases.join("-")}
-
-<br>
-
-Compléments :
-${vip.champ_reduit.complements.join("-")}
-
 `;
+
+}
+
+else{
+
+
+champ.innerHTML =
+"Préparation du champ réduit.";
+
+}
+
 
 }
 
 
 
 
-// ===============================
-// DERNIERE MINUTE
-// ===============================
+
+
+
+// =====================================
+// DERNIERE MINUTE INDEPENDANTE
+// =====================================
 
 
 const derniere =
@@ -230,23 +347,73 @@ document.getElementById(
 if(derniere){
 
 
-if(vip.ticket_derniere_minute){
+const minute =
+data.derniere_minute;
 
 
-derniere.textContent =
-vip.ticket_derniere_minute.format;
 
+if(minute){
+
+
+derniere.innerHTML = `
+
+<strong>
+
+${minute.selection.join(" - ")}
+
++ Joker ${minute.joker}
+
+</strong>
+
+
+<br><br>
+
+
+${minute.raison || ""}
+
+`;
 
 }
+
 
 else{
 
 
-derniere.textContent =
-"Préparation avant départ";
+derniere.innerHTML =
+
+"⚡ Dernière minute en préparation avant le départ.";
+
+}
 
 
 }
+
+
+
+
+
+
+
+// =====================================
+// MESSAGE FINAL
+// =====================================
+
+
+const message =
+document.getElementById(
+"message-premium"
+);
+
+
+
+if(message){
+
+
+message.textContent =
+
+vip.message_fin ||
+
+"🍀 Bonne chance aux membres Premium. Jouez avec stratégie et responsabilité. Que vos chevaux soient à l'arrivée !";
 
 
 }
@@ -275,7 +442,10 @@ error
 
 
 
-function afficher(id,liste){
+
+
+
+function afficherTicket(id,ticket){
 
 
 const zone =
@@ -291,7 +461,7 @@ return;
 
 
 
-if(!liste || liste.length === 0){
+if(!ticket || ticket.length === 0){
 
 
 zone.textContent =
@@ -308,10 +478,10 @@ zone.innerHTML = `
 
 <strong>
 
-${liste.join(" - ")}
+${ticket.join(" - ")}
 
 </strong>
 
 `;
 
-  }
+}
