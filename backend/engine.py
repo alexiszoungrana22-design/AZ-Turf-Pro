@@ -3,16 +3,17 @@ from ranking import classer_chevaux
 from quinte import generer_tickets_az
 
 
-try:
-    from database import enregistrer_course
-except Exception:
-
-    def enregistrer_course(data):
-        pass
-
-
-
 def lancer_analyse(chevaux):
+
+    if not chevaux:
+        return {
+            "message": "Aucun cheval",
+            "chevaux": [],
+            "classement": [],
+            "favori": {},
+            "tickets": {}
+        }
+
 
     chevaux_scores = []
 
@@ -25,7 +26,10 @@ def lancer_analyse(chevaux):
 
             "numero": cheval.get("numero"),
 
-            "nom": cheval.get("nom", ""),
+            "nom": cheval.get(
+                "nom",
+                ""
+            ),
 
             "indice_az": score
 
@@ -42,33 +46,20 @@ def lancer_analyse(chevaux):
     )
 
 
-    try:
-
-        enregistrer_course({
-
-            "chevaux": chevaux,
-
-            "classement": classement,
-
-            "tickets": tickets
-
-        })
-
-    except Exception:
-
-        pass
-
-
-
     return {
 
         "message": "Analyse AZ Turf terminée",
 
+        # classement complet
         "chevaux": classement,
 
         "classement": classement,
 
-        "favori": classement[0] if classement else {},
+        "favori": (
+            classement[0]
+            if classement
+            else {}
+        ),
 
         "tickets": tickets
 
