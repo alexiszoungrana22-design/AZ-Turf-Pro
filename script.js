@@ -63,50 +63,82 @@ async function chargerAnalyse() {
         // ===============================
 
 
-        const vip = tickets.vip || {};
+        function afficherTickets(tickets){
+
+    if(!tickets){
+        return;
+    }
+
+
+    const vip = tickets.vip || {};
+
+
+    const quinte = document.getElementById("quinte");
+    const quarte = document.getElementById("quarte");
+    const trio = document.getElementById("trio");
+    const couple = document.getElementById("couple");
+    const champ = document.getElementById("champ-reduit");
+    const derniere = document.getElementById("derniere-minute");
+    const message = document.getElementById("message-premium");
 
 
 
-        afficher(
-            "vip-ticket-7",
-            vip.ticket_7
-        );
+    if(quinte){
+        quinte.textContent =
+        (vip.quinte || []).join(" - ");
+    }
+
+
+    if(quarte){
+        quarte.textContent =
+        (vip.quarte || []).join(" - ");
+    }
+
+
+    if(trio){
+        trio.textContent =
+        (vip.trio || []).join(" - ");
+    }
+
+
+    if(couple){
+
+        couple.textContent =
+        (vip.couple_gagnant_place || [])
+        .map(c => c.join("-"))
+        .join(" | ");
+
+    }
 
 
 
-        afficher(
-            "vip-ticket-5",
-            vip.ticket_5
-        );
+    if(champ && vip.champ_reduit){
+
+        champ.textContent =
+        vip.champ_reduit.format;
+
+    }
 
 
 
-        if (
-            document.getElementById("vip-champ")
-            &&
-            vip.champ_reduit
-        ) {
+    if(derniere && vip.ticket_derniere_minute){
 
-            document.getElementById(
-                "vip-champ"
-            ).innerHTML =
-                vip.champ_reduit.format;
+        derniere.textContent =
+        vip.ticket_derniere_minute.format;
+
+    }
+
+
+
+    if(message){
+
+        message.textContent =
+        vip.message_fin || "";
+
+    }
 
         }
-
-
-
-
-        if (
-            document.getElementById("couple-gagnant")
-        ) {
-
-            afficher(
-                "couple-gagnant",
-                tickets.couple_gagnant
-            );
-
-        }
+        
 
 
 
