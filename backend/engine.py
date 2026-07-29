@@ -25,19 +25,25 @@ def lancer_analyse(chevaux):
 
     classement = classer_chevaux(chevaux_scores)
 
+tickets = generer_tickets_az(classement)
 
-    print("CLASSEMENT :", classement)
+print("CHEVAUX SCORES :", chevaux_scores)
+print("CLASSEMENT :", classement)
+print("TICKETS :", tickets)
 
-
-    tickets = generer_tickets_az(classement)
-
-    print("=== RESULTAT ===")
-    print("CHEVAUX :", classement)
-    print("TICKETS :", tickets)
-    return {
-        "message": "Analyse AZ Turf terminée",
-        "chevaux": classement,
+try:
+    enregistrer_course({
+        "chevaux": chevaux,
         "classement": classement,
-        "favori": classement[0] if classement else {},
         "tickets": tickets
-    }
+    })
+except Exception:
+    pass
+
+return {
+    "message": "Analyse AZ Turf terminée",
+    "chevaux": classement,
+    "classement": classement,
+    "favori": classement[0] if classement else {},
+    "tickets": tickets
+}
