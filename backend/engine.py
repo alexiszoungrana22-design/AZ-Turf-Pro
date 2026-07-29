@@ -31,7 +31,9 @@ def lancer_analyse(chevaux):
 
     tickets = generer_tickets_az(classement)
 
-
+    print("=== RESULTAT ===")
+    print("CHEVAUX :", classement)
+    print("TICKETS :", tickets)
     return {
         "message": "Analyse AZ Turf terminée",
         "chevaux": classement,
