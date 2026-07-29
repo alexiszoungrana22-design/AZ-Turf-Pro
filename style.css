@@ -1573,3 +1573,136 @@ width:90%;
     font-weight:bold;
 
 }
+/* =====================================
+   AZ TURF PRO - STYLE ESPACE PREMIUM
+===================================== */
+
+
+.premium {
+    border: 2px solid #d4af37;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background: #ffffff;
+}
+
+
+.premium h2 {
+    text-align: center;
+    color: #b8860b;
+    margin-bottom: 15px;
+}
+
+
+.premium h3 {
+    color: #333;
+    margin-top: 20px;
+    text-align: center;
+}
+
+
+/* Sélection 7 chevaux */
+
+#selection-premium {
+
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+    color: #006400;
+    padding: 15px;
+
+}
+
+
+
+
+/* Tickets */
+
+.ticket-grand {
+
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+    letter-spacing: 4px;
+    padding: 15px;
+    border-radius: 12px;
+    background: #f7f7f7;
+    color: #111;
+}
+
+
+
+/* Explications */
+
+#explication-choix p {
+
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    line-height: 1.5;
+
+}
+
+
+
+
+/* Champ réduit */
+
+#champ-reduit {
+
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+
+}
+
+
+
+/* Dernière minute */
+
+#derniere-minute {
+
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    color: #c00;
+
+}
+
+
+
+
+/* Message final */
+
+.message-fin {
+
+    text-align: center;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 15px;
+    background: #fff8dc;
+    font-weight: bold;
+    font-size: 18px;
+
+}
+
+
+
+/* Mobile */
+
+@media(max-width:600px){
+
+    .ticket-grand {
+
+        font-size: 24px;
+        letter-spacing: 2px;
+
+    }
+
+
+    #selection-premium {
+
+        font-size: 24px;
+
+    }
+
+}
