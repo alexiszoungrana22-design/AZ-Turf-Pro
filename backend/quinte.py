@@ -20,8 +20,6 @@ def generer_champ_reduit(classement):
     - 3 bases
     - 2 X dynamiques
     - 4 compléments
-
-    Les X changent de position selon l'analyse.
     """
 
     numeros = extraire_numeros(classement)
@@ -42,7 +40,6 @@ def generer_champ_reduit(classement):
     complements = numeros[3:7]
 
 
-    # Position des X selon la dynamique de course
     variation = sum(bases) % 4
 
 
@@ -92,15 +89,16 @@ def generer_champ_reduit(classement):
 
 
 
+
 def generer_ticket_derniere_minute(classement):
     """
-    Ticket dernière minute
+    Ticket dernière minute indépendant
 
-    Sélection indépendante :
-    - changements de dernière minute
+    Prend en compte :
+    - changements de driver
+    - non-partants
     - outsiders
     - chevaux cachés
-    - évolution course
     """
 
     numeros = extraire_numeros(classement)
@@ -140,16 +138,16 @@ def generer_ticket_derniere_minute(classement):
 
 
 
+
 def generer_tickets_az(classement):
 
     """
-    Génération finale des tickets
+    Génération des tickets AZ Turf Pro
 
     GRATUIT :
     - Quinté 7 chevaux
-    - 2 sur 4
+    - Deux sur Quatre
     - Couplé placé
-
 
     PREMIUM :
     - Quinté 6 chevaux
@@ -161,13 +159,21 @@ def generer_tickets_az(classement):
     """
 
 
+
     numeros = extraire_numeros(classement)
 
 
 
-    if not numeros:
+    if len(numeros) < 7:
 
-        return {}
+        return {
+
+            "gratuit": {},
+
+            "vip": {}
+
+        }
+
 
 
 
@@ -180,17 +186,26 @@ def generer_tickets_az(classement):
 
 
         "quinte":
+
             numeros[:7],
 
 
         "deux_sur_quatre":
+
             numeros[:4],
 
 
         "couple_place":
-            numeros[:2]
+
+            [
+                [
+                    numeros[0],
+                    numeros[1]
+                ]
+            ]
 
     }
+
 
 
 
@@ -202,30 +217,26 @@ def generer_tickets_az(classement):
     bases_couple = numeros[:3]
 
 
-    couples = []
+    couples = [
 
+        [
+            bases_couple[0],
+            bases_couple[1]
+        ],
 
-    if len(bases_couple) == 3:
+        [
+            bases_couple[0],
+            bases_couple[2]
+        ],
 
-
-        couples = [
-
-            [
-                bases_couple[0],
-                bases_couple[1]
-            ],
-
-            [
-                bases_couple[0],
-                bases_couple[2]
-            ],
-
-            [
-                bases_couple[1],
-                bases_couple[2]
-            ]
-
+        [
+            bases_couple[1],
+            bases_couple[2]
         ]
+
+    ]
+
+
 
 
 
@@ -238,35 +249,40 @@ def generer_tickets_az(classement):
 
 
         "quinte":
+
             numeros[:6],
 
 
         "quarte":
+
             numeros[:5],
 
 
         "trio":
+
             numeros[:4],
 
 
         "couple_gagnant_place":
+
             couples,
 
 
         "champ_reduit":
-            generer_champ_reduit(
-                classement
-            ),
+
+            generer_champ_reduit(classement),
+
 
 
         "ticket_derniere_minute":
-            generer_ticket_derniere_minute(
-                classement
-            ),
+
+            generer_ticket_derniere_minute(classement),
+
 
 
         "message_fin":
-            "🏇 Bonne chance aux membres Premium. Jouez avec stratégie et responsabilité. Que vos chevaux soient à l'arrivée !"
+
+            "🍀 Bonne chance ! Les tickets Premium sont issus d'une analyse approfondie. Jouez toujours avec discipline et responsabilité."
 
     }
 
