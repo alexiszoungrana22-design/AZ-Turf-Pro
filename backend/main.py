@@ -1,8 +1,9 @@
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from pathlib import Path
 
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from api import router
 
@@ -11,8 +12,6 @@ app = FastAPI(
     title="AZ Turf Pro API",
     version="1.0"
 )
-
-
 
 # Autorisation frontend GitHub Pages + Render
 
@@ -27,34 +26,48 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-
 # Routes API
 
 app.include_router(router)
 
+# ==============================
+# Chemins du projet
+# ==============================
 
+BASE_DIR = Path(__file__).resolve().parent
+ROOT_DIR = BASE_DIR.parent
 
-# Servir le frontend si présent
+# ==============================
+# Images
+# ==============================
 
-try:
+IMAGES_DIR = ROOT_DIR / "images"
 
-    app.mount(
-        "/static",
-        StaticFiles(directory="../frontend"),
-        name="static"
-    )
+if IMAGES_DIR.exists():
+    app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 
-except Exception:
-    pass
+# ==============================
+# CSS / JS (si présents)
+# ==============================
 
+for dossier in ["css", "js"]:
+    chemin = ROOT_DIR / dossier
+    if chemin.exists():
+        app.mount(f"/{dossier}", StaticFiles(directory=chemin), name=dossier)
 
-
-# Page accueil
+# ==============================
+# Page d'accueil
+# ==============================
 
 @app.get("/")
 def accueil():
 
-    return FileResponse(
-        "../frontend/index.html"
-    )
+    index = ROOT_DIR / "index.html"
+
+    if index.exists():
+        return FileResponse(index)
+
+    return {
+        "message": "AZ Turf Pro API",
+        "status": "OK"
+    }
