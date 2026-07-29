@@ -22,8 +22,7 @@ def lancer_analyse(chevaux):
 
     print("SCORES :", chevaux_scores)
 
-
-    classement = classer_chevaux(chevaux_scores)
+classement = classer_chevaux(chevaux_scores)
 
 tickets = generer_tickets_az(classement)
 
