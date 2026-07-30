@@ -13,7 +13,7 @@ router = APIRouter(
 
 
 # ==============================
-# FICHIER ABONNEMENTS
+# GESTION ABONNEMENTS PREMIUM
 # ==============================
 
 ABONNEMENTS_FILE = os.path.join(
@@ -38,7 +38,7 @@ def charger_abonnements():
 
 
 
-def sauvegarder_abonnements(data):
+def sauvegarder_abonnements(abonnements):
 
     with open(
         ABONNEMENTS_FILE,
@@ -47,7 +47,7 @@ def sauvegarder_abonnements(data):
     ) as fichier:
 
         json.dump(
-            data,
+            abonnements,
             fichier,
             indent=4,
             ensure_ascii=False
@@ -59,7 +59,7 @@ def sauvegarder_abonnements(data):
 # MODELES PREMIUM
 # ==============================
 
-class DemandeAbonnement(BaseModel):
+class AbonnementRequest(BaseModel):
 
     offre: str
     prix: int
@@ -69,7 +69,7 @@ class DemandeAbonnement(BaseModel):
 
 
 
-class ActivationPremium(BaseModel):
+class ActivationRequest(BaseModel):
 
     telephone: str
     reference: str
@@ -77,11 +77,9 @@ class ActivationPremium(BaseModel):
 
 
 
-
 # ==============================
-# ANALYSE COURSE
+# ANALYSE COURSE EXISTANTE
 # ==============================
-
 
 @router.get("/analyse")
 def analyse():
@@ -204,42 +202,39 @@ def analyse():
 
 
 
-
 # ==============================
-# DEMANDE ABONNEMENT
+# CREATION ABONNEMENT
 # ==============================
-
 
 @router.post("/abonnement")
 def creer_abonnement(
-    demande: DemandeAbonnement
+    data: AbonnementRequest
 ):
 
     abonnements = charger_abonnements()
 
 
-    nouveau = {
+    abonnement = {
 
-        "telephone": demande.telephone,
+        "telephone": data.telephone,
 
-        "offre": demande.offre,
+        "offre": data.offre,
 
-        "prix": demande.prix,
+        "prix": data.prix,
 
-        "duree": demande.duree,
+        "duree": data.duree,
 
-        "paiement": demande.paiement,
+        "paiement": data.paiement,
 
         "statut": "EN_ATTENTE",
 
-        "date_demande": datetime.now().isoformat()
+        "date_creation": datetime.now().isoformat()
 
     }
 
 
-
     abonnements.append(
-        nouveau
+        abonnement
     )
 
 
@@ -264,25 +259,25 @@ def creer_abonnement(
 # ACTIVATION PREMIUM
 # ==============================
 
-
 @router.post("/activation")
-def activer_premium(
-    activation: ActivationPremium
+def activation_premium(
+    data: ActivationRequest
 ):
 
     abonnements = charger_abonnements()
 
 
+
     for abonnement in abonnements:
 
 
-        if abonnement["telephone"] == activation.telephone:
+        if abonnement["telephone"] == data.telephone:
 
 
             abonnement["statut"] = "ACTIF"
 
 
-            abonnement["reference"] = activation.reference
+            abonnement["reference"] = data.reference
 
 
             debut = datetime.now()
@@ -306,7 +301,7 @@ def activer_premium(
 
             return {
 
-                "message": "Compte Premium activé",
+                "message": "Premium activé",
 
                 "statut": "ACTIF",
 
@@ -317,11 +312,8 @@ def activer_premium(
 
 
     raise HTTPException(
-
         status_code=404,
-
-        detail="Abonnement introuvable"
-
+        detail="Aucun abonnement trouvé"
     )
 
 
@@ -329,9 +321,8 @@ def activer_premium(
 
 
 # ==============================
-# VERIFICATION PREMIUM
+# VERIFICATION ACCES PREMIUM
 # ==============================
-
 
 @router.get("/premium/{telephone}")
 def verifier_premium(
@@ -347,7 +338,6 @@ def verifier_premium(
 
         if abonnement["telephone"] == telephone:
 
-
             return abonnement
 
 
@@ -356,4 +346,4 @@ def verifier_premium(
 
         "statut": "INACTIF"
 
-            }
+        }
