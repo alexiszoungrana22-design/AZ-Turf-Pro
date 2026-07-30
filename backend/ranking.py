@@ -27,18 +27,13 @@ def ajouter_raison_az(cheval, position):
 
 
 
-
-
 def classer_chevaux(chevaux):
-
 
     classement = sorted(
         chevaux,
         key=lambda x: x.get("indice_az", 0),
         reverse=True
     )
-
-
 
     for index, cheval in enumerate(classement, start=1):
 
@@ -49,5 +44,5 @@ def classer_chevaux(chevaux):
             index
         )
 
-
     return classement
+

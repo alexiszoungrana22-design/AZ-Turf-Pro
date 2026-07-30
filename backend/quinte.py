@@ -1,4 +1,3 @@
-# =====================================
 # AZ TURF PRO - GENERATION DES TICKETS
 # =====================================
 
@@ -17,9 +16,8 @@ def generer_champ_reduit(classement):
     """
     Champ réduit Premium
 
-    - 3 bases
-    - 2 X dynamiques
-    - 4 compléments
+    - Bases
+    - Compléments
     """
 
     numeros = extraire_numeros(classement)
@@ -30,8 +28,7 @@ def generer_champ_reduit(classement):
         return {
             "format": "",
             "bases": [],
-            "complements": [],
-            "positions_x": []
+            "complements": []
         }
 
 
@@ -40,50 +37,16 @@ def generer_champ_reduit(classement):
     complements = numeros[3:7]
 
 
-    variation = sum(bases) % 4
-
-
-    positions = [
-        [1, 5],
-        [2, 5],
-        [1, 4],
-        [3, 5]
-    ]
-
-
-    positions_x = positions[variation]
-
-
-    ticket = []
-
-    index_base = 0
-
-
-    for position in range(1, 6):
-
-        if position in positions_x:
-
-            ticket.append("X")
-
-        else:
-
-            ticket.append(
-                str(bases[index_base])
-            )
-
-            index_base += 1
-
-
-
     return {
 
-        "format": "-".join(ticket),
+        "format":
+            "-".join(map(str, bases))
+            + " / "
+            + "-".join(map(str, complements)),
 
         "bases": bases,
 
-        "complements": complements,
-
-        "positions_x": positions_x
+        "complements": complements
 
     }
 
@@ -92,13 +55,12 @@ def generer_champ_reduit(classement):
 
 def generer_ticket_derniere_minute(classement):
     """
-    Ticket dernière minute indépendant
+    Ticket dernière minute
 
     Prend en compte :
-    - changements de driver
-    - non-partants
+    - changements de dernière minute
+    - chevaux en forme
     - outsiders
-    - chevaux cachés
     """
 
     numeros = extraire_numeros(classement)
@@ -117,9 +79,11 @@ def generer_ticket_derniere_minute(classement):
         }
 
 
+
     selection = numeros[:5]
 
     joker = numeros[5]
+
 
 
     return {
@@ -146,11 +110,11 @@ def generer_tickets_az(classement):
 
     GRATUIT :
     - Quinté 7 chevaux
-    - Deux sur Quatre
+    - Deux sur Quatre 4 chevaux
     - Couplé placé
 
     PREMIUM :
-    - Quinté 6 chevaux
+    - Quinté Premium 6 chevaux
     - Quarté 5 chevaux
     - Trio 4 chevaux
     - Couplé gagnant/placé
@@ -170,7 +134,7 @@ def generer_tickets_az(classement):
 
             "gratuit": {},
 
-            "vip": {}
+            "premium": {}
 
         }
 
@@ -198,10 +162,15 @@ def generer_tickets_az(classement):
         "couple_place":
 
             [
+
                 [
+
                     numeros[0],
+
                     numeros[1]
+
                 ]
+
             ]
 
     }
@@ -220,18 +189,27 @@ def generer_tickets_az(classement):
     couples = [
 
         [
+
             bases_couple[0],
+
             bases_couple[1]
+
         ],
 
         [
+
             bases_couple[0],
+
             bases_couple[2]
+
         ],
 
         [
+
             bases_couple[1],
+
             bases_couple[2]
+
         ]
 
     ]
@@ -245,7 +223,7 @@ def generer_tickets_az(classement):
     # =========================
 
 
-    vip = {
+    premium = {
 
 
         "quinte":
@@ -292,6 +270,6 @@ def generer_tickets_az(classement):
 
         "gratuit": gratuit,
 
-        "vip": vip
+        "premium": premium
 
     }
