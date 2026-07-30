@@ -295,7 +295,79 @@ ${genererRaison(cheval,index)}
 
 }
 
+// ===============================
+// TICKETS GRATUITS
+// ===============================
 
+
+const ticketsGratuits =
+data.tickets?.gratuit || {};
+
+
+
+const quinteGratuit =
+document.getElementById("quinte-gratuit");
+
+
+if(quinteGratuit){
+
+quinteGratuit.innerHTML = `
+
+<strong>
+
+${(ticketsGratuits.quinte || [])
+.join(" - ")}
+
+</strong>
+
+`;
+
+}
+
+
+
+const deuxSurQuatre =
+document.getElementById("deux-sur-quatre");
+
+
+if(deuxSurQuatre){
+
+deuxSurQuatre.innerHTML = `
+
+<strong>
+
+${(ticketsGratuits.deux_sur_quatre || [])
+.join(" - ")}
+
+</strong>
+
+`;
+
+}
+
+
+
+const couplePlaceGratuit =
+document.getElementById("couple-place-gratuit");
+
+
+if(couplePlaceGratuit){
+
+couplePlaceGratuit.innerHTML = `
+
+<strong>
+
+${
+(ticketsGratuits.couple_place || [])
+.map(c => c.join(" - "))
+.join(" | ")
+}
+
+</strong>
+
+`;
+
+}
 
 
 
