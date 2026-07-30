@@ -155,8 +155,12 @@ return;
 
 
 // Accès autorisé
+const telephone = localStorage.getItem("AZ_TURF_TELEPHONE");
 
-chargerPremium();
+document.getElementById("message-fin").innerHTML =
+"📱 Numéro détecté : " + telephone;
+
+  chargerPremium();
 
 
 
