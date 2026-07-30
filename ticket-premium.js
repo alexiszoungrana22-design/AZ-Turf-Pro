@@ -33,7 +33,6 @@ throw new Error("Erreur API");
 const data = await response.json();
 
 
-
 console.log(
 "Données Premium :",
 data
@@ -63,7 +62,6 @@ document.getElementById(
 
 
 if(selection){
-
 
 selection.innerHTML = `
 
@@ -98,7 +96,6 @@ document.getElementById(
 
 
 if(explication){
-
 
 explication.innerHTML =
 
@@ -170,16 +167,16 @@ couple &&
 premium.couple_gagnant_place
 ){
 
+const numerosCouple =
+premium.couple_gagnant_place
+.flat();
+
 
 couple.innerHTML = `
 
 <div class="ticket-grand">
 
-${
-premium.couple_gagnant_place
-.map(c => c.join(" - "))
-.join(" | ")
-}
+${numerosCouple.join(" - ")}
 
 </div>
 
@@ -208,7 +205,6 @@ champ &&
 premium.champ_reduit
 ){
 
-
 champ.innerHTML = `
 
 <div class="ticket-grand">
@@ -216,18 +212,6 @@ champ.innerHTML = `
 ${premium.champ_reduit.format}
 
 </div>
-
-
-<br>
-
-Bases :
-${premium.champ_reduit.bases.join("-")}
-
-
-<br>
-
-Compléments :
-${premium.champ_reduit.complements.join("-")}
 
 `;
 
@@ -250,7 +234,6 @@ document.getElementById(
 
 
 if(analyse){
-
 
 analyse.innerHTML = `
 
@@ -294,7 +277,6 @@ derniere &&
 premium.ticket_derniere_minute
 ){
 
-
 derniere.innerHTML = `
 
 <div class="ticket-grand">
@@ -303,12 +285,10 @@ ${premium.ticket_derniere_minute.format}
 
 </div>
 
-
 <br>
 
 Sélection :
 ${premium.ticket_derniere_minute.selection.join(" - ")}
-
 
 <br>
 
@@ -337,7 +317,6 @@ document.getElementById(
 
 if(message){
 
-
 message.innerHTML =
 
 premium.message_fin ||
@@ -354,12 +333,10 @@ premium.message_fin ||
 
 catch(error){
 
-
 console.error(
 "Erreur Premium :",
 error
 );
-
 
 }
 
@@ -392,10 +369,8 @@ if(
 liste.length === 0
 ){
 
-
 zone.innerHTML =
 "Non disponible";
-
 
 return;
 
@@ -407,9 +382,7 @@ zone.innerHTML = `
 
 <div class="ticket-grand">
 
-${
-liste.join(" - ")
-}
+${liste.join(" - ")}
 
 </div>
 
