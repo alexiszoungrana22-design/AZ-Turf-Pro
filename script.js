@@ -56,8 +56,8 @@ tickets.gratuit || {};
 
 
 
-const vip =
-tickets.vip || {};
+const premium =
+tickets.premium || {};
 
 
 
@@ -142,14 +142,13 @@ vip.message_fin || "";
 
 }else{
 
-[
-"vip-quinte",
-"vip-quarte",
-"vip-trio",
-"couple-gagnant-place",
-"champ-reduit",
-"derniere-minute"
-].forEach(id=>{
+premium.quinte
+premium.quarte
+premium.trio
+premium.couple_gagnant_place
+premium.champ_reduit
+premium.ticket_derniere_minute
+premium.message_fin
 
 const el=document.getElementById(id);
 
