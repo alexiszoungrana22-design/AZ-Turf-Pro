@@ -46,24 +46,17 @@
 
 
 
-
-
 <main class="content">
-
-
 
 
 
 <section class="card">
 
-
 <h1>🏆 Activation Premium</h1>
 
-
 <p>
-Votre abonnement AZ Turf Pro est prêt.
+Finalisez votre abonnement AZ Turf Pro Premium.
 </p>
-
 
 </section>
 
@@ -71,13 +64,9 @@ Votre abonnement AZ Turf Pro est prêt.
 
 
 
-
-
-
 <section class="card">
 
-
-<h2>📋 Informations du compte</h2>
+<h2>📋 Informations abonnement</h2>
 
 
 <div id="infos-compte">
@@ -94,11 +83,9 @@ Chargement...
 
 
 
-
 <section class="card">
 
-
-<h2>⭐ Statut</h2>
+<h2>⭐ Statut du compte</h2>
 
 
 <p id="statut-compte">
@@ -109,13 +96,19 @@ Vérification...
 
 
 <button id="activer-premium">
+
 Activer mon Premium
+
 </button>
+
 
 <br><br>
 
+
 <button id="acceder-premium">
+
 Accéder à mon espace Premium
+
 </button>
 
 
@@ -124,11 +117,7 @@ Accéder à mon espace Premium
 
 
 
-
-
-
 </main>
-
 
 
 
@@ -171,57 +160,35 @@ Accéder à mon espace Premium
 
 
 
-
 <script>
-
-
-
-const offre =
-localStorage.getItem("AZ_TURF_OFFRE");
-
-
-const debut =
-localStorage.getItem("AZ_TURF_DATE_DEBUT");
-
-
-const fin =
-localStorage.getItem("AZ_TURF_DATE_FIN");
-
-
-const statut =
-localStorage.getItem("AZ_TURF_PREMIUM");
-
-
-
 
 
 const infos =
 document.getElementById("infos-compte");
 
 
-
-const statutTexte =
+const statut =
 document.getElementById("statut-compte");
 
 
 
+function afficherInfos(){
 
 
-
-if(
-statut === "ACTIF"
-&&
-fin
-){
+const offre =
+localStorage.getItem("AZ_TURF_OFFRE") || "Non sélectionnée";
 
 
+const prix =
+localStorage.getItem("AZ_TURF_PRIX") || "-";
 
-const dateFin =
-new Date(fin);
+
+const duree =
+localStorage.getItem("AZ_TURF_DUREE") || "-";
 
 
-const dateDebut =
-new Date(debut);
+const paiement =
+localStorage.getItem("AZ_TURF_PAIEMENT") || "Non choisi";
 
 
 
@@ -232,64 +199,107 @@ infos.innerHTML = `
 <strong>${offre}</strong>
 </p>
 
+
 <p>
-📅 Début :
-<strong>${dateDebut.toLocaleDateString("fr-FR")}</strong>
+💰 Montant :
+<strong>${prix} FCFA</strong>
 </p>
 
 
 <p>
-📅 Expiration :
-<strong>${dateFin.toLocaleDateString("fr-FR")}</strong>
+⏳ Durée :
+<strong>${duree} jours</strong>
+</p>
+
+
+<p>
+💳 Paiement :
+<strong>${paiement}</strong>
 </p>
 
 `;
 
 
 
+const actif =
+localStorage.getItem("AZ_TURF_PREMIUM");
 
-const maintenant =
+
+if(actif === "ACTIF"){
+
+
+statut.innerHTML =
+"✅ Compte Premium actif";
+
+
+}
+
+
+}
+
+
+
+
+document.getElementById("activer-premium")
+.onclick=function(){
+
+
+
+const duree =
+parseInt(
+localStorage.getItem("AZ_TURF_DUREE")
+) || 30;
+
+
+
+const debut =
 new Date();
 
 
 
-
-if(maintenant < dateFin){
-
-
-
-statutTexte.innerHTML =
-
-"✅ Compte Premium actif";
+const expiration =
+new Date();
 
 
 
-}
-else{
-
-
-statutTexte.innerHTML =
-
-"❌ Abonnement expiré";
-
-
-}
+expiration.setDate(
+expiration.getDate()+duree
+);
 
 
 
-}
-else{
+localStorage.setItem(
+"AZ_TURF_DATE_DEBUT",
+debut.toISOString()
+);
 
 
-infos.innerHTML =
-"Aucun abonnement trouvé.";
+
+localStorage.setItem(
+"AZ_TURF_DATE_FIN",
+expiration.toISOString()
+);
 
 
-statutTexte.innerHTML =
-"❌ Compte non actif";
+
+localStorage.setItem(
+"AZ_TURF_PREMIUM",
+"ACTIF"
+);
 
 
-}
+
+statut.innerHTML =
+"✅ Votre accès Premium est activé";
+
+
+alert(
+"Votre abonnement Premium est actif."
+);
+
+
+};
+
 
 
 
@@ -307,7 +317,13 @@ window.location.href =
 
 
 
+
+afficherInfos();
+
+
+
 </script>
+
 
 
 
