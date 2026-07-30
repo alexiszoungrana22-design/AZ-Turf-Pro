@@ -1,11 +1,10 @@
 // =====================================
-// AZ TURF PRO - ESPACE PREMIUM
+// ESPACE PREMIUM
 // Connexion ticket.html
 // =====================================
 
 const API_URL =
 "https://az-turf-pro.onrender.com/api/analyse";
-
 
 
 document.addEventListener(
@@ -42,8 +41,9 @@ data
 
 
 
-const vip =
-data.tickets?.vip || {};
+const premium =
+data.tickets?.premium || {};
+
 
 const classement =
 data.classement || [];
@@ -52,13 +52,14 @@ data.classement || [];
 
 
 // ===============================
-// SELECTION 7 CHEVAUX
+// SELECTION PREMIUM 7 CHEVAUX
 // ===============================
 
 const selection =
 document.getElementById(
 "selection-premium"
 );
+
 
 
 if(selection){
@@ -80,6 +81,7 @@ classement
 `;
 
 }
+
 
 
 
@@ -110,7 +112,7 @@ classement
 
 <br>
 
-${c.raison || "Analyse en cours"}
+${c.raison || "Analyse professionnelle en cours"}
 
 </p>
 
@@ -123,39 +125,36 @@ ${c.raison || "Analyse en cours"}
 
 
 
-
 // ===============================
 // TICKETS PREMIUM
 // ===============================
 
+
 afficherTicket(
 "vip-quinte",
-vip.quinte
+premium.quinte
 );
 
 
 
 afficherTicket(
 "vip-quarte",
-vip.quarte
+premium.quarte
 );
 
 
 
 afficherTicket(
 "vip-trio",
-vip.trio
+premium.trio
 );
 
 
 
 
 
-
-
 // ===============================
-// COUPLE GAGNANT / PLACE
-// FORMAT 3-5-2
+// COUPLÉ GAGNANT / PLACÉ
 // ===============================
 
 
@@ -166,7 +165,10 @@ document.getElementById(
 
 
 
-if(couple){
+if(
+couple &&
+premium.couple_gagnant_place
+){
 
 
 couple.innerHTML = `
@@ -174,10 +176,9 @@ couple.innerHTML = `
 <div class="ticket-grand">
 
 ${
-classement
-.slice(0,3)
-.map(c=>c.numero)
-.join(" - ")
+premium.couple_gagnant_place
+.map(c => c.join(" - "))
+.join(" | ")
 }
 
 </div>
@@ -190,10 +191,8 @@ classement
 
 
 
-
-
 // ===============================
-// CHAMP REDUIT
+// CHAMP RÉDUIT
 // ===============================
 
 
@@ -204,14 +203,17 @@ document.getElementById(
 
 
 
-if(champ && vip.champ_reduit){
+if(
+champ &&
+premium.champ_reduit
+){
 
 
 champ.innerHTML = `
 
 <div class="ticket-grand">
 
-${vip.champ_reduit.format}
+${premium.champ_reduit.format}
 
 </div>
 
@@ -219,20 +221,17 @@ ${vip.champ_reduit.format}
 <br>
 
 Bases :
-${vip.champ_reduit.bases.join("-")}
+${premium.champ_reduit.bases.join("-")}
 
 
 <br>
 
 Compléments :
-${vip.champ_reduit.complements.join("-")}
+${premium.champ_reduit.complements.join("-")}
 
 `;
 
 }
-
-
-
 
 
 
@@ -255,23 +254,20 @@ if(analyse){
 
 analyse.innerHTML = `
 
-
-<h3>📈 Bonnes performances</h3>
+<h3>📈 Points forts</h3>
 
 <p>
 Étude de la forme récente, de la régularité,
-du profil du cheval, de la distance et des conditions favorables.
+du profil du cheval, de la distance et des conditions de course.
 </p>
 
 
-<h3>📉 Mauvaises performances</h3>
+<h3>📉 Points de vigilance</h3>
 
 <p>
-Recherche des causes possibles :
-mauvais parcours, distance, niveau d'opposition,
-terrain ou circonstances de course.
+Analyse des risques liés au parcours,
+à la distance et au niveau d'opposition.
 </p>
-
 
 `;
 
@@ -281,11 +277,8 @@ terrain ou circonstances de course.
 
 
 
-
-
-
 // ===============================
-// DERNIERE MINUTE
+// DERNIÈRE MINUTE
 // ===============================
 
 
@@ -296,14 +289,17 @@ document.getElementById(
 
 
 
-if(derniere && vip.ticket_derniere_minute){
+if(
+derniere &&
+premium.ticket_derniere_minute
+){
 
 
 derniere.innerHTML = `
 
 <div class="ticket-grand">
 
-${vip.ticket_derniere_minute.format}
+${premium.ticket_derniere_minute.format}
 
 </div>
 
@@ -311,20 +307,17 @@ ${vip.ticket_derniere_minute.format}
 <br>
 
 Sélection :
-${vip.ticket_derniere_minute.selection.join(" - ")}
+${premium.ticket_derniere_minute.selection.join(" - ")}
 
 
 <br>
 
 Joker :
-N°${vip.ticket_derniere_minute.joker}
+N°${premium.ticket_derniere_minute.joker}
 
 `;
 
 }
-
-
-
 
 
 
@@ -347,10 +340,9 @@ if(message){
 
 message.innerHTML =
 
-vip.message_fin ||
+premium.message_fin ||
 
-"🍀 Bonne chance aux membres Premium !";
-
+"🍀 Bonne chance ! Jouez avec discipline et responsabilité.";
 
 }
 
@@ -364,7 +356,7 @@ catch(error){
 
 
 console.error(
-"Erreur Premium AZ Turf :",
+"Erreur Premium :",
 error
 );
 
@@ -395,7 +387,10 @@ return;
 
 
 
-if(!liste || liste.length === 0){
+if(
+!liste ||
+liste.length === 0
+){
 
 
 zone.innerHTML =
@@ -412,7 +407,9 @@ zone.innerHTML = `
 
 <div class="ticket-grand">
 
-${liste.join(" - ")}
+${
+liste.join(" - ")
+}
 
 </div>
 
