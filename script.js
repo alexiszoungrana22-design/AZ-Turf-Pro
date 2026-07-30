@@ -86,130 +86,95 @@ gratuit.couple_place
 // PREMIUM
 // ===============================
 
+if(premiumActif){
 
-afficherListe(
-"vip-quinte",
-vip.quinte
-);
+afficherListe("vip-quinte", vip.quinte);
 
+afficherListe("vip-quarte", vip.quarte);
 
-
-afficherListe(
-"vip-quarte",
-vip.quarte
-);
-
-
-
-afficherListe(
-"vip-trio",
-vip.trio
-);
-
-
-
-
-// Couplé gagnant placé
+afficherListe("vip-trio", vip.trio);
 
 const couple =
-document.getElementById(
-"couple-gagnant-place"
-);
-
-
+document.getElementById("couple-gagnant-place");
 
 if(couple && vip.couple_gagnant_place){
 
-
-couple.innerHTML =
-
+couple.textContent =
 vip.couple_gagnant_place
-.map(
-c => c.join("-")
-)
+.map(c => c.join("-"))
 .join(" | ");
-
 
 }
 
-
-
-
-// Champ réduit
-
 const champ =
-document.getElementById(
-"champ-reduit"
-);
-
-
+document.getElementById("champ-reduit");
 
 if(champ && vip.champ_reduit){
 
-
 champ.textContent =
-
-vip.champ_reduit.format
-+
-" | Bases : "
-+
-vip.champ_reduit.bases.join("-")
-+
-" | Compléments : "
-+
+vip.champ_reduit.format +
+" | Bases : " +
+vip.champ_reduit.bases.join("-") +
+" | Compléments : " +
 vip.champ_reduit.complements.join("-");
-
 
 }
 
-
-
-
-// Dernière minute
-
 const derniere =
-document.getElementById(
-"derniere-minute"
-);
-
-
+document.getElementById("derniere-minute");
 
 if(derniere && vip.ticket_derniere_minute){
 
-
 derniere.textContent =
-
 vip.ticket_derniere_minute.format;
-
 
 }
 
-
-
-
-// Message Premium
-
 const message =
-document.getElementById(
-"message-fin"
-);
-
-
+document.getElementById("message-fin");
 
 if(message){
 
-
 message.textContent =
-
 vip.message_fin || "";
 
+}
+
+}else{
+
+[
+"vip-quinte",
+"vip-quarte",
+"vip-trio",
+"couple-gagnant-place",
+"champ-reduit",
+"derniere-minute"
+].forEach(id=>{
+
+const el=document.getElementById(id);
+
+if(el){
+
+el.textContent =
+"🔒 Réservé aux membres Premium";
+
+}
+
+});
+
+const message =
+document.getElementById("message-fin");
+
+if(message){
+
+message.textContent =
+"Activez votre abonnement Premium pour accéder à ces sélections.";
+
+}
 
 }
 
 
-
-
-}
 
 catch(error){
 
