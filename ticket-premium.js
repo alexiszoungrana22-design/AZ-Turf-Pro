@@ -154,29 +154,23 @@ premium.trio
 // COUPLÉ GAGNANT / PLACÉ
 // ===============================
 
-
 const couple =
 document.getElementById(
 "couple-gagnant-place"
 );
 
+if(couple && premium.couple_gagnant_place){
 
-
-if(
-couple &&
+const coupleAffiche =
 premium.couple_gagnant_place
-){
-
-const numerosCouple =
-premium.couple_gagnant_place
-.flat();
-
+.slice(0,3)
+.map(c => c[0]);
 
 couple.innerHTML = `
 
 <div class="ticket-grand">
 
-${numerosCouple.join(" - ")}
+${coupleAffiche.join(" - ")}
 
 </div>
 
