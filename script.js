@@ -88,21 +88,21 @@ gratuit.couple_place
 
 
 afficherListe(
-"vip-quinte",
+"premium-quinte",
 premium.quinte
 );
 
 
 
 afficherListe(
-"vip-quarte",
+"premium-quarte",
 premium.quarte
 );
 
 
 
 afficherListe(
-"vip-trio",
+"premium-trio",
 premium.trio
 );
 
