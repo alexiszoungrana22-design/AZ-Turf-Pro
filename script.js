@@ -1,6 +1,6 @@
 // ===============================
 // AZ TURF PRO - AFFICHAGE TICKETS
-// Compatible ticket.html + JSON API
+// Compatible ticket.html + API Premium
 // ===============================
 
 
@@ -86,94 +86,141 @@ gratuit.couple_place
 // PREMIUM
 // ===============================
 
-if(premiumActif){
 
-afficherListe("vip-quinte", vip.quinte);
+afficherListe(
+"vip-quinte",
+premium.quinte
+);
 
-afficherListe("vip-quarte", vip.quarte);
 
-afficherListe("vip-trio", vip.trio);
+
+afficherListe(
+"vip-quarte",
+premium.quarte
+);
+
+
+
+afficherListe(
+"vip-trio",
+premium.trio
+);
+
+
+
+
+// Couplé gagnant/placé Premium
 
 const couple =
-document.getElementById("couple-gagnant-place");
+document.getElementById(
+"couple-gagnant-place"
+);
 
-if(couple && vip.couple_gagnant_place){
 
-couple.textContent =
-vip.couple_gagnant_place
-.map(c => c.join("-"))
+
+if(
+couple
+&&
+premium.couple_gagnant_place
+){
+
+
+couple.innerHTML =
+
+premium.couple_gagnant_place
+.map(
+c => c.join("-")
+)
 .join(" | ");
 
+
 }
+
+
+
+
+// Champ réduit
 
 const champ =
-document.getElementById("champ-reduit");
+document.getElementById(
+"champ-reduit"
+);
 
-if(champ && vip.champ_reduit){
+
+
+if(
+champ
+&&
+premium.champ_reduit
+){
+
 
 champ.textContent =
-vip.champ_reduit.format +
-" | Bases : " +
-vip.champ_reduit.bases.join("-") +
-" | Compléments : " +
-vip.champ_reduit.complements.join("-");
+
+premium.champ_reduit.format
++
+" | Bases : "
++
+premium.champ_reduit.bases.join("-")
++
+" | Compléments : "
++
+premium.champ_reduit.complements.join("-");
+
 
 }
+
+
+
+
+// Dernière minute
 
 const derniere =
-document.getElementById("derniere-minute");
+document.getElementById(
+"derniere-minute"
+);
 
-if(derniere && vip.ticket_derniere_minute){
+
+
+if(
+derniere
+&&
+premium.ticket_derniere_minute
+){
+
 
 derniere.textContent =
-vip.ticket_derniere_minute.format;
+
+premium.ticket_derniere_minute.format;
+
 
 }
 
+
+
+
+// Message Premium
+
 const message =
-document.getElementById("message-fin");
+document.getElementById(
+"message-fin"
+);
+
+
 
 if(message){
 
-message.textContent =
-vip.message_fin || "";
-
-}
-
-}else{
-
-premium.quinte
-premium.quarte
-premium.trio
-premium.couple_gagnant_place
-premium.champ_reduit
-premium.ticket_derniere_minute
-premium.message_fin
-
-const el=document.getElementById(id);
-
-if(el){
-
-el.textContent =
-"🔒 Réservé aux membres Premium";
-
-}
-
-});
-
-const message =
-document.getElementById("message-fin");
-
-if(message){
 
 message.textContent =
-"Activez votre abonnement Premium pour accéder à ces sélections.";
+
+premium.message_fin || "";
+
 
 }
 
+
+
 }
-
-
 
 catch(error){
 
@@ -210,7 +257,11 @@ return;
 
 
 
-if(!liste || liste.length === 0){
+if(
+!liste
+||
+liste.length === 0
+){
 
 
 element.textContent =
@@ -223,8 +274,6 @@ return;
 
 
 
-
-// Gestion des couples sous forme tableau
 
 if(Array.isArray(liste[0])){
 
