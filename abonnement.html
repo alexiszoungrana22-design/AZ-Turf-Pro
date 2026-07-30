@@ -18,11 +18,8 @@
 
 <header class="top-header">
 
-
 <div class="logo">
-
 🏇 <span>AZ Turf Pro</span>
-
 </div>
 
 
@@ -32,22 +29,17 @@
 🏠 Accueil
 </a>
 
-
 <a href="analyse.html">
 📊 Analyse
 </a>
-
 
 <a href="ticket.html">
 ⭐ Premium
 </a>
 
-
 </nav>
 
-
 </header>
-
 
 
 
@@ -62,7 +54,7 @@
 <h1>⭐ AZ Turf Pro Premium</h1>
 
 <p>
-Choisissez votre formule Premium et accédez aux sélections avancées.
+Accédez aux tickets Premium après validation de votre abonnement.
 </p>
 
 </section>
@@ -73,10 +65,10 @@ Choisissez votre formule Premium et accédez aux sélections avancées.
 
 <section class="card vip-banner">
 
-<h2>🎉 Offre promotionnelle de lancement</h2>
+<h2>🎉 Offre promotionnelle</h2>
 
 <p>
-Profitez des tarifs réduits Premium.
+Choisissez votre formule Premium.
 </p>
 
 </section>
@@ -85,33 +77,23 @@ Profitez des tarifs réduits Premium.
 
 
 
-
-
 <section class="card">
 
 
-<h2>⭐ Premium Semaine</h2>
+<h2>📱 Numéro de paiement</h2>
+
+
+<input 
+id="telephone"
+type="tel"
+placeholder="+226XXXXXXXX"
+class="input-premium"
+>
+
 
 <p>
-<del>58 000 FCFA</del>
+Utilisez le numéro qui servira au paiement.
 </p>
-
-<h1>
-25 000 FCFA
-</h1>
-
-<p>
-Durée : 7 jours
-</p>
-
-
-<button onclick="choisirOffre(
-'Premium Semaine',
-25000,
-7
-)">
-Choisir cette offre
-</button>
 
 
 </section>
@@ -126,68 +108,41 @@ Choisir cette offre
 <section class="card">
 
 
-<h2>💎 Premium Mensuel</h2>
-
-<p>
-<del>115 000 FCFA</del>
-</p>
-
-<h1>
-75 000 FCFA
-</h1>
-
-<p>
-Durée : 30 jours
-</p>
+<h2>⭐ Choisir votre formule</h2>
 
 
-<button onclick="choisirOffre(
-'Premium Mensuel',
-75000,
-30
-)">
-Choisir cette offre
+<button onclick="choisirOffre('Premium Semaine',25000,7)">
+⭐ Premium Semaine<br>
+25 000 FCFA<br>
+7 jours
+</button>
+
+
+
+<br><br>
+
+
+
+<button onclick="choisirOffre('Premium Mensuel',75000,30)">
+💎 Premium Mensuel<br>
+75 000 FCFA<br>
+30 jours
+</button>
+
+
+
+<br><br>
+
+
+
+<button onclick="choisirOffre('Premium 3 mois',150000,90)">
+👑 Premium 3 mois<br>
+150 000 FCFA<br>
+90 jours
 </button>
 
 
 </section>
-
-
-
-
-
-
-
-
-<section class="card">
-
-
-<h2>👑 Premium 3 mois</h2>
-
-<p>
-<del>215 000 FCFA</del>
-</p>
-
-<h1>
-150 000 FCFA
-</h1>
-
-<p>
-Durée : 90 jours
-</p>
-
-
-<button onclick="choisirOffre(
-'Premium 3 mois',
-150000,
-90
-)">
-Choisir cette offre
-</button>
-
-
-</section>
-
 
 
 
@@ -201,25 +156,26 @@ Choisir cette offre
 <h2>💳 Moyen de paiement</h2>
 
 
-<div class="payment-choice">
-
-
-<button onclick="choisirPaiement('Orange Money')">
+<button onclick="envoyerDemande('Orange Money')">
 🟠 Orange Money
 </button>
 
 
-<button onclick="choisirPaiement('Moov Money')">
+<br><br>
+
+
+<button onclick="envoyerDemande('Moov Money')">
 🟢 Moov Money
 </button>
 
 
-<button onclick="choisirPaiement('Wave')">
+<br><br>
+
+
+<button onclick="envoyerDemande('Wave')">
 🔵 Wave
 </button>
 
-
-</div>
 
 
 </section>
@@ -229,7 +185,21 @@ Choisir cette offre
 
 
 
+<section class="card">
+
+<p id="message">
+
+</p>
+
+</section>
+
+
+
+
+
+
 </main>
+
 
 
 
@@ -250,18 +220,13 @@ Choisir cette offre
 </a>
 
 
-<a href="ticket.html">
-🎟️ Ticket
+<a href="ticket-premium.html">
+🎟️ Ticket Premium
 </a>
 
 
 <a href="historique.html">
 🏆 Historique
-</a>
-
-
-<a href="ticket.html">
-⭐ Premium
 </a>
 
 
@@ -273,7 +238,17 @@ Choisir cette offre
 
 
 
+
 <script>
+
+
+const API_URL =
+"https://az-turf-pro.onrender.com/api/abonnement";
+
+
+
+let offreChoisie = null;
+
 
 
 function choisirOffre(
@@ -283,28 +258,21 @@ duree
 ){
 
 
-localStorage.setItem(
-"AZ_TURF_OFFRE",
-nom
-);
+offreChoisie = {
 
+nom: nom,
 
-localStorage.setItem(
-"AZ_TURF_PRIX",
-prix
-);
+prix: prix,
 
+duree: duree
 
-localStorage.setItem(
-"AZ_TURF_DUREE",
-duree
-);
+};
 
 
 
-alert(
-"✅ Offre sélectionnée : " + nom
-);
+document.getElementById("message").innerHTML =
+
+"✅ Offre sélectionnée : " + nom;
 
 
 }
@@ -312,28 +280,144 @@ alert(
 
 
 
-function choisirPaiement(
-methode
+
+
+async function envoyerDemande(
+paiement
 ){
 
 
-localStorage.setItem(
-"AZ_TURF_PAIEMENT",
-methode
+const telephone =
+
+document.getElementById(
+"telephone"
+).value.trim();
+
+
+
+
+if(!telephone){
+
+alert(
+"Veuillez saisir votre numéro de paiement."
+);
+
+return;
+
+}
+
+
+
+
+if(!offreChoisie){
+
+alert(
+"Veuillez choisir une formule Premium."
+);
+
+return;
+
+}
+
+
+
+
+
+try{
+
+
+const reponse = await fetch(
+API_URL,
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+
+body:JSON.stringify({
+
+telephone: telephone,
+
+offre: offreChoisie.nom,
+
+prix: offreChoisie.prix,
+
+duree: offreChoisie.duree,
+
+paiement: paiement
+
+})
+
+}
+
 );
 
 
+
+const data = await reponse.json();
+
+
+
+
+if(!reponse.ok){
+
+throw new Error(
+data.detail || "Erreur"
+);
+
+}
+
+
+
+
+localStorage.setItem(
+"AZ_TURF_TELEPHONE",
+telephone
+);
+
+
+
+document.getElementById("message").innerHTML =
+
+"✅ Demande enregistrée.<br>Votre abonnement est en attente de validation.";
+
+
+
+setTimeout(()=>{
 
 window.location.href =
 "activation.html";
 
+},2000);
+
+
+
+
+}
+
+catch(error){
+
+
+document.getElementById("message").innerHTML =
+
+"❌ Erreur : " + error.message;
+
 
 }
 
 
 
-</script>
+}
 
+
+
+
+</script>
 
 
 
