@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Abonnement - AZ Turf Pro</title>
+<title>Abonnement Premium - AZ Turf Pro</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -32,14 +32,22 @@
 🏠 Accueil
 </a>
 
+
 <a href="analyse.html">
 📊 Analyse
 </a>
+
+
+<a href="ticket.html">
+⭐ Premium
+</a>
+
 
 </nav>
 
 
 </header>
+
 
 
 
@@ -51,36 +59,13 @@
 
 <section class="card">
 
-<h2>⭐ AZ Turf Pro Premium</h2>
+<h1>⭐ AZ Turf Pro Premium</h1>
 
 <p>
-Accédez aux analyses avancées, aux sélections VIP et aux tickets premium.
+Choisissez votre formule Premium et accédez aux sélections avancées.
 </p>
 
 </section>
-
-
-
-
-
-<section class="card">
-
-<h2>🆓 Offre gratuite</h2>
-
-<ul>
-
-<li>Informations de course</li>
-
-<li>Partants</li>
-
-<li>Aperçu analyse AZ</li>
-
-<li>Tickets gratuits</li>
-
-</ul>
-
-</section>
-
 
 
 
@@ -88,22 +73,45 @@ Accédez aux analyses avancées, aux sélections VIP et aux tickets premium.
 
 <section class="card vip-banner">
 
-<h2>💎 Offre Premium</h2>
+<h2>🎉 Offre promotionnelle de lancement</h2>
+
+<p>
+Profitez des tarifs réduits Premium.
+</p>
+
+</section>
 
 
-<ul>
 
-<li>⭐ Analyse AZ complète</li>
 
-<li>🎯 Sélection Favori / Outsider</li>
 
-<li>🏆 Tickets premium</li>
 
-<li>📈 Historique détaillé</li>
 
-<li>🔥 Accès espace VIP</li>
+<section class="card">
 
-</ul>
+
+<h2>⭐ Premium Semaine</h2>
+
+<p>
+<del>58 000 FCFA</del>
+</p>
+
+<h1>
+25 000 FCFA
+</h1>
+
+<p>
+Durée : 7 jours
+</p>
+
+
+<button onclick="choisirOffre(
+'Premium Semaine',
+25000,
+7
+)">
+Choisir cette offre
+</button>
 
 
 </section>
@@ -118,29 +126,95 @@ Accédez aux analyses avancées, aux sélections VIP et aux tickets premium.
 <section class="card">
 
 
-<h2>💳 Paiement Premium</h2>
-
+<h2>💎 Premium Mensuel</h2>
 
 <p>
-Choisissez votre moyen de paiement :
+<del>115 000 FCFA</del>
 </p>
 
+<h1>
+75 000 FCFA
+</h1>
+
+<p>
+Durée : 30 jours
+</p>
+
+
+<button onclick="choisirOffre(
+'Premium Mensuel',
+75000,
+30
+)">
+Choisir cette offre
+</button>
+
+
+</section>
+
+
+
+
+
+
+
+
+<section class="card">
+
+
+<h2>👑 Premium 3 mois</h2>
+
+<p>
+<del>215 000 FCFA</del>
+</p>
+
+<h1>
+150 000 FCFA
+</h1>
+
+<p>
+Durée : 90 jours
+</p>
+
+
+<button onclick="choisirOffre(
+'Premium 3 mois',
+150000,
+90
+)">
+Choisir cette offre
+</button>
+
+
+</section>
+
+
+
+
+
+
+
+
+<section class="card">
+
+
+<h2>💳 Moyen de paiement</h2>
 
 
 <div class="payment-choice">
 
 
-<button>
+<button onclick="choisirPaiement('Orange Money')">
 🟠 Orange Money
 </button>
 
 
-<button>
+<button onclick="choisirPaiement('Moov Money')">
 🟢 Moov Money
 </button>
 
 
-<button>
+<button onclick="choisirPaiement('Wave')">
 🔵 Wave
 </button>
 
@@ -155,30 +229,8 @@ Choisissez votre moyen de paiement :
 
 
 
-<section class="card">
-
-
-<h2>⭐ Activation</h2>
-
-
-<p>
-Après paiement, votre accès Premium sera activé.
-</p>
-
-
-<button class="btn-payment">
-
-Activer Premium
-
-</button>
-
-
-</section>
-
-
-
-
 </main>
+
 
 
 
@@ -208,12 +260,79 @@ Activer Premium
 </a>
 
 
-<a href="abonnement.html">
-⭐ VIP
+<a href="ticket.html">
+⭐ Premium
 </a>
 
 
 </footer>
+
+
+
+
+
+
+
+<script>
+
+
+function choisirOffre(
+nom,
+prix,
+duree
+){
+
+
+localStorage.setItem(
+"AZ_TURF_OFFRE",
+nom
+);
+
+
+localStorage.setItem(
+"AZ_TURF_PRIX",
+prix
+);
+
+
+localStorage.setItem(
+"AZ_TURF_DUREE",
+duree
+);
+
+
+
+alert(
+"✅ Offre sélectionnée : " + nom
+);
+
+
+}
+
+
+
+
+function choisirPaiement(
+methode
+){
+
+
+localStorage.setItem(
+"AZ_TURF_PAIEMENT",
+methode
+);
+
+
+
+window.location.href =
+"activation.html";
+
+
+}
+
+
+
+</script>
 
 
 
