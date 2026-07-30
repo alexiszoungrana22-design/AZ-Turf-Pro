@@ -13,18 +13,10 @@ def extraire_numeros(classement):
 
 
 def generer_champ_reduit(classement):
-    """
-    Champ réduit Premium
-
-    - Bases
-    - Compléments
-    """
 
     numeros = extraire_numeros(classement)
 
-
     if len(numeros) < 7:
-
         return {
             "format": "",
             "bases": [],
@@ -32,9 +24,21 @@ def generer_champ_reduit(classement):
         }
 
 
-    bases = numeros[:3]
+    bases = [
+        numeros[0],
+        numeros[1],
+        "X",
+        numeros[3],
+        "X"
+    ]
 
-    complements = numeros[3:7]
+
+    complements = [
+        numeros[4],
+        numeros[5],
+        numeros[2],
+        numeros[6]
+    ]
 
 
     return {
@@ -43,6 +47,7 @@ def generer_champ_reduit(classement):
             "-".join(map(str, bases))
             + " / "
             + "-".join(map(str, complements)),
+
 
         "bases": bases,
 
