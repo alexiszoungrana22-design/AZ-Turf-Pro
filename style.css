@@ -1706,3 +1706,43 @@ width:90%;
     }
 
 }
+/* =====================================
+   PAGES CLASSIQUES - MODE PLEIN ECRAN
+===================================== */
+
+.page-container {
+
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
+
+}
+
+
+.page-container .card {
+
+    width: 100%;
+    box-sizing: border-box;
+
+}
+
+
+.page-container .table-container {
+
+    width: 100%;
+    overflow-x: auto;
+
+}
+
+
+@media(max-width:600px){
+
+    .page-container {
+
+        padding: 10px;
+
+    }
+
+}
