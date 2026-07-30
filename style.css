@@ -1746,3 +1746,22 @@ width:90%;
     }
 
 }
+/* Correction affichage titres des cartes analyse */
+
+.card h2 {
+    position: relative;
+    z-index: 2;
+    padding-top: 10px;
+    margin-top: 0;
+    line-height: 1.4;
+}
+
+
+.analyse-az h2 {
+    margin-top: 10px;
+}
+
+
+.content {
+    padding-top: 20px;
+}
