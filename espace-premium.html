@@ -25,17 +25,31 @@
 
 <nav class="top-menu">
 
-<a href="index.html">🏠 Accueil</a>
+<a href="index.html">
+🏠 Accueil
+</a>
 
-<a href="analyse.html">📊 Analyse</a>
 
-<a href="ticket-premium.html">🎟️ Ticket Premium</a>
+<a href="analyse.html">
+📊 Analyse
+</a>
 
-<a href="mon-abonnement.html">👤 Mon abonnement</a>
+
+<a href="ticket-premium.html">
+🎟️ Ticket Premium
+</a>
+
+
+<a href="mon-abonnement.html">
+👤 Mon abonnement
+</a>
+
 
 </nav>
 
+
 </header>
+
 
 
 
@@ -48,18 +62,18 @@
 
 <section class="card">
 
+
 <h1>
 ⭐ Espace Premium AZ Turf Pro
 </h1>
 
 
 <p>
-Votre espace réservé aux abonnés Premium.
+Accédez aux services réservés aux abonnés Premium.
 </p>
 
 
 </section>
-
 
 
 
@@ -90,6 +104,7 @@ Votre espace réservé aux abonnés Premium.
 <section class="card" id="contenu-premium" style="display:none;">
 
 
+
 <h2>
 🏆 Services Premium
 </h2>
@@ -108,7 +123,9 @@ Votre espace réservé aux abonnés Premium.
 
 <li>🔥 Sélections avancées</li>
 
+
 </ul>
+
 
 
 
@@ -125,11 +142,12 @@ Votre espace réservé aux abonnés Premium.
 <br><br>
 
 
-<a href="mon-abonnement.html" class="btn-vip">
+<a href="mon-abonnement.html">
 
 👤 Mon abonnement
 
 </a>
+
 
 
 </section>
@@ -145,24 +163,24 @@ Votre espace réservé aux abonnés Premium.
 <section class="card" id="message-blocage" style="display:none;">
 
 
+
 <h2>
 🔒 Accès Premium indisponible
 </h2>
 
 
-<p id="message-expiration">
-
-Votre abonnement n'est pas actif.
-
+<p>
+Votre abonnement n'est pas actif ou est expiré.
 </p>
 
 
 
-<a href="espace-premium.html" class="btn-vip">
+<a href="paiement.html">
 
 🔄 Renouveler mon abonnement
 
 </a>
+
 
 
 </section>
@@ -172,6 +190,7 @@ Votre abonnement n'est pas actif.
 
 
 </main>
+
 
 
 
@@ -197,8 +216,8 @@ Votre abonnement n'est pas actif.
 </a>
 
 
-<a href="mon-abonnement.html">
-👤 Compte
+<a href="historique.html">
+🏆 Historique
 </a>
 
 
@@ -217,19 +236,16 @@ Votre abonnement n'est pas actif.
 
 
 
-
 <script>
 
 
-const API_PREMIUM =
-
+const API =
 "https://az-turf-pro.onrender.com/api/premium/";
 
 
 
-
-
 async function verifierPremium(){
+
 
 
 const telephone =
@@ -270,16 +286,18 @@ if(!telephone){
 
 
 infos.innerHTML =
+"❌ Numéro abonné introuvable.";
 
-"❌ Aucun numéro d'abonné trouvé.";
 
-
-blocage.style.display="block";
+blocage.style.display =
+"block";
 
 
 return;
 
+
 }
+
 
 
 
@@ -288,26 +306,21 @@ return;
 try{
 
 
-const response = await fetch(
 
-API_PREMIUM +
+const response =
 
+await fetch(
+
+API +
 encodeURIComponent(telephone)
 
 );
 
 
 
-const data = await response.json();
+const data =
 
-
-
-console.log(
-"Réponse Premium Render :",
-data
-);
-
-
+await response.json();
 
 
 
@@ -316,34 +329,34 @@ data
 if(
 response.ok &&
 data.statut === "ACTIF"
-
 ){
 
 
 
-contenu.style.display="block";
+contenu.style.display =
+"block";
 
 
 
 infos.innerHTML = `
 
-
 <h2>
-✅ Abonnement actif
+✅ Abonnement Premium actif
 </h2>
-
 
 <p>
 Formule :
-<strong>${data.offre || "Premium"}</strong>
+<strong>
+${data.offre || "Premium"}
+</strong>
 </p>
-
 
 <p>
 Expiration :
-<strong>${data.date_fin || "-"}</strong>
+<strong>
+${data.date_fin || "-"}
+</strong>
 </p>
-
 
 `;
 
@@ -351,17 +364,19 @@ Expiration :
 
 return;
 
+
 }
 
 
 
-blocage.style.display="block";
 
+
+blocage.style.display =
+"block";
 
 
 infos.innerHTML =
-
-"❌ Votre abonnement Premium n'est pas actif.";
+"❌ Aucun abonnement Premium actif.";
 
 
 
@@ -372,25 +387,20 @@ infos.innerHTML =
 catch(error){
 
 
-
-console.error(
-error
-);
+console.error(error);
 
 
 
 infos.innerHTML =
-
-"❌ Erreur de connexion au serveur.";
-
-
-
-}
+"❌ Erreur de connexion serveur.";
 
 
 
 }
 
+
+
+}
 
 
 
