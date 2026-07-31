@@ -35,7 +35,6 @@
 
 </nav>
 
-
 </header>
 
 
@@ -127,9 +126,16 @@ Vérification de votre abonnement...
 
 </a>
 
-<a href="mon-abonnement.html">
+
+<br><br>
+
+
+<a href="mon-abonnement.html" class="btn-vip">
+
 👤 Mon abonnement
+
 </a>
+
 
 </section>
 
@@ -145,18 +151,18 @@ Vérification de votre abonnement...
 
 
 <h2>
-🔒 Accès refusé
+🔒 Accès Premium indisponible
 </h2>
 
 
-<p>
-Votre abonnement Premium est expiré.
+<p id="message-expiration">
+Votre abonnement n'est pas actif.
 </p>
 
 
-<a href="espace-vip.html">
+<a href="espace-vip.html" class="btn-vip">
 
-Renouveler mon abonnement
+🔄 Renouveler mon abonnement
 
 </a>
 
@@ -219,45 +225,101 @@ Renouveler mon abonnement
 <script>
 
 
-function verifierPremium(){
+const API_PREMIUM =
+
+"https://az-turf-pro.onrender.com/api/premium/";
 
 
 
-const statut =
-localStorage.getItem("AZ_TURF_PREMIUM");
 
 
-const offre =
-localStorage.getItem("AZ_TURF_OFFRE");
+async function verifierPremium(){
 
 
-const dateFin =
-localStorage.getItem("AZ_TURF_DATE_FIN");
+
+const telephone =
+
+localStorage.getItem(
+"AZ_TURF_TELEPHONE"
+);
+
+
+
+
+
+const infos =
+
+document.getElementById(
+"infos-premium"
+);
+
+
+
+
+
+if(!telephone){
+
+
+infos.innerHTML =
+
+"❌ Aucun numéro d'abonnement trouvé.";
+
+
+document.getElementById(
+"message-blocage"
+).style.display="block";
+
+
+return;
+
+
+}
+
+
+
+
+
+
+
+try{
+
+
+
+const reponse = await fetch(
+
+API_PREMIUM +
+
+encodeURIComponent(telephone)
+
+);
+
+
+
+
+
+const data = await reponse.json();
+
+
+
+
+
+console.log(
+"Premium Render :",
+data
+);
+
+
 
 
 
 
 
 if(
-statut === "ACTIF"
+reponse.ok
 &&
-dateFin
+data.statut === "ACTIF"
+
 ){
-
-
-
-const expiration =
-new Date(dateFin);
-
-
-const maintenant =
-new Date();
-
-
-
-
-
-if(maintenant < expiration){
 
 
 
@@ -269,9 +331,7 @@ document.getElementById(
 
 
 
-document.getElementById(
-"infos-premium"
-).innerHTML = `
+infos.innerHTML = `
 
 
 <h2>
@@ -286,14 +346,14 @@ Bienvenue dans l'espace réservé aux membres.
 
 <p>
 Formule :
-<strong>${offre || "Premium"}</strong>
+<strong>${data.offre || "Premium"}</strong>
 </p>
 
 
 <p>
 Expiration :
 <strong>
-${expiration.toLocaleDateString("fr-FR")}
+${data.date_fin || "-"}
 </strong>
 </p>
 
@@ -304,10 +364,11 @@ ${expiration.toLocaleDateString("fr-FR")}
 
 return;
 
-}
 
 
 }
+
+
 
 
 
@@ -318,11 +379,34 @@ document.getElementById(
 ).style.display="block";
 
 
-document.getElementById(
-"infos-premium"
-).innerHTML =
+
+infos.innerHTML =
 
 "❌ Aucun abonnement Premium actif.";
+
+
+
+}
+
+
+
+catch(error){
+
+
+console.error(
+"Erreur Premium :",
+error
+);
+
+
+
+infos.innerHTML =
+
+"❌ Impossible de vérifier votre abonnement.";
+
+
+}
+
 
 
 
