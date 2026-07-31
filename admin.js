@@ -153,3 +153,86 @@ attente.innerHTML =
 
 
 }
+// =====================================
+// VERIFICATION PREMIUM ADMIN
+// =====================================
+
+
+async function verifierUtilisateurPremium(){
+
+
+const telephone =
+document.getElementById(
+"telephone-premium"
+).value;
+
+
+
+const resultat =
+document.getElementById(
+"resultat-premium"
+);
+
+
+
+if(!telephone){
+
+resultat.innerHTML =
+"⚠️ Entrez un numéro";
+
+return;
+
+}
+
+
+
+try{
+
+
+const response =
+
+await fetch(
+
+"https://az-turf-pro.onrender.com/api/premium/"
++
+encodeURIComponent(telephone)
+
+);
+
+
+
+const data =
+await response.json();
+
+
+
+console.log(
+"Premium:",
+data
+);
+
+
+
+resultat.innerHTML =
+
+JSON.stringify(data);
+
+
+
+}
+
+
+catch(error){
+
+
+console.error(error);
+
+
+resultat.innerHTML =
+"❌ Erreur de connexion";
+
+
+}
+
+
+}
