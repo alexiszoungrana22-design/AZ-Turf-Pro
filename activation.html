@@ -12,9 +12,7 @@
 
 </head>
 
-
 <body>
-
 
 <header class="top-header">
 
@@ -22,23 +20,15 @@
 🏇 <span>AZ Turf Pro</span>
 </div>
 
-
 <nav class="top-menu">
 
-<a href="index.html">
-🏠 Accueil
-</a>
+<a href="index.html">🏠 Accueil</a>
 
-<a href="ticket-premium.html">
-⭐ Premium
-</a>
+<a href="espace-premium.html">⭐ Premium</a>
 
 </nav>
 
 </header>
-
-
-
 
 
 <main class="content">
@@ -56,12 +46,9 @@ Finalisez votre abonnement AZ Turf Pro.
 
 
 
-
-
 <section class="card">
 
 <h2>📱 Informations paiement</h2>
-
 
 <p>
 Numéro utilisé :
@@ -71,14 +58,11 @@ Numéro utilisé :
 Chargement...
 </strong>
 
-
 <br><br>
-
 
 <label>
 🔖 Référence de paiement
 </label>
-
 
 <input
 id="reference"
@@ -87,111 +71,55 @@ placeholder="Exemple : OM12345678"
 class="input-premium"
 >
 
-
 </section>
-
-
-
-
 
 
 
 <section class="card">
 
-
 <button id="activer-premium">
-
 ✅ Activer mon Premium
-
 </button>
 
-
-<br><br>
-
-
-<p id="message">
-
-</p>
-
+<p id="message"></p>
 
 </section>
-
-
-
-
 
 
 </main>
 
 
 
-
-
-
-
-
 <footer class="bottom-menu">
 
+<a href="index.html">🏠 Accueil</a>
 
-<a href="index.html">
-🏠 Accueil
-</a>
+<a href="analyse.html">📊 Analyse</a>
 
+<a href="ticket-premium.html">🎟️ Ticket Premium</a>
 
-<a href="analyse.html">
-📊 Analyse
-</a>
-
-
-<a href="ticket-premium.html">
-🎟️ Ticket Premium
-</a>
-
-
-<a href="historique.html">
-🏆 Historique
-</a>
-
+<a href="historique.html">🏆 Historique</a>
 
 </footer>
 
 
 
-
-
-
-
 <script>
 
-
 const API_URL =
-
 "https://az-turf-pro.onrender.com/api/activation";
 
 
-
 const telephone =
-
-localStorage.getItem(
-"AZ_TURF_TELEPHONE"
-);
-
+localStorage.getItem("AZ_TURF_TELEPHONE");
 
 
 const affichage =
-
-document.getElementById(
-"telephone-affiche"
-);
-
+document.getElementById("telephone-affiche");
 
 
 const message =
-
-document.getElementById(
-"message"
-);
-
+document.getElementById("message");
 
 
 
@@ -199,9 +127,7 @@ if(telephone){
 
 affichage.innerHTML = telephone;
 
-}
-
-else{
+}else{
 
 affichage.innerHTML =
 "Aucun numéro trouvé";
@@ -210,23 +136,14 @@ affichage.innerHTML =
 
 
 
-
-
-document.getElementById(
-"activer-premium"
-)
-.onclick = async function(){
-
+document.getElementById("activer-premium").onclick =
+async function(){
 
 
 const reference =
-
-document.getElementById(
-"reference"
-)
+document.getElementById("reference")
 .value
 .trim();
-
 
 
 
@@ -241,7 +158,6 @@ return;
 
 
 
-
 if(!reference){
 
 message.innerHTML =
@@ -253,16 +169,11 @@ return;
 
 
 
-
-
 try{
 
 
-const reponse = await fetch(
-
-API_URL,
-
-{
+const reponse =
+await fetch(API_URL,{
 
 method:"POST",
 
@@ -274,23 +185,18 @@ headers:{
 
 body:JSON.stringify({
 
-telephone: telephone,
+telephone:telephone,
 
-reference: reference
+reference:reference
 
 })
 
-}
-
-);
+});
 
 
 
-
-
-const data = await reponse.json();
-
-
+const data =
+await reponse.json();
 
 
 
@@ -304,46 +210,34 @@ data.detail || "Erreur activation"
 
 
 
-
-localStorage.setItem(
-"AZ_TURF_PREMIUM",
-"ACTIF"
-);
-
-
-
 message.innerHTML =
 
 "✅ Premium activé<br>" +
 
-"Expiration : " +
+"Expiration : <strong>" +
 
-new Date(
-data.date_fin
-)
-.toLocaleDateString();
+new Date(data.date_fin)
+.toLocaleDateString("fr-FR") +
 
+"</strong>";
 
 
 
 setTimeout(()=>{
 
 window.location.href =
-"ticket-premium.html";
+"espace-premium.html";
 
 },3000);
 
 
 
-
 }
-
 
 catch(error){
 
 
 message.innerHTML =
-
 "❌ " + error.message;
 
 
@@ -354,11 +248,7 @@ message.innerHTML =
 };
 
 
-
 </script>
-
-
-
 
 
 </body>
