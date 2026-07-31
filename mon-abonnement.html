@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Mon abonnement - AZ Turf Pro</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<header class="top-header">
+
+<div class="logo">
+🏇 <span>AZ Turf Pro</span>
+</div>
+
+
+<nav class="top-menu">
+
+<a href="index.html">🏠 Accueil</a>
+
+<a href="analyse.html">📊 Analyse</a>
+
+<a href="espace-premium.html">⭐ Premium</a>
+
+</nav>
+
+</header>
+
+
+
+
+
+<main class="content">
+
+
+<section class="card">
+
+<h1>⭐ Mon abonnement Premium</h1>
+
+<p>
+Consultez votre statut et vos informations d'abonnement.
+</p>
+
+</section>
+
+
+
+
+
+<section class="card">
+
+
+<div id="infos-abonnement">
+
+Chargement de votre abonnement...
+
+</div>
+
+
+</section>
+
+
+
+
+
+<section class="card" id="renouvellement" style="display:none;">
+
+
+<h2>🔄 Renouvellement</h2>
+
+
+<p>
+Votre abonnement est arrivé à expiration.
+</p>
+
+
+<button onclick="renouveler()">
+
+⭐ Renouveler votre abonnement
+
+</button>
+
+
+</section>
+
+
+
+
+
+
+</main>
+
+
+
+
+
+
+
+<footer class="bottom-menu">
+
+
+<a href="index.html">🏠 Accueil</a>
+
+<a href="analyse.html">📊 Analyse</a>
+
+<a href="ticket-premium.html">🎟️ Ticket Premium</a>
+
+<a href="historique.html">🏆 Historique</a>
+
+<a href="espace-premium.html">⭐ Premium</a>
+
+
+</footer>
+
+
+
+
+
+
+
+
+<script>
+
+
+const API =
+"https://az-turf-pro.onrender.com/api/premium/";
+
+
+
+
+
+async function chargerAbonnement(){
+
+
+
+const telephone =
+
+localStorage.getItem(
+"AZ_TURF_TELEPHONE"
+);
+
+
+
+
+const zone =
+
+document.getElementById(
+"infos-abonnement"
+);
+
+
+
+
+
+if(!telephone){
+
+
+zone.innerHTML =
+
+"❌ Aucun numéro d'abonnement trouvé.";
+
+
+return;
+
+
+}
+
+
+
+
+
+try{
+
+
+const reponse = await fetch(
+
+API +
+encodeURIComponent(telephone)
+
+);
+
+
+
+const data = await reponse.json();
+
+
+
+
+
+console.log(
+"Abonnement :",
+data
+);
+
+
+
+
+
+
+if(!reponse.ok){
+
+
+zone.innerHTML =
+
+"❌ Abonnement introuvable.";
+
+
+return;
+
+
+}
+
+
+
+
+
+
+zone.innerHTML = `
+
+
+<h2>📱 Téléphone</h2>
+
+<p>${data.telephone}</p>
+
+
+<h2>⭐ Offre</h2>
+
+<p>${data.offre}</p>
+
+
+<h2>💳 Paiement</h2>
+
+<p>${data.paiement}</p>
+
+
+<h2>💰 Prix</h2>
+
+<p>${data.prix} FCFA</p>
+
+
+<h2>📌 Statut</h2>
+
+<p>${data.statut}</p>
+
+
+<h2>📅 Début</h2>
+
+<p>${data.date_debut || "-"}</p>
+
+
+<h2>⏳ Expiration</h2>
+
+<p>${data.date_fin || "-"}</p>
+
+
+`;
+
+
+
+
+
+
+
+if(data.statut !== "ACTIF"){
+
+
+document.getElementById(
+"renouvellement"
+).style.display="block";
+
+
+}
+
+
+
+}
+
+catch(error){
+
+
+
+console.error(error);
+
+
+
+zone.innerHTML =
+
+"❌ Erreur de connexion au serveur.";
+
+
+
+}
+
+
+
+}
+
+
+
+
+
+function renouveler(){
+
+
+window.location.href =
+
+"espace-premium.html";
+
+
+}
+
+
+
+
+
+chargerAbonnement();
+
+
+
+</script>
+
+
+
+
+
+
+</body>
+
+</html>
