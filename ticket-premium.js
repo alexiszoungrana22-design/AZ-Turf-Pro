@@ -313,18 +313,24 @@ tickets.quinte
 );
 
 
-
 afficherTicket(
-"quarte-premium",
-tickets.ticket_5 ||
-tickets.quarte
+"quinte-premium",
+premium.quinte
 );
 
 
 
 afficherTicket(
+"quarte-premium",
+premium.quarte
+);
+  
+  
+  
+  
+  afficherTicket(
 "trio-premium",
-tickets.trio
+premium.trio
 );
 
 
