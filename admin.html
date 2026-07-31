@@ -86,36 +86,7 @@ Gestion de la plateforme AZ Turf Pro
 
 
 
-<div class="box premium">
 
-<h2>
-👥 Vérification Premium
-</h2>
-
-<p>
-Téléphone utilisateur :
-</p>
-
-<input 
-type="text" 
-id="telephone-premium"
-placeholder="Ex: 70000000"
->
-
-
-<button 
-class="btn-vip"
-onclick="verifierUtilisateurPremium()">
-🔍 Vérifier
-</button>
-
-
-<p id="resultat-premium">
-Aucune vérification
-</p>
-
-
-</div>
 
 <div class="box premium">
 
@@ -126,16 +97,9 @@ Aucune vérification
 
 <p id="nombre-premium">
 
-Chargement...
+Gestion Premium prête
 
 </p>
-
-
-<button class="btn-vip">
-
-Voir les abonnés
-
-</button>
 
 
 </div>
@@ -156,19 +120,122 @@ Voir les abonnés
 
 <p id="paiements-attente">
 
-Chargement...
+Module paiement à connecter
 
 </p>
 
 
-<button class="btn-vip">
+</div>
 
-Vérifier les paiements
+
+
+
+
+
+
+
+<div class="box premium">
+
+<h2>
+👥 Vérification Premium
+</h2>
+
+
+<p>
+Téléphone utilisateur :
+</p>
+
+
+<input
+type="text"
+id="telephone-premium"
+placeholder="Numéro téléphone"
+>
+
+
+<button
+class="btn-vip"
+onclick="verifierUtilisateurPremium()">
+
+🔍 Vérifier
 
 </button>
 
 
+
+<p id="resultat-premium">
+
+Aucune vérification
+
+</p>
+
+
 </div>
+
+
+
+
+
+
+
+
+
+<div class="box premium">
+
+
+<h2>
+⚡ Activation Premium
+</h2>
+
+
+
+<p>
+Téléphone utilisateur :
+</p>
+
+
+<input
+type="text"
+id="activation-telephone"
+placeholder="Numéro téléphone"
+>
+
+
+
+
+<p>
+Référence paiement :
+</p>
+
+
+<input
+type="text"
+id="activation-reference"
+placeholder="Référence paiement"
+>
+
+
+
+
+<button
+class="btn-vip"
+onclick="activerPremium()">
+
+✅ Activer Premium
+
+</button>
+
+
+
+<p id="resultat-activation">
+
+Aucune activation
+
+</p>
+
+
+</div>
+
 
 
 
@@ -192,14 +259,8 @@ API d'analyse :
 Vérification...
 </span>
 
+
 </p>
-
-
-<button class="btn-vip">
-
-Actualiser
-
-</button>
 
 
 </div>
@@ -215,7 +276,6 @@ Actualiser
 
 <h2>
 📢 Publicités
-
 </h2>
 
 
@@ -224,13 +284,6 @@ Actualiser
 Gestion des bannières publicitaires.
 
 </p>
-
-
-<button class="btn-vip">
-
-Gérer les publicités
-
-</button>
 
 
 </div>
@@ -246,7 +299,6 @@ Gérer les publicités
 
 <h2>
 ⚙️ Paramètres
-
 </h2>
 
 
@@ -255,13 +307,6 @@ Gérer les publicités
 Configuration AZ Turf Pro.
 
 </p>
-
-
-<button class="btn-vip">
-
-Paramètres
-
-</button>
 
 
 </div>
