@@ -1,7 +1,7 @@
 // =====================================
 // AZ TURF PRO
 // ADMIN JS
-// Version 1
+// Version 3
 // =====================================
 
 
@@ -9,17 +9,46 @@ const API_ANALYSE =
 "https://az-turf-pro.onrender.com/api/analyse";
 
 
+const API_PREMIUM =
+"https://az-turf-pro.onrender.com/api/premium";
+
+
+const API_ACTIVATION =
+"https://az-turf-pro.onrender.com/api/activation";
+
+
+
+
 
 document.addEventListener(
 "DOMContentLoaded",
-verifierAPI
+initialiserAdmin
 );
 
 
 
 
+
+
 // =====================================
-// VERIFICATION API
+// INITIALISATION ADMIN
+// =====================================
+
+
+async function initialiserAdmin(){
+
+await verifierAPI();
+
+}
+
+
+
+
+
+
+
+// =====================================
+// VERIFICATION API ANALYSE
 // =====================================
 
 
@@ -72,9 +101,6 @@ etat.innerHTML =
 
 
 
-
-// Préparation statistiques
-
 chargerStatistiques(data);
 
 
@@ -87,6 +113,7 @@ catch(error){
 
 
 console.error(
+"Erreur API :",
 error
 );
 
@@ -100,10 +127,10 @@ etat.innerHTML =
 }
 
 
-
 }
 
 }
+
 
 
 
@@ -111,12 +138,11 @@ etat.innerHTML =
 
 
 // =====================================
-// STATISTIQUES ADMIN
+// STATISTIQUES
 // =====================================
 
 
 function chargerStatistiques(data){
-
 
 
 const premium =
@@ -133,7 +159,6 @@ document.getElementById(
 
 
 
-
 if(premium){
 
 premium.innerHTML =
@@ -146,15 +171,22 @@ premium.innerHTML =
 if(attente){
 
 attente.innerHTML =
-"Module paiement à connecter";
+"Module paiement prêt";
+
+}
+
 
 }
 
 
 
-}
+
+
+
+
+
 // =====================================
-// VERIFICATION PREMIUM ADMIN
+// VERIFICATION UTILISATEUR PREMIUM
 // =====================================
 
 
@@ -164,7 +196,7 @@ async function verifierUtilisateurPremium(){
 const telephone =
 document.getElementById(
 "telephone-premium"
-).value;
+).value.trim();
 
 
 
@@ -175,14 +207,20 @@ document.getElementById(
 
 
 
+
 if(!telephone){
 
+
 resultat.innerHTML =
-"⚠️ Entrez un numéro";
+"⚠️ Veuillez entrer un numéro";
+
 
 return;
 
+
 }
+
+
 
 
 
@@ -193,11 +231,15 @@ const response =
 
 await fetch(
 
-"https://az-turf-pro.onrender.com/api/premium/"
+API_PREMIUM
++
+"/"
 +
 encodeURIComponent(telephone)
 
 );
+
+
 
 
 
@@ -207,32 +249,234 @@ await response.json();
 
 
 console.log(
-"Premium:",
+"Résultat Premium :",
 data
+);
+
+
+
+
+
+if(response.ok){
+
+
+resultat.innerHTML = `
+
+✅ Vérification terminée
+
+<br>
+
+${JSON.stringify(data)}
+
+`;
+
+
+
+}else{
+
+
+resultat.innerHTML =
+
+"❌ Utilisateur Premium introuvable";
+
+
+}
+
+
+
+}
+
+
+
+catch(error){
+
+
+console.error(
+"Erreur Premium :",
+error
 );
 
 
 
 resultat.innerHTML =
 
-JSON.stringify(data);
+"❌ Erreur de connexion API";
+
+
+}
 
 
 
 }
+
+
+
+
+
+
+
+
+
+// =====================================
+// ACTIVATION PREMIUM ADMIN
+// =====================================
+
+
+async function activerPremium(){
+
+
+
+const telephone =
+
+document.getElementById(
+"activation-telephone"
+).value.trim();
+
+
+
+const reference =
+
+document.getElementById(
+"activation-reference"
+).value.trim();
+
+
+
+const resultat =
+
+document.getElementById(
+"resultat-activation"
+);
+
+
+
+
+
+if(!telephone || !reference){
+
+
+resultat.innerHTML =
+
+"⚠️ Téléphone et référence obligatoires";
+
+
+return;
+
+}
+
+
+
+
+
+try{
+
+
+
+const response =
+
+await fetch(
+
+API_ACTIVATION,
+
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":
+"application/json"
+
+},
+
+
+body:JSON.stringify({
+
+telephone:telephone,
+
+reference:reference
+
+})
+
+
+}
+
+);
+
+
+
+
+
+
+const data =
+
+await response.json();
+
+
+
+console.log(
+"Activation Premium :",
+data
+);
+
+
+
+
+
+if(response.ok){
+
+
+resultat.innerHTML = `
+
+✅ ${data.message}
+
+<br>
+
+Statut :
+${data.statut}
+
+<br>
+
+Fin :
+${data.date_fin}
+
+`;
+
+
+
+}else{
+
+
+resultat.innerHTML =
+
+"❌ Activation impossible";
+
+
+}
+
+
+
+}
+
 
 
 catch(error){
 
 
-console.error(error);
+console.error(
+"Erreur activation :",
+error
+);
+
 
 
 resultat.innerHTML =
-"❌ Erreur de connexion";
+
+"❌ Erreur connexion API";
 
 
 }
+
 
 
 }
