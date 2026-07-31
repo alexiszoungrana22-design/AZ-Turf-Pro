@@ -1,7 +1,7 @@
 // =====================================
 // AZ TURF PRO
 // TICKET PREMIUM JS
-// Version corrigée
+// Correction affichage tickets
 // =====================================
 
 
@@ -14,13 +14,10 @@ const API_PREMIUM =
 
 
 
-
-
 document.addEventListener(
 "DOMContentLoaded",
 verifierPremium
 );
-
 
 
 
@@ -49,7 +46,6 @@ document.getElementById(
 
 if(!telephone){
 
-
 if(message){
 
 message.innerHTML =
@@ -57,13 +53,9 @@ message.innerHTML =
 
 }
 
-
 return;
 
-
 }
-
-
 
 
 
@@ -71,13 +63,10 @@ try{
 
 
 const response =
-
 await fetch(
-
 API_PREMIUM +
 "/" +
 encodeURIComponent(telephone)
-
 );
 
 
@@ -87,16 +76,10 @@ await response.json();
 
 
 
-
-
 if(
-
 !response.ok ||
-
 data.statut !== "ACTIF"
-
 ){
-
 
 if(message){
 
@@ -105,13 +88,9 @@ message.innerHTML =
 
 }
 
-
 return;
 
-
 }
-
-
 
 
 
@@ -123,12 +102,10 @@ chargerPremium();
 
 catch(error){
 
-
 console.error(
 "Erreur Premium :",
 error
 );
-
 
 
 if(message){
@@ -142,7 +119,6 @@ message.innerHTML =
 }
 
 
-
 }
 
 
@@ -150,9 +126,8 @@ message.innerHTML =
 
 
 
-
 // =====================================
-// CHARGEMENT DES TICKETS
+// CHARGEMENT TICKETS PREMIUM
 // =====================================
 
 
@@ -191,11 +166,12 @@ data
 
 
 
+// IMPORTANT : API actuelle
 const tickets =
 
-data.tickets?.vip ||
-
 data.tickets?.premium ||
+
+data.tickets?.vip ||
 
 {};
 
@@ -214,14 +190,12 @@ data.chevaux ||
 
 
 
-
-// ===============================
+// =====================================
 // SELECTION 7 CHEVAUX
-// ===============================
+// =====================================
 
 
 const selection =
-
 document.getElementById(
 "selection-premium"
 );
@@ -229,7 +203,6 @@ document.getElementById(
 
 
 if(selection){
-
 
 selection.innerHTML = `
 
@@ -254,15 +227,12 @@ chevaux
 
 
 
-
-
-// ===============================
+// =====================================
 // EXPLICATION
-// ===============================
+// =====================================
 
 
 const explication =
-
 document.getElementById(
 "explication-premium"
 );
@@ -270,7 +240,6 @@ document.getElementById(
 
 
 if(explication){
-
 
 explication.innerHTML =
 
@@ -300,37 +269,28 @@ ${c.raison || "Analyse professionnelle"}
 
 
 
-
-// ===============================
+// =====================================
 // TICKETS
-// ===============================
+// =====================================
 
 
 afficherTicket(
 "quinte-premium",
-tickets.ticket_7 ||
 tickets.quinte
-);
-
-
-afficherTicket(
-"quinte-premium",
-premium.quinte
 );
 
 
 
 afficherTicket(
 "quarte-premium",
-premium.quarte
+tickets.quarte
 );
-  
-  
-  
-  
-  afficherTicket(
+
+
+
+afficherTicket(
 "trio-premium",
-premium.trio
+tickets.trio
 );
 
 
@@ -340,14 +300,12 @@ premium.trio
 
 
 
-
-// ===============================
-// COUPLE
-// ===============================
+// =====================================
+// COUPLE GAGNANT / PLACE
+// =====================================
 
 
 const couple =
-
 document.getElementById(
 "couple-gagnant"
 );
@@ -357,17 +315,7 @@ document.getElementById(
 if(couple){
 
 
-const valeur =
-
-tickets.couple_gagnant_place ||
-
-tickets.couple_gagnant ||
-
-tickets.couple_place;
-
-
-
-if(valeur){
+if(tickets.couple_gagnant_place){
 
 
 couple.innerHTML = `
@@ -375,11 +323,9 @@ couple.innerHTML = `
 <div class="ticket-grand">
 
 ${
-Array.isArray(valeur)
-?
-valeur.join(" - ")
-:
-valeur
+tickets.couple_gagnant_place
+.map(c=>c.join(" - "))
+.join("<br>")
 }
 
 </div>
@@ -403,14 +349,12 @@ couple.innerHTML =
 
 
 
-
-// ===============================
+// =====================================
 // CHAMP REDUIT
-// ===============================
+// =====================================
 
 
 const champ =
-
 document.getElementById(
 "champ-premium"
 );
@@ -427,10 +371,7 @@ champ.innerHTML = `
 
 <div class="ticket-grand">
 
-${
-tickets.champ_reduit.format ||
-JSON.stringify(tickets.champ_reduit)
-}
+${tickets.champ_reduit.format}
 
 </div>
 
@@ -438,11 +379,9 @@ JSON.stringify(tickets.champ_reduit)
 
 }else{
 
-
 champ.innerHTML =
 "Non disponible";
 
-
 }
 
 
@@ -455,14 +394,12 @@ champ.innerHTML =
 
 
 
-
-// ===============================
-// ANALYSE
-// ===============================
+// =====================================
+// ANALYSE PREMIUM
+// =====================================
 
 
 const analyse =
-
 document.getElementById(
 "analyse-premium"
 );
@@ -499,14 +436,12 @@ terrain et conditions de course.
 
 
 
-
-// ===============================
+// =====================================
 // DERNIERE MINUTE
-// ===============================
+// =====================================
 
 
 const derniere =
-
 document.getElementById(
 "derniere-minute-premium"
 );
@@ -528,9 +463,7 @@ derniere.innerHTML = `
 
 <div class="ticket-grand">
 
-${
-dm.format || "-"
-}
+${dm.format || "-"}
 
 </div>
 
@@ -552,9 +485,7 @@ dm.selection.join(" - ")
 
 Joker :
 
-${
-dm.joker || "-"
-}
+${dm.joker || "-"}
 
 `;
 
@@ -564,7 +495,6 @@ dm.joker || "-"
 derniere.innerHTML =
 "Non disponible";
 
-
 }
 
 
@@ -577,19 +507,17 @@ derniere.innerHTML =
 
 
 
-
-const message =
-
+const messageFin =
 document.getElementById(
 "message-bonne-chance"
 );
 
 
 
-if(message){
+if(messageFin){
 
 
-message.innerHTML =
+messageFin.innerHTML =
 
 tickets.message_fin ||
 
@@ -603,16 +531,12 @@ tickets.message_fin ||
 
 catch(error){
 
-
 console.error(
-"Erreur chargement tickets :",
+"Erreur chargement Premium :",
 error
 );
 
-
-
 }
-
 
 
 }
@@ -625,7 +549,7 @@ error
 
 
 // =====================================
-// AFFICHAGE SIMPLE TICKET
+// AFFICHAGE TICKET
 // =====================================
 
 
@@ -633,7 +557,6 @@ function afficherTicket(id,liste){
 
 
 const zone =
-
 document.getElementById(id);
 
 
@@ -647,20 +570,15 @@ return;
 
 
 if(
-
 !liste ||
-
 liste.length === 0
-
 ){
-
 
 zone.innerHTML =
 "Non disponible";
 
 
 return;
-
 
 }
 
@@ -671,11 +589,7 @@ zone.innerHTML = `
 <div class="ticket-grand">
 
 ${
-Array.isArray(liste)
-?
 liste.join(" - ")
-:
-liste
 }
 
 </div>
