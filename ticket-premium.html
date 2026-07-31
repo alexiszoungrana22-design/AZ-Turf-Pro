@@ -57,18 +57,13 @@ Combinaisons réservées aux membres Premium.
 
 
 
-
 <section class="card">
 
 <h2>⭐ Sélection Premium (7 chevaux)</h2>
 
-
 <div id="selection-premium">
-
 Chargement...
-
 </div>
-
 
 </section>
 
@@ -82,13 +77,9 @@ Chargement...
 
 <h2>🧠 Explication des choix</h2>
 
-
 <div id="explication-premium">
-
 Chargement...
-
 </div>
-
 
 </section>
 
@@ -102,6 +93,7 @@ Chargement...
 
 
 <h2>🏆 Combinaisons Premium</h2>
+
 
 
 
@@ -153,15 +145,12 @@ Chargement...
 
 
 
-
 <div class="ticket-box">
 
-<h3>🤝 Couplé Gagnant/Placé Premium</h3>
+<h3>🤝 Couplé Gagnant / Placé Premium</h3>
 
 <p id="couple-gagnant">
-
 Chargement...
-
 </p>
 
 </div>
@@ -177,13 +166,10 @@ Chargement...
 <h3>🔒 Champ réduit Premium</h3>
 
 <p id="champ-premium">
-
 Chargement...
-
 </p>
 
 </div>
-
 
 
 
@@ -199,17 +185,12 @@ Chargement...
 
 
 <section class="card">
-
 
 <h2>📊 Analyse Premium</h2>
 
-
 <div id="analyse-premium">
-
 Chargement...
-
 </div>
-
 
 </section>
 
@@ -220,17 +201,12 @@ Chargement...
 
 
 <section class="card">
-
 
 <h2>⚡ Dernière minute</h2>
 
-
 <div id="derniere-minute-premium">
-
 Chargement...
-
 </div>
-
 
 </section>
 
@@ -241,17 +217,12 @@ Chargement...
 
 
 <section class="card">
-
 
 <h2>🍀 Message Premium</h2>
 
-
 <p id="message-bonne-chance">
-
 Chargement...
-
 </p>
-
 
 </section>
 
@@ -262,14 +233,12 @@ Chargement...
 
 
 <section class="card">
-
 
 <a href="espace-premium.html">
 
 ⬅️ Retour Espace Premium
 
 </a>
-
 
 </section>
 
@@ -307,32 +276,35 @@ Chargement...
 
 
 
+
 <script>
 
 
-function verifierPremium(){
+// ===============================
+// VERIFICATION PREMIUM RENDER
+// ===============================
 
 
-const statut =
-localStorage.getItem("AZ_TURF_PREMIUM");
-
-
-const fin =
-localStorage.getItem("AZ_TURF_DATE_FIN");
+async function verifierPremium(){
 
 
 
-if(
-statut !== "ACTIF"
-||
-!fin
-||
-new Date() > new Date(fin)
+const telephone =
 
-){
+localStorage.getItem(
+"AZ_TURF_TELEPHONE"
+);
 
 
-alert("Votre accès Premium est expiré.");
+
+
+
+if(!telephone){
+
+
+alert(
+"Numéro de paiement introuvable."
+);
 
 
 window.location.href =
@@ -341,36 +313,167 @@ window.location.href =
 
 return false;
 
+
 }
+
+
+
+
+
+try{
+
+
+
+const reponse = await fetch(
+
+"https://az-turf-pro.onrender.com/api/premium/"
++
+encodeURIComponent(telephone)
+
+);
+
+
+
+
+
+const data = await reponse.json();
+
+
+
+
+
+console.log(
+"Statut Premium :",
+data
+);
+
+
+
+
+
+
+
+if(
+!reponse.ok
+||
+data.statut !== "ACTIF"
+
+){
+
+
+alert(
+"Votre abonnement Premium n'est pas actif."
+);
+
+
+window.location.href =
+"espace-premium.html";
+
+
+return false;
+
+
+}
+
+
+
 
 
 return true;
 
 
+
+
+
+}
+
+catch(error){
+
+
+console.error(
+"Erreur Premium :",
+error
+);
+
+
+
+alert(
+"Impossible de vérifier votre abonnement."
+);
+
+
+
+return false;
+
+
+
+}
+
+
+
+
 }
 
 
 
 
 
-if(verifierPremium()){
+
+
+
+
+// ===============================
+// CHARGEMENT TICKET PREMIUM
+// ===============================
+
+
+async function lancerPremium(){
+
+
+const actif =
+await verifierPremium();
+
+
+
+if(actif){
+
 
 
 const script =
-document.createElement("script");
+document.createElement(
+"script"
+);
+
 
 
 script.src =
-"ticket-premium.js?v=3";
+"ticket-premium.js?v=4";
 
 
-document.body.appendChild(script);
+
+document.body.appendChild(
+script
+);
+
 
 
 }
 
 
+
+}
+
+
+
+
+lancerPremium();
+
+
+
 </script>
+
+
+
 
 
 
