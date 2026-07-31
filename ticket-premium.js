@@ -1,6 +1,7 @@
 // =====================================
-// ESPACE PREMIUM
-// Vérification abonnement + Tickets Premium
+// AZ TURF PRO
+// TICKET PREMIUM JS
+// Version corrigée
 // =====================================
 
 
@@ -10,6 +11,8 @@ const API_ANALYSE =
 
 const API_PREMIUM =
 "https://az-turf-pro.onrender.com/api/premium";
+
+
 
 
 
@@ -23,7 +26,7 @@ verifierPremium
 
 
 // =====================================
-// VERIFICATION COMPTE PREMIUM
+// VERIFICATION PREMIUM
 // =====================================
 
 
@@ -31,7 +34,6 @@ async function verifierPremium(){
 
 
 const telephone =
-
 localStorage.getItem(
 "AZ_TURF_TELEPHONE"
 );
@@ -39,9 +41,8 @@ localStorage.getItem(
 
 
 const message =
-
 document.getElementById(
-"message-fin"
+"message-bonne-chance"
 );
 
 
@@ -52,13 +53,13 @@ if(!telephone){
 if(message){
 
 message.innerHTML =
-
-"🔒 Accès réservé aux abonnés Premium.<br>Veuillez vous abonner.";
+"🔒 Accès réservé aux abonnés Premium.";
 
 }
 
 
 return;
+
 
 }
 
@@ -69,17 +70,20 @@ return;
 try{
 
 
-const response = await fetch(
+const response =
 
-API_PREMIUM + "/" + encodeURIComponent(telephone)
+await fetch(
+
+API_PREMIUM +
+"/" +
+encodeURIComponent(telephone)
 
 );
 
 
 
-
-
-const data = await response.json();
+const data =
+await response.json();
 
 
 
@@ -94,50 +98,10 @@ data.statut !== "ACTIF"
 ){
 
 
-
 if(message){
 
 message.innerHTML =
-
-"🔒 Votre abonnement Premium n'est pas actif.";
-
-}
-
-
-return;
-
-}
-
-
-
-
-
-// Vérification expiration
-
-
-if(data.date_fin){
-
-
-const expiration =
-
-new Date(data.date_fin);
-
-
-
-const aujourd_hui =
-
-new Date();
-
-
-
-if(expiration < aujourd_hui){
-
-
-if(message){
-
-message.innerHTML =
-
-"⏳ Votre abonnement Premium a expiré.";
+"🔒 Abonnement Premium inactif.";
 
 }
 
@@ -148,35 +112,21 @@ return;
 }
 
 
-}
 
 
 
-
-
-// Accès autorisé
-const telephone = localStorage.getItem("AZ_TURF_TELEPHONE");
-
-document.getElementById("message-fin").innerHTML =
-"📱 Numéro détecté : " + telephone;
-
-  chargerPremium();
+chargerPremium();
 
 
 
 }
-
-
 
 catch(error){
 
 
 console.error(
-
-"Erreur vérification Premium",
-
+"Erreur Premium :",
 error
-
 );
 
 
@@ -184,19 +134,16 @@ error
 if(message){
 
 message.innerHTML =
+"❌ Impossible de vérifier l'abonnement.";
 
-"❌ Impossible de vérifier votre abonnement.";
+}
+
 
 }
 
 
 
 }
-
-
-
-}
-
 
 
 
@@ -205,7 +152,7 @@ message.innerHTML =
 
 
 // =====================================
-// CHARGEMENT DES TICKETS PREMIUM
+// CHARGEMENT DES TICKETS
 // =====================================
 
 
@@ -215,29 +162,28 @@ async function chargerPremium(){
 try{
 
 
-const response = await fetch(
-API_ANALYSE
-);
+const response =
+await fetch(API_ANALYSE);
 
 
 
 if(!response.ok){
 
 throw new Error(
-"Erreur API"
+"Erreur API analyse"
 );
 
 }
 
 
 
-
-const data = await response.json();
+const data =
+await response.json();
 
 
 
 console.log(
-"Données Premium :",
+"Données reçues :",
 data
 );
 
@@ -245,23 +191,33 @@ data
 
 
 
-const premium =
+const tickets =
 
-data.tickets?.premium || {};
+data.tickets?.vip ||
 
+data.tickets?.premium ||
 
-
-const classement =
-
-data.classement || [];
+{};
 
 
 
+const chevaux =
+
+data.classement ||
+
+data.chevaux ||
+
+[];
 
 
 
 
+
+
+
+// ===============================
 // SELECTION 7 CHEVAUX
+// ===============================
 
 
 const selection =
@@ -280,7 +236,7 @@ selection.innerHTML = `
 <div class="ticket-grand">
 
 ${
-classement
+chevaux
 .slice(0,7)
 .map(c=>c.numero)
 .join(" - ")
@@ -299,13 +255,16 @@ classement
 
 
 
+
+// ===============================
 // EXPLICATION
+// ===============================
 
 
 const explication =
 
 document.getElementById(
-"explication-choix"
+"explication-premium"
 );
 
 
@@ -315,7 +274,7 @@ if(explication){
 
 explication.innerHTML =
 
-classement
+chevaux
 .slice(0,7)
 .map(c=>`
 
@@ -325,7 +284,7 @@ classement
 
 <br>
 
-${c.raison || "Analyse professionnelle en cours"}
+${c.raison || "Analyse professionnelle"}
 
 </p>
 
@@ -341,26 +300,31 @@ ${c.raison || "Analyse professionnelle en cours"}
 
 
 
+
+// ===============================
 // TICKETS
+// ===============================
 
 
 afficherTicket(
-"vip-quinte",
-premium.quinte
+"quinte-premium",
+tickets.ticket_7 ||
+tickets.quinte
 );
 
 
 
 afficherTicket(
-"vip-quarte",
-premium.quarte
+"quarte-premium",
+tickets.ticket_5 ||
+tickets.quarte
 );
 
 
 
 afficherTicket(
-"vip-trio",
-premium.trio
+"trio-premium",
+tickets.trio
 );
 
 
@@ -371,45 +335,58 @@ premium.trio
 
 
 
+// ===============================
 // COUPLE
+// ===============================
 
 
 const couple =
 
 document.getElementById(
-"couple-gagnant-place"
+"couple-gagnant"
 );
 
 
 
-if(
-
-couple &&
-
-premium.couple_gagnant_place
-
-){
+if(couple){
 
 
-const affichage =
+const valeur =
 
-premium.couple_gagnant_place
+tickets.couple_gagnant_place ||
 
-.slice(0,3)
+tickets.couple_gagnant ||
 
-.map(c=>c[0]);
+tickets.couple_place;
 
+
+
+if(valeur){
 
 
 couple.innerHTML = `
 
 <div class="ticket-grand">
 
-${affichage.join(" - ")}
+${
+Array.isArray(valeur)
+?
+valeur.join(" - ")
+:
+valeur
+}
 
 </div>
 
 `;
+
+}else{
+
+couple.innerHTML =
+"Non disponible";
+
+}
+
 
 }
 
@@ -421,35 +398,47 @@ ${affichage.join(" - ")}
 
 
 
+// ===============================
 // CHAMP REDUIT
+// ===============================
 
 
 const champ =
 
 document.getElementById(
-"champ-reduit"
+"champ-premium"
 );
 
 
 
-if(
+if(champ){
 
-champ &&
 
-premium.champ_reduit
-
-){
+if(tickets.champ_reduit){
 
 
 champ.innerHTML = `
 
 <div class="ticket-grand">
 
-${premium.champ_reduit.format}
+${
+tickets.champ_reduit.format ||
+JSON.stringify(tickets.champ_reduit)
+}
 
 </div>
 
 `;
+
+}else{
+
+
+champ.innerHTML =
+"Non disponible";
+
+
+}
+
 
 }
 
@@ -461,13 +450,15 @@ ${premium.champ_reduit.format}
 
 
 
-// ANALYSE PERFORMANCE
+// ===============================
+// ANALYSE
+// ===============================
 
 
 const analyse =
 
 document.getElementById(
-"analyse-performance"
+"analyse-premium"
 );
 
 
@@ -480,16 +471,15 @@ analyse.innerHTML = `
 <h3>📈 Points forts</h3>
 
 <p>
-Étude de la forme récente, régularité,
-distance et conditions de course.
+Forme, régularité, distance,
+terrain et conditions de course.
 </p>
 
 
 <h3>📉 Points de vigilance</h3>
 
 <p>
-Analyse des risques liés au parcours
-et au niveau d'opposition.
+Étude des risques et de la concurrence.
 </p>
 
 `;
@@ -504,53 +494,76 @@ et au niveau d'opposition.
 
 
 
+// ===============================
 // DERNIERE MINUTE
+// ===============================
 
 
 const derniere =
 
 document.getElementById(
-"derniere-minute"
+"derniere-minute-premium"
 );
 
 
 
-if(
+if(derniere){
 
-derniere &&
 
-premium.ticket_derniere_minute
+const dm =
+tickets.ticket_derniere_minute;
 
-){
+
+
+if(dm){
 
 
 derniere.innerHTML = `
 
 <div class="ticket-grand">
 
-${premium.ticket_derniere_minute.format}
+${
+dm.format || "-"
+}
 
 </div>
 
 
 <br>
 
-
 Sélection :
 
-${premium.ticket_derniere_minute.selection.join(" - ")}
+${
+dm.selection
+?
+dm.selection.join(" - ")
+:
+"-"
+}
 
 
 <br>
 
-
 Joker :
 
-N°${premium.ticket_derniere_minute.joker}
+${
+dm.joker || "-"
+}
 
 `;
 
+}else{
+
+
+derniere.innerHTML =
+"Non disponible";
+
+
 }
+
+
+}
+
 
 
 
@@ -562,7 +575,7 @@ N°${premium.ticket_derniere_minute.joker}
 const message =
 
 document.getElementById(
-"message-fin"
+"message-bonne-chance"
 );
 
 
@@ -572,7 +585,7 @@ if(message){
 
 message.innerHTML =
 
-premium.message_fin ||
+tickets.message_fin ||
 
 "🍀 Bonne chance ! Jouez avec discipline.";
 
@@ -582,33 +595,35 @@ premium.message_fin ||
 
 }
 
-
-
 catch(error){
 
 
 console.error(
-
-"Erreur Premium :",
-
+"Erreur chargement tickets :",
 error
-
 );
 
 
-}
 
 }
 
 
 
+}
 
 
 
+
+
+
+
+
+// =====================================
+// AFFICHAGE SIMPLE TICKET
+// =====================================
 
 
 function afficherTicket(id,liste){
-
 
 
 const zone =
@@ -629,17 +644,17 @@ if(
 
 !liste ||
 
-liste.length===0
+liste.length === 0
 
 ){
 
 
 zone.innerHTML =
-
 "Non disponible";
 
 
 return;
+
 
 }
 
@@ -649,7 +664,13 @@ zone.innerHTML = `
 
 <div class="ticket-grand">
 
-${liste.join(" - ")}
+${
+Array.isArray(liste)
+?
+liste.join(" - ")
+:
+liste
+}
 
 </div>
 
