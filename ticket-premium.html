@@ -19,21 +19,26 @@
 <header class="top-header">
 
 <div class="logo">
-
 🏇 <span>AZ Turf Pro</span>
-
 </div>
 
 
 <nav class="top-menu">
 
-<a href="index.html">🏠 Accueil</a>
+<a href="index.html">
+🏠 Accueil
+</a>
 
-<a href="espace-premium.html">⭐ Premium</a>
+<a href="espace-premium.html">
+⭐ Premium
+</a>
 
 </nav>
 
+
 </header>
+
+
 
 
 
@@ -45,7 +50,9 @@
 
 <section class="card">
 
-<h1>🎟️ Ticket Premium AZ</h1>
+<h1>
+🎟️ Ticket Premium AZ
+</h1>
 
 <p>
 Combinaisons réservées aux membres Premium.
@@ -57,14 +64,20 @@ Combinaisons réservées aux membres Premium.
 
 
 
+
+
 <section class="card">
 
-<h2>⭐ Sélection Premium (7 chevaux)</h2>
+<h2>
+⭐ Sélection Premium (7 chevaux)
+</h2>
+
 
 <div id="selection-premium">
 Chargement...
 </div>
 
+
 </section>
 
 
@@ -75,13 +88,18 @@ Chargement...
 
 <section class="card">
 
-<h2>🧠 Explication des choix</h2>
+<h2>
+🧠 Explication des choix
+</h2>
+
 
 <div id="explication-premium">
 Chargement...
 </div>
 
+
 </section>
+
 
 
 
@@ -92,7 +110,9 @@ Chargement...
 <section class="card">
 
 
-<h2>🏆 Combinaisons Premium</h2>
+<h2>
+🏆 Combinaisons Premium
+</h2>
 
 
 
@@ -100,13 +120,18 @@ Chargement...
 
 <div class="ticket-box">
 
-<h3>🏆 Quinté Premium (6 chevaux)</h3>
+<h3>
+🏆 Quinté Premium (7 chevaux)
+</h3>
+
 
 <p id="quinte-premium">
 Chargement...
 </p>
 
+
 </div>
+
 
 
 
@@ -115,12 +140,16 @@ Chargement...
 
 <div class="ticket-box">
 
-<h3>🎯 Quarté Premium (5 chevaux)</h3>
+<h3>
+🎯 Quarté Premium (5 chevaux)
+</h3>
+
 
 <p id="quarte-premium">
 Chargement...
 </p>
 
+
 </div>
 
 
@@ -131,12 +160,16 @@ Chargement...
 
 <div class="ticket-box">
 
-<h3>🔥 Trio Premium (4 chevaux)</h3>
+<h3>
+🔥 Trio Premium (4 chevaux)
+</h3>
+
 
 <p id="trio-premium">
 Chargement...
 </p>
 
+
 </div>
 
 
@@ -147,12 +180,16 @@ Chargement...
 
 <div class="ticket-box">
 
-<h3>🤝 Couplé Gagnant / Placé Premium</h3>
+<h3>
+🤝 Couplé Gagnant / Placé Premium
+</h3>
+
 
 <p id="couple-gagnant">
 Chargement...
 </p>
 
+
 </div>
 
 
@@ -163,13 +200,18 @@ Chargement...
 
 <div class="ticket-box">
 
-<h3>🔒 Champ réduit Premium</h3>
+<h3>
+🔒 Champ réduit Premium
+</h3>
+
 
 <p id="champ-premium">
 Chargement...
 </p>
 
+
 </div>
+
 
 
 
@@ -186,13 +228,19 @@ Chargement...
 
 <section class="card">
 
-<h2>📊 Analyse Premium</h2>
+
+<h2>
+📊 Analyse Premium
+</h2>
+
 
 <div id="analyse-premium">
 Chargement...
 </div>
 
+
 </section>
+
 
 
 
@@ -202,13 +250,19 @@ Chargement...
 
 <section class="card">
 
-<h2>⚡ Dernière minute</h2>
+
+<h2>
+⚡ Dernière minute
+</h2>
+
 
 <div id="derniere-minute-premium">
 Chargement...
 </div>
 
+
 </section>
+
 
 
 
@@ -218,13 +272,19 @@ Chargement...
 
 <section class="card">
 
-<h2>🍀 Message Premium</h2>
+
+<h2>
+🍀 Message Premium
+</h2>
+
 
 <p id="message-bonne-chance">
 Chargement...
 </p>
 
+
 </section>
+
 
 
 
@@ -240,7 +300,9 @@ Chargement...
 
 </a>
 
+
 </section>
+
 
 
 
@@ -256,15 +318,29 @@ Chargement...
 <footer class="bottom-menu">
 
 
-<a href="index.html">🏠 Accueil</a>
+<a href="index.html">
+🏠 Accueil
+</a>
 
-<a href="analyse.html">📊 Analyse</a>
 
-<a href="ticket.html">🎟️ Ticket</a>
+<a href="analyse.html">
+📊 Analyse
+</a>
 
-<a href="historique.html">🏆 Historique</a>
 
-<a href="espace-premium.html">⭐ Premium</a>
+<a href="ticket.html">
+🎟️ Ticket
+</a>
+
+
+<a href="historique.html">
+🏆 Historique
+</a>
+
+
+<a href="espace-premium.html">
+⭐ Premium
+</a>
 
 
 </footer>
@@ -275,14 +351,12 @@ Chargement...
 
 
 
-
-
 <script>
 
 
-// ===============================
-// VERIFICATION PREMIUM RENDER
-// ===============================
+const API_PREMIUM =
+"https://az-turf-pro.onrender.com/api/premium/";
+
 
 
 async function verifierPremium(){
@@ -290,12 +364,9 @@ async function verifierPremium(){
 
 
 const telephone =
-
 localStorage.getItem(
 "AZ_TURF_TELEPHONE"
 );
-
-
 
 
 
@@ -303,7 +374,7 @@ if(!telephone){
 
 
 alert(
-"Numéro de paiement introuvable."
+"Aucun numéro Premium trouvé."
 );
 
 
@@ -318,46 +389,26 @@ return false;
 
 
 
-
-
 try{
 
 
-
-const reponse = await fetch(
-
-"https://az-turf-pro.onrender.com/api/premium/"
-+
+const response =
+await fetch(
+API_PREMIUM +
 encodeURIComponent(telephone)
-
 );
 
 
 
-
-
-const data = await reponse.json();
-
-
-
-
-
-console.log(
-"Statut Premium :",
-data
-);
-
-
-
-
+const data =
+await response.json();
 
 
 
 if(
-!reponse.ok
+!response.ok
 ||
 data.statut !== "ACTIF"
-
 ){
 
 
@@ -378,10 +429,21 @@ return false;
 
 
 
+const script =
+document.createElement(
+"script"
+);
+
+
+script.src =
+"ticket-premium.js?v=4";
+
+
+document.body.appendChild(script);
+
+
 
 return true;
-
-
 
 
 
@@ -391,72 +453,22 @@ catch(error){
 
 
 console.error(
-"Erreur Premium :",
 error
 );
 
 
-
 alert(
-"Impossible de vérifier votre abonnement."
+"Erreur de connexion Premium."
 );
 
+
+window.location.href =
+"espace-premium.html";
 
 
 return false;
 
 
-
-}
-
-
-
-
-}
-
-
-
-
-
-
-
-
-
-// ===============================
-// CHARGEMENT TICKET PREMIUM
-// ===============================
-
-
-async function lancerPremium(){
-
-
-const actif =
-await verifierPremium();
-
-
-
-if(actif){
-
-
-
-const script =
-document.createElement(
-"script"
-);
-
-
-
-script.src =
-"ticket-premium.js?v=4";
-
-
-
-document.body.appendChild(
-script
-);
-
-
-
 }
 
 
@@ -465,13 +477,11 @@ script
 
 
 
-
-lancerPremium();
+verifierPremium();
 
 
 
 </script>
-
 
 
 
