@@ -29,11 +29,9 @@
 
 <a href="analyse.html">📊 Analyse</a>
 
-<a href="ticket.html">🎟️ Ticket</a>
+<a href="ticket-premium.html">🎟️ Ticket Premium</a>
 
-<a href="espace-premium.html">
-⭐ Premium
-</a>
+<a href="mon-abonnement.html">👤 Mon abonnement</a>
 
 </nav>
 
@@ -44,22 +42,19 @@
 
 
 
-
 <main class="content">
-
-
 
 
 
 <section class="card">
 
 <h1>
-⭐ Espace Premium
+⭐ Espace Premium AZ Turf Pro
 </h1>
 
 
 <p>
-Accédez aux analyses avancées et aux stratégies réservées aux membres.
+Votre espace réservé aux abonnés Premium.
 </p>
 
 
@@ -77,7 +72,7 @@ Accédez aux analyses avancées et aux stratégies réservées aux membres.
 
 <div id="infos-premium">
 
-Vérification de votre abonnement...
+⏳ Vérification de votre abonnement...
 
 </div>
 
@@ -96,7 +91,7 @@ Vérification de votre abonnement...
 
 
 <h2>
-🏆 Services Premium AZ Turf Pro
+🏆 Services Premium
 </h2>
 
 
@@ -105,17 +100,15 @@ Vérification de votre abonnement...
 
 <li>⭐ Analyses détaillées</li>
 
-<li>🎯 Combinaisons avancées</li>
+<li>🎯 Tickets Premium</li>
 
-<li>📊 Étude des champs réduits</li>
+<li>📊 Champs réduits</li>
 
-<li>🏇 Avis jockeys et entraîneurs</li>
+<li>🏇 Étude chevaux, jockeys et entraîneurs</li>
 
-<li>🔥 Stratégies Premium AZ</li>
+<li>🔥 Sélections avancées</li>
 
 </ul>
-
-
 
 
 
@@ -158,11 +151,14 @@ Vérification de votre abonnement...
 
 
 <p id="message-expiration">
+
 Votre abonnement n'est pas actif.
+
 </p>
 
 
-<a href="espace-premium.html">⭐ Premium</a>
+
+<a href="espace-premium.html" class="btn-vip">
 
 🔄 Renouveler mon abonnement
 
@@ -170,8 +166,6 @@ Votre abonnement n'est pas actif.
 
 
 </section>
-
-
 
 
 
@@ -198,17 +192,17 @@ Votre abonnement n'est pas actif.
 </a>
 
 
-<a href="ticket.html">
+<a href="ticket-premium.html">
 🎟️ Ticket
 </a>
 
 
-<a href="historique.html">
-🏆 Historique
+<a href="mon-abonnement.html">
+👤 Compte
 </a>
 
 
-<a href="espace-vip.html">
+<a href="espace-premium.html">
 ⭐ Premium
 </a>
 
@@ -238,14 +232,11 @@ const API_PREMIUM =
 async function verifierPremium(){
 
 
-
 const telephone =
 
 localStorage.getItem(
 "AZ_TURF_TELEPHONE"
 );
-
-
 
 
 
@@ -257,6 +248,22 @@ document.getElementById(
 
 
 
+const contenu =
+
+document.getElementById(
+"contenu-premium"
+);
+
+
+
+const blocage =
+
+document.getElementById(
+"message-blocage"
+);
+
+
+
 
 
 if(!telephone){
@@ -264,20 +271,15 @@ if(!telephone){
 
 infos.innerHTML =
 
-"❌ Aucun numéro d'abonnement trouvé.";
+"❌ Aucun numéro d'abonné trouvé.";
 
 
-document.getElementById(
-"message-blocage"
-).style.display="block";
+blocage.style.display="block";
 
 
 return;
 
-
 }
-
-
 
 
 
@@ -286,8 +288,7 @@ return;
 try{
 
 
-
-const reponse = await fetch(
+const response = await fetch(
 
 API_PREMIUM +
 
@@ -297,16 +298,12 @@ encodeURIComponent(telephone)
 
 
 
-
-
-const data = await reponse.json();
-
-
+const data = await response.json();
 
 
 
 console.log(
-"Premium Render :",
+"Réponse Premium Render :",
 data
 );
 
@@ -317,19 +314,14 @@ data
 
 
 if(
-reponse.ok
-&&
+response.ok &&
 data.statut === "ACTIF"
 
 ){
 
 
 
-document.getElementById(
-"contenu-premium"
-).style.display="block";
-
-
+contenu.style.display="block";
 
 
 
@@ -337,13 +329,8 @@ infos.innerHTML = `
 
 
 <h2>
-🏆 Votre accès Premium est actif
+✅ Abonnement actif
 </h2>
-
-
-<p>
-Bienvenue dans l'espace réservé aux membres.
-</p>
 
 
 <p>
@@ -354,9 +341,7 @@ Formule :
 
 <p>
 Expiration :
-<strong>
-${data.date_fin || "-"}
-</strong>
+<strong>${data.date_fin || "-"}</strong>
 </p>
 
 
@@ -366,25 +351,17 @@ ${data.date_fin || "-"}
 
 return;
 
-
-
 }
 
 
 
-
-
-
-
-document.getElementById(
-"message-blocage"
-).style.display="block";
+blocage.style.display="block";
 
 
 
 infos.innerHTML =
 
-"❌ Aucun abonnement Premium actif.";
+"❌ Votre abonnement Premium n'est pas actif.";
 
 
 
@@ -395,8 +372,8 @@ infos.innerHTML =
 catch(error){
 
 
+
 console.error(
-"Erreur Premium :",
 error
 );
 
@@ -404,11 +381,11 @@ error
 
 infos.innerHTML =
 
-"❌ Impossible de vérifier votre abonnement.";
+"❌ Erreur de connexion au serveur.";
+
 
 
 }
-
 
 
 
@@ -422,6 +399,8 @@ verifierPremium();
 
 
 </script>
+
+
 
 
 
