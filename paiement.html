@@ -29,7 +29,8 @@
 🏠 Accueil
 </a>
 
-<a href="espace-vip.html">
+
+<a href="espace-premium.html">
 ⭐ Premium
 </a>
 
@@ -40,12 +41,16 @@
 
 
 
+
 <main class="content">
 
 
 <section class="card">
 
-<h2>⭐ Espace Premium</h2>
+<h2>
+⭐ Espace Premium
+</h2>
+
 
 <p>
 Votre abonnement sélectionné :
@@ -63,21 +68,31 @@ Chargement...
 
 
 
+
+
 <section class="card">
 
-<h2>💳 Paiement Premium</h2>
+<h2>
+💳 Paiement Premium
+</h2>
+
 
 <p>
 Choisissez votre moyen de paiement :
 </p>
 
 
+
 <div class="paiement-options">
+
 
 
 <div class="paiement-card">
 
-<h3>📱 Mobile Money</h3>
+<h3>
+📱 Mobile Money
+</h3>
+
 
 <p>
 Paiement rapide par téléphone.
@@ -97,9 +112,14 @@ Continuer
 
 
 
+
+
 <div class="paiement-card">
 
-<h3>💳 Autre paiement</h3>
+<h3>
+💳 Autre paiement
+</h3>
+
 
 <p>
 Autre solution disponible.
@@ -116,6 +136,7 @@ Continuer
 </div>
 
 
+
 </div>
 
 
@@ -125,10 +146,15 @@ Continuer
 
 
 
+
+
+
 <section class="card">
 
 
-<h2>✅ Confirmation</h2>
+<h2>
+✅ Confirmation
+</h2>
 
 
 <p id="paiement-info">
@@ -138,9 +164,10 @@ Aucun moyen de paiement sélectionné.
 </p>
 
 
+
 <button id="confirmer-paiement">
 
-Activer mon accès Premium
+Continuer vers activation
 
 </button>
 
@@ -150,24 +177,9 @@ Activer mon accès Premium
 
 
 
-
-<section class="card">
-
-<h2>🏆 Activation</h2>
-
-
-<p id="activation">
-
-Votre accès sera activé après confirmation.
-
-</p>
-
-
-</section>
-
-
-
 </main>
+
+
 
 
 
@@ -186,8 +198,8 @@ Votre accès sera activé après confirmation.
 </a>
 
 
-<a href="ticket.html">
-🎟️ Ticket
+<a href="ticket-premium.html">
+🎟️ Ticket Premium
 </a>
 
 
@@ -196,7 +208,7 @@ Votre accès sera activé après confirmation.
 </a>
 
 
-<a href="espace-vip.html">
+<a href="espace-premium.html">
 ⭐ Premium
 </a>
 
@@ -208,18 +220,26 @@ Votre accès sera activé après confirmation.
 
 
 
+
+
 <script>
 
 
-const params = new URLSearchParams(
+const params =
+new URLSearchParams(
 window.location.search
 );
 
 
-const offre = params.get("offre");
+
+const offre =
+params.get("offre");
 
 
-document.getElementById("offre-choisie").innerHTML =
+
+document.getElementById(
+"offre-choisie"
+).innerHTML =
 
 offre
 ?
@@ -229,113 +249,92 @@ offre
 
 
 
+
+
 let moyenPaiement = "";
+
+
 
 
 
 function choisirPaiement(type){
 
+
 moyenPaiement = type;
 
 
-document.getElementById("paiement-info").innerHTML =
 
-"Mode choisi : <strong>" + type + "</strong>";
+document.getElementById(
+"paiement-info"
+).innerHTML =
 
-}
-
-
-
-
-document.getElementById("confirmer-paiement")
-.onclick = function(){
-
-
-if(!moyenPaiement){
-
-alert("Choisissez un moyen de paiement.");
-
-return;
-
-}
-
-
-
-let duree = 30;
-
-
-if(offre === "Trimestriel"){
-
-duree = 90;
-
-}
-
-
-if(offre === "Annuel"){
-
-duree = 365;
-
-}
-
-
-
-
-const debut = new Date();
-
-const fin = new Date();
-
-fin.setDate(
-fin.getDate() + duree
-);
-
-
-
-localStorage.setItem(
-"AZ_TURF_PREMIUM",
-"ACTIF"
-);
-
-
-
-localStorage.setItem(
-"AZ_TURF_OFFRE",
-offre
-);
-
-
-
-localStorage.setItem(
-"AZ_TURF_DATE_FIN",
-fin.toISOString()
-);
-
-
-
-
-
-document.getElementById("activation").innerHTML =
-
-"✅ Accès Premium activé jusqu'au <strong>"
+"Mode choisi : <strong>"
 +
-fin.toLocaleDateString("fr-FR")
+type
 +
 "</strong>";
 
 
 
+}
 
-setTimeout(()=>{
 
-window.location.href="espace-premium.html";
 
-},2000);
+
+
+document.getElementById(
+"confirmer-paiement"
+).onclick =
+function(){
+
+
+
+if(!moyenPaiement){
+
+
+alert(
+"Choisissez un moyen de paiement."
+);
+
+
+return;
+
+
+}
+
+
+
+
+localStorage.setItem(
+"AZ_TURF_OFFRE",
+offre || "Premium"
+);
+
+
+
+localStorage.setItem(
+"AZ_TURF_PAIEMENT",
+moyenPaiement
+);
+
+
+
+
+
+window.location.href =
+"activation.html";
 
 
 
 };
 
 
+
+
+
 </script>
+
+
 
 
 
