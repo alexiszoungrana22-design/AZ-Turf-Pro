@@ -1,9 +1,27 @@
+# =====================================
+# AZ TURF PRO
+# API
+# Analyse + Premium
+# =====================================
+
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
 from engine import lancer_analyse
+
+from database import (
+    creer_abonnement,
+    activer_abonnement,
+    verifier_premium
+)
+
+from medels import (
+    AbonnementRequest,
+    ActivationRequest
+)
+
 import json
 import os
 from datetime import datetime, timedelta
+
 
 
 router = APIRouter(
@@ -12,74 +30,10 @@ router = APIRouter(
 )
 
 
-# ==============================
-# GESTION ABONNEMENTS PREMIUM
-# ==============================
 
-ABONNEMENTS_FILE = os.path.join(
-    "data",
-    "abonnements.json"
-)
-
-
-def charger_abonnements():
-
-    if not os.path.exists(ABONNEMENTS_FILE):
-
-        return []
-
-    with open(
-        ABONNEMENTS_FILE,
-        "r",
-        encoding="utf-8"
-    ) as fichier:
-
-        return json.load(fichier)
-
-
-
-def sauvegarder_abonnements(abonnements):
-
-    with open(
-        ABONNEMENTS_FILE,
-        "w",
-        encoding="utf-8"
-    ) as fichier:
-
-        json.dump(
-            abonnements,
-            fichier,
-            indent=4,
-            ensure_ascii=False
-        )
-
-
-
-# ==============================
-# MODELES PREMIUM
-# ==============================
-
-class AbonnementRequest(BaseModel):
-
-    offre: str
-    prix: int
-    duree: int
-    paiement: str
-    telephone: str
-
-
-
-class ActivationRequest(BaseModel):
-
-    telephone: str
-    reference: str
-
-
-
-
-# ==============================
-# ANALYSE COURSE EXISTANTE
-# ==============================
+# =====================================
+# ANALYSE AZ TURF
+# =====================================
 
 @router.get("/analyse")
 def analyse():
@@ -108,6 +62,7 @@ def analyse():
         )
 
 
+
         if not chevaux:
 
             raise Exception(
@@ -119,6 +74,7 @@ def analyse():
         resultat = lancer_analyse(
             chevaux
         )
+
 
 
         classement = resultat.get(
@@ -142,34 +98,9 @@ def analyse():
                 ""
             ),
 
-            "reunion": course.get(
-                "reunion",
-                ""
-            ),
-
-            "course_numero": course.get(
-                "course_numero",
-                ""
-            ),
-
             "hippodrome": course.get(
                 "hippodrome",
                 ""
-            ),
-
-            "discipline": course.get(
-                "discipline",
-                ""
-            ),
-
-            "distance_course": course.get(
-                "distance_course",
-                0
-            ),
-
-            "allocation": course.get(
-                "allocation",
-                0
             ),
 
             "partants": len(chevaux),
@@ -192,6 +123,7 @@ def analyse():
         }
 
 
+
     except Exception as e:
 
         raise HTTPException(
@@ -202,52 +134,33 @@ def analyse():
 
 
 
-# ==============================
-# CREATION ABONNEMENT
-# ==============================
+
+# =====================================
+# CREATION ABONNEMENT PREMIUM
+# =====================================
 
 @router.post("/abonnement")
-def creer_abonnement(
-    data: AbonnementRequest
+def creer_premium(
+    abonnement: AbonnementRequest
 ):
 
-    abonnements = charger_abonnements()
+    data = abonnement.dict()
+
+    data["statut"] = "EN_ATTENTE"
 
 
-    abonnement = {
-
-        "telephone": data.telephone,
-
-        "offre": data.offre,
-
-        "prix": data.prix,
-
-        "duree": data.duree,
-
-        "paiement": data.paiement,
-
-        "statut": "EN_ATTENTE",
-
-        "date_creation": datetime.now().isoformat()
-
-    }
-
-
-    abonnements.append(
-        abonnement
-    )
-
-
-    sauvegarder_abonnements(
-        abonnements
+    creer_abonnement(
+        data
     )
 
 
     return {
 
-        "message": "Demande Premium enregistrée",
+        "message":
+        "Demande Premium enregistrée",
 
-        "statut": "EN_ATTENTE"
+        "statut":
+        "EN_ATTENTE"
 
     }
 
@@ -255,95 +168,71 @@ def creer_abonnement(
 
 
 
-# ==============================
-# ACTIVATION PREMIUM
-# ==============================
+# =====================================
+# ACTIVATION PREMIUM ADMIN
+# =====================================
 
 @router.post("/activation")
 def activation_premium(
-    data: ActivationRequest
+    activation: ActivationRequest
 ):
 
-    abonnements = charger_abonnements()
-
-
-
-    for abonnement in abonnements:
-
-
-        if abonnement["telephone"] == data.telephone:
-
-
-            abonnement["statut"] = "ACTIF"
-
-
-            abonnement["reference"] = data.reference
-
-
-            debut = datetime.now()
-
-
-            fin = debut + timedelta(
-                days=abonnement["duree"]
-            )
-
-
-            abonnement["date_debut"] = debut.isoformat()
-
-            abonnement["date_fin"] = fin.isoformat()
-
-
-
-            sauvegarder_abonnements(
-                abonnements
-            )
-
-
-            return {
-
-                "message": "Premium activé",
-
-                "statut": "ACTIF",
-
-                "date_fin": abonnement["date_fin"]
-
-            }
-
-
-
-    raise HTTPException(
-        status_code=404,
-        detail="Aucun abonnement trouvé"
+    abonnement = activer_abonnement(
+        activation.telephone,
+        activation.reference
     )
 
 
+    if abonnement is None:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Aucun abonnement trouvé"
+        )
 
 
 
-# ==============================
-# VERIFICATION ACCES PREMIUM
-# ==============================
-
-@router.get("/premium/{telephone}")
-def verifier_premium(
-    telephone: str
-):
-
-    abonnements = charger_abonnements()
-
-
-
-    for abonnement in abonnements:
-
-
-        if abonnement["telephone"] == telephone:
-
-            return abonnement
+    abonnement["date_fin"] = (
+        datetime.now()
+        +
+        timedelta(
+            days=int(
+                abonnement.get(
+                    "duree",
+                    30
+                )
+            )
+        )
+    ).isoformat()
 
 
 
     return {
 
-        "statut": "INACTIF"
+        "message":
+        "Premium activé",
 
-        }
+        "statut":
+        "ACTIF",
+
+        "date_fin":
+        abonnement["date_fin"]
+
+    }
+
+
+
+
+
+# =====================================
+# VERIFICATION PREMIUM
+# =====================================
+
+@router.get("/premium/{telephone}")
+def premium(
+    telephone: str
+):
+
+    return verifier_premium(
+        telephone
+    )
