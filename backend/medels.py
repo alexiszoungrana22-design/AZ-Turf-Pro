@@ -1,4 +1,17 @@
+# =====================================
+# AZ TURF PRO
+# MODELS
+# Cheval + Premium
+# =====================================
+
+
 from pydantic import BaseModel
+
+
+
+# =====================================
+# MODELE CHEVAL
+# =====================================
 
 
 class Cheval(BaseModel):
@@ -32,3 +45,43 @@ class Cheval(BaseModel):
     performances: list = []
 
     score: float = 0
+
+
+
+
+
+
+# =====================================
+# MODELE DEMANDE ABONNEMENT
+# =====================================
+
+
+class AbonnementRequest(BaseModel):
+
+    telephone: str
+
+    offre: str
+
+    prix: int
+
+    duree: int
+
+    paiement: str
+
+    reference: str
+
+
+
+
+
+
+# =====================================
+# MODELE ACTIVATION PREMIUM
+# =====================================
+
+
+class ActivationRequest(BaseModel):
+
+    telephone: str
+
+    reference: str
