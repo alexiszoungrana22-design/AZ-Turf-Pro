@@ -18,9 +18,11 @@
 
 <header class="top-header">
 
+
 <div class="logo">
 🏇 <span>AZ Turf Pro</span>
 </div>
+
 
 
 <nav class="top-menu">
@@ -34,12 +36,26 @@
 </a>
 
 <a href="ticket.html">
-⭐ Premium
+🎟️ Ticket
+</a>
+
+<a href="historique.html">
+🏆 Historique
 </a>
 
 </nav>
 
+
+
+<a href="abonnement.html" class="btn-vip">
+
+💎 Premium
+
+</a>
+
+
 </header>
+
 
 
 
@@ -63,6 +79,7 @@ Accédez aux tickets Premium après validation de votre abonnement.
 
 
 
+
 <section class="card vip-banner">
 
 <h2>🎉 Offre promotionnelle</h2>
@@ -77,13 +94,15 @@ Choisissez votre formule Premium.
 
 
 
+
+
 <section class="card">
 
 
 <h2>📱 Numéro de paiement</h2>
 
 
-<input 
+<input
 id="telephone"
 type="tel"
 placeholder="+226XXXXXXXX"
@@ -104,7 +123,6 @@ Utilisez le numéro qui servira au paiement.
 
 
 
-
 <section class="card">
 
 
@@ -112,9 +130,11 @@ Utilisez le numéro qui servira au paiement.
 
 
 <button onclick="choisirOffre('Premium Semaine',25000,7)">
+
 ⭐ Premium Semaine<br>
 25 000 FCFA<br>
 7 jours
+
 </button>
 
 
@@ -124,9 +144,11 @@ Utilisez le numéro qui servira au paiement.
 
 
 <button onclick="choisirOffre('Premium Mensuel',75000,30)">
+
 💎 Premium Mensuel<br>
 75 000 FCFA<br>
 30 jours
+
 </button>
 
 
@@ -136,13 +158,16 @@ Utilisez le numéro qui servira au paiement.
 
 
 <button onclick="choisirOffre('Premium 3 mois',150000,90)">
+
 👑 Premium 3 mois<br>
 150 000 FCFA<br>
 90 jours
+
 </button>
 
 
 </section>
+
 
 
 
@@ -157,7 +182,9 @@ Utilisez le numéro qui servira au paiement.
 
 
 <button onclick="envoyerDemande('Orange Money')">
+
 🟠 Orange Money
+
 </button>
 
 
@@ -165,7 +192,9 @@ Utilisez le numéro qui servira au paiement.
 
 
 <button onclick="envoyerDemande('Moov Money')">
+
 🟢 Moov Money
+
 </button>
 
 
@@ -173,7 +202,9 @@ Utilisez le numéro qui servira au paiement.
 
 
 <button onclick="envoyerDemande('Wave')">
+
 🔵 Wave
+
 </button>
 
 
@@ -197,9 +228,7 @@ Utilisez le numéro qui servira au paiement.
 
 
 
-
 </main>
-
 
 
 
@@ -209,24 +238,23 @@ Utilisez le numéro qui servira au paiement.
 
 <footer class="bottom-menu">
 
-    <a href="index.html">
-        🏠 Accueil
-    </a>
+<a href="index.html">
+🏠 Accueil
+</a>
 
-    <a href="analyse.html">
-        📊 Analyse
-    </a>
+<a href="analyse.html">
+📊 Analyse
+</a>
 
-    <a href="ticket.html">
-        🎟️ Ticket
-    </a>
+<a href="ticket.html">
+🎟️ Ticket
+</a>
 
-    <a href="historique.html">
-        🏆 Historique
-    </a>
+<a href="historique.html">
+🏆 Historique
+</a>
 
 </footer>
-
 
 
 
@@ -243,6 +271,7 @@ const API_URL =
 
 
 let offreChoisie = null;
+
 
 
 
@@ -271,6 +300,7 @@ document.getElementById("message").innerHTML =
 
 
 }
+
 
 
 
@@ -322,7 +352,9 @@ try{
 
 
 const reponse = await fetch(
+
 API_URL,
+
 {
 
 method:"POST",
@@ -354,6 +386,8 @@ paiement: paiement
 
 
 
+
+
 const data = await reponse.json();
 
 
@@ -371,9 +405,14 @@ data.detail || "Erreur"
 
 
 localStorage.setItem(
+
 "AZ_TURF_TELEPHONE",
+
 telephone
+
 );
+
+
 
 
 
@@ -383,10 +422,13 @@ document.getElementById("message").innerHTML =
 
 
 
+
 setTimeout(()=>{
+
 
 window.location.href =
 "activation.html";
+
 
 },2000);
 
@@ -411,9 +453,7 @@ document.getElementById("message").innerHTML =
 
 
 
-
 </script>
-
 
 
 
