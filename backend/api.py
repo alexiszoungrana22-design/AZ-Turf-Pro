@@ -84,7 +84,7 @@ def analyse():
 
 
 
-        return {
+                return {
 
             "message": "Analyse AZ Turf terminée",
 
@@ -101,6 +101,21 @@ def analyse():
             "hippodrome": course.get(
                 "hippodrome",
                 ""
+            ),
+
+            "discipline": course.get(
+                "discipline",
+                ""
+            ),
+
+            "distance": course.get(
+                "distance",
+                ""
+            ),
+
+            "plus_joues": course.get(
+                "plus_joues",
+                []
             ),
 
             "partants": len(chevaux),
@@ -120,7 +135,7 @@ def analyse():
                 {}
             )
 
-        }
+                }
 
 
 
