@@ -18,9 +18,11 @@
 
 <header class="top-header">
 
+
 <div class="logo">
 🏇 <span>AZ Turf Pro</span>
 </div>
+
 
 
 <nav class="top-menu">
@@ -29,15 +31,35 @@
 🏠 Accueil
 </a>
 
-<a href="ticket-premium.html">
-⭐ Premium
+
+<a href="analyse.html">
+📊 Analyse
 </a>
+
+
+<a href="ticket.html">
+🎟️ Ticket
+</a>
+
+
+<a href="historique.html">
+🏆 Historique
+</a>
+
 
 </nav>
 
 
-</header>
 
+<a href="abonnement.html" class="btn-vip">
+
+💎 Premium
+
+</a>
+
+
+
+</header>
 
 
 
@@ -54,9 +76,11 @@
 🎟️ Ticket Premium AZ
 </h1>
 
+
 <p>
 Combinaisons réservées aux membres Premium.
 </p>
+
 
 </section>
 
@@ -106,7 +130,6 @@ Chargement...
 
 
 
-
 <section class="card">
 
 
@@ -117,8 +140,8 @@ Chargement...
 
 
 
-
 <div class="ticket-box">
+
 
 <h3>
 🏆 Quinté Premium (7 chevaux)
@@ -131,7 +154,6 @@ Chargement...
 
 
 </div>
-
 
 
 
@@ -214,10 +236,7 @@ Chargement...
 
 
 
-
-
 </section>
-
 
 
 
@@ -289,24 +308,6 @@ Chargement...
 
 
 
-
-
-
-<section class="card">
-
-<a href="ticket-premium.html">
-
-⬅️ Retour Espace Premium
-
-</a>
-
-
-</section>
-
-
-
-
-
 </main>
 
 
@@ -317,21 +318,26 @@ Chargement...
 
 <footer class="bottom-menu">
 
-    <a href="index.html">
-        🏠 Accueil
-    </a>
 
-    <a href="analyse.html">
-        📊 Analyse
-    </a>
+<a href="index.html">
+🏠 Accueil
+</a>
 
-    <a href="ticket.html">
-        🎟️ Ticket
-    </a>
 
-    <a href="historique.html">
-        🏆 Historique
-    </a>
+<a href="analyse.html">
+📊 Analyse
+</a>
+
+
+<a href="ticket.html">
+🎟️ Ticket
+</a>
+
+
+<a href="historique.html">
+🏆 Historique
+</a>
+
 
 </footer>
 
@@ -349,6 +355,8 @@ const API_PREMIUM =
 
 
 
+
+
 async function verifierPremium(){
 
 
@@ -360,16 +368,18 @@ localStorage.getItem(
 
 
 
+
+
 if(!telephone){
 
 
 alert(
-"Aucun numéro Premium trouvé."
+"Aucun abonnement Premium trouvé."
 );
 
 
 window.location.href =
-"espace-premium.html";
+"abonnement.html";
 
 
 return false;
@@ -379,19 +389,27 @@ return false;
 
 
 
+
+
 try{
 
 
 const response =
 await fetch(
+
 API_PREMIUM +
 encodeURIComponent(telephone)
+
 );
+
+
 
 
 
 const data =
 await response.json();
+
+
 
 
 
@@ -408,7 +426,7 @@ alert(
 
 
 window.location.href =
-"espace-premium.html";
+"abonnement.html";
 
 
 return false;
@@ -419,14 +437,18 @@ return false;
 
 
 
+
+
 const script =
 document.createElement(
 "script"
 );
 
 
+
 script.src =
 "ticket-premium.js?v=4";
+
 
 
 document.body.appendChild(script);
@@ -439,6 +461,10 @@ return true;
 
 }
 
+
+
+
+
 catch(error){
 
 
@@ -447,13 +473,15 @@ error
 );
 
 
+
 alert(
 "Erreur de connexion Premium."
 );
 
 
+
 window.location.href =
-"espace-premium.html";
+"abonnement.html";
 
 
 return false;
@@ -464,6 +492,8 @@ return false;
 
 
 }
+
+
 
 
 
