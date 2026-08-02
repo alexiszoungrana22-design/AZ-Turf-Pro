@@ -1,6 +1,6 @@
 // =====================================
-// ESPACE PREMIUM
-// Connexion ticket.html
+// AZ TURF PRO
+// TICKET PREMIUM
 // =====================================
 
 const API_URL =
@@ -29,7 +29,6 @@ throw new Error("Erreur API");
 }
 
 
-
 const data = await response.json();
 
 
@@ -50,58 +49,40 @@ data.classement || [];
 
 
 
-// ===============================
-// SELECTION PREMIUM 7 CHEVAUX
-// ===============================
+// =====================================
+// SELECTION 7 CHEVAUX
+// =====================================
 
-const selection =
-document.getElementById(
-"selection-premium"
-);
-
-
-
-if(selection){
-
-selection.innerHTML = `
+afficherTexte(
+"selection-premium",
+`
 
 <div class="ticket-grand">
 
-${
-classement
+${classement
 .slice(0,7)
-.map(c => c.numero)
-.join(" - ")
-}
+.map(c=>c.numero)
+.join(" - ")}
 
 </div>
 
-`;
-
-}
-
-
-
-
-
-// ===============================
-// EXPLICATION DES CHOIX
-// ===============================
-
-const explication =
-document.getElementById(
-"explication-choix"
+`
 );
 
 
 
-if(explication){
 
-explication.innerHTML =
+
+// =====================================
+// EXPLICATION
+// =====================================
+
+afficherTexte(
+"explication-premium",
 
 classement
 .slice(0,7)
-.map(c => `
+.map(c=>`
 
 <p>
 
@@ -109,40 +90,41 @@ classement
 
 <br>
 
-${c.raison || "Analyse professionnelle en cours"}
+${c.raison || 
+"Analyse spécialisée en cours"}
 
 </p>
 
 `)
-.join("");
+.join("")
 
-}
-
-
+);
 
 
 
-// ===============================
-// TICKETS PREMIUM
-// ===============================
+
+
+// =====================================
+// TICKETS
+// =====================================
 
 
 afficherTicket(
-"vip-quinte",
+"quinte-premium",
 premium.quinte
 );
 
 
 
 afficherTicket(
-"vip-quarte",
+"quarte-premium",
 premium.quarte
 );
 
 
 
 afficherTicket(
-"vip-trio",
+"trio-premium",
 premium.trio
 );
 
@@ -150,33 +132,34 @@ premium.trio
 
 
 
-// ===============================
-// COUPLÉ GAGNANT / PLACÉ
-// ===============================
-
-const couple =
-document.getElementById(
-"couple-gagnant-place"
-);
+// =====================================
+// COUPLE
+// =====================================
 
 
+if(
+premium.couple_gagnant_place
+){
 
-if(couple && premium.couple_gagnant_place){
+afficherTexte(
 
+"couple-premium",
 
-couple.innerHTML = `
+`
 
 <div class="ticket-grand">
 
 ${
 premium.couple_gagnant_place
-.map(c => c.join(" - "))
+.map(c=>c.join(" - "))
 .join("<br>")
 }
 
 </div>
 
-`;
+`
+
+);
 
 }
 
@@ -184,25 +167,20 @@ premium.couple_gagnant_place
 
 
 
-
-// ===============================
-// CHAMP RÉDUIT
-// ===============================
-
-
-const champ =
-document.getElementById(
-"champ-reduit"
-);
-
+// =====================================
+// CHAMP REDUIT
+// =====================================
 
 
 if(
-champ &&
 premium.champ_reduit
 ){
 
-champ.innerHTML = `
+afficherTexte(
+
+"champ-reduit-premium",
+
+`
 
 <div class="ticket-grand">
 
@@ -210,7 +188,9 @@ ${premium.champ_reduit.format}
 
 </div>
 
-`;
+`
+
+);
 
 }
 
@@ -218,63 +198,54 @@ ${premium.champ_reduit.format}
 
 
 
-// ===============================
-// ANALYSE PERFORMANCE
-// ===============================
+// =====================================
+// ANALYSE
+// =====================================
 
 
-const analyse =
-document.getElementById(
-"analyse-performance"
-);
+afficherTexte(
 
+"analyse-premium",
 
-
-if(analyse){
-
-analyse.innerHTML = `
+`
 
 <h3>📈 Points forts</h3>
 
 <p>
-Étude de la forme récente, de la régularité,
-du profil du cheval, de la distance et des conditions de course.
+Analyse de la forme, régularité,
+distance, terrain et expérience.
 </p>
 
 
 <h3>📉 Points de vigilance</h3>
 
 <p>
-Analyse des risques liés au parcours,
-à la distance et au niveau d'opposition.
+Évaluation des risques liés à la course.
 </p>
 
-`;
+`
 
-}
-
-
-
-
-
-// ===============================
-// DERNIÈRE MINUTE
-// ===============================
-
-
-const derniere =
-document.getElementById(
-"derniere-minute"
 );
 
 
 
+
+
+
+// =====================================
+// DERNIERE MINUTE
+// =====================================
+
+
 if(
-derniere &&
 premium.ticket_derniere_minute
 ){
 
-derniere.innerHTML = `
+afficherTexte(
+
+"derniere-minute-premium",
+
+`
 
 <div class="ticket-grand">
 
@@ -283,18 +254,20 @@ ${premium.ticket_derniere_minute.format}
 </div>
 
 
-<br>
-
+<p>
 Sélection :
 ${premium.ticket_derniere_minute.selection.join(" - ")}
+</p>
 
 
-<br>
-
+<p>
 Joker :
 N°${premium.ticket_derniere_minute.joker}
+</p>
 
-`;
+`
+
+);
 
 }
 
@@ -302,57 +275,51 @@ N°${premium.ticket_derniere_minute.joker}
 
 
 
-// ===============================
-// MESSAGE FINAL
-// ===============================
+// =====================================
+// MESSAGE
+// =====================================
 
 
-const message =
-document.getElementById(
-"message-fin"
+afficherTexte(
+
+"message-premium",
+
+premium.message_fin ||
+
+"🍀 Bonne chance ! Jouez avec discipline."
+
 );
 
 
 
-if(message){
-
-message.innerHTML =
-
-premium.message_fin ||
-
-"🍀 Bonne chance ! Jouez avec discipline et responsabilité.";
-
 }
 
 
-
-
-
-}
 
 catch(error){
+
 
 console.error(
 "Erreur Premium :",
 error
 );
 
-}
 
 }
 
 
 
+}
 
 
 
 
-function afficherTicket(id, liste){
+
+function afficherTicket(id,liste){
 
 
 const zone =
 document.getElementById(id);
-
 
 
 if(!zone){
@@ -363,10 +330,7 @@ return;
 
 
 
-if(
-!liste ||
-liste.length === 0
-){
+if(!liste || liste.length===0){
 
 zone.innerHTML =
 "Non disponible";
@@ -388,3 +352,23 @@ ${liste.join(" - ")}
 `;
 
 }
+
+
+
+
+
+function afficherTexte(id,contenu){
+
+
+const zone =
+document.getElementById(id);
+
+
+if(zone){
+
+zone.innerHTML =
+contenu;
+
+}
+
+  }
