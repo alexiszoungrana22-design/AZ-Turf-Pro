@@ -12,23 +12,52 @@
 
 </head>
 
+
 <body>
 
+
 <header class="top-header">
+
 
 <div class="logo">
 🏇 <span>AZ Turf Pro</span>
 </div>
 
+
 <nav class="top-menu">
 
-<a href="index.html">🏠 Accueil</a>
+<a href="index.html">
+🏠 Accueil
+</a>
 
-<a href="espace-premium.html">⭐ Premium</a>
+<a href="analyse.html">
+📊 Analyse
+</a>
+
+<a href="ticket.html">
+🎟️ Ticket
+</a>
+
+<a href="historique.html">
+🏆 Historique
+</a>
 
 </nav>
 
+
+
+<a href="abonnement.html" class="btn-vip">
+
+💎 Premium
+
+</a>
+
+
+
 </header>
+
+
+
 
 
 <main class="content">
@@ -46,23 +75,30 @@ Finalisez votre abonnement AZ Turf Pro.
 
 
 
+
+
 <section class="card">
 
 <h2>📱 Informations paiement</h2>
+
 
 <p>
 Numéro utilisé :
 </p>
 
+
 <strong id="telephone-affiche">
 Chargement...
 </strong>
 
+
 <br><br>
+
 
 <label>
 🔖 Référence de paiement
 </label>
+
 
 <input
 id="reference"
@@ -71,17 +107,27 @@ placeholder="Exemple : OM12345678"
 class="input-premium"
 >
 
+
 </section>
+
+
+
+
 
 
 
 <section class="card">
 
+
 <button id="activer-premium">
+
 ✅ Activer mon Premium
+
 </button>
 
+
 <p id="message"></p>
+
 
 </section>
 
@@ -90,28 +136,53 @@ class="input-premium"
 
 
 
+
+
+
+
 <footer class="bottom-menu">
 
-<a href="index.html">🏠 Accueil</a>
 
-<a href="analyse.html">📊 Analyse</a>
+<a href="index.html">
+🏠 Accueil
+</a>
 
-<a href="ticket-premium.html">🎟️ Ticket Premium</a>
 
-<a href="historique.html">🏆 Historique</a>
+<a href="analyse.html">
+📊 Analyse
+</a>
+
+
+<a href="ticket.html">
+🎟️ Ticket
+</a>
+
+
+<a href="historique.html">
+🏆 Historique
+</a>
+
 
 </footer>
 
 
 
+
+
+
+
+
 <script>
+
 
 const API_URL =
 "https://az-turf-pro.onrender.com/api/activation";
 
 
+
 const telephone =
 localStorage.getItem("AZ_TURF_TELEPHONE");
+
 
 
 const affichage =
@@ -123,11 +194,15 @@ document.getElementById("message");
 
 
 
+
+
 if(telephone){
 
-affichage.innerHTML = telephone;
+affichage.innerHTML =
+telephone;
 
-}else{
+}
+else{
 
 affichage.innerHTML =
 "Aucun numéro trouvé";
@@ -136,14 +211,20 @@ affichage.innerHTML =
 
 
 
+
+
+
+
 document.getElementById("activer-premium").onclick =
 async function(){
+
 
 
 const reference =
 document.getElementById("reference")
 .value
 .trim();
+
 
 
 
@@ -158,6 +239,7 @@ return;
 
 
 
+
 if(!reference){
 
 message.innerHTML =
@@ -166,6 +248,8 @@ message.innerHTML =
 return;
 
 }
+
+
 
 
 
@@ -195,8 +279,11 @@ reference:reference
 
 
 
+
 const data =
 await reponse.json();
+
+
 
 
 
@@ -207,6 +294,8 @@ data.detail || "Erreur activation"
 );
 
 }
+
+
 
 
 
@@ -223,12 +312,19 @@ new Date(data.date_fin)
 
 
 
+
+
+
 setTimeout(()=>{
 
+
 window.location.href =
-"espace-premium.html";
+"ticket-premium.html";
+
 
 },3000);
+
+
 
 
 
@@ -246,6 +342,7 @@ message.innerHTML =
 
 
 };
+
 
 
 </script>
