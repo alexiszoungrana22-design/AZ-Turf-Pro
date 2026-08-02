@@ -164,28 +164,15 @@ def analyse():
 # =====================================
 
 @router.post("/abonnement")
-def creer_premium(
-    abonnement: AbonnementRequest
-):
+def abonnement(data: AbonnementRequest):
 
-    data = abonnement.dict()
-
-    data["statut"] = "EN_ATTENTE"
-
-
-    creer_abonnement(
-        data
+    resultat = creer_abonnement(
+        data.dict()
     )
 
-
     return {
-
-        "message":
-        "Demande Premium enregistrée",
-
-        "statut":
-        "EN_ATTENTE"
-
+        "message": "Abonnement enregistré",
+        "abonnement": resultat
     }
 
 
