@@ -13,7 +13,7 @@ from database import (
     verifier_premium
 )
 
-from medels import (
+from models import (
     AbonnementRequest,
     ActivationRequest
 )
