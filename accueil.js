@@ -120,8 +120,10 @@ if(discipline)
 discipline.textContent=data.discipline || "-";
 
 
-if(distance)
-distance.textContent=(data.distance_course || "-")+" m";
+afficher(
+"meta-distance",
+data.distance ? data.distance + " m" : "-"
+);
 
 
 if(partants)
