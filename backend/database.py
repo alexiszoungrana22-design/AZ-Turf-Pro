@@ -5,11 +5,10 @@
 # =====================================
 
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 DB_NAME = "az_turf.db"
-
 
 
 # =====================================
@@ -54,11 +53,12 @@ def initialiser_database():
 
         statut TEXT,
 
+        date_creation TEXT,
+
         date_fin TEXT
 
     )
     """)
-
 
 
     conn.commit()
@@ -98,7 +98,7 @@ def voir_historique():
 
 
 # =====================================
-# CREER ABONNEMENT
+# CREER OU METTRE A JOUR ABONNEMENT
 # =====================================
 
 def creer_abonnement(data):
@@ -108,34 +108,96 @@ def creer_abonnement(data):
     cursor = conn.cursor()
 
 
+    ancien = trouver_abonnement(
+        data.get("telephone")
+    )
 
-    cursor.execute(
-        """
-        INSERT OR REPLACE INTO abonnements
-        (
+
+    if ancien:
+
+
+        cursor.execute(
+            """
+            UPDATE abonnements
+
+            SET offre=?,
+                prix=?,
+                duree=?,
+                paiement=?,
+                statut=?
+
+
+            WHERE telephone=?
+
+            """,
+
+            (
+
+                data.get("offre"),
+
+                data.get("prix"),
+
+                data.get("duree"),
+
+                data.get("paiement"),
+
+                "EN_ATTENTE",
+
+                data.get("telephone")
+
+            )
+
+        )
+
+
+    else:
+
+
+        cursor.execute(
+            """
+            INSERT INTO abonnements
+
+            (
+
             telephone,
             offre,
             prix,
             duree,
             paiement,
             reference,
-            statut
-        )
+            statut,
+            date_creation,
+            date_fin
 
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        """,
+            )
 
-        (
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+
+            """,
+
+            (
+
             data.get("telephone"),
-            data.get("offre"),
-            data.get("prix"),
-            data.get("duree"),
-            data.get("paiement"),
-            data.get("reference"),
-            "EN_ATTENTE"
-        )
 
-    )
+            data.get("offre"),
+
+            data.get("prix"),
+
+            data.get("duree"),
+
+            data.get("paiement"),
+
+            "",
+
+            "EN_ATTENTE",
+
+            datetime.now().isoformat(),
+
+            ""
+
+            )
+
+        )
 
 
     conn.commit()
@@ -164,9 +226,12 @@ def trouver_abonnement(telephone):
         """
         SELECT *
         FROM abonnements
-        WHERE telephone = ?
+        WHERE telephone=?
+
         """,
+
         (telephone,)
+
     )
 
 
@@ -201,7 +266,9 @@ def trouver_abonnement(telephone):
 
         "statut": resultat[7],
 
-        "date_fin": resultat[8]
+        "date_creation": resultat[8],
+
+        "date_fin": resultat[9]
 
     }
 
@@ -218,15 +285,37 @@ def activer_abonnement(
     reference
 ):
 
+
     abonnement = trouver_abonnement(
         telephone
     )
 
 
-
     if abonnement is None:
 
         return None
+
+
+
+    duree = int(
+        abonnement.get(
+            "duree",
+            30
+        )
+    )
+
+
+    date_fin = (
+
+        datetime.now()
+
+        +
+
+        timedelta(
+            days=duree
+        )
+
+    ).isoformat()
 
 
 
@@ -238,22 +327,35 @@ def activer_abonnement(
 
     cursor.execute(
         """
+
         UPDATE abonnements
 
-        SET statut = ?,
-            reference = ?
+        SET statut=?,
 
-        WHERE telephone = ?
+            reference=?,
+
+            date_fin=?
+
+
+        WHERE telephone=?
+
 
         """,
 
         (
-            "ACTIF",
-            reference,
-            telephone
+
+        "ACTIF",
+
+        reference,
+
+        date_fin,
+
+        telephone
+
         )
 
     )
+
 
 
     conn.commit()
@@ -265,6 +367,9 @@ def activer_abonnement(
     abonnement["statut"] = "ACTIF"
 
     abonnement["reference"] = reference
+
+    abonnement["date_fin"] = date_fin
+
 
 
     return abonnement
@@ -279,6 +384,7 @@ def activer_abonnement(
 
 def verifier_premium(telephone):
 
+
     abonnement = trouver_abonnement(
         telephone
     )
@@ -287,26 +393,93 @@ def verifier_premium(telephone):
 
     if abonnement is None:
 
+
         return {
 
-            "statut": "INACTIF"
+            "statut":"INACTIF"
 
         }
 
 
 
+    statut = abonnement.get(
+        "statut",
+        "INACTIF"
+    )
+
+
+
+    date_fin = abonnement.get(
+        "date_fin",
+        ""
+    )
+
+
+
+    if statut == "ACTIF" and date_fin:
+
+
+        try:
+
+
+            expiration = datetime.fromisoformat(
+                date_fin
+            )
+
+
+            if datetime.now() > expiration:
+
+
+                conn = connexion()
+
+                cursor = conn.cursor()
+
+
+                cursor.execute(
+                    """
+
+                    UPDATE abonnements
+
+                    SET statut=?
+
+                    WHERE telephone=?
+
+                    """,
+
+                    (
+
+                    "EXPIRE",
+
+                    telephone
+
+                    )
+
+                )
+
+
+                conn.commit()
+
+                conn.close()
+
+
+                statut = "EXPIRE"
+
+
+
+        except Exception:
+
+
+            pass
+
+
+
+
     return {
 
-        "statut":
-        abonnement.get(
-            "statut",
-            "INACTIF"
-        ),
 
-        "date_fin":
-        abonnement.get(
-            "date_fin",
-            ""
-        )
+        "statut": statut,
 
-    }
+
+        "date_fin": date_fin
+
+                }
