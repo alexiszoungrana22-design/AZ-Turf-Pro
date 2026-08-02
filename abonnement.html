@@ -477,13 +477,11 @@ const data = await reponse.json();
 
 if(!reponse.ok){
 
-
 throw new Error(
-
-data.detail || "Erreur"
-
+typeof data.detail === "string"
+? data.detail
+: JSON.stringify(data.detail)
 );
-
 
 }
 
@@ -536,14 +534,16 @@ window.location.href =
 
 catch(error){
 
+console.error(
+"Erreur abonnement :",
+error
+);
 
 document.getElementById("message").innerHTML =
 
+"❌ Une erreur est survenue. Vérifiez les informations ou réessayez.";
 
-"❌ Erreur : " + error.message;
-
-
-}
+  }
 
 
 
