@@ -130,7 +130,46 @@ popular.innerHTML =
 }
 
 
+// ===============================
+// TENDANCE DE LA COURSE
+// ===============================
 
+const tendance =
+document.getElementById("course-tendance");
+
+
+if(tendance && chevaux.length){
+
+
+tendance.innerHTML = `
+
+<p>
+🔥 Les chevaux les plus joués sont :
+<strong>
+${(data.plus_joues || []).join(" - ")}
+</strong>
+</p>
+
+
+<p>
+⭐ Le favori AZ est le numéro
+<strong>
+${chevaux[0].numero}
+</strong>
+avec un indice AZ de
+<strong>
+${chevaux[0].indice_az}
+</strong>.
+</p>
+
+
+<p>
+📊 La sélection privilégie la forme, la régularité et l'adaptation aux conditions de course.
+</p>
+
+`;
+
+}
 
 
 
