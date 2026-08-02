@@ -5,20 +5,14 @@ async function chargerAnalyse(){
 
 try{
 
-
 const response = await fetch(API);
 
-
 if(!response.ok){
-
 throw new Error("Erreur API");
-
 }
 
 
-
 const data = await response.json();
-
 
 
 const chevaux =
@@ -28,17 +22,14 @@ data.chevaux ||
 
 
 
-
 // ===============================
-// INFORMATIONS COURSE
+// FONCTION AFFICHAGE
 // ===============================
-
 
 function afficher(id, valeur){
 
 const element =
 document.getElementById(id);
-
 
 if(element){
 
@@ -50,6 +41,10 @@ valeur || "-";
 }
 
 
+
+// ===============================
+// INFORMATIONS COURSE
+// ===============================
 
 afficher(
 "meta-hippodrome",
@@ -83,28 +78,21 @@ data.partants
 
 
 
-
-
 // ===============================
 // PLUS JOUÉS
 // ===============================
-
 
 const popular =
 document.getElementById("popular-horses");
 
 
-
 if(popular){
-
 
 const plusJoues =
 data.plus_joues || [];
 
 
-
 if(plusJoues.length){
-
 
 popular.innerHTML =
 plusJoues.map(numero =>
@@ -117,17 +105,16 @@ ${numero}
 
 ).join("");
 
-
-}
-else{
+}else{
 
 popular.innerHTML =
 "Plus joué indisponible";
 
 }
 
-
 }
+
+
 
 
 // ===============================
@@ -144,7 +131,7 @@ if(tendance && chevaux.length){
 tendance.innerHTML = `
 
 <p>
-🔥 Les chevaux les plus joués sont :
+🔥 Chevaux les plus joués :
 <strong>
 ${(data.plus_joues || []).join(" - ")}
 </strong>
@@ -152,19 +139,19 @@ ${(data.plus_joues || []).join(" - ")}
 
 
 <p>
-⭐ Le favori AZ est le numéro
+⭐ Favori AZ :
 <strong>
-${chevaux[0].numero}
+N°${chevaux[0].numero}
 </strong>
 avec un indice AZ de
 <strong>
-${chevaux[0].indice_az}
-</strong>.
+${chevaux[0].indice_az || "-"}
+</strong>
 </p>
 
 
 <p>
-📊 La sélection privilégie la forme, la régularité et l'adaptation aux conditions de course.
+📊 La tendance est basée sur la forme, la régularité et le classement AZ.
 </p>
 
 `;
@@ -179,66 +166,46 @@ ${chevaux[0].indice_az}
 // FAVORI AZ
 // ===============================
 
-
 const favori =
 chevaux[0];
-
 
 
 if(favori){
 
 
-const numero =
-document.getElementById("favori-numero");
+afficher(
+"favori-numero",
+favori.numero
+);
 
 
-const nom =
-document.getElementById("favori-nom");
+afficher(
+"favori-nom",
+favori.nom
+);
 
 
-const indice =
-document.getElementById("favori-indice");
+afficher(
+"favori-indice",
+favori.indice_az
+);
 
 
-const confiance =
-document.getElementById("favori-confiance");
+afficher(
+"favori-confiance",
+(favori.confiance || "-") + " %"
+);
 
 
-const raison =
-document.getElementById("favori-raison");
-
-
-
-if(numero)
-numero.textContent =
-favori.numero || "-";
-
-
-if(nom)
-nom.textContent =
-favori.nom || "Cheval";
-
-
-if(indice)
-indice.textContent =
-favori.indice_az || "-";
-
-
-if(confiance)
-confiance.textContent =
-(favori.confiance || "-") + " %";
-
-
-if(raison)
-raison.textContent =
+afficher(
+"favori-raison",
 favori.raison ||
-"⭐ Base AZ";
+"⭐ Favori AZ"
+);
 
 }
 
 
-
- 
 
 
 
@@ -246,66 +213,47 @@ favori.raison ||
 // OUTSIDER AZ
 // ===============================
 
-
 const outsider =
 chevaux[6];
-
 
 
 if(outsider){
 
 
-const numero =
-document.getElementById("outsider-numero");
+afficher(
+"outsider-numero",
+outsider.numero
+);
 
 
-const nom =
-document.getElementById("outsider-nom");
+afficher(
+"outsider-nom",
+outsider.nom
+);
 
 
-const indice =
-document.getElementById("outsider-indice");
+afficher(
+"outsider-indice",
+outsider.indice_az
+);
 
 
-const confiance =
-document.getElementById("outsider-confiance");
+afficher(
+"outsider-confiance",
+(outsider.confiance || "-") + " %"
+);
 
 
-const raison =
-document.getElementById("outsider-raison");
-
-
-
-if(numero)
-numero.textContent =
-outsider.numero || "-";
-
-
-if(nom)
-nom.textContent =
-outsider.nom || "Cheval";
-
-
-if(indice)
-indice.textContent =
-outsider.indice_az || "-";
-
-
-if(confiance)
-confiance.textContent =
-(outsider.confiance || "-") + " %";
-
-
-if(raison)
-raison.textContent =
+afficher(
+"outsider-raison",
 outsider.raison ||
-"🔥 Outsider AZ";
+"🔥 Outsider AZ"
+);
 
 }
 
 
 
- 
 
 
 
@@ -313,17 +261,14 @@ outsider.raison ||
 // TABLEAU DES PARTANTS
 // ===============================
 
-
 const tableau =
 document.getElementById("all-horses");
-
 
 
 if(tableau){
 
 
 tableau.innerHTML = "";
-
 
 
 chevaux.forEach(cheval => {
@@ -357,51 +302,32 @@ tableau.innerHTML += `
 
 
 
+
 // ===============================
 // TICKETS GRATUITS
 // ===============================
-
 
 const tickets =
 data.tickets?.gratuit || {};
 
 
 
-const quinte =
-document.getElementById("quinte-gratuit");
+afficher(
+"quinte-gratuit",
+(tickets.quinte || []).join(" - ")
+);
 
 
 
-if(quinte){
-
-quinte.innerHTML =
-(tickets.quinte || [])
-.join(" - ");
-
-}
-
-
-
-
-const deux =
-document.getElementById("deux-sur-quatre");
-
-
-
-if(deux){
-
-deux.innerHTML =
-(tickets.deux_sur_quatre || [])
-.join(" - ");
-
-}
-
+afficher(
+"deux-sur-quatre",
+(tickets.deux_sur_quatre || []).join(" - ")
+);
 
 
 
 const couple =
 document.getElementById("couple-place-gratuit");
-
 
 
 if(couple){
@@ -421,18 +347,14 @@ couple.innerHTML =
 
 catch(error){
 
-
 console.log(
 "Erreur analyse :",
 error
 );
 
-
 }
 
-
 }
-
 
 
 
