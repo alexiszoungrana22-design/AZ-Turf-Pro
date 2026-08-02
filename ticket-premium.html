@@ -18,54 +18,33 @@
 
 <header class="top-header">
 
-
 <div class="logo">
-
 🏇 <span>AZ Turf Pro</span>
-
 </div>
 
 
-
 <nav class="top-menu">
-
 
 <a href="index.html">
 🏠 Accueil
 </a>
 
-
 <a href="analyse.html">
 📊 Analyse
 </a>
 
-
-<a href="ticket.html">
-📰 Journal
+<a href="ticket-premium.html">
+⭐ Premium
 </a>
-
 
 <a href="historique.html">
 🏆 Historique
 </a>
 
-
 </nav>
 
 
-
-<a href="abonnement.html" class="btn-vip">
-
-💎 Premium
-
-</a>
-
-
-
 </header>
-
-
-
 
 
 
@@ -74,20 +53,15 @@
 
 
 
-
-
 <section class="card">
 
-
 <h1>
-🎟️ Ticket Premium AZ
+⭐ Ticket Premium AZ Turf Pro
 </h1>
 
-
 <p>
-Combinaisons réservées aux membres Premium.
+Combinaisons et analyses réservées aux membres Premium actifs.
 </p>
-
 
 </section>
 
@@ -95,14 +69,10 @@ Combinaisons réservées aux membres Premium.
 
 
 
-
-
-
 <section class="card">
 
-
 <h2>
-⭐ Sélection Premium (7 chevaux)
+🏇 Sélection Premium (7 chevaux)
 </h2>
 
 
@@ -120,17 +90,14 @@ Chargement...
 
 
 
-
-
 <section class="card">
-
 
 <h2>
 🧠 Explication des choix
 </h2>
 
 
-<div id="explication-premium">
+<div id="explication-choix">
 
 Chargement...
 
@@ -145,33 +112,53 @@ Chargement...
 
 
 
-
 <section class="card">
 
-
 <h2>
-🏆 Combinaisons Premium
+🏆 Tickets Premium
 </h2>
 
 
 
+<div class="ticket-box">
+
+<h3>
+🏆 Quinté Premium
+</h3>
+
+<p id="vip-quinte">
+Chargement...
+</p>
+
+</div>
+
 
 
 
 <div class="ticket-box">
 
-
 <h3>
-🏆 Quinté Premium (7 chevaux)
+🥇 Quarté Premium
 </h3>
 
-
-<p id="quinte-premium">
-
+<p id="vip-quarte">
 Chargement...
-
 </p>
 
+</div>
+
+
+
+
+<div class="ticket-box">
+
+<h3>
+🎯 Trio Premium
+</h3>
+
+<p id="vip-trio">
+Chargement...
+</p>
 
 </div>
 
@@ -179,22 +166,15 @@ Chargement...
 
 
 
-
-
 <div class="ticket-box">
 
-
 <h3>
-🎯 Quarté Premium (5 chevaux)
+🤝 Couplé Gagnant / Placé
 </h3>
 
-
-<p id="quarte-premium">
-
+<p id="couple-gagnant-place">
 Chargement...
-
 </p>
-
 
 </div>
 
@@ -202,71 +182,17 @@ Chargement...
 
 
 
-
-
 <div class="ticket-box">
-
-
-<h3>
-🔥 Trio Premium (4 chevaux)
-</h3>
-
-
-<p id="trio-premium">
-
-Chargement...
-
-</p>
-
-
-</div>
-
-
-
-
-
-
-
-<div class="ticket-box">
-
-
-<h3>
-🤝 Couplé Gagnant / Placé Premium
-</h3>
-
-
-<p id="couple-gagnant">
-
-Chargement...
-
-</p>
-
-
-</div>
-
-
-
-
-
-
-
-<div class="ticket-box">
-
 
 <h3>
 🔒 Champ réduit Premium
 </h3>
 
-
-<p id="champ-premium">
-
+<p id="champ-reduit">
 Chargement...
-
 </p>
 
-
 </div>
-
 
 
 </section>
@@ -279,14 +205,13 @@ Chargement...
 
 
 <section class="card">
-
 
 <h2>
 📊 Analyse Premium
 </h2>
 
 
-<div id="analyse-premium">
+<div id="analyse-performance">
 
 Chargement...
 
@@ -303,14 +228,13 @@ Chargement...
 
 
 <section class="card">
-
 
 <h2>
 ⚡ Dernière minute
 </h2>
 
 
-<div id="derniere-minute-premium">
+<div id="derniere-minute">
 
 Chargement...
 
@@ -328,13 +252,12 @@ Chargement...
 
 <section class="card">
 
-
 <h2>
 🍀 Message Premium
 </h2>
 
 
-<p id="message-bonne-chance">
+<p id="message-fin">
 
 Chargement...
 
@@ -342,9 +265,6 @@ Chargement...
 
 
 </section>
-
-
-
 
 
 
@@ -357,41 +277,27 @@ Chargement...
 
 
 
-
-
 <footer class="bottom-menu">
 
 
 <a href="index.html">
-
 🏠 Accueil
-
 </a>
-
 
 
 <a href="analyse.html">
-
 📊 Analyse
-
 </a>
 
 
-
-<a href="ticket.html">
-
-📰 Journal
-
+<a href="ticket-premium.html">
+⭐ Premium
 </a>
-
 
 
 <a href="historique.html">
-
 🏆 Historique
-
 </a>
-
 
 
 </footer>
@@ -411,10 +317,7 @@ const API_PREMIUM =
 
 
 
-
-
 async function verifierPremium(){
-
 
 
 const telephone =
@@ -424,27 +327,14 @@ localStorage.getItem(
 
 
 
-
-
 if(!telephone){
-
-
-alert(
-"Aucun abonnement Premium trouvé."
-);
-
 
 window.location.href =
 "abonnement.html";
 
-
-return false;
-
+return;
 
 }
-
-
-
 
 
 
@@ -454,13 +344,9 @@ try{
 
 const response =
 await fetch(
-
 API_PREMIUM +
 encodeURIComponent(telephone)
-
 );
-
-
 
 
 
@@ -469,11 +355,8 @@ await response.json();
 
 
 
-
-
 if(
-!response.ok
-||
+!response.ok ||
 data.statut !== "ACTIF"
 ){
 
@@ -487,50 +370,32 @@ window.location.href =
 "abonnement.html";
 
 
-return false;
-
+return;
 
 }
 
 
 
 
-
-
-
 const script =
-document.createElement(
-"script"
-);
-
+document.createElement("script");
 
 
 script.src =
-"ticket-premium.js?v=4";
-
+"ticket-premium.js?v=6";
 
 
 document.body.appendChild(script);
 
 
 
-return true;
-
-
-
 }
-
-
-
 
 
 catch(error){
 
 
-console.error(
-error
-);
-
+console.error(error);
 
 
 alert(
@@ -538,21 +403,11 @@ alert(
 );
 
 
-
-window.location.href =
-"abonnement.html";
-
-
-return false;
-
-
 }
 
 
 
 }
-
-
 
 
 
@@ -561,9 +416,6 @@ verifierPremium();
 
 
 </script>
-
-
-
 
 
 </body>
