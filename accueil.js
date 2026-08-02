@@ -1,101 +1,17 @@
 const API = "https://az-turf-pro.onrender.com/api/analyse";
 
-const hippodrome = document.getElementById("meta-hippodrome");
-const course = document.getElementById("meta-course");
-const discipline = document.getElementById("meta-discipline");
-const distance = document.getElementById("meta-distance");
-const partants = document.getElementById("meta-partants");
 
-const horsesTable = document.getElementById("all-horses");
-
-const favoriNumero = document.getElementById("favori-numero");
-const favoriNom = document.getElementById("favori-nom");
-const favoriIndice = document.getElementById("favori-indice");
-const favoriConfiance = document.getElementById("favori-confiance");
-const favoriRaison = document.getElementById("favori-raison");
-
-const outsiderNumero = document.getElementById("outsider-numero");
-const outsiderNom = document.getElementById("outsider-nom");
-const outsiderIndice = document.getElementById("outsider-indice");
-const outsiderConfiance = document.getElementById("outsider-confiance");
-const outsiderRaison = document.getElementById("outsider-raison");
-
-const popular = document.getElementById("popular-horses");
-
-const tendance = document.getElementById("course-tendance");
-
-const miniCountdown = document.getElementById("mini-countdown");
-
-
-function raisonFavori(){
-return `
-✅ Meilleur indice<br>
-✅ Bonne régularité<br>
-✅ Profil adapté
-`;
-}
-
-
-function raisonOutsider(){
-return `
-🔥 Rapport intéressant<br>
-🔥 Peut surprendre
-`;
-}
-
-
-
-function afficherTendance(chevaux){
-
-if(!tendance) return;
-
-if(chevaux.length >= 8){
-
-tendance.innerHTML =
-"📈 Course ouverte";
-
-}else{
-
-tendance.innerHTML =
-"⭐ Course plus lisible";
-
-}
-
-}
-
-
-
-function lancerChrono(){
-
-if(miniCountdown){
-
-miniCountdown.innerHTML="⏱ Départ : --:--:--";
-
-}
-
-}
-
-
-
-
-
-async function chargerAccueil(){
+async function chargerAnalyse(){
 
 try{
 
-
 const response = await fetch(API);
 
-
 if(!response.ok){
-
-throw new Error("API inaccessible");
-
+throw new Error("Erreur API");
 }
 
-
 const data = await response.json();
-
 
 
 const chevaux =
@@ -104,20 +20,37 @@ data.chevaux ||
 [];
 
 
+// ===============================
+// INFORMATIONS COURSE
+// ===============================
+
+function afficher(id, valeur){
+
+const element = document.getElementById(id);
+
+if(element){
+element.textContent = valeur || "-";
+}
+
+}
 
 
-// COURSE
-
-if(hippodrome)
-hippodrome.textContent=data.hippodrome || "-";
-
-
-if(course)
-course.textContent=data.course || "-";
+afficher(
+"meta-hippodrome",
+data.hippodrome
+);
 
 
-if(discipline)
-discipline.textContent=data.discipline || "-";
+afficher(
+"meta-course",
+data.course
+);
+
+
+afficher(
+"meta-discipline",
+data.discipline
+);
 
 
 afficher(
@@ -126,23 +59,200 @@ data.distance ? data.distance + " m" : "-"
 );
 
 
-if(partants)
-partants.textContent=data.partants || chevaux.length;
+afficher(
+"meta-partants",
+data.partants
+);
+
+
+
+
+// ===============================
+// PLUS JOUÉS
+// ===============================
+
+const popular =
+document.getElementById("popular-horses");
+
+
+if(popular){
+
+const plusJoues =
+data.plus_joues || [];
+
+
+if(plusJoues.length){
+
+
+popular.innerHTML =
+plusJoues.map(numero =>
+
+`
+<div class="popular-number">
+${numero}
+</div>
+
+`
+
+).join("");
+
+}
+
+else{
+
+popular.innerHTML =
+"Plus joué indisponible";
+
+}
+
+}
 
 
 
 
 
-// PARTANTS
 
-if(horsesTable){
+// ===============================
+// FAVORI AZ
+// ===============================
 
-horsesTable.innerHTML="";
+const favori = chevaux[0];
 
 
-chevaux.forEach((cheval)=>{
+if(favori){
 
-horsesTable.innerHTML += `
+
+const numero =
+document.getElementById("favori-numero");
+
+const nom =
+document.getElementById("favori-nom");
+
+const indice =
+document.getElementById("favori-indice");
+
+const confiance =
+document.getElementById("favori-confiance");
+
+
+if(numero)
+numero.textContent =
+favori.numero || "-";
+
+
+if(nom)
+nom.textContent =
+favori.nom || "Cheval";
+
+
+if(indice)
+indice.textContent =
+favori.indice_az || "-";
+
+
+if(confiance)
+confiance.textContent =
+(favori.confiance || "-") + " %";
+
+
+const raison =
+document.getElementById("favori-raison");
+
+
+if(raison)
+raison.textContent =
+favori.raison ||
+"⭐ Base AZ";
+
+
+}
+
+
+
+
+
+
+
+// ===============================
+// OUTSIDER AZ
+// ===============================
+
+const outsider = chevaux[6];
+
+
+if(outsider){
+
+
+const numero =
+document.getElementById("outsider-numero");
+
+
+const nom =
+document.getElementById("outsider-nom");
+
+
+const indice =
+document.getElementById("outsider-indice");
+
+
+if(numero)
+numero.textContent =
+outsider.numero || "-";
+
+
+if(nom)
+nom.textContent =
+outsider.nom || "Cheval";
+
+
+if(indice)
+indice.textContent =
+outsider.indice_az || "-";
+
+
+const confiance =
+document.getElementById("outsider-confiance");
+
+
+if(confiance)
+confiance.textContent =
+(outsider.confiance || "-") + " %";
+
+
+const raison =
+document.getElementById("outsider-raison");
+
+
+if(raison)
+raison.textContent =
+outsider.raison ||
+"🔥 Outsider AZ";
+
+}
+
+
+
+
+
+
+// ===============================
+// TABLEAU PARTANTS
+// ===============================
+
+const tableau =
+document.getElementById("all-horses");
+
+
+if(tableau){
+
+
+tableau.innerHTML = "";
+
+
+chevaux.forEach(cheval => {
+
+
+tableau.innerHTML += `
 
 <tr>
 
@@ -162,37 +272,6 @@ horsesTable.innerHTML += `
 
 });
 
-}
-
-
-
-
-
-// FAVORI
-
-if(chevaux[0]){
-
-let favori=chevaux[0];
-
-
-if(favoriNumero)
-favoriNumero.textContent="N°"+favori.numero;
-
-
-if(favoriNom)
-favoriNom.textContent=favori.nom;
-
-
-if(favoriIndice)
-favoriIndice.textContent=favori.indice_az;
-
-
-if(favoriConfiance)
-favoriConfiance.textContent=(favori.confiance || "-")+" %";
-
-
-if(favoriRaison)
-favoriRaison.innerHTML=raisonFavori();
 
 }
 
@@ -200,86 +279,19 @@ favoriRaison.innerHTML=raisonFavori();
 
 
 
-// OUTSIDER
-
-if(chevaux[3]){
-
-let outsider=chevaux[3];
-
-
-if(outsiderNumero)
-outsiderNumero.textContent="N°"+outsider.numero;
-
-
-if(outsiderNom)
-outsiderNom.textContent=outsider.nom;
-
-
-if(outsiderIndice)
-outsiderIndice.textContent=outsider.indice_az;
-
-
-if(outsiderConfiance)
-outsiderConfiance.textContent=(outsider.confiance || "-")+" %";
-
-
-if(outsiderRaison)
-outsiderRaison.innerHTML=raisonOutsider();
-
-}
-
-
-
-
-
-// CHEVAUX LES PLUS JOUÉS
-
-if(popular){
-
-const numeros = data.plus_joues || [];
-
-const source = data.source_plus_joues || "";
-
-
-popular.innerHTML = `
-
-<div style="font-size:32px;font-weight:bold;text-align:center;">
-
-${numeros.join(" - ")}
-
-</div>
-
-
-<div style="text-align:center;margin-top:10px;">
-
-Source : ${source}
-
-</div>
-
-`;
-
-}
-
-
-
-
-
-afficherTendance(chevaux);
-
-
-lancerChrono();
-
 
 
 }
+
 catch(error){
 
 console.log(
-"Erreur accueil :",
+"Erreur analyse :",
 error
 );
 
 }
+
 
 }
 
@@ -287,5 +299,5 @@ error
 
 document.addEventListener(
 "DOMContentLoaded",
-chargerAccueil
+chargerAnalyse
 );
