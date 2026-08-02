@@ -13,7 +13,7 @@ from database import (
     verifier_premium
 )
 
-from medels import (
+from models import (
     AbonnementRequest,
     ActivationRequest
 )
@@ -84,31 +84,53 @@ def analyse():
 
 
 
-                "discipline": course.get(
-    "discipline",
-    ""
-),
+        return {
 
-"distance": course.get(
-    "distance_course",
-    ""
-),
+            "message": "Analyse AZ Turf terminée",
 
-"plus_joues": course.get(
-    "plus_joues",
-    []
-),
+            "course": course.get(
+                "course",
+                "Course"
+            ),
 
-"source_plus_joues": course.get(
-    "source_plus_joues",
-    ""
-),
+            "date": course.get(
+                "date",
+                ""
+            ),
+
+            "hippodrome": course.get(
+                "hippodrome",
+                ""
+            ),
+
+            "discipline": course.get(
+                "discipline",
+                ""
+            ),
+
+            "distance": course.get(
+                "distance_course",
+                ""
+            ),
+
+            "plus_joues": course.get(
+                "plus_joues",
+                []
+            ),
+
+            "source_plus_joues": course.get(
+                "source_plus_joues",
+                ""
+            ),
 
             "partants": len(chevaux),
 
+
             "chevaux": classement,
 
+
             "classement": classement,
+
 
             "favori": (
                 classement[0]
@@ -116,12 +138,13 @@ def analyse():
                 else {}
             ),
 
+
             "tickets": resultat.get(
                 "tickets",
                 {}
             )
 
-                }
+        }
 
 
 
