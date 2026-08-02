@@ -4,15 +4,13 @@
 # Cheval + Premium
 # =====================================
 
-
+from typing import Optional
 from pydantic import BaseModel
-
 
 
 # =====================================
 # MODELE CHEVAL
 # =====================================
-
 
 class Cheval(BaseModel):
 
@@ -47,14 +45,9 @@ class Cheval(BaseModel):
     score: float = 0
 
 
-
-
-
-
 # =====================================
 # MODELE DEMANDE ABONNEMENT
 # =====================================
-
 
 class AbonnementRequest(BaseModel):
 
@@ -68,17 +61,14 @@ class AbonnementRequest(BaseModel):
 
     paiement: str
 
-    reference: str
-
-
-
-
+    # La référence est renseignée plus tard
+    # dans activation.html
+    reference: Optional[str] = None
 
 
 # =====================================
 # MODELE ACTIVATION PREMIUM
 # =====================================
-
 
 class ActivationRequest(BaseModel):
 
