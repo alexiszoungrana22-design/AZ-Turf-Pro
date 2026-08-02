@@ -166,14 +166,30 @@ def analyse():
 @router.post("/abonnement")
 def abonnement(data: AbonnementRequest):
 
-    resultat = creer_abonnement(
-        data.dict()
-    )
+    try:
 
-    return {
-        "message": "Abonnement enregistré",
-        "abonnement": resultat
-    }
+        resultat = creer_abonnement(
+            data.model_dump()
+        )
+
+        return {
+
+            "message": "Abonnement enregistré",
+
+            "abonnement": resultat
+
+        }
+
+
+    except Exception as e:
+
+        raise HTTPException(
+
+            status_code=500,
+
+            detail=str(e)
+
+        )
 
 
 
