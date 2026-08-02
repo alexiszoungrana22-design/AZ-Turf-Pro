@@ -3,23 +3,15 @@ const API = "https://az-turf-pro.onrender.com/api/analyse";
 
 async function chargerAnalyse(){
 
-
 try{
-
 
 const response = await fetch(API);
 
-
 if(!response.ok){
-
 throw new Error("Erreur API");
-
 }
 
-
-
 const data = await response.json();
-
 
 
 const chevaux =
@@ -28,12 +20,109 @@ data.chevaux ||
 [];
 
 
+// ===============================
+// INFORMATIONS COURSE
+// ===============================
+
+const course = data.course || data.courses || data;
+
+
+const afficher = (id, valeur) => {
+
+const element = document.getElementById(id);
+
+if(element){
+element.textContent = valeur || "-";
+}
+
+};
+
+
+afficher(
+"meta-hippodrome",
+course.hippodrome || data.hippodrome
+);
+
+
+afficher(
+"meta-course",
+course.course || course.nom_course || data.course
+);
+
+
+afficher(
+"meta-discipline",
+course.discipline || data.discipline
+);
+
+
+afficher(
+"meta-distance",
+course.distance ? course.distance + " m" : data.distance
+);
+
+
+afficher(
+"meta-partants",
+chevaux.length
+);
+
+
+
+
+// ===============================
+// PLUS JOUÉS
+// ===============================
+
+const popular =
+document.getElementById("popular-horses");
+
+
+if(popular){
+
+
+const plusJoues =
+data.plus_joues ||
+course.plus_joues ||
+[];
+
+
+if(plusJoues.length){
+
+
+popular.innerHTML =
+plusJoues
+.map(numero =>
+
+`
+<div class="popular-number">
+${numero}
+</div>
+`
+
+)
+.join("");
+
+
+}
+else{
+
+
+popular.innerHTML =
+"Plus joué indisponible";
+
+
+}
+
+}
+
+
+
 
 
 // ===============================
 // SELECTION AZ 7 CHEVAUX
 // ===============================
-
 
 const selection =
 document.getElementById("selection-az-chevaux");
@@ -41,15 +130,13 @@ document.getElementById("selection-az-chevaux");
 
 if(selection){
 
-
-selection.textContent = chevaux
+selection.textContent =
+chevaux
 .slice(0,7)
 .map(c => c.numero)
 .join(" - ");
 
-
 }
-
 
 
 
@@ -59,7 +146,6 @@ selection.textContent = chevaux
 // ===============================
 // FAVORI AZ
 // ===============================
-
 
 const favori = chevaux[0];
 
@@ -83,7 +169,6 @@ const raison =
 document.getElementById("favori-raison");
 
 
-
 if(numero)
 numero.textContent = favori.numero || "-";
 
@@ -105,10 +190,7 @@ if(raison)
 raison.textContent =
 "⭐ Base AZ : bonne forme, indice AZ élevé et conditions favorables.";
 
-
 }
-
-
 
 
 
@@ -119,7 +201,6 @@ raison.textContent =
 // OUTSIDER AZ
 // ===============================
 
-
 const outsider = chevaux[6];
 
 
@@ -129,22 +210,17 @@ if(outsider){
 const numero =
 document.getElementById("outsider-numero");
 
-
 const nom =
 document.getElementById("outsider-nom");
-
 
 const indice =
 document.getElementById("outsider-indice");
 
-
 const confiance =
 document.getElementById("outsider-confiance");
 
-
 const raison =
 document.getElementById("outsider-raison");
-
 
 
 if(numero)
@@ -168,7 +244,6 @@ if(raison)
 raison.textContent =
 "🔥 Outsider AZ : profil intéressant pouvant surprendre.";
 
-
 }
 
 
@@ -176,394 +251,83 @@ raison.textContent =
 
 
 
-
-
 // ===============================
-// RAISONS SELECTION
+// TABLEAU PARTANTS
 // ===============================
-
-
-const raisons =
-document.getElementById("raisons-selection");
-
-
-
-if(raisons){
-
-
-raisons.innerHTML = "";
-
-
-
-chevaux.slice(0,7).forEach((cheval,index)=>{
-
-
-raisons.innerHTML += `
-
-
-<div class="raison-cheval">
-
-
-<h3>
-N°${cheval.numero || "-"}
-${cheval.nom || "Cheval"}
-</h3>
-
-
-<p>
-
-${genererRaison(cheval,index)}
-
-</p>
-
-
-</div>
-
-
-`;
-
-
-});
-
-
-}
-
-
-
-
-
-
-
-
-
-// ===============================
-// TABLEAU 7 CHEVAUX AZ
-// ===============================
-
 
 const tableau =
-document.getElementById("analyse-body");
-
+document.getElementById("all-horses");
 
 
 if(tableau){
 
 
-tableau.innerHTML = "";
+tableau.innerHTML="";
 
 
-
-chevaux.slice(0,7).forEach((cheval,index)=>{
+chevaux.forEach(cheval=>{
 
 
 tableau.innerHTML += `
 
-
 <tr>
-
-
-<td>${index+1}</td>
-
 
 <td>${cheval.numero || "-"}</td>
 
+<td>${cheval.nom || "Cheval"}</td>
 
-<td>
-<strong>${cheval.nom || "Cheval"}</strong>
-</td>
+<td>${cheval.jockey || "-"}</td>
 
+<td>${cheval.entraineur || "-"}</td>
 
-<td>${cheval.indice_az || "-"}</td>
-
-
-<td>${cheval.confiance || "-"} %</td>
-
-
-<td>
-${genererRaison(cheval,index)}
-</td>
-
+<td>${cheval.cote || "-"}</td>
 
 </tr>
 
-
 `;
-
 
 });
 
 
 }
+
+
+
+
+
+
 
 // ===============================
 // TICKETS GRATUITS
 // ===============================
 
-
-const ticketsGratuits =
+const tickets =
 data.tickets?.gratuit || {};
 
 
-
-const quinteGratuit =
+const q =
 document.getElementById("quinte-gratuit");
 
 
-if(quinteGratuit){
+if(q){
 
-quinteGratuit.innerHTML = `
-
-<strong>
-
-${(ticketsGratuits.quinte || [])
-.join(" - ")}
-
-</strong>
-
-`;
+q.innerHTML =
+(tickets.quinte || []).join(" - ");
 
 }
 
 
-
-const deuxSurQuatre =
+const deux =
 document.getElementById("deux-sur-quatre");
 
 
-if(deuxSurQuatre){
+if(deux){
 
-deuxSurQuatre.innerHTML = `
-
-<strong>
-
-${(ticketsGratuits.deux_sur_quatre || [])
-.join(" - ")}
-
-</strong>
-
-`;
+deux.innerHTML =
+(tickets.deux_sur_quatre || []).join(" - ");
 
 }
 
-
-
-const couplePlaceGratuit =
-document.getElementById("couple-place-gratuit");
-
-
-if(couplePlaceGratuit){
-
-couplePlaceGratuit.innerHTML = `
-
-<strong>
-
-${
-(ticketsGratuits.couple_place || [])
-.map(c => c.join(" - "))
-.join(" | ")
-}
-
-</strong>
-
-`;
-
-}
-
-
-
-
-// ===============================
-// AVIS JOCKEYS / ENTRAINEURS
-// ===============================
-
-
-const avis =
-document.getElementById("avis-course");
-
-
-
-if(avis && chevaux.length){
-
-
-avis.innerHTML = `
-
-
-<p>
-
-👤 <strong>Avis jockeys :</strong><br>
-
-Les chevaux retenus présentent des profils intéressants selon la forme et les conditions du jour.
-
-</p>
-
-
-<p>
-
-🏇 <strong>Avis entraîneurs :</strong><br>
-
-La préparation, la régularité et l'engagement sont pris en compte dans l'analyse AZ.
-
-</p>
-
-
-`;
-
-
-
-}
-
-
-
-
-
-
-
-
-// ===============================
-// ACTUALITES COURSE
-// ===============================
-
-
-const actualites =
-document.getElementById("actualites-course");
-
-
-
-if(actualites){
-
-
-actualites.innerHTML = `
-
-
-<ul>
-
-<li>📌 Analyse des conditions de course</li>
-
-<li>🏇 Étude des chevaux engagés</li>
-
-<li>⚠️ Surveillance des changements de dernière minute</li>
-
-</ul>
-
-
-`;
-
-
-
-}
-
-
-
-
-
-
-
-
-// ===============================
-// SYNTHESE AZ
-// ===============================
-
-
-const synthese =
-document.getElementById("synthese-az");
-
-
-
-if(synthese && chevaux.length){
-
-
-synthese.innerHTML = `
-
-
-<p>
-⭐ La sélection AZ privilégie :
-</p>
-
-
-<ul>
-
-<li>La forme récente</li>
-
-<li>La régularité</li>
-
-<li>L'adaptation au parcours</li>
-
-<li>Le potentiel pour les premières places</li>
-
-</ul>
-
-
-`;
-
-
-
-}
-
-
-
-
-
-
-
-
-// ===============================
-// MESSAGES VISITEURS
-// ===============================
-
-
-const bouton =
-document.getElementById("envoyer-message");
-
-
-const zone =
-document.getElementById("message-visiteur");
-
-
-const affichage =
-document.getElementById("messages-visiteurs");
-
-
-
-
-
-if(bouton){
-
-
-bouton.addEventListener("click",()=>{
-
-
-const message =
-zone.value.trim();
-
-
-
-if(message === ""){
-
-return;
-
-}
-
-
-
-affichage.innerHTML += `
-
-
-<p>
-💬 ${message}
-</p>
-
-
-`;
-
-
-
-zone.value="";
-
-
-});
-
-
-}
 
 
 
@@ -572,63 +336,12 @@ zone.value="";
 
 catch(error){
 
-
 console.log(
 "Erreur analyse :",
 error
 );
 
-
 }
-
-
-
-}
-
-
-
-
-
-
-
-function genererRaison(cheval,index){
-
-
-if(index===0){
-
-
-return `
-⭐ Base principale : excellente position AZ, forme et confiance élevées.
-`;
-
-}
-
-
-if(index===1){
-
-
-return `
-⭐ Très belle chance : régularité et capacité à confirmer.
-`;
-
-}
-
-
-if(index<4){
-
-
-return `
-✅ Chance solide : profil adapté pour jouer les premiers rôles.
-`;
-
-}
-
-
-
-return `
-🔥 Chance à surveiller : outsider avec possibilité de surprise.
-`;
-
 
 
 }
@@ -640,9 +353,6 @@ return `
 
 
 document.addEventListener(
-
 "DOMContentLoaded",
-
 chargerAnalyse
-
 );
