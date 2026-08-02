@@ -254,7 +254,8 @@ window.location.search
 
 
 const offre =
-params.get("offre");
+params.get("offre") ||
+localStorage.getItem("AZ_TURF_OFFRE");
 
 
 
@@ -342,12 +343,13 @@ moyenPaiement
 
 
 
-window.location.href =
-"activation.html";
+if(!offre){
+    alert("Aucune offre Premium sélectionnée.");
+    window.location.href="abonnement.html";
+    return;
+}
 
-
-
-};
+window.location.href="activation.html";
 
 
 
