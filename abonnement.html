@@ -31,17 +31,21 @@
 🏠 Accueil
 </a>
 
+
 <a href="analyse.html">
 📊 Analyse
 </a>
 
+
 <a href="ticket.html">
-🎟️ Ticket
+📰 Journal
 </a>
+
 
 <a href="historique.html">
 🏆 Historique
 </a>
+
 
 </nav>
 
@@ -65,15 +69,24 @@
 
 
 
+
+
 <section class="card">
 
-<h1>⭐ AZ Turf Pro Premium</h1>
+
+<h1>
+⭐ AZ Turf Pro Premium
+</h1>
+
 
 <p>
 Accédez aux tickets Premium après validation de votre abonnement.
 </p>
 
+
 </section>
+
+
 
 
 
@@ -82,13 +95,19 @@ Accédez aux tickets Premium après validation de votre abonnement.
 
 <section class="card vip-banner">
 
-<h2>🎉 Offre promotionnelle</h2>
+
+<h2>
+🎉 Offre promotionnelle
+</h2>
+
 
 <p>
 Choisissez votre formule Premium.
 </p>
 
+
 </section>
+
 
 
 
@@ -99,15 +118,24 @@ Choisissez votre formule Premium.
 <section class="card">
 
 
-<h2>📱 Numéro de paiement</h2>
+<h2>
+📱 Numéro de paiement
+</h2>
+
 
 
 <input
+
 id="telephone"
+
 type="tel"
+
 placeholder="+226XXXXXXXX"
+
 class="input-premium"
+
 >
+
 
 
 <p>
@@ -123,17 +151,23 @@ Utilisez le numéro qui servira au paiement.
 
 
 
+
 <section class="card">
 
 
-<h2>⭐ Choisir votre formule</h2>
+<h2>
+⭐ Choisir votre formule
+</h2>
+
 
 
 <button onclick="choisirOffre('Premium Semaine',25000,7)">
 
+
 ⭐ Premium Semaine<br>
 25 000 FCFA<br>
 7 jours
+
 
 </button>
 
@@ -145,11 +179,14 @@ Utilisez le numéro qui servira au paiement.
 
 <button onclick="choisirOffre('Premium Mensuel',75000,30)">
 
+
 💎 Premium Mensuel<br>
 75 000 FCFA<br>
 30 jours
 
+
 </button>
+
 
 
 
@@ -157,13 +194,17 @@ Utilisez le numéro qui servira au paiement.
 
 
 
+
 <button onclick="choisirOffre('Premium 3 mois',150000,90)">
+
 
 👑 Premium 3 mois<br>
 150 000 FCFA<br>
 90 jours
 
+
 </button>
+
 
 
 </section>
@@ -178,7 +219,10 @@ Utilisez le numéro qui servira au paiement.
 <section class="card">
 
 
-<h2>💳 Moyen de paiement</h2>
+<h2>
+💳 Moyen de paiement
+</h2>
+
 
 
 <button onclick="envoyerDemande('Orange Money')">
@@ -188,7 +232,9 @@ Utilisez le numéro qui servira au paiement.
 </button>
 
 
+
 <br><br>
+
 
 
 <button onclick="envoyerDemande('Moov Money')">
@@ -198,7 +244,9 @@ Utilisez le numéro qui servira au paiement.
 </button>
 
 
+
 <br><br>
+
 
 
 <button onclick="envoyerDemande('Wave')">
@@ -216,11 +264,10 @@ Utilisez le numéro qui servira au paiement.
 
 
 
+
 <section class="card">
 
-<p id="message">
-
-</p>
+<p id="message"></p>
 
 </section>
 
@@ -238,23 +285,41 @@ Utilisez le numéro qui servira au paiement.
 
 <footer class="bottom-menu">
 
+
 <a href="index.html">
+
 🏠 Accueil
+
 </a>
+
+
 
 <a href="analyse.html">
+
 📊 Analyse
+
 </a>
+
+
 
 <a href="ticket.html">
-🎟️ Ticket
+
+📰 Journal
+
 </a>
+
+
 
 <a href="historique.html">
+
 🏆 Historique
+
 </a>
 
+
+
 </footer>
+
 
 
 
@@ -271,6 +336,7 @@ const API_URL =
 
 
 let offreChoisie = null;
+
 
 
 
@@ -307,42 +373,54 @@ document.getElementById("message").innerHTML =
 
 
 
+
 async function envoyerDemande(
 paiement
 ){
 
 
+
 const telephone =
 
-document.getElementById(
-"telephone"
-).value.trim();
+document.getElementById("telephone")
+.value
+.trim();
+
 
 
 
 
 if(!telephone){
 
+
 alert(
 "Veuillez saisir votre numéro de paiement."
 );
 
+
 return;
 
+
 }
+
+
 
 
 
 
 if(!offreChoisie){
 
+
 alert(
 "Veuillez choisir une formule Premium."
 );
 
+
 return;
 
+
 }
+
 
 
 
@@ -368,21 +446,23 @@ headers:{
 
 body:JSON.stringify({
 
-telephone: telephone,
+telephone:telephone,
 
-offre: offreChoisie.nom,
+offre:offreChoisie.nom,
 
-prix: offreChoisie.prix,
+prix:offreChoisie.prix,
 
-duree: offreChoisie.duree,
+duree:offreChoisie.duree,
 
-paiement: paiement
+paiement:paiement
 
 })
+
 
 }
 
 );
+
 
 
 
@@ -393,13 +473,22 @@ const data = await reponse.json();
 
 
 
+
+
 if(!reponse.ok){
 
+
 throw new Error(
+
 data.detail || "Erreur"
+
 );
 
+
 }
+
+
+
 
 
 
@@ -416,9 +505,14 @@ telephone
 
 
 
+
 document.getElementById("message").innerHTML =
 
+
 "✅ Demande enregistrée.<br>Votre abonnement est en attente de validation.";
+
+
+
 
 
 
@@ -427,10 +521,13 @@ setTimeout(()=>{
 
 
 window.location.href =
+
 "activation.html";
 
 
 },2000);
+
+
 
 
 
@@ -442,10 +539,12 @@ catch(error){
 
 document.getElementById("message").innerHTML =
 
+
 "❌ Erreur : " + error.message;
 
 
 }
+
 
 
 
