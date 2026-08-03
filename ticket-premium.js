@@ -1,7 +1,7 @@
 // =====================================
 // AZ TURF PRO
 // TICKET PREMIUM
-// AFFICHAGE OPTIMISE
+// AFFICHAGE FINAL
 // =====================================
 
 const API_URL =
@@ -15,8 +15,6 @@ chargerPremium
 
 
 
-
-
 async function chargerPremium(){
 
 
@@ -26,7 +24,6 @@ try{
 const response = await fetch(API_URL);
 
 
-
 if(!response.ok){
 
 throw new Error("Erreur API");
@@ -34,9 +31,7 @@ throw new Error("Erreur API");
 }
 
 
-
 const data = await response.json();
-
 
 
 console.log(
@@ -50,10 +45,8 @@ const premium =
 data.tickets?.premium || {};
 
 
-
 const classement =
 data.classement || [];
-
 
 
 
@@ -62,7 +55,7 @@ data.classement || [];
 // SELECTION PREMIUM
 // =====================================
 
-afficherTicketTexte(
+afficherListe(
 
 "selection-premium",
 
@@ -71,7 +64,6 @@ classement
 .map(c=>c.numero)
 
 );
-
 
 
 
@@ -110,37 +102,27 @@ ${c.raison || "Analyse spécialisée en cours"}
 
 
 
-
 // =====================================
 // TICKETS
 // =====================================
 
 afficherTicket(
-
 "quinte-premium",
-
 premium.quinte
-
 );
 
 
 
 afficherTicket(
-
 "quarte-premium",
-
 premium.quarte
-
 );
 
 
 
 afficherTicket(
-
 "trio-premium",
-
 premium.trio
-
 );
 
 
@@ -149,12 +131,9 @@ premium.trio
 
 
 
-
 // =====================================
-// COUPLE GAGNANT / PLACE
-// 3 NUMEROS UNIQUEMENT
+// COUPLE 3 NUMEROS
 // =====================================
-
 
 if(premium.couple_gagnant_place){
 
@@ -166,12 +145,10 @@ premium.couple_gagnant_place;
 
 if(Array.isArray(couple)){
 
-
 couple =
 couple
 .flat()
 .slice(0,3);
-
 
 }
 
@@ -195,7 +172,6 @@ couple
 
 
 
-
 // =====================================
 // CHAMP REDUIT
 // FORMAT : 3-5-X 2-X / 8-1-4-12
@@ -205,41 +181,9 @@ couple
 if(premium.champ_reduit){
 
 
-let champ = "";
-
-
-
-if(
-premium.champ_reduit.format
-){
-
-
-champ =
-premium.champ_reduit.format;
-
-
-}
-
-else if(
-premium.champ_reduit.selection
-){
-
-
-champ =
-premium.champ_reduit.selection.join(" - ");
-
-
-}
-
-else{
-
-
-champ =
+let champ =
+premium.champ_reduit.format ||
 "Non disponible";
-
-
-}
-
 
 
 afficherTexte(
@@ -259,27 +203,21 @@ champ
 
 
 
-
 // =====================================
-// DERNIERE MINUTE
-// 6 NUMEROS
+// DERNIERE MINUTE 6 NUMEROS
 // =====================================
 
 
-if(
-premium.ticket_derniere_minute
-){
+if(premium.ticket_derniere_minute){
 
 
-
-let derniere = 
+let derniere =
 premium.ticket_derniere_minute.selection || [];
 
 
 
 derniere =
-derniere
-.slice(0,6);
+derniere.slice(0,6);
 
 
 
@@ -290,7 +228,6 @@ afficherTicket(
 derniere
 
 );
-
 
 
 }
@@ -305,6 +242,7 @@ derniere
 // =====================================
 // ANALYSE
 // =====================================
+
 
 afficherTexte(
 
@@ -340,6 +278,7 @@ distance, terrain et expérience.
 // MESSAGE
 // =====================================
 
+
 afficherTexte(
 
 "message-premium",
@@ -349,7 +288,6 @@ premium.message_fin ||
 "🍀 Bonne chance ! Jouez avec discipline."
 
 );
-
 
 
 }
@@ -366,6 +304,7 @@ error
 
 
 }
+
 
 }
 
@@ -397,63 +336,12 @@ return;
 
 
 
-if(
-!liste ||
-liste.length===0
-){
-
-
-zone.innerHTML =
-"Non disponible";
-
-
-return;
-
-}
-
-
-
-zone.innerHTML =
-
-liste
-.join(" - ");
-
-
-
-}
-
-
-
-
-
-
-
-
-// =====================================
-// AFFICHAGE TEXTE
-// =====================================
-
-
-function afficherTicketTexte(id,liste){
-
-
-const zone =
-document.getElementById(id);
-
-
-
-if(!zone){
-
-return;
-
-}
-
-
-
 if(!liste || liste.length===0){
 
+
 zone.innerHTML =
 "Non disponible";
+
 
 return;
 
@@ -473,6 +361,42 @@ liste.join(" - ");
 
 
 
+
+
+
+// =====================================
+// AFFICHAGE LISTE
+// =====================================
+
+
+function afficherListe(id,liste){
+
+
+const zone =
+document.getElementById(id);
+
+
+
+if(zone){
+
+zone.innerHTML =
+liste.join(" - ");
+
+}
+
+
+}
+
+
+
+
+
+
+
+
+// =====================================
+// AFFICHAGE TEXTE
+// =====================================
 
 
 function afficherTexte(id,contenu){
