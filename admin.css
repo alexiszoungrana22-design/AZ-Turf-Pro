@@ -1,15 +1,51 @@
 /* =====================================
    AZ TURF PRO
-   ADMIN CSS
-   Tableau de bord administration
+   ADMIN CSS V2
+   Tableau de bord professionnel
    ===================================== */
 
 
-/* CONTENEUR ADMIN */
+/* PAGE ADMIN */
+
+body{
+
+    margin:0;
+    font-family:Arial, sans-serif;
+
+}
+
+
+/* HEADER ADMIN */
+
+.header-az{
+
+    padding:25px 15px;
+    text-align:center;
+
+}
+
+
+.logo-area h1{
+
+    font-size:28px;
+    margin-bottom:8px;
+
+}
+
+
+.logo-area p{
+
+    font-size:16px;
+
+}
+
+
+
+/* ZONE PRINCIPALE */
 
 .home-content{
 
-    padding:20px;
+    padding:15px;
 
 }
 
@@ -17,42 +53,77 @@
 .course-card{
 
     text-align:center;
+    padding:25px;
+    border-radius:20px;
     margin-bottom:25px;
 
 }
 
 
 
-/* BOUTON ACTUALISATION */
+/* BOUTON */
 
-.course-card .btn-vip{
+.btn-vip{
 
-    margin-top:15px;
+    padding:14px 22px;
+
+    border:none;
+
+    border-radius:14px;
+
+    font-size:16px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:0.15s ease;
+
+    margin-top:10px;
 
 }
 
+
+
+/* EFFET APPUI MOBILE */
+
+.btn-vip:active{
+
+    transform:scale(0.92) translateY(2px);
+
+}
+
+
+
+/* CONTENEUR CARTES */
+
+.ticket-container{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(auto-fit,minmax(280px,1fr));
+
+    gap:18px;
+
+}
 
 
 
 /* CARTES ADMIN */
 
-.ticket-container{
-
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-    gap:20px;
-
-}
-
-
-
 .box.premium{
 
-    border-radius:18px;
-    padding:20px;
+    padding:22px;
+
+    border-radius:22px;
+
     text-align:center;
-    transition:0.2s ease;
-    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+
+    box-shadow:
+    0 8px 20px rgba(0,0,0,0.12);
+
+    transition:0.25s ease;
 
 }
 
@@ -60,96 +131,61 @@
 
 .box.premium:hover{
 
-    transform:translateY(-3px);
+    transform:translateY(-4px);
 
 }
 
 
 
-.box.premium h2{
+/* TITRES */
+
+.box h2{
 
     font-size:20px;
+
     margin-bottom:15px;
 
 }
 
 
 
-.box.premium p{
-
-    font-size:17px;
-
-}
-
-
-
-/* STATISTIQUES */
+/* COMPTEURS */
 
 #total-abonnements,
 #nombre-premium,
 #paiements-attente,
 #abonnements-expire{
 
-    font-size:35px;
-    font-weight:bold;
+
+    font-size:42px;
+
+    font-weight:900;
+
+    margin:10px 0;
 
 }
 
 
 
-/* FORMULAIRES */
+/* INPUTS */
 
 input{
 
-    width:90%;
-    padding:12px;
-    margin:8px auto;
-    display:block;
 
-    border-radius:10px;
+    width:90%;
+
+    padding:14px;
+
+    border-radius:12px;
+
     border:1px solid #ccc;
 
     font-size:16px;
 
-}
+    margin:8px auto;
 
+    display:block;
 
-
-input:focus{
-
-    outline:none;
-
-}
-
-
-
-/* BOUTONS ADMIN */
-
-.btn-vip{
-
-    cursor:pointer;
-
-    padding:12px 20px;
-
-    border:none;
-
-    border-radius:12px;
-
-    font-size:16px;
-
-    font-weight:bold;
-
-    transition:0.15s ease;
-
-}
-
-
-
-/* EFFET APPUI */
-
-.btn-vip:active{
-
-    transform:scale(0.94);
 
 }
 
@@ -157,14 +193,18 @@ input:focus{
 
 /* RESULTATS */
 
+
 #resultat-premium,
 #resultat-activation{
 
+
     margin-top:15px;
 
-    padding:10px;
+    padding:12px;
 
-    border-radius:10px;
+    border-radius:12px;
+
+    font-weight:bold;
 
 }
 
@@ -183,44 +223,80 @@ input:focus{
 
 .abonnement{
 
-    padding:15px;
 
-    margin:12px 0;
+    padding:16px;
 
-    border-radius:14px;
+    margin-bottom:12px;
+
+    border-radius:16px;
+
+    box-shadow:
+    0 4px 12px rgba(0,0,0,0.08);
+
+
+}
+
+
+
+.abonnement p{
+
+    margin:8px 0;
 
 }
 
 
 
-/* PUBLICITES */
+/* MENU */
 
-.box button{
 
-    margin-top:10px;
+.menu a{
+
+    transition:0.2s ease;
 
 }
 
+
+.menu a:active{
+
+    transform:scale(0.95);
+
+}
 
 
 
 /* FOOTER */
 
+
 footer{
 
     text-align:center;
 
-    padding:20px;
+    padding:25px;
 
 }
 
 
 
-
-
 /* MOBILE */
 
+
 @media(max-width:600px){
+
+
+    .logo-area h1{
+
+        font-size:23px;
+
+    }
+
+
+
+    .course-card{
+
+        padding:18px;
+
+    }
+
 
 
     .ticket-container{
@@ -233,15 +309,7 @@ footer{
 
     .box.premium{
 
-        padding:15px;
-
-    }
-
-
-
-    .box.premium h2{
-
-        font-size:18px;
+        padding:18px;
 
     }
 
@@ -252,9 +320,11 @@ footer{
     #paiements-attente,
     #abonnements-expire{
 
-        font-size:30px;
+
+        font-size:35px;
 
     }
+
 
 
 }
