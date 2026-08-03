@@ -166,7 +166,7 @@ body{
 
 .content{
 
-    padding-top:110px;
+    padding-top:130px;
 
     padding-bottom:90px;
 
@@ -1264,3 +1264,45 @@ td{
 /* ===============================
    FIN AZ TURF PRO DESIGN V10
 ================================ */
+/* ===============================
+   RESTAURATION ZONES ANALYSE
+================================ */
+
+#couple-place,
+#couple-gagnant,
+#avis-jockey,
+#avis-entraineur,
+#avis-course,
+#actualites-course,
+#synthese-az,
+#syntheseAZ{
+
+    display:block !important;
+
+    visibility:visible !important;
+
+    opacity:1 !important;
+
+    height:auto !important;
+
+    overflow:visible !important;
+
+}
+
+
+
+.analyse-section,
+.detail-analyse,
+.synthese-zone{
+
+    display:block;
+
+    background:white;
+
+    padding:20px;
+
+    margin:15px auto;
+
+    border-radius:20px;
+
+}
