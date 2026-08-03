@@ -1,20 +1,32 @@
 // =====================================
 // AZ TURF PRO
 // ADMIN JS
-// Version 3
+// Version 4
 // =====================================
 
 
+const API_BASE =
+"https://az-turf-pro.onrender.com/api";
+
+
 const API_ANALYSE =
-"https://az-turf-pro.onrender.com/api/analyse";
+API_BASE + "/analyse";
 
 
 const API_PREMIUM =
-"https://az-turf-pro.onrender.com/api/premium";
+API_BASE + "/premium";
 
 
 const API_ACTIVATION =
-"https://az-turf-pro.onrender.com/api/activation";
+API_BASE + "/activation";
+
+
+const API_STATISTIQUES =
+API_BASE + "/admin/statistiques";
+
+
+const API_ABONNEMENTS =
+API_BASE + "/admin/abonnements";
 
 
 
@@ -29,15 +41,17 @@ initialiserAdmin
 
 
 
-
 // =====================================
 // INITIALISATION ADMIN
 // =====================================
 
-
 async function initialiserAdmin(){
 
-await verifierAPI();
+    await verifierAPI();
+
+    await chargerStatistiquesAdmin();
+
+    await chargerAbonnements();
 
 }
 
@@ -48,9 +62,8 @@ await verifierAPI();
 
 
 // =====================================
-// VERIFICATION API ANALYSE
+// VERIFICATION API
 // =====================================
-
 
 async function verifierAPI(){
 
@@ -101,10 +114,6 @@ etat.innerHTML =
 
 
 
-chargerStatistiques(data);
-
-
-
 }
 
 
@@ -138,14 +147,42 @@ etat.innerHTML =
 
 
 // =====================================
-// STATISTIQUES
+// CHARGEMENT STATISTIQUES ADMIN
 // =====================================
 
+async function chargerStatistiquesAdmin(){
 
-function chargerStatistiques(data){
+
+try{
 
 
-const premium =
+const response =
+await fetch(
+API_STATISTIQUES
+);
+
+
+
+const data =
+await response.json();
+
+
+
+console.log(
+"Statistiques admin :",
+data
+);
+
+
+
+const total =
+document.getElementById(
+"total-abonnements"
+);
+
+
+
+const actifs =
 document.getElementById(
 "nombre-premium"
 );
@@ -159,10 +196,27 @@ document.getElementById(
 
 
 
-if(premium){
+const expires =
+document.getElementById(
+"abonnements-expire"
+);
 
-premium.innerHTML =
-"Gestion Premium prête";
+
+
+
+if(total){
+
+total.innerHTML =
+data.total;
+
+}
+
+
+
+if(actifs){
+
+actifs.innerHTML =
+data.actifs;
 
 }
 
@@ -171,12 +225,168 @@ premium.innerHTML =
 if(attente){
 
 attente.innerHTML =
-"Module paiement prêt";
+data.en_attente;
 
 }
 
 
+
+if(expires){
+
+expires.innerHTML =
+data.expires;
+
 }
+
+
+
+}
+
+
+
+catch(error){
+
+
+console.error(
+"Erreur statistiques :",
+error
+);
+
+
+}
+
+}
+
+
+
+
+
+
+
+
+// =====================================
+// LISTE DES ABONNEMENTS
+// =====================================
+
+
+async function chargerAbonnements(){
+
+
+try{
+
+
+const response =
+await fetch(
+API_ABONNEMENTS
+);
+
+
+
+const data =
+await response.json();
+
+
+
+console.log(
+"Abonnements :",
+data
+);
+
+
+
+const liste =
+document.getElementById(
+"liste-abonnements"
+);
+
+
+
+if(!liste){
+
+return;
+
+}
+
+
+
+liste.innerHTML = "";
+
+
+
+if(
+!data.abonnements ||
+data.abonnements.length === 0
+){
+
+
+liste.innerHTML =
+"Aucun abonnement";
+
+
+return;
+
+
+}
+
+
+
+data.abonnements.forEach(
+(abonnement)=>{
+
+
+liste.innerHTML += `
+
+<div class="abonnement">
+
+<p>
+📱 ${abonnement.telephone}
+</p>
+
+<p>
+Offre :
+${abonnement.offre}
+</p>
+
+<p>
+Statut :
+${abonnement.statut}
+</p>
+
+<p>
+Fin :
+${abonnement.date_fin}
+</p>
+
+</div>
+
+`;
+
+
+
+}
+
+);
+
+
+
+}
+
+
+
+catch(error){
+
+
+console.error(
+"Erreur abonnements :",
+error
+);
+
+
+}
+
+}
+
+
 
 
 
@@ -444,6 +654,12 @@ ${data.date_fin}
 
 
 
+await chargerStatistiquesAdmin();
+
+await chargerAbonnements();
+
+
+
 }else{
 
 
@@ -479,4 +695,4 @@ resultat.innerHTML =
 
 
 
-}
+  }
