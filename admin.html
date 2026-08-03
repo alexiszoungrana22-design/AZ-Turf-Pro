@@ -74,6 +74,16 @@ Tableau de bord professionnel
 Gestion et suivi de la plateforme AZ Turf Pro
 </p>
 
+
+<button
+class="btn-vip"
+onclick="actualiserAdmin()">
+
+🔄 Actualiser les données
+
+</button>
+
+
 </section>
 
 
@@ -150,6 +160,7 @@ Gestion et suivi de la plateforme AZ Turf Pro
 </p>
 
 </div>
+
 
 
 
@@ -263,7 +274,13 @@ Aucune activation
 
 </div>
 
-  <!-- ANALYSE DU JOUR -->
+
+
+
+
+
+
+<!-- ANALYSE -->
 
 
 <div class="box premium">
@@ -404,6 +421,19 @@ AZ Turf Pro - Administration
 
 
 <script src="admin.js"></script>
+
+
+<script>
+
+function actualiserAdmin(){
+
+    chargerStatistiquesAdmin();
+
+    chargerAbonnements();
+
+}
+
+</script>
 
 
 </body>
