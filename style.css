@@ -1768,3 +1768,86 @@ width:90%;
 .content {
     padding-top: 110px;
 }
+/* =====================================
+   AZ TURF PRO - STYLE TICKET PREMIUM
+   Ajout sans modification des fonctions
+===================================== */
+
+.premium-container {
+    max-width: 900px;
+    margin: auto;
+    padding: 15px;
+}
+
+.premium-header {
+    text-align: center;
+    padding: 25px;
+    border-radius: 20px;
+}
+
+.premium-title h1 {
+    font-size: 28px;
+}
+
+.premium-banner {
+    text-align: center;
+    border-radius: 18px;
+    padding: 20px;
+}
+
+.premium-card {
+    border-radius: 18px;
+    padding: 20px;
+    margin: 18px 0;
+}
+
+.ticket-premium-box {
+    text-align: center;
+    border-radius: 16px;
+    padding: 18px;
+    margin: 15px 0;
+}
+
+.ticket-premium-box h3 {
+    font-size: 20px;
+}
+
+.numero-ticket {
+    font-size: 28px;
+    font-weight: bold;
+    letter-spacing: 4px;
+    padding: 20px;
+    border-radius: 15px;
+}
+
+.chevaux-premium {
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+    letter-spacing: 8px;
+    padding: 20px;
+}
+
+.premium-message {
+    text-align: center;
+    padding: 20px;
+    border-radius: 18px;
+}
+
+@media(max-width:600px){
+
+    .numero-ticket {
+        font-size:22px;
+        letter-spacing:2px;
+    }
+
+    .chevaux-premium {
+        font-size:24px;
+        letter-spacing:4px;
+    }
+
+    .premium-title h1 {
+        font-size:22px;
+    }
+
+}
