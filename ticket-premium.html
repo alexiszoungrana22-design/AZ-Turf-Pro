@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Ticket Premium - AZ Turf Pro</title>
+<title>Espace Ticket Premium - AZ Turf Pro</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -16,40 +16,25 @@
 <body>
 
 
-<header class="top-header">
+<header class="premium-header">
 
-<div class="brand-zone">
-
-<div class="logo">
-🏇 <span>AZ Turf Pro</span>
-</div>
-
-<div class="mini-countdown">
-👑 Espace Premium
-</div>
-
+<div class="premium-logo">
+🏇 AZ Turf Pro
 </div>
 
 
-<nav class="top-menu">
+<div class="premium-title">
 
-<a href="index.html">
-🏠 Accueil
-</a>
+<h1>
+Espace Ticket Premium
+</h1>
 
-<a href="analyse.html">
-📊 Analyse
-</a>
+<p>
+Analyse spécialisée et combinaisons exclusives
+</p>
 
-<a href="ticket.html">
-📰 Journal
-</a>
+</div>
 
-<a href="historique.html">
-🏆 Historique
-</a>
-
-</nav>
 
 </header>
 
@@ -57,18 +42,52 @@
 
 
 
-<main class="content">
+<nav class="top-menu premium-menu">
+
+
+<a href="index.html">
+🏠 Accueil
+</a>
+
+
+<a href="analyse.html">
+📊 Analyse
+</a>
+
+
+<a href="ticket.html">
+🎟️ Programme
+</a>
+
+
+<a href="historique.html">
+🏆 Historique
+</a>
+
+
+</nav>
 
 
 
-<section class="premium-header card">
 
-<h1>
-👑 AZ Turf Pro Premium
-</h1>
+
+
+
+
+<main class="premium-container">
+
+
+
+
+
+<section class="premium-banner">
+
+<h2>
+⭐ AZ Turf Pro Premium
+</h2>
 
 <p>
-Analyse professionnelle exclusive et tickets Premium.
+Vos sélections exclusives basées sur l'analyse des performances.
 </p>
 
 </section>
@@ -77,14 +96,18 @@ Analyse professionnelle exclusive et tickets Premium.
 
 
 
-<section class="card">
+
+
+<section class="premium-card">
 
 <h2>
-🏇 Sélection Premium (7 chevaux)
+🏇 Sélection Premium du jour
 </h2>
 
 
-<div id="selection-premium">
+<div 
+id="selection-premium"
+class="chevaux-premium">
 
 Chargement...
 
@@ -98,16 +121,18 @@ Chargement...
 
 
 
-<section class="card">
+
+
+<section class="premium-card">
 
 <h2>
-🧠 Explication des choix
+🧠 Pourquoi ces chevaux ?
 </h2>
 
 
-<div id="explication-choix">
+<div id="explication-premium">
 
-Analyse en cours...
+Chargement...
 
 </div>
 
@@ -121,45 +146,35 @@ Analyse en cours...
 
 
 
-<section class="card premium-ticket">
+
+<section class="premium-card tickets-premium">
 
 
 <h2>
+🏆 Vos Tickets Premium
+</h2>
+
+
+
+
+
+
+<div class="ticket-premium-box">
+
+<h3>
 🏆 Quinté Premium
-</h2>
+</h3>
 
 
-<div id="vip-quinte" class="ticket-box">
-
-Chargement...
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-<section class="card premium-ticket">
-
-
-<h2>
-🎯 Quarté Premium
-</h2>
-
-
-<div id="vip-quarte" class="ticket-box">
+<div id="quinte-premium"
+class="numero-ticket">
 
 Chargement...
 
 </div>
 
 
-</section>
+</div>
 
 
 
@@ -167,23 +182,22 @@ Chargement...
 
 
 
+<div class="ticket-premium-box">
 
-<section class="card premium-ticket">
-
-
-<h2>
-🔥 Trio Premium
-</h2>
+<h3>
+🥇 Quarté Premium
+</h3>
 
 
-<div id="vip-trio" class="ticket-box">
+<div id="quarte-premium"
+class="numero-ticket">
 
 Chargement...
 
 </div>
 
 
-</section>
+</div>
 
 
 
@@ -192,24 +206,72 @@ Chargement...
 
 
 
-<section class="card premium-ticket">
+<div class="ticket-premium-box">
+
+<h3>
+🎯 Trio Premium
+</h3>
 
 
-<h2>
+<div id="trio-premium"
+class="numero-ticket">
+
+Chargement...
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+<div class="ticket-premium-box">
+
+<h3>
 🤝 Couplé Gagnant / Placé
-</h2>
+</h3>
 
 
-<p>
-Sélection de 3 chevaux
-</p>
-
-
-<div id="couple-gagnant-place" class="ticket-box">
+<div id="couple-premium"
+class="numero-ticket">
 
 Chargement...
 
 </div>
+
+
+</div>
+
+
+
+
+
+
+
+
+<div class="ticket-premium-box">
+
+<h3>
+🔒 Champ réduit Premium
+</h3>
+
+
+<div id="champ-reduit-premium"
+class="numero-ticket">
+
+Chargement...
+
+</div>
+
+
+</div>
+
+
 
 
 </section>
@@ -221,15 +283,15 @@ Chargement...
 
 
 
-<section class="card premium-ticket">
 
+<section class="premium-card">
 
 <h2>
-🔒 Champ réduit Premium
+⚡ Dernière minute
 </h2>
 
 
-<div id="champ-reduit" class="ticket-box champ-format">
+<div id="derniere-minute-premium">
 
 Chargement...
 
@@ -245,7 +307,7 @@ Chargement...
 
 
 
-<section class="card">
+<section class="premium-card analyse-premium-zone">
 
 
 <h2>
@@ -253,33 +315,9 @@ Chargement...
 </h2>
 
 
-<div id="analyse-performance">
+<div id="analyse-premium">
 
-Analyse en cours...
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-
-<section class="card">
-
-
-<h2>
-🚨 Dernière minute
-</h2>
-
-
-<div id="derniere-minute">
-
-Aucune information pour le moment.
+Chargement...
 
 </div>
 
@@ -293,17 +331,17 @@ Aucune information pour le moment.
 
 
 
-<section class="card premium-message">
 
+<section class="premium-message">
 
 <h2>
-🍀 Conseil AZ Turf Pro
+🍀 Message Premium
 </h2>
 
 
-<p id="message-fin">
+<p id="message-premium">
 
-Jouez avec discipline et responsabilité.
+Chargement...
 
 </p>
 
@@ -314,8 +352,8 @@ Jouez avec discipline et responsabilité.
 
 
 
-
 </main>
+
 
 
 
@@ -337,7 +375,7 @@ Jouez avec discipline et responsabilité.
 
 
 <a href="ticket.html">
-📰 Journal
+🎟️ Programme
 </a>
 
 
@@ -353,7 +391,7 @@ Jouez avec discipline et responsabilité.
 
 
 
-<script src="ticket-premium.js"></script>
+<script src="ticket-premium.js?v=2"></script>
 
 
 </body>
