@@ -1,7 +1,7 @@
 /* =====================================
    AZ TURF PRO
    TICKET PREMIUM CSS
-   VERSION CARTE UNIFORME
+   VERSION CARTE LARGE
 ===================================== */
 
 
@@ -9,8 +9,8 @@
 
 .premium-container{
 
-    width:95%;
-    max-width:900px;
+    width:98%;
+    max-width:1000px;
     margin:auto;
     padding:15px;
 
@@ -31,7 +31,7 @@
 
 .premium-logo{
 
-    font-size:30px;
+    font-size:32px;
     font-weight:900;
 
 }
@@ -39,7 +39,7 @@
 
 .premium-title h1{
 
-    font-size:28px;
+    font-size:30px;
     margin:10px 0;
 
 }
@@ -52,8 +52,8 @@
 
 .premium-back{
 
-    margin:15px 0;
     text-align:center;
+    margin:20px 0;
 
 }
 
@@ -62,11 +62,9 @@
 
     display:inline-block;
 
-    padding:12px 20px;
+    padding:13px 22px;
 
     border-radius:15px;
-
-    text-decoration:none;
 
     font-weight:bold;
 
@@ -85,30 +83,15 @@
 
 
 
-/* MENU */
-
-.premium-menu{
-
-    display:flex;
-    justify-content:center;
-    flex-wrap:wrap;
-    gap:12px;
-
-}
-
-
-
-
-
 /* BANNIERE */
 
 .premium-banner{
 
     text-align:center;
 
-    padding:25px;
+    padding:30px;
 
-    border-radius:22px;
+    border-radius:25px;
 
     margin:20px 0;
 
@@ -118,21 +101,24 @@
 
 
 
-/* CARTES GENERALES */
+/* CARTES */
 
 .premium-card,
 .premium-message{
 
-    padding:22px;
+    width:100%;
 
-    margin:20px 0;
+    padding:25px;
 
-    border-radius:22px;
+    margin:25px 0;
 
-    box-shadow:
-    0 6px 18px rgba(0,0,0,0.12);
+    border-radius:25px;
+
+    box-sizing:border-box;
 
 }
+
+
 
 
 
@@ -141,25 +127,7 @@
 
     text-align:center;
 
-}
-
-
-
-
-
-/* SELECTION */
-
-.chevaux-premium{
-
-    text-align:center;
-
-    font-size:28px;
-
-    font-weight:900;
-
-    letter-spacing:2px;
-
-    padding:20px;
+    font-size:24px;
 
 }
 
@@ -171,7 +139,7 @@
 
 .tickets-premium{
 
-    padding:20px;
+    padding:25px;
 
 }
 
@@ -179,24 +147,19 @@
 
 
 
-/* CARTE DE CHAQUE TICKET */
+/* CARTE TICKET */
 
 .ticket-premium-box{
 
     width:100%;
 
-    min-height:130px;
+    min-height:150px;
 
-    margin:20px 0;
+    margin:25px 0;
 
-    padding:25px 15px;
+    padding:30px 20px;
 
-    border-radius:22px;
-
-    text-align:center;
-
-    box-shadow:
-    0 5px 15px rgba(0,0,0,0.12);
+    border-radius:25px;
 
     display:flex;
 
@@ -205,6 +168,8 @@
     justify-content:center;
 
     align-items:center;
+
+    text-align:center;
 
     box-sizing:border-box;
 
@@ -216,9 +181,9 @@
 
 .ticket-premium-box h3{
 
-    font-size:22px;
+    font-size:24px;
 
-    margin-bottom:20px;
+    margin-bottom:25px;
 
 }
 
@@ -234,15 +199,17 @@
 
     text-align:center;
 
-    font-size:30px;
+    font-size:36px;
 
     font-weight:900;
 
-    letter-spacing:2px;
+    letter-spacing:3px;
 
     white-space:nowrap;
 
     overflow-x:auto;
+
+    padding:10px;
 
 }
 
@@ -254,15 +221,13 @@
 
 #champ-reduit-premium{
 
-    width:100%;
-
-    text-align:center;
-
-    font-size:26px;
+    font-size:32px;
 
     font-weight:900;
 
-    line-height:1.6;
+    text-align:center;
+
+    line-height:1.5;
 
 }
 
@@ -278,9 +243,27 @@
 
     text-align:center;
 
-    font-size:30px;
+    font-size:36px;
 
     font-weight:900;
+
+}
+
+
+
+
+
+/* SELECTION */
+
+.chevaux-premium{
+
+    text-align:center;
+
+    font-size:32px;
+
+    font-weight:900;
+
+    letter-spacing:3px;
 
 }
 
@@ -292,7 +275,7 @@
 
 .analyse-premium-zone{
 
-    line-height:1.7;
+    line-height:1.8;
 
 }
 
@@ -320,22 +303,19 @@
 
 
 
+
+
+
 /* MOBILE */
 
 @media(max-width:600px){
 
 
-.premium-logo{
+.premium-container{
 
-    font-size:23px;
+    width:100%;
 
-}
-
-
-
-.premium-title h1{
-
-    font-size:22px;
+    padding:10px;
 
 }
 
@@ -343,9 +323,9 @@
 
 .ticket-premium-box{
 
-    min-height:110px;
+    min-height:130px;
 
-    padding:20px 10px;
+    padding:25px 10px;
 
 }
 
@@ -353,7 +333,7 @@
 
 .ticket-premium-box h3{
 
-    font-size:19px;
+    font-size:20px;
 
 }
 
@@ -361,7 +341,9 @@
 
 .numero-ticket{
 
-    font-size:23px;
+    font-size:27px;
+
+    letter-spacing:2px;
 
 }
 
@@ -369,7 +351,7 @@
 
 #champ-reduit-premium{
 
-    font-size:21px;
+    font-size:23px;
 
 }
 
@@ -377,7 +359,15 @@
 
 #derniere-minute-premium{
 
-    font-size:23px;
+    font-size:27px;
+
+}
+
+
+
+.chevaux-premium{
+
+    font-size:25px;
 
 }
 
