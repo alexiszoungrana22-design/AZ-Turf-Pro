@@ -483,3 +483,77 @@ def verifier_premium(telephone):
         "date_fin": date_fin
 
                 }
+# =====================================
+# ADMIN - LISTE DES ABONNEMENTS
+# =====================================
+
+def lister_abonnements():
+
+    conn = connexion()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM abonnements
+        ORDER BY id DESC
+        """
+    )
+
+    resultats = cursor.fetchall()
+
+    conn.close()
+
+    abonnements = []
+
+    for resultat in resultats:
+
+        abonnements.append({
+
+            "id": resultat[0],
+            "telephone": resultat[1],
+            "offre": resultat[2],
+            "prix": resultat[3],
+            "duree": resultat[4],
+            "paiement": resultat[5],
+            "reference": resultat[6],
+            "statut": resultat[7],
+            "date_creation": resultat[8],
+            "date_fin": resultat[9]
+
+        })
+
+    return abonnements
+
+def statistiques_admin():
+
+    conn = connexion()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT COUNT(*) FROM abonnements"
+    )
+
+    total = cursor.fetchone()[0]
+
+
+    cursor.execute(
+        """
+        SELECT COUNT(*)
+        FROM abonnements
+        WHERE statut='ACTIF'
+        """
+    )
+
+    actifs = cursor.fetchone()[0]
+
+
+    conn.close()
+
+
+    return {
+
+        "total_abonnements": total,
+        "premium_actifs": actifs
+
+    }
