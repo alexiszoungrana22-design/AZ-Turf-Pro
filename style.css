@@ -1,51 +1,64 @@
 /* ===============================
-   AZ TURF PRO DESIGN V9 PREMIUM
+   AZ TURF PRO DESIGN V10
+   PARTIE 1/3
+   Nettoyage sans modification fonctions
 ================================ */
 
 
+/* ===============================
+   RESET GENERAL
+================================ */
+
 *{
-box-sizing:border-box;
+    box-sizing:border-box;
 }
 
+html{
+    scroll-behavior:smooth;
+}
 
 body{
 
-margin:0;
-font-family:Arial,sans-serif;
-background:#f4f7f8;
-color:#222;
+    margin:0;
+    padding:0;
+
+    font-family:Arial, sans-serif;
+
+    background:#f4f7f8;
+    color:#222;
 
 }
 
 
 
 /* ===============================
- HEADER
+   HEADER PRINCIPAL
 ================================ */
-
 
 .top-header{
 
-position:fixed;
-top:0;
-left:0;
-width:100%;
+    position:fixed;
 
-height:75px;
+    top:0;
+    left:0;
 
-background:white;
+    width:100%;
 
-display:flex;
+    height:75px;
 
-align-items:center;
+    background:white;
 
-justify-content:space-between;
+    display:flex;
 
-padding:0 20px;
+    align-items:center;
 
-box-shadow:0 4px 15px rgba(0,0,0,.15);
+    justify-content:space-between;
 
-z-index:1000;
+    padding:0 20px;
+
+    box-shadow:0 4px 15px rgba(0,0,0,.15);
+
+    z-index:1000;
 
 }
 
@@ -53,9 +66,9 @@ z-index:1000;
 
 .brand-zone{
 
-display:flex;
+    display:flex;
 
-flex-direction:column;
+    flex-direction:column;
 
 }
 
@@ -63,11 +76,11 @@ flex-direction:column;
 
 .logo{
 
-font-size:23px;
+    font-size:23px;
 
-font-weight:bold;
+    font-weight:bold;
 
-color:#08783f;
+    color:#08783f;
 
 }
 
@@ -75,11 +88,11 @@ color:#08783f;
 
 .mini-countdown{
 
-font-size:12px;
+    font-size:12px;
 
-font-weight:bold;
+    font-weight:bold;
 
-color:#08783f;
+    color:#08783f;
 
 }
 
@@ -87,19 +100,22 @@ color:#08783f;
 
 .mini-countdown.urgent{
 
-color:red;
+    color:red;
 
 }
 
 
 
+/* ===============================
+   MENU HAUT
+================================ */
 
 
 .top-menu{
 
-display:flex;
+    display:flex;
 
-gap:10px;
+    gap:10px;
 
 }
 
@@ -107,19 +123,19 @@ gap:10px;
 
 .top-menu a{
 
-background:#08783f;
+    background:#08783f;
 
-color:white;
+    color:white;
 
-text-decoration:none;
+    text-decoration:none;
 
-padding:8px 14px;
+    padding:8px 14px;
 
-border-radius:25px;
+    border-radius:25px;
 
-font-size:13px;
+    font-size:13px;
 
-font-weight:bold;
+    font-weight:bold;
 
 }
 
@@ -127,1394 +143,48 @@ font-weight:bold;
 
 .btn-vip{
 
-background:linear-gradient(45deg,#d4af37,#ffe680);
+    background:linear-gradient(45deg,#d4af37,#ffe680);
 
-color:#111;
+    color:#111;
 
-padding:10px 18px;
+    padding:10px 18px;
 
-border-radius:25px;
+    border-radius:25px;
 
-font-weight:bold;
+    font-weight:bold;
 
-text-decoration:none;
+    text-decoration:none;
 
 }
 
 
 
 /* ===============================
- CONTENU
+   CONTENU GENERAL
 ================================ */
 
 
 .content{
 
-padding-top:100px;
+    padding-top:110px;
 
-padding-bottom:90px;
+    padding-bottom:90px;
 
-max-width:1200px;
+    max-width:1200px;
 
-margin:auto;
+    margin:auto;
 
 }
 
 
 
-.card{
-
-background:white;
-
-width:95%;
-
-margin:20px auto;
-
-padding:22px;
-
-border-radius:20px;
-
-box-shadow:0 5px 15px rgba(0,0,0,.08);
-
-}
-
-
-
-.card h2{
-
-text-align:center;
-
-color:#08783f;
-
-}
-
-
-
-/* ===============================
- PUBLICITE
-================================ */
-
-
-.pub-content img,
-.pub-content video{
-
-width:100%;
-
-height:150px;
-
-object-fit:cover;
-
-border-radius:18px;
-
-}
-
-
-
-/* ===============================
- TABLEAU PARTANTS
-================================ */
-
-
-.table-container{
-
-overflow-x:auto;
-
-}
-
-
-
-table{
-
-width:100%;
-
-min-width:850px;
-
-border-collapse:collapse;
-
-}
-
-
-
-th{
-
-background:#08783f;
-
-color:white;
-
-padding:12px;
-
-}
-
-
-
-td{
-
-padding:12px;
-
-text-align:center;
-
-border-bottom:1px solid #ddd;
-
-}
-
-
-
-/* ===============================
- ANALYSE AZ
-================================ */
-
-
-.analyse-horizontal{
-
-display:flex;
-
-gap:20px;
-
-}
-
-
-
-.analyse-cheval{
-
-flex:1;
-
-background:#f4f7f8;
-
-border-radius:20px;
-
-padding:20px;
-
-text-align:center;
-
-border-top:6px solid #08783f;
-
-}
-
-
-
-.analyse-cheval.outsider{
-
-border-top-color:#ff9800;
-
-}
-
-
-
-.analyse-numero{
-
-font-size:55px;
-
-font-weight:bold;
-
-color:#08783f;
-
-}
-
-
-
-.outsider .analyse-numero{
-
-color:#ff9800;
-
-}
-
-
-
-.analyse-cheval p{
-
-font-size:14px;
-
-line-height:1.6;
-
-}
-
-
-
-/* ===============================
- CHEVAUX LES PLUS JOUES
-================================ */
-
-
-.popular-horizontal{
-
-display:flex;
-
-gap:15px;
-
-justify-content:center;
-
-overflow-x:auto;
-
-padding:10px;
-
-}
-
-
-
-.popular-card{
-
-min-width:65px;
-
-height:65px;
-
-display:flex;
-
-align-items:center;
-
-justify-content:center;
-
-background:white;
-
-border-radius:50%;
-
-border-top:5px solid #08783f;
-
-box-shadow:0 4px 12px rgba(0,0,0,.15);
-
-font-size:25px;
-
-font-weight:bold;
-
-color:#08783f;
-
-}
-
-
-
-/* ===============================
- TENDANCE
-================================ */
-
-
-.tendance-box{
-
-border-top:5px solid #08783f;
-
-}
-
-
-
-#course-tendance{
-
-background:#f4f7f8;
-
-padding:20px;
-
-border-radius:18px;
-
-text-align:center;
-
-font-weight:bold;
-
-}
-
-
-
-/* ===============================
- BANDEAU
-================================ */
-
-
-.news-bar{
-
-width:95%;
-
-margin:20px auto;
-
-background:#08783f;
-
-color:white;
-
-padding:15px;
-
-border-radius:20px;
-
-text-align:center;
-
-font-weight:bold;
-
-}
-
-
-
-/* ===============================
- MENU MOBILE
-================================ */
-
-
-.bottom-menu{
-
-display:none;
-
-}
-
-
-
-
-@media(max-width:700px){
-
-
-
-.top-header{
-
-height:70px;
-
-padding:0 10px;
-
-}
-
-
-
-.logo{
-
-font-size:18px;
-
-}
-
-
-
-.top-menu{
-
-display:none;
-
-}
-
-
-
-.btn-vip{
-
-padding:8px 12px;
-
-font-size:12px;
-
-}
-
-
-
-.content{
-
-padding-top:90px;
-
-}
-
-
-
-.card{
-
-padding:15px;
-
-}
-
-
-
-.analyse-horizontal{
-
-overflow-x:auto;
-
-}
-
-
-
-.analyse-cheval{
-
-min-width:85%;
-
-}
-
-
-
-.popular-horizontal{
-
-justify-content:flex-start;
-
-}
-
-
-
-.bottom-menu{
-
-display:flex;
-
-position:fixed;
-
-bottom:0;
-
-left:0;
-
-width:100%;
-
-height:65px;
-
-background:white;
-
-justify-content:space-around;
-
-align-items:center;
-
-box-shadow:0 -3px 12px rgba(0,0,0,.15);
-
-z-index:1000;
-
-}
-
-
-
-.bottom-menu a{
-
-text-decoration:none;
-
-color:#08783f;
-
-font-size:12px;
-
-font-weight:bold;
-
-}
-
-
-}
-/* ===============================
-   PAIEMENT PREMIUM
-================================ */
-
-
-.payment-choice{
-
-display:flex;
-
-gap:15px;
-
-justify-content:center;
-
-flex-wrap:wrap;
-
-margin-top:20px;
-
-}
-
-
-
-.payment-choice button{
-
-min-width:150px;
-
-background:white;
-
-color:#08783f;
-
-border:2px solid #08783f;
-
-padding:15px;
-
-border-radius:20px;
-
-font-weight:bold;
-
-font-size:16px;
-
-transition:.3s;
-
-}
-
-
-
-.payment-choice button:hover{
-
-transform:scale(1.05);
-
-background:#08783f;
-
-color:white;
-
-}
-
-
-
-
-
-.btn-payment{
-
-display:block;
-
-margin:20px auto;
-
-background:#d4af37;
-
-color:#111;
-
-padding:14px 35px;
-
-border-radius:30px;
-
-font-size:18px;
-
-font-weight:bold;
-
-}
-
-
-
-
-
-@media(max-width:600px){
-
-
-.payment-choice{
-
-flex-direction:column;
-
-align-items:center;
-
-}
-
-
-.payment-choice button{
-
-width:90%;
-
-}
-
-
-}
-/* ===============================
-   ANALYSE AZ PREMIUM
-================================ */
-
-
-.analyse-az{
-
-border-top:5px solid #08783f;
-
-}
-
-
-
-.analyse-az-container{
-
-display:flex;
-
-gap:20px;
-
-}
-
-
-
-.az-box{
-
-flex:1;
-
-background:#f4f7f8;
-
-padding:22px;
-
-border-radius:22px;
-
-text-align:center;
-
-box-shadow:0 4px 12px rgba(0,0,0,.08);
-
-}
-
-
-
-.favori-az{
-
-border-top:6px solid #08783f;
-
-}
-
-
-
-.outsider-az{
-
-border-top:6px solid #ff9800;
-
-}
-
-
-
-.az-box h3{
-
-font-size:18px;
-
-margin-bottom:15px;
-
-}
-
-
-
-.az-numero{
-
-font-size:60px;
-
-font-weight:bold;
-
-color:#08783f;
-
-}
-
-
-
-.outsider-numero{
-
-color:#ff9800;
-
-}
-
-
-
-.az-box h4{
-
-font-size:22px;
-
-margin:10px 0;
-
-}
-
-
-
-.az-box p{
-
-line-height:1.6;
-
-}
-
-
-
-.az-box strong{
-
-color:#08783f;
-
-}
-
-
-
-.outsider-az strong{
-
-color:#ff9800;
-
-}
-
-
-
-#favori-raison,
-#outsider-raison{
-
-background:white;
-
-padding:15px;
-
-border-radius:15px;
-
-margin-top:15px;
-
-font-weight:bold;
-
-}
-
-
-
-/* MOBILE */
-
-@media(max-width:600px){
-
-
-.analyse-az-container{
-
-flex-direction:column;
-
-}
-
-
-
-.az-box{
-
-width:100%;
-
-}
-
-
-
-.az-numero{
-
-font-size:50px;
-
-}
-
-
-}
-
-/* ===============================
-   ANALYSE AZ
-================================ */
-
-
-.selection-az{
-
-background:#f1f8e9;
-
-padding:15px;
-
-border-radius:12px;
-
-text-align:center;
-
-font-size:22px;
-
-color:#006400;
-
-margin-top:10px;
-
-}
-
-
-
-
-
-.raison-cheval{
-
-background:#fafafa;
-
-padding:12px;
-
-margin-bottom:10px;
-
-border-left:4px solid #1b8f3a;
-
-border-radius:8px;
-
-}
-
-
-
-.raison-cheval h3{
-
-margin:0 0 8px 0;
-
-color:#1b8f3a;
-
-}
-
-
-
-
-#avis-course,
-#actualites-course,
-#synthese-az{
-
-line-height:1.6;
-
-}
-
-
-
-
-
-/* Zone visiteurs agrandie */
-
-
-#message-visiteur{
-
-width:100%;
-
-border-radius:10px;
-
-padding:12px;
-
-font-size:16px;
-
-resize:none;
-
-box-sizing:border-box;
-
-}
-
-
-
-
-
-#messages-visiteurs{
-
-margin-top:15px;
-
-background:#f5f5f5;
-
-padding:12px;
-
-border-radius:10px;
-
-min-height:80px;
-
-}
-
-
-
-
-
-/* Tableau mobile */
-
-
-.table-container{
-
-overflow-x:auto;
-
-}
-
-
-
-
-
-table{
-
-width:100%;
-
-border-collapse:collapse;
-
-font-size:14px;
-
-}
-
-
-
-
-
-th,
-td{
-
-padding:8px;
-
-text-align:center;
-
-white-space:nowrap;
-
-}
-
-/* ===============================
-   ESPACE VIP AZ TURF PRO
-================================ */
-
-
-.vip-navigation{
-
-display:flex;
-
-justify-content:center;
-
-gap:8px;
-
-flex-wrap:wrap;
-
-padding:10px;
-
-background:#111;
-
-border-radius:10px;
-
-margin:10px;
-
-}
-
-
-.vip-navigation a{
-
-color:white;
-
-text-decoration:none;
-
-background:#b8860b;
-
-padding:8px 12px;
-
-border-radius:20px;
-
-font-size:14px;
-
-}
-
-
-
-.vip-lock{
-
-text-align:center;
-
-padding:15px;
-
-margin-top:10px;
-
-background:#222;
-
-color:#ffd700;
-
-border-radius:10px;
-
-font-weight:bold;
-
-}
-
-
-
-.vip-content{
-
-background:#222;
-
-color:#ffd700;
-
-padding:15px;
-
-border-radius:10px;
-
-text-align:center;
-
-}
-
-
-
-.card button{
-
-background:#b8860b;
-
-color:white;
-
-border:none;
-
-padding:12px 25px;
-
-border-radius:25px;
-
-font-size:16px;
-
-cursor:pointer;
-
-}
-
-
-.card button:hover{
-
-opacity:0.8;
-
-}
-
-.pub-banner{
-
-width:100%;
-
-margin:15px 0;
-
-overflow:hidden;
-
-border-radius:12px;
-
-}
-
-
-.pub-banner img{
-
-width:100%;
-
-height:150px;
-
-object-fit:cover;
-
-display:block;
-
-}
-
-/* BANNIERE PUBLICITAIRE */
-
-.pub-box{
-    padding:10px;
-}
-
-.pub-content img{
+.page-container{
 
     width:100%;
 
-    height:160px;
+    max-width:1400px;
 
-    object-fit:cover;
-
-    border-radius:12px;
-
-    display:block;
-
-}
-
-/* ==============================
-   ESPACE PREMIUM AZ TURF PRO
-============================== */
-
-
-.vip-banner {
-
-text-align:center;
-
-}
-
-
-.vip-banner h1 {
-
-font-size:28px;
-
-margin-bottom:10px;
-
-}
-
-
-
-
-
-/* CARTES ABONNEMENTS */
-
-.vip-offres {
-
-display:flex;
-
-gap:20px;
-
-justify-content:center;
-
-flex-wrap:wrap;
-
-margin-top:20px;
-
-}
-
-
-
-.vip-box {
-
-background:rgba(255,255,255,0.08);
-
-border-radius:15px;
-
-padding:20px;
-
-width:260px;
-
-text-align:center;
-
-box-shadow:0 4px 15px rgba(0,0,0,0.2);
-
-}
-
-
-
-.vip-box h3 {
-
-font-size:22px;
-
-margin-bottom:15px;
-
-}
-
-
-
-.vip-box p {
-
-line-height:1.5;
-
-}
-
-
-
-
-
-.vip-box button {
-
-
-background:#d4af37;
-
-color:#111;
-
-border:none;
-
-padding:12px 25px;
-
-border-radius:25px;
-
-font-weight:bold;
-
-cursor:pointer;
-
-margin-top:15px;
-
-}
-
-
-
-.vip-box button:hover {
-
-
-transform:scale(1.05);
-
-}
-
-
-
-
-
-
-
-
-/* ==============================
-   PAIEMENT PREMIUM
-============================== */
-
-
-.paiement-options {
-
-
-display:flex;
-
-gap:20px;
-
-justify-content:center;
-
-flex-wrap:wrap;
-
-margin-top:20px;
-
-}
-
-
-
-
-.paiement-card {
-
-
-background:rgba(255,255,255,0.08);
-
-border-radius:15px;
-
-padding:25px;
-
-width:280px;
-
-text-align:center;
-
-box-shadow:0 4px 15px rgba(0,0,0,0.2);
-
-}
-
-
-
-.paiement-card h3 {
-
-
-font-size:22px;
-
-margin-bottom:10px;
-
-}
-
-
-
-.paiement-card button {
-
-
-background:#0066ff;
-
-color:white;
-
-border:none;
-
-padding:12px 30px;
-
-border-radius:25px;
-
-cursor:pointer;
-
-font-weight:bold;
-
-margin-top:15px;
-
-}
-
-
-
-.paiement-card button:hover {
-
-
-transform:scale(1.05);
-
-}
-
-
-
-
-
-
-
-/* BOUTON ACTIVATION */
-
-
-#confirmer-paiement {
-
-
-background:#009933;
-
-color:white;
-
-border:none;
-
-padding:14px 35px;
-
-border-radius:30px;
-
-font-weight:bold;
-
-cursor:pointer;
-
-}
-
-
-
-#confirmer-paiement:hover {
-
-
-transform:scale(1.05);
-
-}
-
-
-
-
-
-
-
-/* MOBILE */
-
-@media(max-width:600px){
-
-
-.vip-box,
-.paiement-card {
-
-
-width:90%;
-
-
-}
-
-
-
-}
-
-.ticket-box {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    justify-content: center;
-    font-size: 28px;
-    font-weight: bold;
-    margin: 15px 0;
-}
-
-
-.ticket-box span,
-.numero-cheval {
-    font-size: 30px;
-    font-weight: 800;
-    padding: 8px 14px;
-    border-radius: 10px;
-}
-
-
-#classement-premium {
-    font-size: 18px;
-}
-
-
-.cheval-premium {
-    padding: 8px;
-    margin: 5px 0;
-}
-
- /* ==============================
-   AZ Turf Pro - Boules Ticket Premium
-   Grande taille numéros
-   ============================== */
-
-
-.ticket-numeros {
-
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    gap:14px;
-    margin:20px 0;
-
-}
-
-
-
-.ticket-grand {
-
-    width:100%;
-
-    text-align:center;
-
-    font-size:34px;
-
-    font-weight:bold;
-
-    display:block;
-
-    margin:20px auto;
-
-}
-
-
-
-#ticket-quinte,
-#ticket-quarte,
-#ticket-trio,
-#ticket-couple-gagnant,
-#ticket-couple-place,
-#ticket-champ-reduit,
-#ticket-2h-avant {
-
-    text-align:center;
-
-    width:100%;
-
-}
-
-
-
-#favori-az {
-
-    margin-top:15px;
-
-    padding:15px;
-
-    text-align:center;
-
-    font-size:22px;
-
-    font-weight:bold;
-
-}
-
-
-
-#infos-course {
-
-    text-align:center;
-
-    line-height:1.7;
-
-}
-
-
-
-.champ-reduit {
-
-    text-align:center;
-
-    font-size:28px;
-
-    font-weight:bold;
+    margin:auto;
 
     padding:20px;
 
@@ -1522,37 +192,729 @@ width:90%;
 
 
 
-#classement-premium div {
+.card{
+
+    background:white;
+
+    width:95%;
+
+    margin:20px auto;
+
+    padding:22px;
+
+    border-radius:20px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+
+}
+
+
+
+.card h2{
+
+    text-align:center;
+
+    color:#08783f;
+
+    margin-top:0;
+
+    line-height:1.4;
+
+}
+
+
+
+/* ===============================
+   PUBLICITE
+================================ */
+
+
+.pub-box{
 
     padding:10px;
 
-    margin:6px 0;
+}
 
-    font-size:20px;
+
+.pub-content img,
+.pub-content video{
+
+    width:100%;
+
+    height:160px;
+
+    object-fit:cover;
+
+    border-radius:18px;
+
+    display:block;
+
+}
+
+
+.pub-banner{
+
+    width:100%;
+
+    margin:15px 0;
+
+    overflow:hidden;
+
+    border-radius:12px;
+
+}
+
+
+.pub-banner img{
+
+    width:100%;
+
+    height:150px;
+
+    object-fit:cover;
+
+    display:block;
 
 }
 
 
 
-/* Téléphone */
+/* ===============================
+   TABLEAUX
+================================ */
 
-@media(max-width:600px){
 
-    .boule-numero {
+.table-container{
 
-        width:60px;
+    width:100%;
 
-        height:60px;
-
-        font-size:32px;
-
-    }
+    overflow-x:auto;
 
 }
 
 
 
-.couple-ligne {
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    min-width:850px;
+
+}
+
+
+
+th{
+
+    background:#08783f;
+
+    color:white;
+
+    padding:12px;
+
+}
+
+
+
+td{
+
+    padding:12px;
+
+    text-align:center;
+
+    border-bottom:1px solid #ddd;
+
+}
+
+
+
+/* ===============================
+   MENU MOBILE BAS
+================================ */
+
+
+.bottom-menu{
+
+    display:none;
+
+}
+
+/* ===============================
+   AZ TURF PRO DESIGN V10
+   PARTIE 2/3
+================================ */
+
+
+/* ===============================
+   ANALYSE AZ
+================================ */
+
+
+.analyse-horizontal{
+
+    display:flex;
+
+    gap:20px;
+
+}
+
+
+
+.analyse-cheval{
+
+    flex:1;
+
+    background:#f4f7f8;
+
+    border-radius:20px;
+
+    padding:20px;
+
+    text-align:center;
+
+    border-top:6px solid #08783f;
+
+}
+
+
+
+.analyse-cheval.outsider{
+
+    border-top-color:#ff9800;
+
+}
+
+
+
+.analyse-numero{
+
+    font-size:55px;
+
+    font-weight:bold;
+
+    color:#08783f;
+
+}
+
+
+
+.outsider .analyse-numero{
+
+    color:#ff9800;
+
+}
+
+
+
+.analyse-cheval p{
+
+    line-height:1.6;
+
+}
+
+
+
+/* ===============================
+   BLOC ANALYSE PREMIUM
+================================ */
+
+
+.analyse-az{
+
+    border-top:5px solid #08783f;
+
+}
+
+
+
+.analyse-az-container{
+
+    display:flex;
+
+    gap:20px;
+
+}
+
+
+
+.az-box{
+
+    flex:1;
+
+    background:#f4f7f8;
+
+    padding:22px;
+
+    border-radius:22px;
+
+    text-align:center;
+
+}
+
+
+
+.favori-az{
+
+    border-top:6px solid #08783f;
+
+}
+
+
+
+.outsider-az{
+
+    border-top:6px solid #ff9800;
+
+}
+
+
+
+.az-numero{
+
+    font-size:60px;
+
+    font-weight:bold;
+
+    color:#08783f;
+
+}
+
+
+
+.outsider-numero{
+
+    color:#ff9800;
+
+}
+
+
+
+.az-box h4{
+
+    font-size:22px;
+
+}
+
+
+
+/* ===============================
+   CHEVAUX LES PLUS JOUES
+================================ */
+
+
+.popular-horizontal{
+
+    display:flex;
+
+    gap:15px;
+
+    justify-content:center;
+
+    overflow-x:auto;
+
+    padding:10px;
+
+}
+
+
+
+.popular-card{
+
+    min-width:65px;
+
+    height:65px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:white;
+
+    border-radius:50%;
+
+    border-top:5px solid #08783f;
+
+    box-shadow:0 4px 12px rgba(0,0,0,.15);
+
+    font-size:25px;
+
+    font-weight:bold;
+
+    color:#08783f;
+
+}
+
+
+
+/* ===============================
+   TENDANCE
+================================ */
+
+
+.tendance-box{
+
+    border-top:5px solid #08783f;
+
+}
+
+
+
+#course-tendance{
+
+    background:#f4f7f8;
+
+    padding:20px;
+
+    border-radius:18px;
+
+    text-align:center;
+
+    font-weight:bold;
+
+}
+
+
+
+/* ===============================
+   BANDEAU INFORMATION
+================================ */
+
+
+.news-bar{
+
+    width:95%;
+
+    margin:20px auto;
+
+    background:#08783f;
+
+    color:white;
+
+    padding:15px;
+
+    border-radius:20px;
+
+    text-align:center;
+
+    font-weight:bold;
+
+}
+
+
+
+/* ===============================
+   PAIEMENT PREMIUM
+================================ */
+
+
+.payment-choice,
+.paiement-options{
+
+    display:flex;
+
+    gap:20px;
+
+    justify-content:center;
+
+    flex-wrap:wrap;
+
+    margin-top:20px;
+
+}
+
+
+
+.payment-choice button,
+.paiement-card{
+
+    background:white;
+
+    border:2px solid #08783f;
+
+    padding:15px;
+
+    border-radius:20px;
+
+    font-weight:bold;
+
+}
+
+
+
+.paiement-card{
+
+    width:280px;
+
+    text-align:center;
+
+}
+
+
+
+.btn-payment,
+#confirmer-paiement{
+
+    display:block;
+
+    margin:20px auto;
+
+    background:#d4af37;
+
+    color:#111;
+
+    border:none;
+
+    padding:14px 35px;
+
+    border-radius:30px;
+
+    font-weight:bold;
+
+}
+
+
+
+/* ===============================
+   ABONNEMENT PREMIUM
+================================ */
+
+
+.vip-offres{
+
+    display:flex;
+
+    gap:20px;
+
+    justify-content:center;
+
+    flex-wrap:wrap;
+
+}
+
+
+
+.vip-box{
+
+    background:white;
+
+    border-radius:15px;
+
+    padding:20px;
+
+    width:260px;
+
+    text-align:center;
+
+    box-shadow:0 4px 15px rgba(0,0,0,.15);
+
+}
+
+
+
+.vip-box button{
+
+    background:#d4af37;
+
+    border:none;
+
+    padding:12px 25px;
+
+    border-radius:25px;
+
+    font-weight:bold;
+
+}
+
+
+
+/* ===============================
+   FOOTER MOBILE
+================================ */
+
+
+.bottom-menu a{
+
+    text-decoration:none;
+
+    color:#08783f;
+
+    font-size:12px;
+
+    font-weight:bold;
+
+}
+/* ===============================
+   AZ TURF PRO DESIGN V10
+   PARTIE 3/3
+================================ */
+
+
+/* ===============================
+   ESPACE TICKET PREMIUM
+================================ */
+
+
+.premium-container{
+
+    max-width:900px;
+
+    margin:auto;
+
+    padding:15px;
+
+}
+
+
+
+.premium-header{
+
+    text-align:center;
+
+    padding:25px;
+
+    border-radius:25px;
+
+}
+
+
+
+.premium-logo{
+
+    font-size:30px;
+
+    font-weight:bold;
+
+}
+
+
+
+.premium-title h1{
+
+    font-size:28px;
+
+}
+
+
+
+.premium-banner{
+
+    background:linear-gradient(135deg,#1e3c72,#d4af37);
+
+    color:white;
+
+    padding:30px;
+
+    border-radius:25px;
+
+    text-align:center;
+
+}
+
+
+
+.premium-card{
+
+    background:white;
+
+    border-radius:20px;
+
+    padding:20px;
+
+    margin:20px 0;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+
+}
+
+
+
+.premium-card h2{
+
+    text-align:center;
+
+    color:#08783f;
+
+}
+
+
+
+/* ===============================
+   SELECTION PREMIUM
+================================ */
+
+
+.chevaux-premium,
+#selection-premium{
+
+    text-align:center;
+
+    font-size:32px;
+
+    font-weight:bold;
+
+    letter-spacing:6px;
+
+    padding:20px;
+
+    color:#08783f;
+
+}
+
+
+
+/* ===============================
+   TICKETS PREMIUM
+================================ */
+
+
+.ticket-premium-box{
+
+    background:white;
+
+    border:2px solid #d4af37;
+
+    border-radius:20px;
+
+    padding:25px;
+
+    margin:20px 0;
+
+    text-align:center;
+
+}
+
+
+
+.ticket-premium-box h3{
+
+    font-size:21px;
+
+}
+
+
+
+.numero-ticket,
+.ticket-grand{
+
+    text-align:center;
+
+    font-size:32px;
+
+    font-weight:bold;
+
+    letter-spacing:4px;
+
+    padding:20px;
+
+}
+
+
+
+.couple-ligne{
 
     text-align:center;
 
@@ -1566,320 +928,256 @@ width:90%;
 
 
 
-.numero-ticket {
+.champ-reduit{
 
-    font-size:30px;
+    text-align:center;
+
+    font-size:28px;
 
     font-weight:bold;
 
 }
-/* =====================================
-   AZ TURF PRO - STYLE ESPACE PREMIUM
-===================================== */
 
 
-.premium {
-    border: 2px solid #d4af37;
-    border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 20px;
-    background: #ffffff;
-}
+
+/* ===============================
+   MESSAGE PREMIUM
+================================ */
 
 
-.premium h2 {
-    text-align: center;
-    color: #b8860b;
-    margin-bottom: 15px;
-}
+.premium-message,
+.message-fin{
 
+    text-align:center;
 
-.premium h3 {
-    color: #333;
-    margin-top: 20px;
-    text-align: center;
-}
+    padding:25px;
 
+    border-radius:20px;
 
-/* Sélection 7 chevaux */
+    background:#fff8dc;
 
-#selection-premium {
+    font-weight:bold;
 
-    text-align: center;
-    font-size: 28px;
-    font-weight: bold;
-    color: #006400;
-    padding: 15px;
+    font-size:18px;
 
 }
 
 
 
-
-/* Tickets */
-
-.ticket-grand {
-
-    text-align: center;
-    font-size: 30px;
-    font-weight: bold;
-    letter-spacing: 4px;
-    padding: 15px;
-    border-radius: 12px;
-    background: #f7f7f7;
-    color: #111;
-}
+/* ===============================
+   ADMINISTRATION
+================================ */
 
 
+.admin-card{
 
-/* Explications */
+    background:white;
 
-#explication-choix p {
+    border-radius:20px;
 
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-    line-height: 1.5;
+    padding:25px;
+
+    margin:20px auto;
+
+    max-width:1000px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.1);
 
 }
 
 
 
+.admin-card h2{
 
-/* Champ réduit */
+    text-align:center;
 
-#champ-reduit {
-
-    text-align: center;
-    font-size: 22px;
-    font-weight: bold;
+    color:#08783f;
 
 }
 
 
 
-/* Dernière minute */
+.admin-button{
 
-#derniere-minute {
+    background:#08783f;
 
-    text-align: center;
-    font-size: 22px;
-    font-weight: bold;
-    color: #c00;
+    color:white;
 
-}
+    padding:12px 25px;
 
+    border-radius:25px;
 
+    border:none;
 
-
-/* Message final */
-
-.message-fin {
-
-    text-align: center;
-    padding: 20px;
-    margin-top: 20px;
-    border-radius: 15px;
-    background: #fff8dc;
-    font-weight: bold;
-    font-size: 18px;
+    font-weight:bold;
 
 }
 
 
 
-/* Mobile */
+.admin-table{
 
-@media(max-width:600px){
+    width:100%;
 
-    .ticket-grand {
-
-        font-size: 24px;
-        letter-spacing: 2px;
-
-    }
-
-
-    #selection-premium {
-
-        font-size: 24px;
-
-    }
-
-}
-/* =====================================
-   PAGES CLASSIQUES - MODE PLEIN ECRAN
-===================================== */
-
-.page-container {
-
-    width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 20px;
-    box-sizing: border-box;
+    overflow-x:auto;
 
 }
 
 
-.page-container .card {
 
-    width: 100%;
-    box-sizing: border-box;
+/* ===============================
+   RESPONSIVE MOBILE
+================================ */
+
+
+@media(max-width:700px){
+
+
+.top-header{
+
+    height:70px;
+
+    padding:0 10px;
+
+}
+
+
+.logo{
+
+    font-size:18px;
 
 }
 
 
-.page-container .table-container {
+.top-menu{
 
-    width: 100%;
-    overflow-x: auto;
+    display:none;
+
+}
+
+
+.btn-vip{
+
+    padding:8px 12px;
+
+    font-size:12px;
 
 }
 
 
-@media(max-width:600px){
 
-    .page-container {
+.content{
 
-        padding: 10px;
-
-    }
+    padding-top:90px;
 
 }
-/* Correction affichage titres des cartes analyse */
 
-.card h2 {
-    position: relative;
-    z-index: 2;
-    padding-top: 10px;
-    margin-top: 0;
-    line-height: 1.4;
+
+
+.card{
+
+    width:95%;
+
+    padding:15px;
+
 }
 
 
-.analyse-az h2 {
-    margin-top: 10px;
+
+.analyse-horizontal,
+.analyse-az-container{
+
+    flex-direction:column;
+
+}
+
+
+
+.analyse-cheval,
+.az-box{
+
+    width:100%;
+
 }
 
 
-.content {
-    padding-top: 20px;
-}
-.content {
-    padding-top: 110px;
-}
-/* =====================================
-   AZ TURF PRO - STYLE TICKET PREMIUM
-   Ajout sans modification des fonctions
-===================================== */
 
-.premium-container {
-    max-width: 900px;
-    margin: auto;
-    padding: 15px;
-}
+.popular-horizontal{
 
-.premium-header {
-    text-align: center;
-    padding: 25px;
-    border-radius: 20px;
-}
-
-.premium-title h1 {
-    font-size: 28px;
-}
-
-.premium-banner {
-    text-align: center;
-    border-radius: 18px;
-    padding: 20px;
-}
-
-.premium-card {
-    border-radius: 18px;
-    padding: 20px;
-    margin: 18px 0;
-}
-
-.ticket-premium-box {
-    text-align: center;
-    border-radius: 16px;
-    padding: 18px;
-    margin: 15px 0;
-}
-
-.ticket-premium-box h3 {
-    font-size: 20px;
-}
-
-.numero-ticket {
-    font-size: 28px;
-    font-weight: bold;
-    letter-spacing: 4px;
-    padding: 20px;
-    border-radius: 15px;
-}
-
-.chevaux-premium {
-    text-align: center;
-    font-size: 30px;
-    font-weight: bold;
-    letter-spacing: 8px;
-    padding: 20px;
-}
-
-.premium-message {
-    text-align: center;
-    padding: 20px;
-    border-radius: 18px;
-}
-
-@media(max-width:600px){
-
-    .numero-ticket {
-        font-size:22px;
-        letter-spacing:2px;
-    }
-
-    .chevaux-premium {
-        font-size:24px;
-        letter-spacing:4px;
-    }
-
-    .premium-title h1 {
-        font-size:22px;
-    }
+    justify-content:flex-start;
 
 }
-<style>
 
-.premium-banner {
-    background: linear-gradient(135deg,#1e3c72,#d4af37) !important;
-    color:white !important;
-    padding:30px !important;
-    border-radius:25px !important;
-    text-align:center !important;
+
+
+.bottom-menu{
+
+    display:flex;
+
+    position:fixed;
+
+    bottom:0;
+
+    left:0;
+
+    width:100%;
+
+    height:65px;
+
+    background:white;
+
+    justify-content:space-around;
+
+    align-items:center;
+
+    box-shadow:0 -3px 12px rgba(0,0,0,.15);
+
+    z-index:1000;
+
 }
 
-.ticket-premium-box {
-    background:white !important;
-    border:2px solid #d4af37 !important;
-    border-radius:20px !important;
-    padding:25px !important;
-    margin:20px 0 !important;
-    text-align:center !important;
+
+
+.premium-title h1{
+
+    font-size:22px;
+
 }
 
-.numero-ticket {
-    font-size:32px !important;
-    font-weight:bold !important;
-    letter-spacing:5px !important;
+
+
+.numero-ticket,
+.ticket-grand{
+
+    font-size:24px;
+
+    letter-spacing:2px;
+
 }
 
-.chevaux-premium {
-    font-size:35px !important;
-    font-weight:bold !important;
-    text-align:center !important;
+
+
+.chevaux-premium,
+#selection-premium{
+
+    font-size:24px;
+
+    letter-spacing:3px;
+
 }
 
-</style>
+
+.vip-box,
+.paiement-card{
+
+    width:90%;
+
+}
+
+
+}
+
+
+/* ===============================
+   FIN AZ TURF PRO DESIGN V10
+================================ */
