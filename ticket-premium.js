@@ -1,13 +1,11 @@
 // =====================================
 // AZ TURF PRO
 // TICKET PREMIUM
-// VERSION OPTIMISEE
+// AFFICHAGE OPTIMISE
 // =====================================
-
 
 const API_URL =
 "https://az-turf-pro.onrender.com/api/analyse";
-
 
 
 document.addEventListener(
@@ -26,6 +24,7 @@ try{
 
 
 const response = await fetch(API_URL);
+
 
 
 if(!response.ok){
@@ -47,7 +46,6 @@ data
 
 
 
-
 const premium =
 data.tickets?.premium || {};
 
@@ -60,13 +58,11 @@ data.classement || [];
 
 
 
-
 // =====================================
 // SELECTION PREMIUM
 // =====================================
 
-
-afficherNumeros(
+afficherTicketTexte(
 
 "selection-premium",
 
@@ -81,10 +77,11 @@ classement
 
 
 
+
+
 // =====================================
 // EXPLICATION
 // =====================================
-
 
 afficherTexte(
 
@@ -95,7 +92,6 @@ classement
 .map(c=>`
 
 <p>
-
 🏇 N°${c.numero}
 
 <br>
@@ -114,29 +110,40 @@ ${c.raison || "Analyse spécialisée en cours"}
 
 
 
+
 // =====================================
 // TICKETS
 // =====================================
 
-
 afficherTicket(
+
 "quinte-premium",
+
 premium.quinte
+
 );
 
 
 
 afficherTicket(
+
 "quarte-premium",
+
 premium.quarte
+
 );
 
 
 
 afficherTicket(
+
 "trio-premium",
+
 premium.trio
+
 );
+
+
 
 
 
@@ -144,7 +151,8 @@ premium.trio
 
 
 // =====================================
-// COUPLE UNIQUE 3 NUMEROS
+// COUPLE GAGNANT / PLACE
+// 3 NUMEROS UNIQUEMENT
 // =====================================
 
 
@@ -164,11 +172,12 @@ couple
 .flat()
 .slice(0,3);
 
+
 }
 
 
 
-afficherNumeros(
+afficherTicket(
 
 "couple-premium",
 
@@ -177,8 +186,8 @@ couple
 );
 
 
-
 }
+
 
 
 
@@ -189,19 +198,99 @@ couple
 
 // =====================================
 // CHAMP REDUIT
+// FORMAT : 3-5-X 2-X / 8-1-4-12
 // =====================================
 
 
 if(premium.champ_reduit){
 
 
+let champ = "";
+
+
+
+if(
+premium.champ_reduit.format
+){
+
+
+champ =
+premium.champ_reduit.format;
+
+
+}
+
+else if(
+premium.champ_reduit.selection
+){
+
+
+champ =
+premium.champ_reduit.selection.join(" - ");
+
+
+}
+
+else{
+
+
+champ =
+"Non disponible";
+
+
+}
+
+
+
 afficherTexte(
 
 "champ-reduit-premium",
 
-premium.champ_reduit.format
+champ
 
 );
+
+
+}
+
+
+
+
+
+
+
+
+// =====================================
+// DERNIERE MINUTE
+// 6 NUMEROS
+// =====================================
+
+
+if(
+premium.ticket_derniere_minute
+){
+
+
+
+let derniere = 
+premium.ticket_derniere_minute.selection || [];
+
+
+
+derniere =
+derniere
+.slice(0,6);
+
+
+
+afficherTicket(
+
+"derniere-minute-premium",
+
+derniere
+
+);
+
 
 
 }
@@ -216,7 +305,6 @@ premium.champ_reduit.format
 // =====================================
 // ANALYSE
 // =====================================
-
 
 afficherTexte(
 
@@ -248,56 +336,9 @@ distance, terrain et expérience.
 
 
 
-
-// =====================================
-// DERNIERE MINUTE
-// =====================================
-
-
-if(premium.ticket_derniere_minute){
-
-
-afficherTexte(
-
-"derniere-minute-premium",
-
-`
-
-<div>
-
-${premium.ticket_derniere_minute.format}
-
-</div>
-
-
-<p>
-Sélection :
-${premium.ticket_derniere_minute.selection.join(" - ")}
-</p>
-
-
-<p>
-Joker :
-N°${premium.ticket_derniere_minute.joker}
-</p>
-
-`
-
-);
-
-
-}
-
-
-
-
-
-
-
 // =====================================
 // MESSAGE
 // =====================================
-
 
 afficherTexte(
 
@@ -326,63 +367,7 @@ error
 
 }
 
-
-
 }
-
-
-
-
-
-
-
-
-// =====================================
-// AFFICHAGE NUMEROS
-// =====================================
-
-
-function afficherNumeros(id,numeros){
-
-
-const zone =
-document.getElementById(id);
-
-
-
-if(!zone){
-
-return;
-
-}
-
-
-
-if(!numeros || numeros.length===0){
-
-zone.innerHTML =
-"Non disponible";
-
-return;
-
-}
-
-
-
-zone.innerHTML =
-
-numeros
-.map(n=>`
-
-<span>
-${n}
-</span>
-
-`)
-.join("");
-
-}
-
 
 
 
@@ -412,6 +397,58 @@ return;
 
 
 
+if(
+!liste ||
+liste.length===0
+){
+
+
+zone.innerHTML =
+"Non disponible";
+
+
+return;
+
+}
+
+
+
+zone.innerHTML =
+
+liste
+.join(" - ");
+
+
+
+}
+
+
+
+
+
+
+
+
+// =====================================
+// AFFICHAGE TEXTE
+// =====================================
+
+
+function afficherTicketTexte(id,liste){
+
+
+const zone =
+document.getElementById(id);
+
+
+
+if(!zone){
+
+return;
+
+}
+
+
 
 if(!liste || liste.length===0){
 
@@ -424,18 +461,10 @@ return;
 
 
 
-
 zone.innerHTML =
 
-liste
-.map(n=>`
+liste.join(" - ");
 
-<span>
-${n}
-</span>
-
-`)
-.join("");
 
 }
 
@@ -444,11 +473,6 @@ ${n}
 
 
 
-
-
-// =====================================
-// TEXTE
-// =====================================
 
 
 function afficherTexte(id,contenu){
