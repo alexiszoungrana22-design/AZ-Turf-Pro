@@ -1,7 +1,7 @@
 /* =====================================
    AZ TURF PRO
    TICKET PREMIUM CSS
-   VERSION CARTE TICKET PROFESSIONNELLE
+   VERSION CARTE UNIFORME
 ===================================== */
 
 
@@ -46,25 +46,14 @@
 
 
 
-/* MENU */
-
-.premium-menu{
-
-    display:flex;
-    justify-content:center;
-    flex-wrap:wrap;
-    gap:12px;
-
-}
-
-
 
 
 /* RETOUR ABONNEMENT */
 
 .premium-back{
 
-    margin:20px 0;
+    margin:15px 0;
+    text-align:center;
 
 }
 
@@ -73,7 +62,7 @@
 
     display:inline-block;
 
-    padding:12px 18px;
+    padding:12px 20px;
 
     border-radius:15px;
 
@@ -89,6 +78,21 @@
 .premium-back a:active{
 
     transform:scale(.94);
+
+}
+
+
+
+
+
+/* MENU */
+
+.premium-menu{
+
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:12px;
 
 }
 
@@ -114,9 +118,10 @@
 
 
 
-/* CARTES PRINCIPALES */
+/* CARTES GENERALES */
 
-.premium-card{
+.premium-card,
+.premium-message{
 
     padding:22px;
 
@@ -125,42 +130,36 @@
     border-radius:22px;
 
     box-shadow:
-
-    0 8px 20px rgba(0,0,0,0.12);
+    0 6px 18px rgba(0,0,0,0.12);
 
 }
 
 
 
-.premium-card h2{
+.premium-card h2,
+.premium-message h2{
 
     text-align:center;
 
-    font-size:22px;
-
 }
 
 
 
 
 
-/* SELECTION CHEVAUX */
+/* SELECTION */
 
 .chevaux-premium{
 
     text-align:center;
 
-    font-size:30px;
+    font-size:28px;
 
     font-weight:900;
 
-    letter-spacing:3px;
+    letter-spacing:2px;
 
     padding:20px;
-
-    white-space:nowrap;
-
-    overflow-x:auto;
 
 }
 
@@ -168,7 +167,7 @@
 
 
 
-/* CARTES TICKETS */
+/* ZONE TICKETS */
 
 .tickets-premium{
 
@@ -179,23 +178,35 @@
 
 
 
+
+/* CARTE DE CHAQUE TICKET */
+
 .ticket-premium-box{
 
-    background:white;
+    width:100%;
 
-    border-radius:22px;
-
-    padding:25px;
+    min-height:130px;
 
     margin:20px 0;
+
+    padding:25px 15px;
+
+    border-radius:22px;
 
     text-align:center;
 
     box-shadow:
+    0 5px 15px rgba(0,0,0,0.12);
 
-    0 6px 18px rgba(0,0,0,0.12);
+    display:flex;
 
-    overflow:hidden;
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    box-sizing:border-box;
 
 }
 
@@ -207,7 +218,7 @@
 
     font-size:22px;
 
-    margin-bottom:18px;
+    margin-bottom:20px;
 
 }
 
@@ -215,39 +226,23 @@
 
 
 
-/* NUMEROS DES TICKETS */
+/* NUMEROS */
 
 .numero-ticket{
-
-    display:block;
 
     width:100%;
 
     text-align:center;
 
-    font-size:28px;
+    font-size:30px;
 
     font-weight:900;
 
-    letter-spacing:3px;
+    letter-spacing:2px;
 
     white-space:nowrap;
 
     overflow-x:auto;
-
-    padding:15px 5px;
-
-}
-
-
-
-
-
-/* COUPLE */
-
-#couple-premium{
-
-    font-size:30px;
 
 }
 
@@ -259,13 +254,33 @@
 
 #champ-reduit-premium{
 
-    font-size:24px;
+    width:100%;
+
+    text-align:center;
+
+    font-size:26px;
 
     font-weight:900;
 
-    white-space:normal;
+    line-height:1.6;
 
-    line-height:1.5;
+}
+
+
+
+
+
+/* DERNIERE MINUTE */
+
+#derniere-minute-premium{
+
+    width:100%;
+
+    text-align:center;
+
+    font-size:30px;
+
+    font-weight:900;
 
 }
 
@@ -285,22 +300,6 @@
 
 
 
-/* MESSAGE */
-
-.premium-message{
-
-    text-align:center;
-
-    padding:25px;
-
-    border-radius:22px;
-
-}
-
-
-
-
-
 /* FOOTER */
 
 .bottom-menu{
@@ -309,9 +308,9 @@
 
     justify-content:center;
 
-    gap:15px;
-
     flex-wrap:wrap;
+
+    gap:15px;
 
     padding:20px;
 
@@ -344,7 +343,9 @@
 
 .ticket-premium-box{
 
-    padding:18px;
+    min-height:110px;
+
+    padding:20px 10px;
 
 }
 
@@ -360,20 +361,25 @@
 
 .numero-ticket{
 
-    font-size:22px;
-
-    letter-spacing:2px;
+    font-size:23px;
 
 }
 
 
 
-.chevaux-premium{
+#champ-reduit-premium{
 
-    font-size:24px;
+    font-size:21px;
 
 }
 
+
+
+#derniere-minute-premium{
+
+    font-size:23px;
+
+}
 
 
 }
