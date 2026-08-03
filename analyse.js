@@ -335,7 +335,7 @@ deux.innerHTML =
 const couple = document.getElementById("couple-place-gratuit");
 
 if (couple) {
-    couple.innerHTML = (tickets.couple_place || []).join(" - ");
+    couple.textContent = (tickets.couple_place || []).join(" - ");
 }
 
 
