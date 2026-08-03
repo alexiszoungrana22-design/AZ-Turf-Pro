@@ -252,29 +252,22 @@ body{
 }
 
 
-.pub-banner{
-
-    width:100%;
-
-    margin:15px 0;
-
-    overflow:hidden;
-
-    border-radius:12px;
-
+.pub-banner {
+    width: 100%;
+    height: auto;
+    min-height: 120px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-
-.pub-banner img{
-
-    width:100%;
-
-    height:150px;
-
-    object-fit:cover;
-
-    display:block;
-
+.pub-banner img {
+    width: 100%;
+    height: auto;
+    max-height: 220px;
+    object-fit: contain;
+    display: block;
 }
 
 
