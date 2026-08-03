@@ -1,21 +1,20 @@
 /* =====================================
    AZ TURF PRO
-   ADMIN CSS V2
-   Tableau de bord professionnel
+   ADMIN CSS V3
+   Dashboard Professionnel
    ===================================== */
 
 
-/* PAGE ADMIN */
+/* BASE */
 
 body{
 
-    margin:0;
-    font-family:Arial, sans-serif;
+    font-family: "Segoe UI", Arial, sans-serif;
 
 }
 
 
-/* HEADER ADMIN */
+/* HEADER */
 
 .header-az{
 
@@ -27,8 +26,8 @@ body{
 
 .logo-area h1{
 
-    font-size:28px;
-    margin-bottom:8px;
+    font-size:30px;
+    font-weight:800;
 
 }
 
@@ -41,97 +40,106 @@ body{
 
 
 
-/* ZONE PRINCIPALE */
-
-.home-content{
-
-    padding:15px;
-
-}
-
+/* INTRO DASHBOARD */
 
 .course-card{
 
-    text-align:center;
+    border-radius:24px;
+
     padding:25px;
-    border-radius:20px;
+
+    text-align:center;
+
     margin-bottom:25px;
+
+    box-shadow:
+    0 10px 25px rgba(0,0,0,0.12);
 
 }
 
 
 
-/* BOUTON */
+.course-card h2{
+
+    font-size:25px;
+
+}
+
+
+
+/* BOUTON PRINCIPAL */
 
 .btn-vip{
 
-    padding:14px 22px;
-
     border:none;
 
-    border-radius:14px;
+    padding:14px 25px;
+
+    border-radius:16px;
 
     font-size:16px;
 
-    font-weight:bold;
+    font-weight:700;
 
     cursor:pointer;
 
-    transition:0.15s ease;
-
-    margin-top:10px;
+    transition:all .15s ease;
 
 }
 
 
+.btn-vip:hover{
 
-/* EFFET APPUI MOBILE */
+    transform:translateY(-2px);
+
+}
+
 
 .btn-vip:active{
 
-    transform:scale(0.92) translateY(2px);
+    transform:scale(.92);
 
 }
 
 
 
-/* CONTENEUR CARTES */
+
+/* GRILLE DASHBOARD */
 
 .ticket-container{
 
     display:grid;
 
     grid-template-columns:
-    repeat(auto-fit,minmax(280px,1fr));
+    repeat(auto-fit,minmax(260px,1fr));
 
-    gap:18px;
+    gap:20px;
 
 }
 
 
 
-/* CARTES ADMIN */
+/* CARTES */
 
 .box.premium{
 
-    padding:22px;
+    border-radius:25px;
 
-    border-radius:22px;
+    padding:22px;
 
     text-align:center;
 
     box-shadow:
-    0 8px 20px rgba(0,0,0,0.12);
+    0 12px 30px rgba(0,0,0,.12);
 
-    transition:0.25s ease;
+    transition:.25s;
 
 }
 
 
-
 .box.premium:hover{
 
-    transform:translateY(-4px);
+    transform:translateY(-5px);
 
 }
 
@@ -141,15 +149,15 @@ body{
 
 .box h2{
 
-    font-size:20px;
+    font-size:19px;
 
-    margin-bottom:15px;
+    font-weight:800;
 
 }
 
 
 
-/* COMPTEURS */
+/* STATISTIQUES */
 
 #total-abonnements,
 #nombre-premium,
@@ -157,32 +165,32 @@ body{
 #abonnements-expire{
 
 
-    font-size:42px;
+    font-size:48px;
 
     font-weight:900;
 
-    margin:10px 0;
+    margin:15px 0;
 
 }
 
 
 
-/* INPUTS */
+/* FORMULAIRES */
 
 input{
 
 
-    width:90%;
+    width:88%;
 
-    padding:14px;
+    padding:15px;
 
-    border-radius:12px;
+    border-radius:14px;
 
-    border:1px solid #ccc;
+    border:1px solid #ddd;
 
     font-size:16px;
 
-    margin:8px auto;
+    margin:10px auto;
 
     display:block;
 
@@ -191,8 +199,15 @@ input{
 
 
 
-/* RESULTATS */
+input:focus{
 
+    outline:none;
+
+}
+
+
+
+/* RESULTATS */
 
 #resultat-premium,
 #resultat-activation{
@@ -200,11 +215,11 @@ input{
 
     margin-top:15px;
 
-    padding:12px;
+    padding:14px;
 
-    border-radius:12px;
+    border-radius:15px;
 
-    font-weight:bold;
+    font-weight:700;
 
 }
 
@@ -212,10 +227,13 @@ input{
 
 /* LISTE ABONNEMENTS */
 
-
 #liste-abonnements{
 
-    text-align:left;
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
 
 }
 
@@ -224,23 +242,21 @@ input{
 .abonnement{
 
 
+    border-radius:18px;
+
     padding:16px;
 
-    margin-bottom:12px;
-
-    border-radius:16px;
-
     box-shadow:
-    0 4px 12px rgba(0,0,0,0.08);
-
+    0 6px 18px rgba(0,0,0,.10);
 
 }
 
 
-
 .abonnement p{
 
-    margin:8px 0;
+    margin:7px 0;
+
+    font-size:15px;
 
 }
 
@@ -248,24 +264,22 @@ input{
 
 /* MENU */
 
-
 .menu a{
 
-    transition:0.2s ease;
+    transition:.2s;
 
 }
 
 
 .menu a:active{
 
-    transform:scale(0.95);
+    transform:scale(.9);
 
 }
 
 
 
 /* FOOTER */
-
 
 footer{
 
@@ -277,54 +291,44 @@ footer{
 
 
 
-/* MOBILE */
 
+/* MOBILE */
 
 @media(max-width:600px){
 
 
-    .logo-area h1{
+.course-card h2{
 
-        font-size:23px;
+    font-size:21px;
 
-    }
-
-
-
-    .course-card{
-
-        padding:18px;
-
-    }
+}
 
 
 
-    .ticket-container{
+.box.premium{
 
-        grid-template-columns:1fr;
+    padding:18px;
 
-    }
-
-
-
-    .box.premium{
-
-        padding:18px;
-
-    }
+}
 
 
 
-    #total-abonnements,
-    #nombre-premium,
-    #paiements-attente,
-    #abonnements-expire{
+#total-abonnements,
+#nombre-premium,
+#paiements-attente,
+#abonnements-expire{
+
+    font-size:38px;
+
+}
 
 
-        font-size:35px;
 
-    }
+.btn-vip{
 
+    width:90%;
+
+}
 
 
 }
