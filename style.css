@@ -1063,7 +1063,15 @@ td{
     font-size:12px;
 
 }
+/* Correction page Analyse sous header fixe */
 
+.page-container{
+
+    padding-top:130px !important;
+
+    padding-bottom:90px;
+
+}
 
 
 .content{
