@@ -541,3 +541,71 @@ def lister_abonnements():
 
 
     return abonnements
+# =====================================
+# ADMIN - STATISTIQUES ABONNEMENTS
+# =====================================
+
+def statistiques_abonnements():
+
+    conn = connexion()
+
+    cursor = conn.cursor()
+
+
+    cursor.execute(
+        """
+        SELECT COUNT(*)
+        FROM abonnements
+        """
+    )
+
+    total = cursor.fetchone()[0]
+
+
+    cursor.execute(
+        """
+        SELECT COUNT(*)
+        FROM abonnements
+        WHERE statut='ACTIF'
+        """
+    )
+
+    actifs = cursor.fetchone()[0]
+
+
+    cursor.execute(
+        """
+        SELECT COUNT(*)
+        FROM abonnements
+        WHERE statut='EN_ATTENTE'
+        """
+    )
+
+    attente = cursor.fetchone()[0]
+
+
+    cursor.execute(
+        """
+        SELECT COUNT(*)
+        FROM abonnements
+        WHERE statut='EXPIRE'
+        """
+    )
+
+    expires = cursor.fetchone()[0]
+
+
+    conn.close()
+
+
+    return {
+
+        "total": total,
+
+        "actifs": actifs,
+
+        "en_attente": attente,
+
+        "expires": expires
+
+    }
