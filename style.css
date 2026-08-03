@@ -1851,3 +1851,35 @@ width:90%;
     }
 
 }
+<style>
+
+.premium-banner {
+    background: linear-gradient(135deg,#1e3c72,#d4af37) !important;
+    color:white !important;
+    padding:30px !important;
+    border-radius:25px !important;
+    text-align:center !important;
+}
+
+.ticket-premium-box {
+    background:white !important;
+    border:2px solid #d4af37 !important;
+    border-radius:20px !important;
+    padding:25px !important;
+    margin:20px 0 !important;
+    text-align:center !important;
+}
+
+.numero-ticket {
+    font-size:32px !important;
+    font-weight:bold !important;
+    letter-spacing:5px !important;
+}
+
+.chevaux-premium {
+    font-size:35px !important;
+    font-weight:bold !important;
+    text-align:center !important;
+}
+
+</style>
