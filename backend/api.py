@@ -10,12 +10,14 @@ from engine import lancer_analyse
 from database import (
     creer_abonnement,
     activer_abonnement,
-    verifier_premium
+    verif
 )
 
-from models import (
-    AbonnementRequest,
-    ActivationRequest
+from database import (
+    creer_abonnement,
+    activer_abonnement,
+    verifier_premium,
+    lister_abonnements
 )
 
 import json
@@ -263,3 +265,13 @@ def premium(
     return verifier_premium(
         telephone
     )
+# =====================================
+# ADMIN - ABONNEMENTS
+# =====================================
+
+@router.get("/admin/abonnements")
+def admin_abonnements():
+
+    return {
+        "abonnements": lister_abonnements()
+    }
