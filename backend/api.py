@@ -14,6 +14,11 @@ from database import (
     lister_abonnements
 )
 
+from models import (
+    AbonnementRequest,
+    ActivationRequest
+)
+
 import json
 import os
 from datetime import datetime, timedelta
