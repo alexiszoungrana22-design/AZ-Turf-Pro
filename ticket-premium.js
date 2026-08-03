@@ -1,10 +1,13 @@
 // =====================================
 // AZ TURF PRO
 // TICKET PREMIUM
+// VERSION OPTIMISEE
 // =====================================
+
 
 const API_URL =
 "https://az-turf-pro.onrender.com/api/analyse";
+
 
 
 document.addEventListener(
@@ -14,7 +17,10 @@ chargerPremium
 
 
 
+
+
 async function chargerPremium(){
+
 
 try{
 
@@ -29,7 +35,9 @@ throw new Error("Erreur API");
 }
 
 
+
 const data = await response.json();
+
 
 
 console.log(
@@ -39,8 +47,10 @@ data
 
 
 
+
 const premium =
 data.tickets?.premium || {};
+
 
 
 const classement =
@@ -49,25 +59,23 @@ data.classement || [];
 
 
 
+
+
 // =====================================
-// SELECTION 7 CHEVAUX
+// SELECTION PREMIUM
 // =====================================
 
-afficherTexte(
+
+afficherNumeros(
+
 "selection-premium",
-`
 
-<div class="ticket-grand">
-
-${classement
+classement
 .slice(0,7)
 .map(c=>c.numero)
-.join(" - ")}
 
-</div>
-
-`
 );
+
 
 
 
@@ -77,7 +85,9 @@ ${classement
 // EXPLICATION
 // =====================================
 
+
 afficherTexte(
+
 "explication-premium",
 
 classement
@@ -90,8 +100,7 @@ classement
 
 <br>
 
-${c.raison || 
-"Analyse spécialisée en cours"}
+${c.raison || "Analyse spécialisée en cours"}
 
 </p>
 
@@ -99,6 +108,7 @@ ${c.raison ||
 .join("")
 
 );
+
 
 
 
@@ -132,36 +142,46 @@ premium.trio
 
 
 
+
 // =====================================
-// COUPLE
+// COUPLE UNIQUE 3 NUMEROS
 // =====================================
 
 
-if(
-premium.couple_gagnant_place
-){
+if(premium.couple_gagnant_place){
 
-afficherTexte(
+
+let couple =
+premium.couple_gagnant_place;
+
+
+
+if(Array.isArray(couple)){
+
+
+couple =
+couple
+.flat()
+.slice(0,3);
+
+}
+
+
+
+afficherNumeros(
 
 "couple-premium",
 
-`
-
-<div class="ticket-grand">
-
-${
-premium.couple_gagnant_place
-.map(c=>c.join(" - "))
-.join("<br>")
-}
-
-</div>
-
-`
+couple
 
 );
 
+
+
 }
+
+
+
 
 
 
@@ -172,27 +192,22 @@ premium.couple_gagnant_place
 // =====================================
 
 
-if(
-premium.champ_reduit
-){
+if(premium.champ_reduit){
+
 
 afficherTexte(
 
 "champ-reduit-premium",
 
-`
-
-<div class="ticket-grand">
-
-${premium.champ_reduit.format}
-
-</div>
-
-`
+premium.champ_reduit.format
 
 );
 
+
 }
+
+
+
 
 
 
@@ -232,14 +247,15 @@ distance, terrain et expérience.
 
 
 
+
+
 // =====================================
 // DERNIERE MINUTE
 // =====================================
 
 
-if(
-premium.ticket_derniere_minute
-){
+if(premium.ticket_derniere_minute){
+
 
 afficherTexte(
 
@@ -247,7 +263,7 @@ afficherTexte(
 
 `
 
-<div class="ticket-grand">
+<div>
 
 ${premium.ticket_derniere_minute.format}
 
@@ -269,7 +285,10 @@ N°${premium.ticket_derniere_minute.joker}
 
 );
 
+
 }
+
+
 
 
 
@@ -315,11 +334,20 @@ error
 
 
 
-function afficherTicket(id,liste){
+
+
+
+// =====================================
+// AFFICHAGE NUMEROS
+// =====================================
+
+
+function afficherNumeros(id,numeros){
 
 
 const zone =
 document.getElementById(id);
+
 
 
 if(!zone){
@@ -327,6 +355,61 @@ if(!zone){
 return;
 
 }
+
+
+
+if(!numeros || numeros.length===0){
+
+zone.innerHTML =
+"Non disponible";
+
+return;
+
+}
+
+
+
+zone.innerHTML =
+
+numeros
+.map(n=>`
+
+<span>
+${n}
+</span>
+
+`)
+.join("");
+
+}
+
+
+
+
+
+
+
+
+
+// =====================================
+// AFFICHAGE TICKET
+// =====================================
+
+
+function afficherTicket(id,liste){
+
+
+const zone =
+document.getElementById(id);
+
+
+
+if(!zone){
+
+return;
+
+}
+
 
 
 
@@ -341,20 +424,31 @@ return;
 
 
 
-zone.innerHTML = `
 
-<div class="ticket-grand">
+zone.innerHTML =
 
-${liste.join(" - ")}
+liste
+.map(n=>`
 
-</div>
+<span>
+${n}
+</span>
 
-`;
+`)
+.join("");
 
 }
 
 
 
+
+
+
+
+
+// =====================================
+// TEXTE
+// =====================================
 
 
 function afficherTexte(id,contenu){
@@ -364,6 +458,7 @@ const zone =
 document.getElementById(id);
 
 
+
 if(zone){
 
 zone.innerHTML =
@@ -371,4 +466,5 @@ contenu;
 
 }
 
-  }
+
+}
