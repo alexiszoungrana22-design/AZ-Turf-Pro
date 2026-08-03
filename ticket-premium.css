@@ -1,0 +1,391 @@
+/* =====================================
+   AZ TURF PRO
+   TICKET PREMIUM CSS
+   Version professionnelle
+===================================== */
+
+
+/* CONTENEUR PRINCIPAL */
+
+.premium-container{
+
+    width:95%;
+    max-width:900px;
+    margin:auto;
+    padding:15px;
+
+}
+
+
+
+/* HEADER */
+
+.premium-header{
+
+    text-align:center;
+    padding:25px 15px;
+    border-radius:25px;
+
+}
+
+
+.premium-logo{
+
+    font-size:30px;
+    font-weight:900;
+
+}
+
+
+.premium-title h1{
+
+    font-size:28px;
+    margin:10px 0;
+
+}
+
+
+
+
+/* RETOUR ABONNEMENT */
+
+.premium-back{
+
+    margin:15px 0;
+    text-align:left;
+
+}
+
+
+.premium-back a{
+
+    display:inline-block;
+
+    padding:12px 18px;
+
+    border-radius:15px;
+
+    text-decoration:none;
+
+    font-weight:bold;
+
+    transition:.15s;
+
+}
+
+
+.premium-back a:active{
+
+    transform:scale(.92);
+
+}
+
+
+
+
+
+/* MENU */
+
+.premium-menu{
+
+    display:flex;
+    justify-content:center;
+    gap:15px;
+    flex-wrap:wrap;
+
+}
+
+
+
+
+
+/* BANNIERE */
+
+.premium-banner{
+
+    text-align:center;
+
+    padding:25px;
+
+    margin:20px 0;
+
+    border-radius:22px;
+
+}
+
+
+
+
+
+/* CARTES */
+
+.premium-card{
+
+    padding:22px;
+
+    margin:20px 0;
+
+    border-radius:22px;
+
+    box-shadow:
+    0 8px 20px rgba(0,0,0,.12);
+
+}
+
+
+
+.premium-card h2{
+
+    text-align:center;
+
+    font-size:22px;
+
+}
+
+
+
+
+
+/* SELECTION CHEVAUX */
+
+.chevaux-premium{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:12px;
+
+    flex-wrap:nowrap;
+
+    overflow-x:auto;
+
+    padding:20px 5px;
+
+}
+
+
+
+.chevaux-premium span{
+
+
+    min-width:55px;
+
+    height:55px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:50%;
+
+    font-size:23px;
+
+    font-weight:900;
+
+
+}
+
+
+
+
+/* ZONE TICKETS */
+
+
+.ticket-premium-box{
+
+    margin:18px 0;
+
+    padding:20px;
+
+    border-radius:20px;
+
+    text-align:center;
+
+    overflow:hidden;
+
+}
+
+
+
+.ticket-premium-box h3{
+
+    font-size:20px;
+
+    margin-bottom:15px;
+
+}
+
+
+
+
+
+/* NUMEROS TICKETS */
+
+.numero-ticket{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:10px;
+
+    flex-wrap:nowrap;
+
+    overflow-x:auto;
+
+    white-space:nowrap;
+
+    padding:15px;
+
+    font-size:0;
+
+}
+
+
+
+
+/* NUMEROS EN PASTILLES */
+
+.numero-ticket span{
+
+    width:48px;
+
+    height:48px;
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:50%;
+
+    font-size:20px;
+
+    font-weight:900;
+
+    flex-shrink:0;
+
+}
+
+
+
+
+
+/* ANALYSE */
+
+.analyse-premium-zone{
+
+    line-height:1.6;
+
+}
+
+
+
+
+
+/* MESSAGE PREMIUM */
+
+.premium-message{
+
+    text-align:center;
+
+    padding:25px;
+
+    border-radius:22px;
+
+}
+
+
+
+
+/* FOOTER */
+
+.bottom-menu{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:15px;
+
+    padding:20px;
+
+    flex-wrap:wrap;
+
+}
+
+
+
+
+
+.bottom-menu a{
+
+    text-decoration:none;
+
+}
+
+
+
+
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+
+.premium-logo{
+
+    font-size:23px;
+
+}
+
+
+
+.premium-title h1{
+
+    font-size:22px;
+
+}
+
+
+
+.premium-card{
+
+    padding:15px;
+
+}
+
+
+
+.numero-ticket span{
+
+    width:42px;
+
+    height:42px;
+
+    font-size:18px;
+
+}
+
+
+
+.chevaux-premium span{
+
+    min-width:45px;
+
+    height:45px;
+
+    font-size:20px;
+
+}
+
+
+}
