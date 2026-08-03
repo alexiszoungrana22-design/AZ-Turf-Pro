@@ -328,7 +328,102 @@ deux.innerHTML =
 
 }
 
+// ===============================
+// COUPLÉ PLACÉ GRATUIT
+// ===============================
 
+const couple = document.getElementById("couple-place-gratuit");
+
+if (couple) {
+    couple.innerHTML = (tickets.couple_place || []).join(" - ");
+}
+
+
+// ===============================
+// POURQUOI CETTE SÉLECTION
+// ===============================
+
+const raisons = document.getElementById("raisons-selection");
+
+if (raisons) {
+
+    raisons.innerHTML = chevaux
+        .slice(0,7)
+        .map(c => `
+            <div class="raison-cheval">
+                <h3>🏇 N°${c.numero}</h3>
+                <p>${c.raison || "Analyse spécialisée AZ."}</p>
+            </div>
+        `)
+        .join("");
+
+}
+
+
+// ===============================
+// TABLEAU ANALYSE
+// ===============================
+
+const analyseBody = document.getElementById("analyse-body");
+
+if (analyseBody) {
+
+    analyseBody.innerHTML = chevaux
+        .slice(0,7)
+        .map(c => `
+            <tr>
+                <td>${c.numero}</td>
+                <td>${c.nom || "-"}</td>
+                <td>${c.indice_az || "-"}</td>
+                <td>${c.confiance || "-"}%</td>
+                <td>${c.raison || "Analyse AZ"}</td>
+            </tr>
+        `)
+        .join("");
+
+}
+
+
+// ===============================
+// AVIS JOCKEYS / ENTRAÎNEURS
+// ===============================
+
+const avis = document.getElementById("avis-course");
+
+if (avis) {
+
+    avis.innerHTML =
+        "Les jockeys les plus expérimentés bénéficient de bonnes montes et les entraîneurs présentent plusieurs chevaux en forme.";
+
+}
+
+
+// ===============================
+// ACTUALITÉS
+// ===============================
+
+const actualites = document.getElementById("actualites-course");
+
+if (actualites) {
+
+    actualites.innerHTML =
+        "Aucune information majeure susceptible de modifier les pronostics pour le moment.";
+
+}
+
+
+// ===============================
+// SYNTHÈSE AZ
+// ===============================
+
+const synthese = document.getElementById("synthese-az");
+
+if (synthese) {
+
+    synthese.innerHTML =
+        "La sélection AZ privilégie les chevaux les plus réguliers, les mieux engagés et les plus performants selon notre indice.";
+
+}
 
 
 
