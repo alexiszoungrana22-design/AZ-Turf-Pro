@@ -7,10 +7,6 @@
 from fastapi import APIRouter, HTTPException
 from engine import lancer_analyse
 
-from database import (
-    creer_abonnement,
-    activer_abonnement,
-    verif
 )
 
 from database import (
