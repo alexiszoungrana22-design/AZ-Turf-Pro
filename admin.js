@@ -1,7 +1,7 @@
 // =====================================
 // AZ TURF PRO
 // ADMIN JS
-// Version 4
+// Version 5
 // =====================================
 
 
@@ -62,6 +62,52 @@ async function initialiserAdmin(){
 
 
 // =====================================
+// FORMAT DATE
+// =====================================
+
+function formaterDate(date){
+
+    if(!date){
+
+        return "Non définie";
+
+    }
+
+
+    try{
+
+        const d =
+        new Date(date);
+
+
+        return d.toLocaleDateString("fr-FR")
+        +
+        " à "
+        +
+        d.toLocaleTimeString(
+            "fr-FR",
+            {
+                hour:"2 chiffres",
+                minute:"2 chiffres"
+            }
+        );
+
+
+    }catch{
+
+        return date;
+
+    }
+
+}
+
+
+
+
+
+
+
+// =====================================
 // VERIFICATION API
 // =====================================
 
@@ -93,15 +139,7 @@ throw new Error(
 
 
 
-const data =
 await response.json();
-
-
-
-console.log(
-"API AZ Turf :",
-data
-);
 
 
 
@@ -147,7 +185,7 @@ etat.innerHTML =
 
 
 // =====================================
-// CHARGEMENT STATISTIQUES ADMIN
+// STATISTIQUES ADMIN
 // =====================================
 
 async function chargerStatistiquesAdmin(){
@@ -168,75 +206,27 @@ await response.json();
 
 
 
-console.log(
-"Statistiques admin :",
-data
-);
-
-
-
-const total =
-document.getElementById(
-"total-abonnements"
-);
-
-
-
-const actifs =
-document.getElementById(
-"nombre-premium"
-);
-
-
-
-const attente =
-document.getElementById(
-"paiements-attente"
-);
-
-
-
-const expires =
-document.getElementById(
-"abonnements-expire"
-);
-
-
-
-
-if(total){
-
-total.innerHTML =
+if(document.getElementById("total-abonnements"))
+document.getElementById("total-abonnements").innerHTML =
 data.total;
 
-}
 
 
-
-if(actifs){
-
-actifs.innerHTML =
+if(document.getElementById("nombre-premium"))
+document.getElementById("nombre-premium").innerHTML =
 data.actifs;
 
-}
 
 
-
-if(attente){
-
-attente.innerHTML =
+if(document.getElementById("paiements-attente"))
+document.getElementById("paiements-attente").innerHTML =
 data.en_attente;
 
-}
 
 
-
-if(expires){
-
-expires.innerHTML =
+if(document.getElementById("abonnements-expire"))
+document.getElementById("abonnements-expire").innerHTML =
 data.expires;
-
-}
 
 
 
@@ -246,13 +236,11 @@ data.expires;
 
 catch(error){
 
-
 console.error(
 "Erreur statistiques :",
 error
 );
 
-
 }
 
 }
@@ -263,11 +251,9 @@ error
 
 
 
-
 // =====================================
-// LISTE DES ABONNEMENTS
+// LISTE ABONNEMENTS
 // =====================================
-
 
 async function chargerAbonnements(){
 
@@ -284,13 +270,6 @@ API_ABONNEMENTS
 
 const data =
 await response.json();
-
-
-
-console.log(
-"Abonnements :",
-data
-);
 
 
 
@@ -343,19 +322,22 @@ liste.innerHTML += `
 </p>
 
 <p>
-Offre :
+🎟️ Offre :
 ${abonnement.offre}
 </p>
 
 <p>
 Statut :
+<strong>
 ${abonnement.statut}
+</strong>
 </p>
 
 <p>
-Fin :
-${abonnement.date_fin}
+📅 Fin :
+${formaterDate(abonnement.date_fin)}
 </p>
+
 
 </div>
 
@@ -375,13 +357,11 @@ ${abonnement.date_fin}
 
 catch(error){
 
-
 console.error(
 "Erreur abonnements :",
 error
 );
 
-
 }
 
 }
@@ -394,11 +374,9 @@ error
 
 
 
-
 // =====================================
-// VERIFICATION UTILISATEUR PREMIUM
+// VERIFICATION PREMIUM
 // =====================================
-
 
 async function verifierUtilisateurPremium(){
 
@@ -417,7 +395,6 @@ document.getElementById(
 
 
 
-
 if(!telephone){
 
 
@@ -426,7 +403,6 @@ resultat.innerHTML =
 
 
 return;
-
 
 }
 
@@ -438,7 +414,6 @@ try{
 
 
 const response =
-
 await fetch(
 
 API_PREMIUM
@@ -451,18 +426,8 @@ encodeURIComponent(telephone)
 
 
 
-
-
 const data =
 await response.json();
-
-
-
-console.log(
-"Résultat Premium :",
-data
-);
-
 
 
 
@@ -472,11 +437,13 @@ if(response.ok){
 
 resultat.innerHTML = `
 
-✅ Vérification terminée
+✅ Statut :
+<strong>${data.statut}</strong>
 
 <br>
 
-${JSON.stringify(data)}
+📅 Fin :
+${formaterDate(data.date_fin)}
 
 `;
 
@@ -486,8 +453,7 @@ ${JSON.stringify(data)}
 
 
 resultat.innerHTML =
-
-"❌ Utilisateur Premium introuvable";
+"❌ Utilisateur introuvable";
 
 
 }
@@ -501,16 +467,11 @@ resultat.innerHTML =
 catch(error){
 
 
-console.error(
-"Erreur Premium :",
-error
-);
-
+console.error(error);
 
 
 resultat.innerHTML =
-
-"❌ Erreur de connexion API";
+"❌ Erreur connexion API";
 
 
 }
@@ -528,16 +489,14 @@ resultat.innerHTML =
 
 
 // =====================================
-// ACTIVATION PREMIUM ADMIN
+// ACTIVATION PREMIUM
 // =====================================
-
 
 async function activerPremium(){
 
 
 
 const telephone =
-
 document.getElementById(
 "activation-telephone"
 ).value.trim();
@@ -545,7 +504,6 @@ document.getElementById(
 
 
 const reference =
-
 document.getElementById(
 "activation-reference"
 ).value.trim();
@@ -553,7 +511,6 @@ document.getElementById(
 
 
 const resultat =
-
 document.getElementById(
 "resultat-activation"
 );
@@ -566,7 +523,6 @@ if(!telephone || !reference){
 
 
 resultat.innerHTML =
-
 "⚠️ Téléphone et référence obligatoires";
 
 
@@ -617,17 +573,8 @@ reference:reference
 
 
 
-
 const data =
-
 await response.json();
-
-
-
-console.log(
-"Activation Premium :",
-data
-);
 
 
 
@@ -648,7 +595,7 @@ ${data.statut}
 <br>
 
 Fin :
-${data.date_fin}
+${formaterDate(data.date_fin)}
 
 `;
 
@@ -664,7 +611,6 @@ await chargerAbonnements();
 
 
 resultat.innerHTML =
-
 "❌ Activation impossible";
 
 
@@ -679,15 +625,10 @@ resultat.innerHTML =
 catch(error){
 
 
-console.error(
-"Erreur activation :",
-error
-);
-
+console.error(error);
 
 
 resultat.innerHTML =
-
 "❌ Erreur connexion API";
 
 
