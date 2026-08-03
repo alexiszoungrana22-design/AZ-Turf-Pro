@@ -11,7 +11,8 @@ from database import (
     creer_abonnement,
     activer_abonnement,
     verifier_premium,
-    lister_abonnements
+    lister_abonnements,
+    statistiques_abonnements
 )
 
 from models import (
@@ -274,3 +275,11 @@ def admin_abonnements():
     return {
         "abonnements": lister_abonnements()
     }
+# =====================================
+# ADMIN - STATISTIQUES
+# =====================================
+
+@router.get("/admin/statistiques")
+def admin_statistiques():
+
+    return statistiques_abonnements()
