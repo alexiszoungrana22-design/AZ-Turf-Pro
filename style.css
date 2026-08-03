@@ -1177,6 +1177,89 @@ td{
 
 }
 
+/* ===============================
+   CORRECTION PAGE ANALYSE AZ
+   Couplé - Avis jockey - Entraîneur
+   Synthèse AZ
+================================ */
+
+
+.couple-box,
+.jockey-box,
+.entraineur-box,
+.synthese-box,
+#couple-place,
+#avis-jockey,
+#avis-entraineur,
+#synthese-az{
+
+    display:block;
+    visibility:visible;
+    opacity:1;
+
+}
+
+
+.analyse-detail{
+
+    background:#ffffff;
+
+    border-radius:18px;
+
+    padding:20px;
+
+    margin:15px auto;
+
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+
+}
+
+
+
+.analyse-detail h3{
+
+    text-align:center;
+
+    color:#08783f;
+
+}
+
+
+
+#avis-jockey,
+#avis-entraineur,
+#couple-place,
+#synthese-az{
+
+    line-height:1.6;
+
+    padding:15px;
+
+    background:#f4f7f8;
+
+    border-radius:15px;
+
+}
+
+
+
+.synthese-box{
+
+    border-top:5px solid #08783f;
+
+}
+
+
+
+@media(max-width:700px){
+
+.analyse-detail{
+
+    width:95%;
+
+}
+
+}
 
 /* ===============================
    FIN AZ TURF PRO DESIGN V10
