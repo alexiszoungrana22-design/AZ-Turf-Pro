@@ -294,8 +294,7 @@ q.innerHTML =
 }
 
 
-const deux =
-document.getElementById("deux-sur-quatre");
+document.getElementById("ticket-24-gratuit");
 
 
 if(deux){
