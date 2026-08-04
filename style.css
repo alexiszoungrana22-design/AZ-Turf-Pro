@@ -1586,3 +1586,51 @@ td{
 
 
 }
+/* =====================================
+   TICKET GRATUIT ANALYSE
+===================================== */
+
+.ticket-gratuit-box{
+    text-align:center;
+}
+
+
+.ticket-gratuit-item{
+
+    margin:25px 0;
+
+    padding:20px;
+
+    border-radius:20px;
+
+}
+
+
+
+.numero-ticket-grand{
+
+    font-size:45px;
+
+    font-weight:900;
+
+    letter-spacing:5px;
+
+    text-align:center;
+
+    padding:25px;
+
+}
+
+
+
+@media(max-width:600px){
+
+.numero-ticket-grand{
+
+    font-size:30px;
+
+    letter-spacing:3px;
+
+}
+
+}
