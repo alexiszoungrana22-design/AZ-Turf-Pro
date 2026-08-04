@@ -288,7 +288,6 @@ raison.textContent =
 // ===============================
 
 
-const outsider = chevaux[7];
 
 
 if(outsider){
