@@ -1307,3 +1307,169 @@ td{
     border-radius:20px;
 
 }
+/* =====================================
+   AZ TURF PRO
+   SLIDER PUBLICITAIRE ACCUEIL V2
+===================================== */
+
+
+.pub-box{
+
+    overflow:hidden;
+
+}
+
+
+
+.slider-pub{
+
+    position:relative;
+
+    width:100%;
+
+    height:280px;
+
+    overflow:hidden;
+
+    border-radius:25px;
+
+}
+
+
+
+.slider-pub img{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+
+    display:block;
+
+    transition:opacity .8s ease;
+
+}
+
+
+
+
+
+.pub-overlay{
+
+    position:absolute;
+
+    bottom:0;
+
+    left:0;
+
+    width:100%;
+
+    padding:25px 15px;
+
+    text-align:center;
+
+    background:linear-gradient(
+    transparent,
+    rgba(0,0,0,.75)
+    );
+
+    color:white;
+
+}
+
+
+
+
+
+.pub-overlay h3{
+
+    margin:0 0 8px;
+
+    font-size:26px;
+
+}
+
+
+
+
+
+.pub-overlay p{
+
+    margin:0;
+
+    font-size:17px;
+
+}
+
+
+
+
+
+.slider-dots{
+
+    text-align:center;
+
+    margin-top:15px;
+
+}
+
+
+
+.slider-dots .dot{
+
+    display:inline-block;
+
+    width:12px;
+
+    height:12px;
+
+    border-radius:50%;
+
+    margin:0 5px;
+
+    background:#ccc;
+
+}
+
+
+
+
+
+.slider-dots .dot.active{
+
+    transform:scale(1.2);
+
+}
+
+
+
+
+@media(max-width:600px){
+
+
+.slider-pub{
+
+    height:230px;
+
+}
+
+
+
+.pub-overlay h3{
+
+    font-size:20px;
+
+}
+
+
+
+.pub-overlay p{
+
+    font-size:14px;
+
+}
+
+
+
+}
