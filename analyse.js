@@ -121,28 +121,6 @@ popular.innerHTML =
 
 
 // ===============================
-// SELECTION AZ 7 CHEVAUX
-// ===============================
-
-const selection =
-document.getElementById("selection-az-chevaux");
-
-
-if(selection){
-
-selection.textContent =
-chevaux.slice(0,8)
-.map(c => c.numero)
-.join(" - ");
-
-}
-
-
-
-
-
-
-// ===============================
 // FAVORI AZ
 // ===============================
 
@@ -347,7 +325,7 @@ const raisons = document.getElementById("raisons-selection");
 if (raisons) {
 
     raisons.innerHTML = chevaux
-        .slice(0,7)
+        .slice(0,8)
         .map(c => `
             <div class="raison-cheval">
                 <h3>🏇 N°${c.numero}</h3>
@@ -368,7 +346,7 @@ const analyseBody = document.getElementById("analyse-body");
 if (analyseBody) {
 
     analyseBody.innerHTML = chevaux
-        .slice(0,7)
+        .slice(0,8)
         .map(c => `
             <tr>
                 <td>${c.numero}</td>
