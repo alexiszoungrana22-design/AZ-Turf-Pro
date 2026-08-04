@@ -33,46 +33,6 @@ data.chevaux ||
 
 
 
-// ===============================
-// SELECTION AZ 7 CHEVAUX
-// ===============================
-
-
-const selection =
-document.getElementById("selection-ticket");
-
-
-if(selection){
-
-
-selection.innerHTML = `
-
-
-<strong>
-
-${
-chevaux
-.slice(0,7)
-.map(c => c.numero)
-.join(" - ")
-}
-
-</strong>
-
-
-`;
-
-
-
-}
-
-
-
-
-
-
-
-
 
 // ===============================
 // 2 SUR 4
