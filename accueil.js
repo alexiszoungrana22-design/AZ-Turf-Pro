@@ -506,3 +506,156 @@ setInterval(
 changerPublicite,
 4000
 );
+/* =====================================
+   AZ TURF PRO
+   NOUVEAUX BLOCS ACCUEIL
+   INDICE CONFIANCE + SURVEILLANCE
+===================================== */
+
+
+function afficherConfianceCourse(data){
+
+
+const indice =
+document.getElementById("indice-confiance");
+
+
+const message =
+document.getElementById("message-confiance");
+
+
+
+if(!indice){
+
+return;
+
+}
+
+
+
+/*
+   Utilise l'indice de confiance
+   déjà fourni par l'analyse
+*/
+
+let confiance = 
+data.favori?.confiance || 0;
+
+
+
+indice.innerHTML =
+confiance + "%";
+
+
+
+
+if(message){
+
+
+if(confiance >= 80){
+
+message.innerHTML =
+"✅ Course avec un niveau de confiance élevé";
+
+
+}
+
+else if(confiance >= 60){
+
+
+message.innerHTML =
+"⚠️ Course avec quelques incertitudes";
+
+
+}
+
+else{
+
+
+message.innerHTML =
+"🔎 Course ouverte, prudence recommandée";
+
+
+}
+
+
+}
+
+
+}
+
+
+
+
+
+
+
+
+function afficherChevauxSurveiller(data){
+
+
+const zone =
+document.getElementById("chevaux-surveiller");
+
+
+
+if(!zone){
+
+return;
+
+}
+
+
+
+let chevaux = [];
+
+
+
+if(data.classement){
+
+
+chevaux =
+data.classement
+.slice(0,3);
+
+
+}
+
+
+
+
+if(chevaux.length===0){
+
+
+zone.innerHTML =
+"Analyse en cours...";
+
+
+return;
+
+}
+
+
+
+
+
+zone.innerHTML =
+
+
+chevaux.map(c=>`
+
+<p>
+
+🏇 N°${c.numero}
+
+<br>
+
+${c.raison || "Cheval à surveiller"}
+
+</p>
+
+`).join("");
+
+
+
+}
