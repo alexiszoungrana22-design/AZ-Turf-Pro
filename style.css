@@ -1473,3 +1473,116 @@ td{
 
 
 }
+/* =====================================
+   AZ TURF PRO
+   NOUVEAUX BLOCS ACCUEIL
+   INDICE CONFIANCE + SURVEILLANCE
+===================================== */
+
+
+/* ==============================
+   INDICE DE CONFIANCE
+============================== */
+
+.confiance-box{
+
+    text-align:center;
+
+}
+
+
+.confiance-score{
+
+    margin:25px auto;
+
+}
+
+
+#indice-confiance{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:55px;
+
+    font-weight:900;
+
+}
+
+
+
+#message-confiance{
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    text-align:center;
+
+}
+
+
+
+
+
+/* ==============================
+   CHEVAUX A SURVEILLER
+============================== */
+
+
+.surveillance-box{
+
+    text-align:center;
+
+}
+
+
+
+#chevaux-surveiller{
+
+    font-size:22px;
+
+    font-weight:bold;
+
+    line-height:1.8;
+
+    padding:20px;
+
+}
+
+
+
+
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+
+#indice-confiance{
+
+    font-size:42px;
+
+}
+
+
+
+#message-confiance{
+
+    font-size:16px;
+
+}
+
+
+
+#chevaux-surveiller{
+
+    font-size:19px;
+
+}
+
+
+}
