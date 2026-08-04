@@ -21,29 +21,21 @@ const data = await response.json();
 
 
 const chevaux =
+
 data.classement ||
 data.chevaux ||
 [];
 
 
 
+
 // ===============================
-// INFORMATIONS COURSE
+// OUTILS AFFICHAGE
 // ===============================
 
+function afficher(id,valeur){
 
-const course =
-data.course ||
-data.courses ||
-data;
-
-
-
-const afficher = (id,valeur)=>{
-
-const element =
-document.getElementById(id);
-
+const element = document.getElementById(id);
 
 if(element){
 
@@ -52,49 +44,7 @@ valeur || "-";
 
 }
 
-};
-
-
-
-
-afficher(
-"meta-hippodrome",
-course.hippodrome || data.hippodrome
-);
-
-
-
-afficher(
-"meta-course",
-course.course ||
-course.nom_course ||
-data.course
-);
-
-
-
-afficher(
-"meta-discipline",
-course.discipline ||
-data.discipline
-);
-
-
-
-afficher(
-"meta-distance",
-course.distance ?
-course.distance + " m" :
-data.distance
-);
-
-
-
-afficher(
-"meta-partants",
-chevaux.length
-);
-
+}
 
 
 
@@ -104,89 +54,63 @@ chevaux.length
 // ===============================
 
 
-const selectionJour =
-document.getElementById("selection-jour");
+const selection = chevaux.slice(0,8);
 
 
-if(selectionJour){
 
+afficher(
 
-selectionJour.textContent =
+"selection-jour",
 
-chevaux
-.slice(0,8)
+selection
 .map(c=>c.numero)
-.join(" - ");
+.join(" - ")
 
-
-}
-
+);
 
 
 
 
-// ===============================
-// REPARTITION SELECTION
-// 2 BASES - 3 CHANCES - 3 OUTSIDERS
-// ===============================
+afficher(
 
+"bases-solides",
 
-const bases =
-document.getElementById("bases-solides");
-
-
-if(bases){
-
-
-bases.textContent =
-
-chevaux
+selection
 .slice(0,2)
 .map(c=>c.numero)
-.join(" - ");
+.join(" - ")
+
+);
 
 
-}
 
 
+afficher(
 
+"chances-regulieres",
 
-const chances =
-document.getElementById("chances-regulieres");
-
-
-if(chances){
-
-
-chances.textContent =
-
-chevaux
+selection
 .slice(2,5)
 .map(c=>c.numero)
-.join(" - ");
+.join(" - ")
+
+);
 
 
-}
 
 
+afficher(
 
+"outsiders-selection",
 
-const outsiders =
-document.getElementById("outsiders-selection");
-
-
-if(outsiders){
-
-
-outsiders.textContent =
-
-chevaux
+selection
 .slice(5,8)
 .map(c=>c.numero)
-.join(" - ");
+.join(" - ")
+
+);
 
 
-}
 
 
 
@@ -198,72 +122,74 @@ chevaux
 // ===============================
 
 
-const favori =
-chevaux[0];
+const favori = chevaux[0];
 
 
 
 if(favori){
 
 
-const numero =
-document.getElementById("favori-numero");
+afficher(
 
+"favori-numero",
 
-const nom =
-document.getElementById("favori-nom");
+favori.numero
 
-
-const indice =
-document.getElementById("favori-indice");
-
-
-const confiance =
-document.getElementById("favori-confiance");
-
-
-const raison =
-document.getElementById("favori-raison");
+);
 
 
 
-if(numero)
-numero.textContent =
-favori.numero || "-";
+afficher(
+
+"favori-nom",
+
+favori.nom || "Cheval AZ"
+
+);
 
 
 
-if(nom)
-nom.textContent =
-favori.nom || "Cheval";
+afficher(
+
+"favori-indice",
+
+favori.indice_az
+
+);
 
 
 
-if(indice)
-indice.textContent =
-favori.indice_az || "-";
+afficher(
+
+"favori-confiance",
+
+favori.confiance ?
+favori.confiance + " %" :
+"-"
+
+);
 
 
 
-if(confiance)
-confiance.textContent =
-(favori.confiance || "-") + " %";
+afficher(
 
-
-
-if(raison)
-raison.textContent =
+"favori-raison",
 
 favori.raison ||
-"⭐ Base AZ : cheval régulier avec un indice AZ élevé.";
+"⭐ Favori AZ : meilleur indice et profil prioritaire"
+
+);
+
 
 }
 
 
 
 
+
+
 // ===============================
-// OUTSIDER AZ (8ème cheval)
+// OUTSIDER AZ
 // ===============================
 
 
@@ -277,68 +203,68 @@ chevaux[6];
 if(outsider){
 
 
-const numero =
-document.getElementById("outsider-numero");
+afficher(
 
+"outsider-numero",
 
-const nom =
-document.getElementById("outsider-nom");
+outsider.numero
 
-
-const indice =
-document.getElementById("outsider-indice");
-
-
-const confiance =
-document.getElementById("outsider-confiance");
-
-
-const raison =
-document.getElementById("outsider-raison");
+);
 
 
 
-if(numero)
-numero.textContent =
-outsider.numero || "-";
+afficher(
+
+"outsider-nom",
+
+outsider.nom || "Cheval AZ"
+
+);
 
 
 
-if(nom)
-nom.textContent =
-outsider.nom || "Cheval";
+afficher(
+
+"outsider-indice",
+
+outsider.indice_az
+
+);
 
 
 
-if(indice)
-indice.textContent =
-outsider.indice_az || "-";
+afficher(
+
+"outsider-confiance",
+
+outsider.confiance ?
+outsider.confiance + " %" :
+"-"
+
+);
 
 
 
-if(confiance)
-confiance.textContent =
-(outsider.confiance || "-") + " %";
+afficher(
 
-
-
-if(raison)
-raison.textContent =
+"outsider-raison",
 
 outsider.raison ||
+"🔥 Outsider AZ : profil intéressant pouvant surprendre."
 
-"🔥 Outsider AZ : cheval capable de créer une surprise.";
+);
 
 
 }
-
  // ===============================
 // POURQUOI CETTE SELECTION
 // ===============================
 
 
 const raisons =
+
 document.getElementById("raisons-selection");
+
 
 
 if(raisons){
@@ -346,9 +272,10 @@ if(raisons){
 
 raisons.innerHTML =
 
+
 chevaux
 .slice(0,8)
-.map(c=>`
+.map(c => `
 
 <div class="raison-cheval">
 
@@ -356,10 +283,15 @@ chevaux
 🏇 N°${c.numero || "-"}
 </h3>
 
+
 <p>
+
 ${c.raison ||
-"Cheval retenu pour sa forme, sa régularité et ses conditions de course favorables."}
+
+"Cheval retenu selon la forme, la régularité et l'indice AZ."}
+
 </p>
+
 
 </div>
 
@@ -378,52 +310,59 @@ ${c.raison ||
 // ===============================
 
 
-const analyseBody =
+const tableau =
+
 document.getElementById("analyse-body");
 
 
 
-if(analyseBody){
+if(tableau){
 
 
-analyseBody.innerHTML =
+tableau.innerHTML = "";
+
+
 
 chevaux
 .slice(0,8)
-.map(c=>`
+.forEach(cheval => {
+
+
+tableau.innerHTML += `
 
 <tr>
 
 <td>
-${c.numero || "-"}
+${cheval.numero || "-"}
 </td>
 
 
 <td>
-${c.nom || "Cheval"}
+${cheval.nom || "Cheval"}
 </td>
 
 
 <td>
-${c.indice_az || "-"}
+${cheval.indice_az || "-"}
 </td>
 
 
 <td>
-${c.confiance || "-"}%
+${cheval.confiance ? cheval.confiance + " %" : "-"}
 </td>
 
 
 <td>
-${c.raison ||
-"Analyse spécialisée AZ."}
+${cheval.raison || "Analyse AZ"}
 </td>
 
 
 </tr>
 
-`)
-.join("");
+`;
+
+});
+
 
 }
 
@@ -445,16 +384,39 @@ data.tickets?.gratuit || {};
 
 
 
-const ticket24 =
 
-document.getElementById("ticket-24-gratuit");
+const quinte =
 
-
-
-if(ticket24){
+document.getElementById("quinte-gratuit");
 
 
-ticket24.textContent =
+
+if(quinte){
+
+
+quinte.textContent =
+
+(tickets.quinte || [])
+.join(" - ");
+
+
+}
+
+
+
+
+
+
+const deuxSurQuatre =
+
+document.getElementById("deux-sur-quatre");
+
+
+
+if(deuxSurQuatre){
+
+
+deuxSurQuatre.textContent =
 
 (tickets.deux_sur_quatre || [])
 .join(" - ");
@@ -466,16 +428,18 @@ ticket24.textContent =
 
 
 
-const couple =
+
+
+const couplePlace =
 
 document.getElementById("couple-place-gratuit");
 
 
 
-if(couple){
+if(couplePlace){
 
 
-couple.textContent =
+couplePlace.textContent =
 
 (tickets.couple_place || [])
 .join(" - ");
@@ -488,42 +452,8 @@ couple.textContent =
 
 
 
-
 // ===============================
-// CHEVAUX A SURVEILLER
-// ===============================
-
-
-const surveiller =
-
-document.getElementById("chevaux-surveiller");
-
-
-
-if(surveiller){
-
-
-surveiller.innerHTML =
-
-chevaux
-.slice(5,8)
-.map(c=>
-
-`🏇 N°${c.numero} - ${c.nom || "Cheval"}`
-
-)
-.join("<br>");
-
-}
-
-
-
-
-
-
-
-// ===============================
-// AVIS JOCKEYS
+// AVIS COURSE
 // ===============================
 
 
@@ -538,10 +468,10 @@ if(avis){
 
 avis.textContent =
 
-"Les chevaux retenus présentent des profils intéressants selon la forme, l'expérience des jockeys et les conditions de course.";
-
+"Les chevaux retenus présentent des profils intéressants selon la forme, l'expérience et les conditions de course.";
 
 }
+
 
 
 
@@ -564,36 +494,9 @@ if(actualites){
 
 actualites.textContent =
 
-"Aucune information majeure ne modifie actuellement l'analyse de la course.";
+"Aucune actualité majeure disponible pour le moment.";
 
 }
-
-
-
-
-
-
-
-// ===============================
-// TENDANCE COURSE
-// ===============================
-
-
-const tendance =
-
-document.getElementById("tendance-course");
-
-
-
-if(tendance){
-
-
-tendance.textContent =
-
-"La course présente un équilibre entre favoris, chevaux réguliers et outsiders capables de surprendre.";
-
-}
-
 
 
 
@@ -616,17 +519,14 @@ if(synthese){
 
 synthese.textContent =
 
-"La sélection AZ privilégie les chevaux les plus réguliers, les mieux engagés et ceux ayant les meilleurs indices de performance.";
+"La sélection AZ privilégie les chevaux réguliers avec les meilleurs indices de performance.";
 
 }
 
 
 
-
-
-
-
 }
+
 
 catch(error){
 
@@ -642,8 +542,6 @@ error
 
 
 }
-
-
 
 
 
