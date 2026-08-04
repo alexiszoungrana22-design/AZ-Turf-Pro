@@ -11,6 +11,7 @@ if(!response.ok){
 throw new Error("Erreur API");
 }
 
+
 const data = await response.json();
 
 
@@ -32,10 +33,13 @@ const afficher = (id, valeur) => {
 const element = document.getElementById(id);
 
 if(element){
+
 element.textContent = valeur || "-";
+
 }
 
 };
+
 
 
 afficher(
@@ -44,10 +48,12 @@ course.hippodrome || data.hippodrome
 );
 
 
+
 afficher(
 "meta-course",
 course.course || course.nom_course || data.course
 );
+
 
 
 afficher(
@@ -56,10 +62,12 @@ course.discipline || data.discipline
 );
 
 
+
 afficher(
 "meta-distance",
 course.distance ? course.distance + " m" : data.distance
 );
+
 
 
 afficher(
@@ -70,9 +78,94 @@ chevaux.length
 
 
 
+
+
+// ===============================
+// SELECTION DU JOUR 8 CHEVAUX
+// ===============================
+
+
+const selectionJour =
+document.getElementById("selection-jour");
+
+
+if(selectionJour){
+
+
+selectionJour.textContent = chevaux
+.slice(0,8)
+.map(c => c.numero)
+.join(" - ");
+
+
+}
+
+
+
+
+// ===============================
+// CATEGORIES SELECTION
+// ===============================
+
+
+const bases =
+document.getElementById("bases-solides");
+
+
+if(bases){
+
+bases.textContent =
+chevaux
+.slice(0,2)
+.map(c => c.numero)
+.join(" - ");
+
+}
+
+
+
+
+const chances =
+document.getElementById("chances-regulieres");
+
+
+if(chances){
+
+chances.textContent =
+chevaux
+.slice(2,5)
+.map(c => c.numero)
+.join(" - ");
+
+}
+
+
+
+
+
+const outsiders =
+document.getElementById("outsiders-selection");
+
+
+if(outsiders){
+
+outsiders.textContent =
+chevaux
+.slice(5,8)
+.map(c => c.numero)
+.join(" - ");
+
+}
+
+
+
+
+
+
 // ===============================
 // PLUS JOUÉS
 // ===============================
+
 
 const popular =
 document.getElementById("popular-horses");
@@ -87,11 +180,14 @@ course.plus_joues ||
 [];
 
 
+
 if(plusJoues.length){
 
 
 popular.innerHTML =
+
 plusJoues
+
 .map(numero =>
 
 `
@@ -101,6 +197,7 @@ ${numero}
 `
 
 )
+
 .join("");
 
 
@@ -114,15 +211,15 @@ popular.innerHTML =
 
 }
 
+
 }
-
-
 
 
 
 // ===============================
 // FAVORI AZ
 // ===============================
+
 
 const favori = chevaux[0];
 
@@ -133,29 +230,37 @@ if(favori){
 const numero =
 document.getElementById("favori-numero");
 
+
 const nom =
 document.getElementById("favori-nom");
+
 
 const indice =
 document.getElementById("favori-indice");
 
+
 const confiance =
 document.getElementById("favori-confiance");
 
+
 const raison =
 document.getElementById("favori-raison");
+
 
 
 if(numero)
 numero.textContent = favori.numero || "-";
 
 
+
 if(nom)
 nom.textContent = favori.nom || "Cheval";
 
 
+
 if(indice)
 indice.textContent = favori.indice_az || "-";
+
 
 
 if(confiance)
@@ -163,11 +268,15 @@ confiance.textContent =
 (favori.confiance || "-") + " %";
 
 
+
 if(raison)
 raison.textContent =
 "⭐ Base AZ : bonne forme, indice AZ élevé et conditions favorables.";
 
+
 }
+
+
 
 
 
@@ -178,7 +287,8 @@ raison.textContent =
 // OUTSIDER AZ
 // ===============================
 
-const outsider = chevaux[6];
+
+const outsider = chevaux[7];
 
 
 if(outsider){
@@ -200,21 +310,26 @@ const raison =
 document.getElementById("outsider-raison");
 
 
+
 if(numero)
 numero.textContent = outsider.numero || "-";
+
 
 
 if(nom)
 nom.textContent = outsider.nom || "Cheval";
 
 
+
 if(indice)
 indice.textContent = outsider.indice_az || "-";
+
 
 
 if(confiance)
 confiance.textContent =
 (outsider.confiance || "-") + " %";
+
 
 
 if(raison)
@@ -224,49 +339,7 @@ raison.textContent =
 }
 
 
-
-
-
-
-// ===============================
-// TABLEAU PARTANTS
-// ===============================
-
-const tableau =
-document.getElementById("all-horses");
-
-
-if(tableau){
-
-
-tableau.innerHTML="";
-
-
-chevaux.forEach(cheval=>{
-
-
-tableau.innerHTML += `
-
-<tr>
-
-<td>${cheval.numero || "-"}</td>
-
-<td>${cheval.nom || "Cheval"}</td>
-
-<td>${cheval.jockey || "-"}</td>
-
-<td>${cheval.entraineur || "-"}</td>
-
-<td>${cheval.cote || "-"}</td>
-
-</tr>
-
-`;
-
-});
-
-
-}
+ 
 
 
 
@@ -278,126 +351,194 @@ tableau.innerHTML += `
 // TICKETS GRATUITS
 // ===============================
 
+
 const tickets =
 data.tickets?.gratuit || {};
 
 
-const q =
-document.getElementById("quinte-gratuit");
 
 
-if(q){
 
-q.innerHTML =
-(tickets.quinte || []).join(" - ");
-
-}
-
-
+const deux =
 document.getElementById("ticket-24-gratuit");
 
 
 if(deux){
 
-deux.innerHTML =
-(tickets.deux_sur_quatre || []).join(" - ");
+deux.textContent =
+(tickets.deux_sur_quatre || [])
+.join(" - ");
 
 }
 
-// ===============================
+
+
+
+
 // COUPLÉ PLACÉ GRATUIT
-// ===============================
-
-const couple = document.getElementById("couple-place-gratuit");
-
-if (couple) {
-    couple.textContent = (tickets.couple_place || []).join(" - ");
-}
 
 
-// ===============================
-// POURQUOI CETTE SÉLECTION
-// ===============================
+const couple =
+document.getElementById("couple-place-gratuit");
 
-const raisons = document.getElementById("raisons-selection");
 
-if (raisons) {
+if(couple){
 
-    raisons.innerHTML = chevaux
-        .slice(0,8)
-        .map(c => `
-            <div class="raison-cheval">
-                <h3>🏇 N°${c.numero}</h3>
-                <p>${c.raison || "Analyse spécialisée AZ."}</p>
-            </div>
-        `)
-        .join(" - ")
+couple.textContent =
+(tickets.couple_place || [])
+.join(" - ");
 
 }
 
 
+
+
+
+
+
+
 // ===============================
-// TABLEAU ANALYSE
+// POURQUOI CETTE SELECTION
 // ===============================
 
-const analyseBody = document.getElementById("analyse-body");
 
-if (analyseBody) {
+const raisons =
+document.getElementById("raisons-selection");
 
-    analyseBody.innerHTML = chevaux
-        .slice(0,8)
-        .map(c => `
-            <tr>
-                <td>${c.numero}</td>
-                <td>${c.nom || "-"}</td>
-                <td>${c.indice_az || "-"}</td>
-                <td>${c.confiance || "-"}%</td>
-                <td>${c.raison || "Analyse AZ"}</td>
-            </tr>
-        `)
-        .join(" - ")
+
+if(raisons){
+
+
+raisons.innerHTML = chevaux
+
+.slice(0,8)
+
+.map(c => `
+
+<div class="raison-cheval">
+
+<h3>🏇 N°${c.numero}</h3>
+
+<p>
+${c.raison || "Analyse spécialisée AZ."}
+</p>
+
+</div>
+
+`)
+
+.join("");
 
 }
+
+
+
+
+
+// ===============================
+// TABLEAU ANALYSE 8 CHEVAUX
+// ===============================
+
+
+const analyseBody =
+document.getElementById("analyse-body");
+
+
+if(analyseBody){
+
+
+analyseBody.innerHTML = chevaux
+
+.slice(0,8)
+
+.map(c => `
+
+<tr>
+
+<td>${c.numero}</td>
+
+<td>${c.nom || "-"}</td>
+
+<td>${c.indice_az || "-"}</td>
+
+<td>${c.confiance || "-"}%</td>
+
+<td>${c.raison || "Analyse AZ"}</td>
+
+</tr>
+
+`)
+
+.join("");
+
+}
+
+
+
+
+
+
 
 
 // ===============================
 // AVIS JOCKEYS / ENTRAÎNEURS
 // ===============================
 
-const avis = document.getElementById("avis-course");
 
-if (avis) {
+const avis =
+document.getElementById("avis-course");
 
-    avis.innerHTML =
-        "Les jockeys les plus expérimentés bénéficient de bonnes montes et les entraîneurs présentent plusieurs chevaux en forme.";
+
+if(avis){
+
+avis.innerHTML =
+"Les jockeys les plus expérimentés bénéficient de bonnes montes et les entraîneurs présentent plusieurs chevaux en forme.";
 
 }
+
+
+
+
+
+
 
 
 // ===============================
 // ACTUALITÉS
 // ===============================
 
-const actualites = document.getElementById("actualites-course");
 
-if (actualites) {
+const actualites =
+document.getElementById("actualites-course");
 
-    actualites.innerHTML =
-        "Aucune information majeure susceptible de modifier les pronostics pour le moment.";
+
+if(actualites){
+
+actualites.innerHTML =
+"Aucune information majeure susceptible de modifier les pronostics pour le moment.";
 
 }
 
 
+
+
+
+
+
+
 // ===============================
-// SYNTHÈSE AZ
+// SYNTHESE AZ
 // ===============================
 
-const synthese = document.getElementById("synthese-az");
 
-if (synthese) {
+const synthese =
+document.getElementById("synthese-az");
 
-    synthese.innerHTML =
-        "La sélection AZ privilégie les chevaux les plus réguliers, les mieux engagés et les plus performants selon notre indice.";
+
+if(synthese){
+
+synthese.innerHTML =
+"La sélection AZ privilégie les chevaux les plus réguliers, les mieux engagés et les plus performants selon notre indice.";
 
 }
 
@@ -423,7 +564,8 @@ error
 
 
 
+
 document.addEventListener(
 "DOMContentLoaded",
 chargerAnalyse
-);
+);    
