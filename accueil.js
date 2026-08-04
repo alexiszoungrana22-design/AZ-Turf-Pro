@@ -362,3 +362,147 @@ document.addEventListener(
 "DOMContentLoaded",
 chargerAnalyse
 );
+/* =====================================
+   AZ TURF PRO
+   SLIDER PUBLICITAIRE ACCUEIL V2
+===================================== */
+
+
+const publicites = [
+
+{
+image:"images/pub1.jpg",
+titre:"⭐ AZ Turf Pro Premium",
+texte:"Analyses spécialisées et tickets exclusifs"
+},
+
+{
+image:"images/pub2.jpg",
+titre:"🏇 Analyse du Quinté",
+texte:"Des pronostics basés sur les performances"
+},
+
+{
+image:"images/pub3.jpg",
+titre:"💎 Abonnement Premium",
+texte:"Accédez aux sélections avancées"
+},
+
+{
+image:"images/pub4.jpg",
+titre:"📢 Votre publicité ici",
+texte:"Un espace dédié aux partenaires"
+},
+
+{
+image:"images/pub5.jpg",
+titre:"🏆 AZ Turf Pro",
+texte:"Une analyse professionnelle au service des pronostics"
+}
+
+];
+
+
+
+let indexPub = 0;
+
+
+
+function changerPublicite(){
+
+
+const image =
+document.getElementById("pub-image");
+
+
+const titre =
+document.getElementById("pub-title");
+
+
+const texte =
+document.getElementById("pub-text");
+
+
+const points =
+document.querySelectorAll(".dot");
+
+
+
+if(!image){
+
+return;
+
+}
+
+
+
+indexPub++;
+
+
+
+if(indexPub >= publicites.length){
+
+indexPub = 0;
+
+}
+
+
+
+image.style.opacity = "0";
+
+
+
+setTimeout(()=>{
+
+
+image.src =
+publicites[indexPub].image;
+
+
+if(titre){
+
+titre.innerHTML =
+publicites[indexPub].titre;
+
+}
+
+
+if(texte){
+
+texte.innerHTML =
+publicites[indexPub].texte;
+
+}
+
+
+
+points.forEach(
+(point,i)=>{
+
+point.classList.toggle(
+"active",
+i===indexPub
+);
+
+}
+
+);
+
+
+
+image.style.opacity="1";
+
+
+},400);
+
+
+
+}
+
+
+
+
+setInterval(
+changerPublicite,
+4000
+);
