@@ -355,7 +355,7 @@ if (raisons) {
                 <p>${c.raison || "Analyse spécialisée AZ."}</p>
             </div>
         `)
-        .join("");
+        .join(" - ")
 
 }
 
@@ -379,7 +379,7 @@ if (analyseBody) {
                 <td>${c.raison || "Analyse AZ"}</td>
             </tr>
         `)
-        .join("");
+        .join(" - ")
 
 }
 
