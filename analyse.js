@@ -131,8 +131,7 @@ document.getElementById("selection-az-chevaux");
 if(selection){
 
 selection.textContent =
-chevaux
-.slice(0,7)
+chevaux.slice(0,8)
 .map(c => c.numero)
 .join(" - ");
 
