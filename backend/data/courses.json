@@ -137,8 +137,25 @@
         }
 
   ],
-
-  "plus_joues": [3, 5, 2, 7, 1, 6, 4],
+       
+{
+  "numero": 8,
+  "nom": "Cheval AZ 8",
+  "age": 6,
+  "sexe": "M",
+  "jockey": "Jockey 8",
+  "entraineur": "Entraîneur 8",
+  "performances": [5,2,4,3],
+  "forme": 7,
+  "regularite": 7,
+  "gains": 6,
+  "jockey_score": 8,
+  "cote": 7,
+  "distance": 8,
+  "terrain": 7,
+  "experience": 8
+}
+  "plus_joues": [3, 5, 2, 7, 1, 6, 4, 8],
 
   "source_plus_joues": "Turf.fr"
 
