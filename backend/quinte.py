@@ -42,7 +42,6 @@ def generer_champ_reduit(classement):
 
 
     return {
-
         "format":
             "-".join(map(str, bases))
             + " / "
@@ -56,6 +55,7 @@ def generer_champ_reduit(classement):
 
 
 
+
 def generer_ticket_derniere_minute(classement):
 
     numeros = extraire_numeros(classement)
@@ -64,13 +64,9 @@ def generer_ticket_derniere_minute(classement):
     if len(numeros) < 7:
 
         return {
-
             "selection": [],
-
             "joker": None,
-
             "format": ""
-
         }
 
 
@@ -80,16 +76,12 @@ def generer_ticket_derniere_minute(classement):
 
 
     return {
-
         "selection": selection,
-
         "joker": joker,
-
         "format":
             "-".join(map(str, selection))
             + " + "
             + str(joker)
-
     }
 
 
@@ -102,14 +94,11 @@ def generer_tickets_az(classement):
     numeros = extraire_numeros(classement)
 
 
-    if len(numeros) < 8:
+    if len(numeros) < 7:
 
         return {
-
             "gratuit": {},
-
             "premium": {}
-
         }
 
 
@@ -120,19 +109,13 @@ def generer_tickets_az(classement):
 
     gratuit = {
 
-
         "quinte":
-
             numeros[:7],
 
-
         "deux_sur_quatre":
-
             numeros[:4],
 
-
         "couple_place":
-
             [
                 numeros[0],
                 numeros[1]
@@ -142,8 +125,10 @@ def generer_tickets_az(classement):
 
 
 
+
+
     # =========================
-    # COUPLES PREMIUM
+    # PREMIUM
     # =========================
 
 
@@ -171,50 +156,39 @@ def generer_tickets_az(classement):
 
 
 
-
-
-    # =========================
-    # PREMIUM
-    # =========================
-
-
     premium = {
 
+        # Sélection Quinté Premium affichée en haut
+        "selection_quinte":
+            numeros[:7],
 
+
+        # Ticket Quinté Premium joué
         "quinte":
-
             numeros[:6],
 
 
         "quarte":
-
             numeros[:5],
 
 
         "trio":
-
             numeros[:4],
 
 
         "couple_gagnant_place":
-
             couples,
 
 
         "champ_reduit":
-
             generer_champ_reduit(classement),
 
 
-
         "ticket_derniere_minute":
-
             generer_ticket_derniere_minute(classement),
 
 
-
         "message_fin":
-
             "🍀 Bonne chance ! Les tickets Premium sont issus d'une analyse approfondie. Jouez toujours avec discipline et responsabilité."
 
     }
