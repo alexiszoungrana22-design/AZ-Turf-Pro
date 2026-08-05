@@ -150,16 +150,12 @@ def analyse():
 
 
 
-    import traceback
+    except Exception as e:
 
-...
-
-except Exception as e:
-
-    return {
-        "erreur": str(e),
-        "trace": traceback.format_exc()
-    }
+    raise HTTPException(
+        status_code=500,
+        detail=f"Erreur AZ : {str(e)}"
+    )
 
 
 
