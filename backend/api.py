@@ -40,13 +40,12 @@ router = APIRouter(
 @router.get("/analyse")
 def analyse():
 
-    try:
+        try:
 
         chemin = os.path.join(
             "data",
             "courses.json"
         )
-
 
         with open(
             chemin,
@@ -56,106 +55,47 @@ def analyse():
 
             course = json.load(fichier)
 
-
-
         chevaux = course.get(
             "chevaux",
             []
         )
 
-
-
         if not chevaux:
-
             raise Exception(
                 "Aucun cheval trouvé dans courses.json"
             )
 
-
-
         resultat = lancer_analyse(
             chevaux
         )
-
-
 
         classement = resultat.get(
             "chevaux",
             []
         )
 
-
-
         return {
-
             "message": "Analyse AZ Turf terminée",
-
-            "course": course.get(
-                "course",
-                "Course"
-            ),
-
-            "date": course.get(
-                "date",
-                ""
-            ),
-
-            "hippodrome": course.get(
-                "hippodrome",
-                ""
-            ),
-
-            "discipline": course.get(
-                "discipline",
-                ""
-            ),
-
-            "distance": course.get(
-                "distance_course",
-                ""
-            ),
-
-            "plus_joues": course.get(
-                "plus_joues",
-                []
-            ),
-
-            "source_plus_joues": course.get(
-                "source_plus_joues",
-                ""
-            ),
-
+            "course": course.get("course", "Course"),
+            "date": course.get("date", ""),
+            "hippodrome": course.get("hippodrome", ""),
+            "discipline": course.get("discipline", ""),
+            "distance": course.get("distance_course", ""),
+            "plus_joues": course.get("plus_joues", []),
+            "source_plus_joues": course.get("source_plus_joues", ""),
             "partants": len(chevaux),
-
-
             "chevaux": classement,
-
-
             "classement": classement,
-
-
-            "favori": (
-                classement[0]
-                if classement
-                else {}
-            ),
-
-
-            "tickets": resultat.get(
-                "tickets",
-                {}
-            )
-
+            "favori": classement[0] if classement else {},
+            "tickets": resultat.get("tickets", {})
         }
-
-
 
     except Exception as e:
 
-    raise HTTPException(
-        status_code=500,
-        detail=f"Erreur AZ : {str(e)}"
-    )
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erreur AZ : {str(e)}"
+        )
 
 
 
