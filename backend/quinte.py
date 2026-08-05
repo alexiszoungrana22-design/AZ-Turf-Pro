@@ -16,7 +16,7 @@ def generer_champ_reduit(classement):
 
     numeros = extraire_numeros(classement)
 
-    if len(numeros) < 8:
+    if len(numeros) < 7:
         return {
             "format": "",
             "bases": [],
@@ -48,30 +48,20 @@ def generer_champ_reduit(classement):
             + " / "
             + "-".join(map(str, complements)),
 
-
         "bases": bases,
 
         "complements": complements
-
     }
 
 
 
 
 def generer_ticket_derniere_minute(classement):
-    """
-    Ticket dernière minute
-
-    Prend en compte :
-    - changements de dernière minute
-    - chevaux en forme
-    - outsiders
-    """
 
     numeros = extraire_numeros(classement)
 
 
-    if len(numeros) < 6:
+    if len(numeros) < 7:
 
         return {
 
@@ -84,10 +74,9 @@ def generer_ticket_derniere_minute(classement):
         }
 
 
-
     selection = numeros[:6]
-joker = numeros[6]
 
+    joker = numeros[6]
 
 
     return {
@@ -109,30 +98,11 @@ joker = numeros[6]
 
 def generer_tickets_az(classement):
 
-    """
-    Génération des tickets AZ Turf Pro
-
-    GRATUIT :
-    - Quinté 7 chevaux
-    - Deux sur Quatre 4 chevaux
-    - Couplé placé
-
-    PREMIUM :
-    - Quinté Premium 6 chevaux
-    - Quarté 5 chevaux
-    - Trio 4 chevaux
-    - Couplé gagnant/placé
-    - Champ réduit
-    - Dernière minute
-    """
-
-
 
     numeros = extraire_numeros(classement)
 
 
-
-    if len(numeros) < 7:
+    if len(numeros) < 8:
 
         return {
 
@@ -144,11 +114,9 @@ def generer_tickets_az(classement):
 
 
 
-
     # =========================
     # GRATUIT
     # =========================
-
 
     gratuit = {
 
@@ -161,15 +129,16 @@ def generer_tickets_az(classement):
         "deux_sur_quatre":
 
             numeros[:4],
-        ]
 
-        "couple_place": [
-    numeros[0],
-    numeros[1]
-        ]
+
+        "couple_place":
+
+            [
+                numeros[0],
+                numeros[1]
+            ]
 
     }
-
 
 
 
@@ -184,27 +153,18 @@ def generer_tickets_az(classement):
     couples = [
 
         [
-
             bases_couple[0],
-
             bases_couple[1]
-
         ],
 
         [
-
             bases_couple[0],
-
             bases_couple[2]
-
         ],
 
         [
-
             bases_couple[1],
-
             bases_couple[2]
-
         ]
 
     ]
