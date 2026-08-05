@@ -16,7 +16,7 @@ def generer_champ_reduit(classement):
 
     numeros = extraire_numeros(classement)
 
-    if len(numeros) < 7:
+    if len(numeros) < 8:
         return {
             "format": "",
             "bases": [],
@@ -85,9 +85,8 @@ def generer_ticket_derniere_minute(classement):
 
 
 
-    selection = numeros[:5]
-
-    joker = numeros[5]
+    selection = numeros[:6]
+joker = numeros[6]
 
 
 
@@ -164,19 +163,10 @@ def generer_tickets_az(classement):
             numeros[:4],
 
 
-        "couple_place":
-
-            [
-
-                [
-
-                    numeros[0],
-
-                    numeros[1]
-
-                ]
-
-            ]
+        "couple_place": [
+    numeros[0],
+    numeros[1]
+        ]
 
     }
 
