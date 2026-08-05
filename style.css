@@ -884,7 +884,9 @@ td{
 
 .ticket-premium-box h3{
 
-    font-size:21px;
+    font-size:24px;
+
+    font-weight:900;
 
 }
 
@@ -895,13 +897,13 @@ td{
 
     text-align:center;
 
-    font-size:32px;
+    font-size:55px;
 
-    font-weight:bold;
+    font-weight:900;
 
-    letter-spacing:4px;
+    letter-spacing:8px;
 
-    padding:20px;
+    padding:25px;
 
 }
 
@@ -911,11 +913,11 @@ td{
 
     text-align:center;
 
-    font-size:24px;
+    font-size:38px;
 
-    font-weight:bold;
+    font-weight:900;
 
-    margin:12px 0;
+    margin:15px 0;
 
 }
 
@@ -925,12 +927,46 @@ td{
 
     text-align:center;
 
-    font-size:28px;
+    font-size:42px;
 
-    font-weight:bold;
+    font-weight:900;
 
 }
 
+
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+
+.numero-ticket,
+.ticket-grand{
+
+    font-size:45px;
+
+    letter-spacing:5px;
+
+}
+
+
+
+.couple-ligne{
+
+    font-size:32px;
+
+}
+
+
+
+.champ-reduit{
+
+    font-size:36px;
+
+}
+
+
+}
 
 
 /* ===============================
