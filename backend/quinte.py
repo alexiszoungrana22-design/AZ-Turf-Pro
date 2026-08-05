@@ -161,7 +161,7 @@ def generer_tickets_az(classement):
         "deux_sur_quatre":
 
             numeros[:4],
-
+        ]
 
         "couple_place": [
     numeros[0],
