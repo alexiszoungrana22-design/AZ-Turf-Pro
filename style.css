@@ -891,24 +891,17 @@ td{
 .numero-ticket,
 .ticket-grand{
 
-    width:100%;
-
-    box-sizing:border-box;
-
     text-align:center;
 
-    font-size:48px;
+    font-size:42px;
 
     font-weight:900;
 
-    letter-spacing:4px;
+    letter-spacing:3px;
 
     padding:20px 5px;
 
-    white-space:nowrap;
-
 }
-
 
 
 .couple-ligne{
@@ -944,27 +937,22 @@ td{
 
 @media(max-width:600px){
 
-
 .numero-ticket,
 .ticket-grand{
 
-    font-size:34px;
+    font-size:32px;
 
-    letter-spacing:3px;
+    letter-spacing:2px;
 
     padding:15px 0;
 
 }
 
-
-
 .couple-ligne{
 
-    font-size:28px;
+    font-size:26px;
 
 }
-
-
 
 .champ-reduit{
 
@@ -972,9 +960,7 @@ td{
 
 }
 
-
 }
-
 
 /* ===============================
    MESSAGE PREMIUM
