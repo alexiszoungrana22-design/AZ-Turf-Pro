@@ -879,11 +879,15 @@ td{
 
 
 
-.ticket-premium-box h3{
+.ticket-premium-box{
 
-    font-size:24px;
+    width:100%;
 
-    font-weight:900;
+    box-sizing:border-box;
+
+    padding:20px 5px;
+
+    overflow:hidden;
 
 }
 
@@ -892,15 +896,21 @@ td{
 .numero-ticket,
 .ticket-grand{
 
+    width:100%;
+
+    box-sizing:border-box;
+
     text-align:center;
 
-    font-size:55px;
+    font-size:52px;
 
     font-weight:900;
 
-    letter-spacing:8px;
+    letter-spacing:2px;
 
-    padding:25px;
+    padding:20px 0;
+
+    white-space:nowrap;
 
 }
 
@@ -936,13 +946,16 @@ td{
 
 @media(max-width:600px){
 
-
 .numero-ticket,
 .ticket-grand{
 
     font-size:45px;
 
-    letter-spacing:5px;
+    letter-spacing:1px;
+
+    padding:18px 0;
+
+}
 
 }
 
