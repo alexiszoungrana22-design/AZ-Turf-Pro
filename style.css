@@ -855,11 +855,9 @@ td{
 }
 
 
-
 /* ===============================
    TICKETS PREMIUM
 ================================ */
-
 
 .ticket-premium-box{
 
@@ -869,25 +867,22 @@ td{
 
     border-radius:20px;
 
-    padding:25px;
+    padding:20px 10px;
 
     margin:20px 0;
 
     text-align:center;
 
+    overflow:hidden;
+
 }
 
 
+.ticket-premium-box h3{
 
-.ticket-premium-box{
+    font-size:24px;
 
-    width:100%;
-
-    box-sizing:border-box;
-
-    padding:20px 5px;
-
-    overflow:hidden;
+    font-weight:900;
 
 }
 
@@ -902,13 +897,13 @@ td{
 
     text-align:center;
 
-    font-size:52px;
+    font-size:48px;
 
     font-weight:900;
 
-    letter-spacing:2px;
+    letter-spacing:4px;
 
-    padding:20px 0;
+    padding:20px 5px;
 
     white-space:nowrap;
 
@@ -920,11 +915,13 @@ td{
 
     text-align:center;
 
-    font-size:38px;
+    font-size:36px;
 
     font-weight:900;
 
     margin:15px 0;
+
+    white-space:nowrap;
 
 }
 
@@ -934,28 +931,28 @@ td{
 
     text-align:center;
 
-    font-size:42px;
+    font-size:38px;
 
     font-weight:900;
 
-}
+    overflow-wrap:anywhere;
 
+}
 
 
 /* MOBILE */
 
 @media(max-width:600px){
 
+
 .numero-ticket,
 .ticket-grand{
 
-    font-size:45px;
+    font-size:34px;
 
-    letter-spacing:1px;
+    letter-spacing:3px;
 
-    padding:18px 0;
-
-}
+    padding:15px 0;
 
 }
 
@@ -963,7 +960,7 @@ td{
 
 .couple-ligne{
 
-    font-size:32px;
+    font-size:28px;
 
 }
 
@@ -971,7 +968,7 @@ td{
 
 .champ-reduit{
 
-    font-size:36px;
+    font-size:30px;
 
 }
 
