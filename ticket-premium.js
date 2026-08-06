@@ -1,17 +1,132 @@
 // =====================================
 // AZ TURF PRO
 // TICKET PREMIUM
-// AFFICHAGE FINAL
+// AFFICHAGE FINAL + PROTECTION PREMIUM
 // =====================================
 
-const API_URL =
+
+const API_ANALYSE =
 "https://az-turf-pro.onrender.com/api/analyse";
+
+
+const API_PREMIUM =
+"https://az-turf-pro.onrender.com/api/premium";
+
 
 
 document.addEventListener(
 "DOMContentLoaded",
-chargerPremium
+async () => {
+
+const acces =
+await verifierAccesPremium();
+
+
+if(acces){
+
+chargerPremium();
+
+}
+
+});
+
+
+
+
+// =====================================
+// VERIFICATION ACCES PREMIUM
+// =====================================
+
+async function verifierAccesPremium(){
+
+
+const telephone =
+localStorage.getItem("telephone");
+
+
+
+if(!telephone){
+
+
+window.location.href =
+"abonnement.html";
+
+
+return false;
+
+}
+
+
+
+try{
+
+
+const response =
+await fetch(
+`${API_PREMIUM}/${telephone}`
 );
+
+
+
+if(!response.ok){
+
+throw new Error(
+"Erreur vérification Premium"
+);
+
+}
+
+
+
+const data =
+await response.json();
+
+
+
+if(
+data.statut !== "ACTIF"
+){
+
+
+window.location.href =
+"abonnement.html";
+
+
+return false;
+
+}
+
+
+
+return true;
+
+
+
+}
+catch(error){
+
+
+console.error(
+"Erreur Premium :",
+error
+);
+
+
+window.location.href =
+"abonnement.html";
+
+
+return false;
+
+
+}
+
+
+}
+
+
+
+
 
 
 
@@ -21,17 +136,24 @@ async function chargerPremium(){
 try{
 
 
-const response = await fetch(API_URL);
+const response =
+await fetch(API_ANALYSE);
+
 
 
 if(!response.ok){
 
-throw new Error("Erreur API");
+throw new Error(
+"Erreur API"
+);
 
 }
 
 
-const data = await response.json();
+
+const data =
+await response.json();
+
 
 
 console.log(
@@ -41,8 +163,10 @@ data
 
 
 
+
 const premium =
 data.tickets?.premium || {};
+
 
 
 const classement =
@@ -51,9 +175,12 @@ data.classement || [];
 
 
 
+
+
 // =====================================
 // SELECTION PREMIUM
 // =====================================
+
 
 afficherListe(
 
@@ -71,9 +198,11 @@ classement
 
 
 
+
 // =====================================
 // EXPLICATION
 // =====================================
+
 
 afficherTexte(
 
@@ -102,9 +231,11 @@ ${c.raison || "Analyse spécialisée en cours"}
 
 
 
+
 // =====================================
 // TICKETS
 // =====================================
+
 
 afficherTicket(
 "quinte-premium",
@@ -130,10 +261,10 @@ premium.trio
 
 
 
+// =====================================
+// COUPLE
+// =====================================
 
-// =====================================
-// COUPLE 3 NUMEROS
-// =====================================
 
 if(premium.couple_gagnant_place){
 
@@ -145,10 +276,12 @@ premium.couple_gagnant_place;
 
 if(Array.isArray(couple)){
 
+
 couple =
 couple
 .flat()
 .slice(0,3);
+
 
 }
 
@@ -174,7 +307,6 @@ couple
 
 // =====================================
 // CHAMP REDUIT
-// FORMAT : 3-5-X 2-X / 8-1-4-12
 // =====================================
 
 
@@ -184,6 +316,7 @@ if(premium.champ_reduit){
 let champ =
 premium.champ_reduit.format ||
 "Non disponible";
+
 
 
 afficherTexte(
@@ -203,8 +336,9 @@ champ
 
 
 
+
 // =====================================
-// DERNIERE MINUTE 6 NUMEROS
+// DERNIERE MINUTE
 // =====================================
 
 
@@ -274,6 +408,7 @@ distance, terrain et expérience.
 
 
 
+
 // =====================================
 // MESSAGE
 // =====================================
@@ -290,6 +425,7 @@ premium.message_fin ||
 );
 
 
+
 }
 
 
@@ -298,8 +434,11 @@ catch(error){
 
 
 console.error(
+
 "Erreur Premium :",
+
 error
+
 );
 
 
@@ -307,6 +446,7 @@ error
 
 
 }
+
 
 
 
@@ -350,7 +490,6 @@ return;
 
 
 zone.innerHTML =
-
 liste.join(" - ");
 
 
@@ -379,13 +518,16 @@ document.getElementById(id);
 
 if(zone){
 
+
 zone.innerHTML =
 liste.join(" - ");
 
+
 }
 
 
 }
+
 
 
 
@@ -409,8 +551,10 @@ document.getElementById(id);
 
 if(zone){
 
+
 zone.innerHTML =
 contenu;
+
 
 }
 
