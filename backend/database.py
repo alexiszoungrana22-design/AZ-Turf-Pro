@@ -1,14 +1,26 @@
 # =====================================
 # AZ TURF PRO
 # DATABASE
-# Gestion historique + Premium SQLite
+# Gestion historique + Premium PostgreSQL
 # =====================================
 
-import sqlite3
+import os
+import psycopg2
 from datetime import datetime, timedelta
 
 
-DB_NAME = "az_turf.db"
+# =====================================
+# DATABASE_URL (fourni par Render)
+# =====================================
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    raise RuntimeError(
+        "DATABASE_URL n'est pas dÃ©finie. "
+        "Sur Render : ajoutez une base PostgreSQL et liez sa DATABASE_URL "
+        "aux variables d'environnement du service."
+    )
 
 
 # =====================================
@@ -17,9 +29,7 @@ DB_NAME = "az_turf.db"
 
 def connexion():
 
-    return sqlite3.connect(DB_NAME)
-
-
+    return psycopg2.connect(DATABASE_URL, sslmode="require")
 
 
 # =====================================
@@ -30,45 +40,42 @@ def initialiser_database():
 
     conn = connexion()
 
-    cursor = conn.cursor()
+    try:
+        cursor = conn.cursor()
 
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS abonnements (
 
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS abonnements (
+            id SERIAL PRIMARY KEY,
 
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+            telephone TEXT UNIQUE,
 
-        telephone TEXT UNIQUE,
+            offre TEXT,
 
-        offre TEXT,
+            prix INTEGER,
 
-        prix INTEGER,
+            duree INTEGER,
 
-        duree INTEGER,
+            paiement TEXT,
 
-        paiement TEXT,
+            reference TEXT,
 
-        reference TEXT,
+            statut TEXT,
 
-        statut TEXT,
+            date_creation TEXT,
 
-        date_creation TEXT,
+            date_fin TEXT
 
-        date_fin TEXT
+        )
+        """)
 
-    )
-    """)
+        conn.commit()
 
-
-    conn.commit()
-
-    conn.close()
-
+    finally:
+        conn.close()
 
 
 initialiser_database()
-
-
 
 
 # =====================================
@@ -78,19 +85,14 @@ initialiser_database()
 historique = []
 
 
-
 def enregistrer(ticket):
 
     historique.append(ticket)
 
 
-
 def voir_historique():
 
     return historique
-
-
-
 
 
 # =====================================
@@ -101,33 +103,74 @@ def creer_abonnement(data):
 
     conn = connexion()
 
-    cursor = conn.cursor()
+    try:
+        cursor = conn.cursor()
 
+        ancien = trouver_abonnement(
+            data.get("telephone")
+        )
 
-    ancien = trouver_abonnement(
-        data.get("telephone")
-    )
+        if ancien:
 
+            cursor.execute(
+                """
+                UPDATE abonnements
 
-    if ancien:
+                SET offre=%s,
+                    prix=%s,
+                    duree=%s,
+                    paiement=%s,
+                    statut=%s
 
+                WHERE telephone=%s
 
-        cursor.execute(
-            """
-            UPDATE abonnements
+                """,
 
-            SET offre=?,
-                prix=?,
-                duree=?,
-                paiement=?,
-                statut=?
+                (
 
+                    data.get("offre"),
 
-            WHERE telephone=?
+                    data.get("prix"),
 
-            """,
+                    data.get("duree"),
 
-            (
+                    data.get("paiement"),
+
+                    "EN_ATTENTE",
+
+                    data.get("telephone")
+
+                )
+
+            )
+
+        else:
+
+            cursor.execute(
+                """
+                INSERT INTO abonnements
+
+                (
+
+                telephone,
+                offre,
+                prix,
+                duree,
+                paiement,
+                reference,
+                statut,
+                date_creation,
+                date_fin
+
+                )
+
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+
+                """,
+
+                (
+
+                data.get("telephone"),
 
                 data.get("offre"),
 
@@ -137,74 +180,24 @@ def creer_abonnement(data):
 
                 data.get("paiement"),
 
+                "",
+
                 "EN_ATTENTE",
 
-                data.get("telephone")
+                datetime.now().isoformat(),
+
+                ""
+
+                )
 
             )
 
-        )
+        conn.commit()
 
-
-    else:
-
-
-        cursor.execute(
-            """
-            INSERT INTO abonnements
-
-            (
-
-            telephone,
-            offre,
-            prix,
-            duree,
-            paiement,
-            reference,
-            statut,
-            date_creation,
-            date_fin
-
-            )
-
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-
-            """,
-
-            (
-
-            data.get("telephone"),
-
-            data.get("offre"),
-
-            data.get("prix"),
-
-            data.get("duree"),
-
-            data.get("paiement"),
-
-            "",
-
-            "EN_ATTENTE",
-
-            datetime.now().isoformat(),
-
-            ""
-
-            )
-
-        )
-
-
-    conn.commit()
-
-    conn.close()
-
+    finally:
+        conn.close()
 
     return data
-
-
-
 
 
 # =====================================
@@ -215,34 +208,29 @@ def trouver_abonnement(telephone):
 
     conn = connexion()
 
-    cursor = conn.cursor()
+    try:
+        cursor = conn.cursor()
 
+        cursor.execute(
+            """
+            SELECT *
+            FROM abonnements
+            WHERE telephone=%s
 
-    cursor.execute(
-        """
-        SELECT *
-        FROM abonnements
-        WHERE telephone=?
+            """,
 
-        """,
+            (telephone,)
 
-        (telephone,)
+        )
 
-    )
+        resultat = cursor.fetchone()
 
-
-    resultat = cursor.fetchone()
-
-
-    conn.close()
-
-
+    finally:
+        conn.close()
 
     if resultat is None:
 
         return None
-
-
 
     return {
 
@@ -269,9 +257,6 @@ def trouver_abonnement(telephone):
     }
 
 
-
-
-
 # =====================================
 # ACTIVER PREMIUM
 # =====================================
@@ -281,17 +266,13 @@ def activer_abonnement(
     reference
 ):
 
-
     abonnement = trouver_abonnement(
         telephone
     )
 
-
     if abonnement is None:
 
         return None
-
-
 
     duree = int(
         abonnement.get(
@@ -299,7 +280,6 @@ def activer_abonnement(
             30
         )
     )
-
 
     date_fin = (
 
@@ -313,52 +293,46 @@ def activer_abonnement(
 
     ).isoformat()
 
-
-
     conn = connexion()
 
-    cursor = conn.cursor()
+    try:
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+
+            UPDATE abonnements
+
+            SET statut=%s,
+
+                reference=%s,
+
+                date_fin=%s
 
 
-
-    cursor.execute(
-        """
-
-        UPDATE abonnements
-
-        SET statut=?,
-
-            reference=?,
-
-            date_fin=?
+            WHERE telephone=%s
 
 
-        WHERE telephone=?
+            """,
 
+            (
 
-        """,
+            "ACTIF",
 
-        (
+            reference,
 
-        "ACTIF",
+            date_fin,
 
-        reference,
+            telephone
 
-        date_fin,
-
-        telephone
+            )
 
         )
 
-    )
+        conn.commit()
 
-
-
-    conn.commit()
-
-    conn.close()
-
-
+    finally:
+        conn.close()
 
     abonnement["statut"] = "ACTIF"
 
@@ -366,12 +340,7 @@ def activer_abonnement(
 
     abonnement["date_fin"] = date_fin
 
-
-
     return abonnement
-
-
-
 
 
 # =====================================
@@ -380,107 +349,82 @@ def activer_abonnement(
 
 def verifier_premium(telephone):
 
-
     abonnement = trouver_abonnement(
         telephone
     )
 
-
-
     if abonnement is None:
-
 
         return {
 
-            "statut":"INACTIF"
+            "statut": "INACTIF"
 
         }
-
-
 
     statut = abonnement.get(
         "statut",
         "INACTIF"
     )
 
-
-
     date_fin = abonnement.get(
         "date_fin",
         ""
     )
 
-
-
     if statut == "ACTIF" and date_fin:
 
-
         try:
-
 
             expiration = datetime.fromisoformat(
                 date_fin
             )
 
-
             if datetime.now() > expiration:
-
 
                 conn = connexion()
 
-                cursor = conn.cursor()
+                try:
+                    cursor = conn.cursor()
 
+                    cursor.execute(
+                        """
 
-                cursor.execute(
-                    """
+                        UPDATE abonnements
 
-                    UPDATE abonnements
+                        SET statut=%s
 
-                    SET statut=?
+                        WHERE telephone=%s
 
-                    WHERE telephone=?
+                        """,
 
-                    """,
+                        (
 
-                    (
+                        "EXPIRE",
 
-                    "EXPIRE",
+                        telephone
 
-                    telephone
+                        )
 
                     )
 
-                )
+                    conn.commit()
 
-
-                conn.commit()
-
-                conn.close()
-
+                finally:
+                    conn.close()
 
                 statut = "EXPIRE"
 
-
-
         except Exception:
-
 
             pass
 
-
-
-
     return {
 
-
         "statut": statut,
-
 
         "date_fin": date_fin
 
     }
-
-
 
 
 # =====================================
@@ -491,29 +435,25 @@ def lister_abonnements():
 
     conn = connexion()
 
-    cursor = conn.cursor()
+    try:
+        cursor = conn.cursor()
 
+        cursor.execute(
+            """
+            SELECT *
+            FROM abonnements
+            ORDER BY id DESC
+            """
+        )
 
-    cursor.execute(
-        """
-        SELECT *
-        FROM abonnements
-        ORDER BY id DESC
-        """
-    )
+        resultats = cursor.fetchall()
 
-
-    resultats = cursor.fetchall()
-
-
-    conn.close()
-
+    finally:
+        conn.close()
 
     abonnements = []
 
-
     for resultat in resultats:
-
 
         abonnements.append({
 
@@ -539,8 +479,9 @@ def lister_abonnements():
 
         })
 
-
     return abonnements
+
+
 # =====================================
 # ADMIN - STATISTIQUES ABONNEMENTS
 # =====================================
@@ -549,54 +490,50 @@ def statistiques_abonnements():
 
     conn = connexion()
 
-    cursor = conn.cursor()
+    try:
+        cursor = conn.cursor()
 
+        cursor.execute(
+            """
+            SELECT COUNT(*)
+            FROM abonnements
+            """
+        )
 
-    cursor.execute(
-        """
-        SELECT COUNT(*)
-        FROM abonnements
-        """
-    )
+        total = cursor.fetchone()[0]
 
-    total = cursor.fetchone()[0]
+        cursor.execute(
+            """
+            SELECT COUNT(*)
+            FROM abonnements
+            WHERE statut='ACTIF'
+            """
+        )
 
+        actifs = cursor.fetchone()[0]
 
-    cursor.execute(
-        """
-        SELECT COUNT(*)
-        FROM abonnements
-        WHERE statut='ACTIF'
-        """
-    )
+        cursor.execute(
+            """
+            SELECT COUNT(*)
+            FROM abonnements
+            WHERE statut='EN_ATTENTE'
+            """
+        )
 
-    actifs = cursor.fetchone()[0]
+        attente = cursor.fetchone()[0]
 
+        cursor.execute(
+            """
+            SELECT COUNT(*)
+            FROM abonnements
+            WHERE statut='EXPIRE'
+            """
+        )
 
-    cursor.execute(
-        """
-        SELECT COUNT(*)
-        FROM abonnements
-        WHERE statut='EN_ATTENTE'
-        """
-    )
+        expires = cursor.fetchone()[0]
 
-    attente = cursor.fetchone()[0]
-
-
-    cursor.execute(
-        """
-        SELECT COUNT(*)
-        FROM abonnements
-        WHERE statut='EXPIRE'
-        """
-    )
-
-    expires = cursor.fetchone()[0]
-
-
-    conn.close()
-
+    finally:
+        conn.close()
 
     return {
 
