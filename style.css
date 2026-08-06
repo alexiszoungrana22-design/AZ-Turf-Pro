@@ -1745,24 +1745,3 @@ td{
 .selection-jour .numero-cheval {
     font-size: 55px !important;
 }
-
-/* Tickets Premium */
-.ticket-premium .numero-cheval,
-.ticket-premium .numero-ticket {
-    font-size: 60px !important;
-    font-weight: 900 !important;
-}
-
-/* Adaptation téléphone */
-@media (max-width: 600px) {
-
-    .numero-cheval,
-    .numero-ticket,
-    .cheval-numero,
-    .ticket-numero,
-    .numero-selection {
-        font-size: 45px !important;
-        min-width: 55px;
-    }
-
-}
