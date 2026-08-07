@@ -19,7 +19,7 @@ verifierAccesPremium
 
 // =====================================
 // VERIFICATION ACCES PREMIUM
-// (protège le contenu ci-dessous)
+// (protÃ¨ge le contenu ci-dessous)
 // =====================================
 
 async function verifierAccesPremium(){
@@ -67,7 +67,7 @@ if(blocage) blocage.style.display = "block";
 }catch(error){
 
 console.error(
-"Erreur vérification Premium :",
+"Erreur vÃ©rification Premium :",
 error
 );
 
@@ -99,7 +99,7 @@ const data = await response.json();
 
 
 console.log(
-"Données Premium :",
+"DonnÃ©es Premium :",
 data
 );
 
@@ -148,11 +148,11 @@ classement
 .map(c=>`
 
 <p>
-🏇 N°${c.numero}
+ðŸ‡ NÂ°${c.numero}
 
 <br>
 
-${c.raison || "Analyse spécialisée en cours"}
+${c.raison || "Analyse spÃ©cialisÃ©e en cours"}
 
 </p>
 
@@ -209,7 +209,7 @@ premium.couple_gagnant_place;
 
 if(Array.isArray(couple)){
 
-// Conserve chaque couple séparément.
+// Conserve chaque couple sÃ©parÃ©ment.
 // Exemple API : [[3,5],[3,2],[5,2]]
 // Affichage : 3-5 | 3-2 | 5-2
 
@@ -237,6 +237,8 @@ afficherTexte(
 couple
 
 );
+
+ajusterTailleUneLigne("couple-premium");
 
 
 }
@@ -269,6 +271,8 @@ afficherTexte(
 champ
 
 );
+
+ajusterTailleUneLigne("champ-reduit-premium");
 
 
 }
@@ -326,18 +330,18 @@ afficherTexte(
 
 `
 
-<h3>📈 Points forts</h3>
+<h3>ðŸ“ˆ Points forts</h3>
 
 <p>
-Analyse de la forme, régularité,
-distance, terrain et expérience.
+Analyse de la forme, rÃ©gularitÃ©,
+distance, terrain et expÃ©rience.
 </p>
 
 
-<h3>📉 Points de vigilance</h3>
+<h3>ðŸ“‰ Points de vigilance</h3>
 
 <p>
-Évaluation des risques liés à la course.
+Ã‰valuation des risques liÃ©s Ã  la course.
 </p>
 
 `
@@ -361,7 +365,7 @@ afficherTexte(
 
 premium.message_fin ||
 
-"🍀 Bonne chance ! Jouez avec discipline."
+"ðŸ€ Bonne chance ! Jouez avec discipline."
 
 );
 
@@ -387,6 +391,76 @@ error
 
 
 
+
+
+
+
+// =====================================
+// AJUSTEMENT AUTOMATIQUE DE TAILLE
+// RÃ©duit la police tant que le contenu
+// dÃ©passe la largeur de la carte, pour
+// que le ticket reste sur une seule ligne.
+// =====================================
+
+
+function ajusterTailleUneLigne(id){
+
+
+const zone =
+document.getElementById(id);
+
+
+if(!zone){
+
+return;
+
+}
+
+
+let taille =
+parseInt(
+window.getComputedStyle(zone).fontSize
+) || 34;
+
+
+const tailleMinimum = 14;
+
+
+zone.style.whiteSpace = "nowrap";
+
+zone.style.letterSpacing = "1px";
+
+
+let securite = 0;
+
+
+// Etape 1 : rÃ©duire l'espacement des lettres
+// avant de toucher Ã  la taille du texte
+if(zone.scrollWidth > zone.clientWidth){
+
+zone.style.letterSpacing = "0px";
+
+}
+
+
+// Etape 2 : rÃ©duire la taille de police
+// tant que le ticket dÃ©passe d'une ligne
+while(
+zone.scrollWidth > zone.clientWidth &&
+taille > tailleMinimum &&
+securite < 60
+){
+
+taille -= 1;
+
+zone.style.fontSize = taille + "px";
+
+securite++;
+
+}
+
+
+}
 
 
 
@@ -428,6 +502,9 @@ return;
 zone.innerHTML =
 
 liste.join(" - ");
+
+
+ajusterTailleUneLigne(id);
 
 
 }
@@ -491,5 +568,4 @@ contenu;
 }
 
 
-}
-  
+  }
