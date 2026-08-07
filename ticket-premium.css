@@ -1,9 +1,7 @@
 /* =====================================
    AZ TURF PRO
    TICKET PREMIUM CSS
-   VERSION RESPONSIVE
-   CARTES LARGES
-   SANS DEFILEMENT HORIZONTAL
+   VERSION FINALE RESPONSIVE
 ===================================== */
 
 
@@ -17,7 +15,6 @@
     max-width:1100px;
 
     margin:0 auto;
-
     padding:15px;
 
     box-sizing:border-box;
@@ -34,9 +31,9 @@
 
     text-align:center;
 
-    padding:25px 15px;
+    padding:22px 15px;
 
-    border-radius:25px;
+    border-radius:22px;
 
     box-sizing:border-box;
 }
@@ -44,16 +41,14 @@
 
 .premium-logo{
 
-    font-size:30px;
-
+    font-size:29px;
     font-weight:900;
 }
 
 
 .premium-title h1{
 
-    font-size:28px;
-
+    font-size:27px;
     margin:10px 0;
 }
 
@@ -68,7 +63,7 @@
 
     text-align:center;
 
-    margin:20px 0;
+    margin:18px 0;
 }
 
 
@@ -83,12 +78,26 @@
     font-weight:bold;
 
     box-sizing:border-box;
+
+    transition:
+        transform .12s ease,
+        opacity .12s ease,
+        box-shadow .12s ease;
+
+    -webkit-tap-highlight-color:transparent;
+
+    touch-action:manipulation;
 }
 
 
 .premium-back a:active{
 
-    transform:scale(.96);
+    transform:
+        translateY(2px)
+        scale(.96);
+
+    opacity:.86;
+
 }
 
 
@@ -102,11 +111,11 @@
 
     text-align:center;
 
-    padding:25px 15px;
+    padding:24px 15px;
 
-    border-radius:25px;
+    border-radius:22px;
 
-    margin:20px 0;
+    margin:18px 0;
 
     box-sizing:border-box;
 }
@@ -120,10 +129,9 @@
 .premium-message{
 
     width:100%;
-
     max-width:100%;
 
-    padding:22px 18px;
+    padding:21px 16px;
 
     margin:20px 0;
 
@@ -142,7 +150,7 @@
 
     font-size:22px;
 
-    margin:0 0 15px;
+    margin:0 0 14px;
 }
 
 
@@ -153,10 +161,9 @@
 .tickets-premium{
 
     width:100%;
-
     max-width:100%;
 
-    padding:10px;
+    padding:8px;
 
     box-sizing:border-box;
 
@@ -171,16 +178,15 @@
 .ticket-premium-box{
 
     width:100%;
-
     max-width:100%;
 
     min-width:0;
 
-    min-height:130px;
+    min-height:125px;
 
-    margin:18px 0;
+    margin:17px 0;
 
-    padding:20px 12px;
+    padding:18px 10px;
 
     border-radius:20px;
 
@@ -204,9 +210,9 @@
 
     width:100%;
 
-    margin:0 0 14px;
+    margin:0 0 12px;
 
-    font-size:20px;
+    font-size:19px;
 
     font-weight:900;
 
@@ -226,24 +232,23 @@
     display:block;
 
     width:100%;
-
     max-width:100%;
 
     min-width:0;
 
     margin:0 auto;
 
-    padding:8px 5px;
+    padding:7px 4px;
 
     box-sizing:border-box;
 
     text-align:center;
 
-    font-size:21px;
+    font-size:20px;
 
     font-weight:900;
 
-    line-height:1.4;
+    line-height:1.35;
 
     letter-spacing:0;
 
@@ -260,67 +265,178 @@
 /* =====================================
    QUINTE PREMIUM
    6 CHEVAUX
+   TAILLE REDUITE
 ===================================== */
 
 #quinte-premium{
 
-    display:block;
-
     width:100%;
-
     max-width:100%;
-
     min-width:0;
 
     margin:0 auto;
-
-    padding:8px 5px;
+    padding:7px 4px;
 
     box-sizing:border-box;
 
     text-align:center;
 
-    font-size:19px;
-
+    font-size:18px;
     font-weight:900;
 
-    line-height:1.4;
-
-    letter-spacing:0;
+    line-height:1.35;
 
     white-space:normal;
 
     overflow:visible;
 
     overflow-wrap:break-word;
-
-    word-break:normal;
 }
 
 
 /* =====================================
    QUARTE PREMIUM
+   5 CHEVAUX
+   TAILLE REDUITE
 ===================================== */
 
 #quarte-premium{
 
-    display:block;
-
     width:100%;
-
     max-width:100%;
-
     min-width:0;
 
     margin:0 auto;
+    padding:7px 4px;
 
-    padding:8px 5px;
+    box-sizing:border-box;
+
+    text-align:center;
+
+    font-size:20px;
+    font-weight:900;
+
+    line-height:1.35;
+
+    white-space:normal;
+
+    overflow:visible;
+
+    overflow-wrap:break-word;
+}
+
+
+/* =====================================
+   TRIO PREMIUM
+   3 CHEVAUX
+===================================== */
+
+#trio-premium{
+
+    width:100%;
+    max-width:100%;
+    min-width:0;
+
+    margin:0 auto;
+    padding:7px 4px;
 
     box-sizing:border-box;
 
     text-align:center;
 
     font-size:21px;
+    font-weight:900;
+
+    line-height:1.35;
+
+    white-space:normal;
+
+    overflow:visible;
+}
+
+
+/* =====================================
+   COUPLES PREMIUM
+   3 COUPLES
+===================================== */
+
+#couple-premium{
+
+    width:100%;
+    max-width:100%;
+    min-width:0;
+
+    margin:0 auto;
+    padding:7px 4px;
+
+    box-sizing:border-box;
+
+    text-align:center;
+
+    font-size:16px;
+    font-weight:900;
+
+    line-height:1.45;
+
+    white-space:normal;
+
+    overflow:visible;
+
+    overflow-wrap:break-word;
+}
+
+
+/* =====================================
+   CHAMP REDUIT
+===================================== */
+
+#champ-reduit-premium{
+
+    width:100%;
+    max-width:100%;
+    min-width:0;
+
+    margin:0 auto;
+    padding:7px 4px;
+
+    box-sizing:border-box;
+
+    text-align:center;
+
+    font-size:15px;
+    font-weight:900;
+
+    line-height:1.45;
+
+    white-space:normal;
+
+    overflow:visible;
+
+    overflow-wrap:break-word;
+}
+
+
+/* =====================================
+   SELECTION PREMIUM
+   7 CHEVAUX
+   PLUS GRANDE
+===================================== */
+
+.chevaux-premium,
+#selection-premium{
+
+    width:100%;
+    max-width:100%;
+    min-width:0;
+
+    margin:0 auto;
+    padding:9px 4px;
+
+    box-sizing:border-box;
+
+    text-align:center;
+
+    font-size:24px;
 
     font-weight:900;
 
@@ -333,28 +449,22 @@
     overflow:visible;
 
     overflow-wrap:break-word;
-
-    word-break:normal;
 }
 
 
 /* =====================================
-   TRIO PREMIUM
+   DERNIERE MINUTE
+   PLUS GRANDE
 ===================================== */
 
-#trio-premium{
-
-    display:block;
+#derniere-minute-premium{
 
     width:100%;
-
     max-width:100%;
-
     min-width:0;
 
     margin:0 auto;
-
-    padding:8px 5px;
+    padding:9px 4px;
 
     box-sizing:border-box;
 
@@ -366,177 +476,11 @@
 
     line-height:1.4;
 
-    letter-spacing:0;
-
     white-space:normal;
 
     overflow:visible;
 
     overflow-wrap:break-word;
-
-    word-break:normal;
-}
-
-
-/* =====================================
-   COUPLES PREMIUM
-   3 COUPLES
-===================================== */
-
-#couple-premium{
-
-    display:block;
-
-    width:100%;
-
-    max-width:100%;
-
-    min-width:0;
-
-    margin:0 auto;
-
-    padding:8px 5px;
-
-    box-sizing:border-box;
-
-    text-align:center;
-
-    font-size:17px;
-
-    font-weight:900;
-
-    line-height:1.5;
-
-    letter-spacing:0;
-
-    white-space:normal;
-
-    overflow:visible;
-
-    overflow-wrap:break-word;
-
-    word-break:normal;
-}
-
-
-/* =====================================
-   CHAMP REDUIT
-===================================== */
-
-#champ-reduit-premium{
-
-    display:block;
-
-    width:100%;
-
-    max-width:100%;
-
-    min-width:0;
-
-    margin:0 auto;
-
-    padding:8px 5px;
-
-    box-sizing:border-box;
-
-    text-align:center;
-
-    font-size:17px;
-
-    font-weight:900;
-
-    line-height:1.5;
-
-    letter-spacing:0;
-
-    white-space:normal;
-
-    overflow:visible;
-
-    overflow-wrap:break-word;
-
-    word-break:normal;
-}
-
-
-/* =====================================
-   DERNIERE MINUTE
-===================================== */
-
-#derniere-minute-premium{
-
-    display:block;
-
-    width:100%;
-
-    max-width:100%;
-
-    min-width:0;
-
-    margin:0 auto;
-
-    padding:8px 5px;
-
-    box-sizing:border-box;
-
-    text-align:center;
-
-    font-size:19px;
-
-    font-weight:900;
-
-    line-height:1.4;
-
-    letter-spacing:0;
-
-    white-space:normal;
-
-    overflow:visible;
-
-    overflow-wrap:break-word;
-
-    word-break:normal;
-}
-
-
-/* =====================================
-   SELECTION PREMIUM
-===================================== */
-
-.chevaux-premium,
-#selection-premium{
-
-    display:block;
-
-    width:100%;
-
-    max-width:100%;
-
-    min-width:0;
-
-    margin:0 auto;
-
-    padding:8px 5px;
-
-    box-sizing:border-box;
-
-    text-align:center;
-
-    font-size:20px;
-
-    font-weight:900;
-
-    line-height:1.4;
-
-    letter-spacing:0;
-
-    white-space:normal;
-
-    overflow:visible;
-
-    overflow-wrap:break-word;
-
-    word-break:normal;
 }
 
 
@@ -587,15 +531,51 @@
 
 
 /* =====================================
+   BOUTONS ABONNEMENT / ACTIVATION
+   EFFET D'APPUI
+   SANS MODIFIER LE FONCTIONNEMENT
+===================================== */
+
+.btn-abonnement,
+.btn-activation,
+#btn-abonnement,
+#btn-activation{
+
+    transition:
+        transform .12s ease,
+        opacity .12s ease,
+        box-shadow .12s ease;
+
+    -webkit-tap-highlight-color:transparent;
+
+    touch-action:manipulation;
+
+    cursor:pointer;
+}
+
+
+.btn-abonnement:active,
+.btn-activation:active,
+#btn-abonnement:active,
+#btn-activation:active{
+
+    transform:
+        translateY(2px)
+        scale(.96);
+
+    opacity:.86;
+
+}
+
+
+/* =====================================
    MENU BAS
 ===================================== */
 
 @media(min-width:701px){
 
     .bottom-menu{
-
         display:none;
-
     }
 
 }
@@ -610,10 +590,9 @@
     .premium-container{
 
         width:100%;
-
         max-width:100%;
 
-        padding:8px;
+        padding:7px;
 
         box-sizing:border-box;
     }
@@ -621,32 +600,28 @@
 
     .premium-header{
 
-        padding:20px 10px;
+        padding:19px 9px;
 
-        border-radius:20px;
+        border-radius:19px;
     }
 
 
     .premium-logo{
-
-        font-size:26px;
+        font-size:25px;
     }
 
 
     .premium-title h1{
-
-        font-size:24px;
+        font-size:23px;
     }
 
 
     .premium-card,
     .premium-message{
 
-        width:100%;
+        padding:17px 9px;
 
-        padding:18px 10px;
-
-        margin:16px 0;
+        margin:15px 0;
 
         border-radius:18px;
     }
@@ -654,19 +629,17 @@
 
     .premium-card h2,
     .premium-message h2{
-
-        font-size:20px;
-
+        font-size:19px;
     }
 
 
     .premium-banner{
 
-        padding:20px 10px;
+        padding:19px 9px;
 
-        margin:16px 0;
+        margin:15px 0;
 
-        border-radius:20px;
+        border-radius:19px;
     }
 
 
@@ -674,7 +647,7 @@
 
         width:100%;
 
-        padding:5px;
+        padding:4px;
 
         box-sizing:border-box;
     }
@@ -686,17 +659,15 @@
 
         min-width:0;
 
-        min-height:120px;
+        min-height:115px;
 
-        margin:16px 0;
+        margin:15px 0;
 
-        padding:18px 8px;
+        padding:17px 7px;
 
         border-radius:18px;
 
         overflow:visible;
-
-        box-sizing:border-box;
     }
 
 
@@ -704,97 +675,124 @@
 
         font-size:18px;
 
-        margin-bottom:10px;
-
+        margin-bottom:9px;
     }
 
 
-    /* -----------------------------
-       QUINTE PREMIUM — 6 CHEVAUX
-    ----------------------------- */
+    /* ================================
+       QUINTE — 6
+    ================================ */
 
     #quinte-premium{
 
-        font-size:17px;
+        font-size:16px;
 
-        padding:8px 3px;
-
-        white-space:normal;
-
-        overflow:visible;
+        padding:7px 2px;
     }
 
 
-    /* -----------------------------
-       QUARTE
-    ----------------------------- */
+    /* ================================
+       QUARTE — 5
+    ================================ */
 
     #quarte-premium{
 
-        font-size:19px;
+        font-size:18px;
 
-        padding:8px 3px;
+        padding:7px 2px;
     }
 
 
-    /* -----------------------------
-       TRIO
-    ----------------------------- */
+    /* ================================
+       TRIO — 3
+    ================================ */
 
     #trio-premium{
 
-        font-size:21px;
+        font-size:20px;
 
-        padding:8px 3px;
+        padding:7px 2px;
     }
 
 
-    /* -----------------------------
+    /* ================================
        COUPLES
-    ----------------------------- */
+    ================================ */
 
     #couple-premium{
 
-        font-size:16px;
+        font-size:15px;
 
-        padding:8px 3px;
+        padding:7px 2px;
     }
 
 
-    /* -----------------------------
+    /* ================================
        CHAMP REDUIT
-    ----------------------------- */
+    ================================ */
 
     #champ-reduit-premium{
 
-        font-size:15px;
+        font-size:14px;
 
-        padding:8px 3px;
+        padding:7px 2px;
     }
 
 
-    /* -----------------------------
-       DERNIERE MINUTE
-    ----------------------------- */
-
-    #derniere-minute-premium{
-
-        font-size:17px;
-
-        padding:8px 3px;
-    }
-
-
-    /* -----------------------------
-       SELECTION
-    ----------------------------- */
+    /* ================================
+       SELECTION — 7
+       PLUS GRANDE
+    ================================ */
 
     .chevaux-premium,
     #selection-premium{
 
-        font-size:18px;
+        font-size:22px;
 
-        padding:8px 3px;
+        padding:9px 2px;
+    }
+
+
+    /* ================================
+       DERNIERE MINUTE
+       PLUS GRANDE
+    ================================ */
+
+    #derniere-minute-premium{
+
+        font-size:21px;
+
+        padding:9px 2px;
+    }
+
+
+    /* ================================
+       BOUTONS
+    ================================ */
+
+    .btn-abonnement,
+    .btn-activation,
+    #btn-abonnement,
+    #btn-activation{
+
+        -webkit-tap-highlight-color:transparent;
+
+        transition:
+            transform .10s ease,
+            opacity .10s ease;
+    }
+
+
+    .btn-abonnement:active,
+    .btn-activation:active,
+    #btn-abonnement:active,
+    #btn-activation:active{
+
+        transform:
+            translateY(2px)
+            scale(.95);
+
+        opacity:.84;
     }
 
 }
@@ -806,74 +804,46 @@
 
 @media(max-width:380px){
 
-    .premium-container{
-
-        padding:5px;
-
-    }
-
-
-    .ticket-premium-box{
-
-        padding:16px 6px;
-
-    }
-
-
     #quinte-premium{
-
         font-size:15px;
-
     }
 
 
     #quarte-premium{
-
-        font-size:18px;
-
+        font-size:17px;
     }
 
 
     #trio-premium{
-
-        font-size:20px;
-
+        font-size:19px;
     }
 
 
     #couple-premium{
-
         font-size:14px;
-
     }
 
 
     #champ-reduit-premium{
-
-        font-size:14px;
-
-    }
-
-
-    #derniere-minute-premium{
-
-        font-size:16px;
-
+        font-size:13px;
     }
 
 
     .chevaux-premium,
     #selection-premium{
+        font-size:20px;
+    }
 
-        font-size:16px;
 
+    #derniere-minute-premium{
+        font-size:19px;
     }
 
 }
 
 
 /* =====================================
-   SECURITE PORTRAIT
+   SECURITE
    AUCUN DEFILEMENT HORIZONTAL
 ===================================== */
 
@@ -883,6 +853,4 @@ body{
     max-width:100%;
 
     overflow-x:hidden;
-}
-
-   
+   }
