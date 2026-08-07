@@ -43,7 +43,11 @@ async function chargerAnalyse() {
             if (element) {
 
                 element.textContent =
-                    valeur || "-";
+                    valeur !== undefined &&
+                    valeur !== null &&
+                    valeur !== ""
+                        ? valeur
+                        : "-";
 
             }
 
@@ -182,7 +186,9 @@ async function chargerAnalyse() {
 
             afficher(
                 "favori-confiance",
-                (favori.confiance || "-") + " %"
+                favori.confiance
+                    ? favori.confiance + " %"
+                    : "Non disponible"
             );
 
             afficher(
@@ -220,7 +226,9 @@ async function chargerAnalyse() {
 
             afficher(
                 "outsider-confiance",
-                (outsider.confiance || "-") + " %"
+                outsider.confiance
+                    ? outsider.confiance + " %"
+                    : "Non disponible"
             );
 
             afficher(
@@ -354,7 +362,6 @@ document.addEventListener(
 
 
 // =====================================
-// AZ TURF PRO
 // SLIDER PUBLICITAIRE ACCUEIL V2
 // =====================================
 
@@ -487,7 +494,7 @@ setInterval(
 
 
 // =====================================
-// INDICE CONFIANCE
+// INDICE DE CONFIANCE
 // =====================================
 
 function afficherConfianceCourse(data) {
@@ -508,32 +515,59 @@ function afficherConfianceCourse(data) {
     }
 
 
-    let confiance =
-        data.favori?.confiance || 0;
+    const favori =
+        data.favori ||
+        data.classement?.[0] ||
+        data.chevaux?.[0];
 
 
-    indice.innerHTML =
-        confiance + "%";
+    const confiance =
+        favori?.confiance;
 
 
-    if (message) {
+    if (
+        confiance !== undefined &&
+        confiance !== null
+    ) {
 
-        if (confiance >= 80) {
+        indice.innerHTML =
+            confiance + "%";
 
-            message.innerHTML =
-                "✅ Course avec un niveau de confiance élevé";
+
+        if (message) {
+
+            if (confiance >= 80) {
+
+                message.innerHTML =
+                    "✅ Course avec un niveau de confiance élevé";
+
+            }
+            else if (confiance >= 60) {
+
+                message.innerHTML =
+                    "⚠️ Course avec quelques incertitudes";
+
+            }
+            else {
+
+                message.innerHTML =
+                    "🔎 Course ouverte, prudence recommandée";
+
+            }
 
         }
-        else if (confiance >= 60) {
+
+    }
+    else {
+
+        indice.innerHTML =
+            "Non disponible";
+
+
+        if (message) {
 
             message.innerHTML =
-                "⚠️ Course avec quelques incertitudes";
-
-        }
-        else {
-
-            message.innerHTML =
-                "🔎 Course ouverte, prudence recommandée";
+                "📊 Indice de confiance non fourni par l'analyse actuelle";
 
         }
 
@@ -560,22 +594,20 @@ function afficherChevauxSurveiller(data) {
     }
 
 
-    let chevaux = [];
+    const chevaux =
+        data.classement ||
+        data.chevaux ||
+        [];
 
 
-    if (data.classement) {
-
-        chevaux =
-            data.classement
-                .slice(0, 3);
-
-    }
+    const selection =
+        chevaux.slice(0, 3);
 
 
-    if (chevaux.length === 0) {
+    if (selection.length === 0) {
 
         zone.innerHTML =
-            "Analyse en cours...";
+            "Aucun cheval disponible";
 
         return;
 
@@ -584,15 +616,22 @@ function afficherChevauxSurveiller(data) {
 
     zone.innerHTML =
 
-        chevaux.map(c => `
+        selection.map(c => `
 
             <p>
 
                 🏇 N°${c.numero}
 
+                ${c.nom
+                    ? " — " + c.nom
+                    : ""
+                }
+
                 <br>
 
-                ${c.raison || "Cheval à surveiller"}
+                ${c.raison ||
+                    "Cheval à surveiller"
+                }
 
             </p>
 
@@ -600,3 +639,4 @@ function afficherChevauxSurveiller(data) {
 
 }
 ```
+                        
