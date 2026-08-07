@@ -1,69 +1,443 @@
-def ajouter_raison_az(cheval, position):
+<!DOCTYPE html>
+<html lang="fr">
 
-    indice = cheval.get("indice_az", 0)
+<head>
 
+<meta charset="UTF-8">
 
-    if position == 1:
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        return "⭐ Favori AZ : meilleur indice et profil prioritaire"
+<title>Espace Ticket Premium - AZ Turf Pro</title>
 
+<link rel="stylesheet" href="style.css">
 
-    if position <= 3:
+<link rel="stylesheet" href="ticket-premium.css">
 
-        return "🔥 Base solide : régularité et forte chance de podium"
-
-
-    if position <= 5:
-
-        return "🎯 Chance AZ : potentiel pour intégrer l'arrivée"
+</head>
 
 
-    if indice >= 180:
-
-        return "💎 Outsider intéressant : peut surprendre"
+<body>
 
 
-    return "⚠️ Coup spéculatif"
+<header class="premium-header">
+
+<div class="premium-logo">
+🏇 AZ Turf Pro
+</div>
+
+
+<div class="premium-title">
+
+<h1>
+Espace Ticket Premium
+</h1>
+
+<p>
+Analyse spécialisée et combinaisons exclusives
+</p>
+
+</div>
+
+
+</header>
 
 
 
-def classer_chevaux(chevaux):
 
-    classement = sorted(
-        chevaux,
-        key=lambda x: x.get("indice_az", 0),
-        reverse=True
-    )
 
-    meilleur_indice = (
-        classement[0].get("indice_az", 0)
-        if classement
-        else 0
-    )
+<nav class="top-menu premium-menu">
 
-    for index, cheval in enumerate(classement, start=1):
 
-        cheval["rang"] = index
+<a href="index.html">
+🏠 Accueil
+</a>
 
-        cheval["raison"] = ajouter_raison_az(
-            cheval,
-            index
-        )
 
-        # Indice de confiance : pourcentage de l'indice AZ
-        # du cheval par rapport au meilleur indice de la course
-        if meilleur_indice > 0:
+<a href="analyse.html">
+📊 Analyse
+</a>
 
-            confiance = round(
-                (cheval.get("indice_az", 0) / meilleur_indice) * 100
-            )
 
-        else:
+<a href="ticket.html">
+🎟️ Programme
+</a>
 
-            confiance = 0
 
-        cheval["confiance"] = max(0, min(confiance, 99 if index > 1 else 100))
+<a href="historique.html">
+🏆 Historique
+</a>
 
-    return classement
 
-        
+</nav>
+
+
+
+
+
+
+
+<main class="premium-container">
+
+
+<div id="message-blocage" class="premium-card" style="display:none;">
+
+<h2>
+🔒 Accès Premium indisponible
+</h2>
+
+<p>
+Votre abonnement n'est pas actif ou a expiré.
+</p>
+
+<a href="espace-premium.html" class="btn-vip">
+⭐ Voir les offres Premium
+</a>
+
+</div>
+
+
+<div id="contenu-premium" style="display:none;">
+
+
+<div class="premium-back">
+
+<a href="abonnement.html">
+
+⬅ Retour à l'abonnement
+
+</a>
+
+</div>
+
+
+
+
+
+
+
+<section class="premium-banner">
+
+<h2>
+⭐ AZ Turf Pro Premium
+</h2>
+
+<p>
+Vos sélections exclusives basées sur l'analyse des performances.
+</p>
+
+</section>
+
+
+
+
+
+
+
+<section class="premium-card">
+
+<h2>
+🏇 Sélection Premium du jour
+</h2>
+
+
+<div
+id="selection-premium"
+class="chevaux-premium">
+
+Chargement...
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+<section class="premium-card">
+
+<h2>
+🧠 Pourquoi ces chevaux ?
+</h2>
+
+
+<div id="explication-premium">
+
+Chargement...
+
+</div>
+
+
+</section>
+
+    
+
+
+
+
+
+
+<section class="premium-card tickets-premium">
+
+
+<h2>
+🏆 Vos Tickets Premium
+</h2>
+
+
+
+
+
+<div class="ticket-premium-box">
+
+<h3>
+🏆 Quinté Premium
+</h3>
+
+
+<div
+id="quinte-premium"
+class="numero-ticket">
+
+Chargement...
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="ticket-premium-box">
+
+<h3>
+🥇 Quarté Premium
+</h3>
+
+
+<div
+id="quarte-premium"
+class="numero-ticket">
+
+Chargement...
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="ticket-premium-box">
+
+<h3>
+🎯 Trio Premium
+</h3>
+
+
+<div
+id="trio-premium"
+class="numero-ticket">
+
+Chargement...
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="ticket-premium-box">
+
+<h3>
+🤝 Couplé Gagnant / Placé
+</h3>
+
+
+<div
+id="couple-premium"
+class="numero-ticket">
+
+Chargement...
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="ticket-premium-box">
+
+<h3>
+🔒 Champ réduit Premium
+</h3>
+
+
+<div
+id="champ-reduit-premium"
+class="numero-ticket">
+
+Chargement...
+
+</div>
+
+
+</div>
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<section class="premium-card">
+
+
+<h2>
+⚡ Dernière minute
+</h2>
+
+
+<div
+id="derniere-minute-premium">
+
+Chargement...
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<section class="premium-card analyse-premium-zone">
+
+
+<h2>
+📈 Analyse Premium
+</h2>
+
+
+<div
+id="analyse-premium">
+
+Chargement...
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<section class="premium-message">
+
+
+<h2>
+🍀 Message Premium
+</h2>
+
+
+<p
+id="message-premium">
+
+Chargement...
+
+</p>
+
+
+</section>
+
+
+</div>
+
+
+
+
+</main>
+
+
+
+
+
+
+
+
+
+<footer class="bottom-menu">
+
+
+<a href="index.html">
+🏠 Accueil
+</a>
+
+
+<a href="analyse.html">
+📊 Analyse
+</a>
+
+
+<a href="ticket.html">
+🎟️ Programme
+</a>
+
+
+<a href="historique.html">
+🏆 Historique
+</a>
+
+
+</footer>
+
+
+
+
+
+
+
+<script src="ticket-premium.js?v=3"></script>
+
+
+</body>
+
+</html>
