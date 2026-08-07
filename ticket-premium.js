@@ -1,132 +1,81 @@
 // =====================================
 // AZ TURF PRO
 // TICKET PREMIUM
-// AFFICHAGE FINAL + PROTECTION PREMIUM
+// AFFICHAGE FINAL
 // =====================================
 
-
-const API_ANALYSE =
+const API_URL =
 "https://az-turf-pro.onrender.com/api/analyse";
 
-
 const API_PREMIUM =
-"https://az-turf-pro.onrender.com/api/premium";
-
+"https://az-turf-pro.onrender.com/api/premium/";
 
 
 document.addEventListener(
 "DOMContentLoaded",
-async () => {
-
-const acces =
-await verifierAccesPremium();
-
-
-if(acces){
-
-chargerPremium();
-
-}
-
-});
-
-
+verifierAccesPremium
+);
 
 
 // =====================================
 // VERIFICATION ACCES PREMIUM
+// (protège le contenu ci-dessous)
 // =====================================
 
 async function verifierAccesPremium(){
 
 
 const telephone =
-localStorage.getItem("telephone");
+localStorage.getItem("AZ_TURF_TELEPHONE");
 
+const contenu =
+document.getElementById("contenu-premium");
+
+const blocage =
+document.getElementById("message-blocage");
 
 
 if(!telephone){
 
+if(blocage) blocage.style.display = "block";
 
-window.location.href =
-"abonnement.html";
-
-
-return false;
+return;
 
 }
-
 
 
 try{
 
-
-const response =
-await fetch(
-`${API_PREMIUM}/${telephone}`
+const reponse = await fetch(
+API_PREMIUM + encodeURIComponent(telephone)
 );
 
+const data = await reponse.json();
 
+if(reponse.ok && data.statut === "ACTIF"){
 
-if(!response.ok){
+if(contenu) contenu.style.display = "block";
 
-throw new Error(
-"Erreur vérification Premium"
-);
+chargerPremium();
 
-}
+}else{
 
-
-
-const data =
-await response.json();
-
-
-
-if(
-data.statut !== "ACTIF"
-){
-
-
-window.location.href =
-"abonnement.html";
-
-
-return false;
+if(blocage) blocage.style.display = "block";
 
 }
 
-
-
-return true;
-
-
-
-}
-catch(error){
-
+}catch(error){
 
 console.error(
-"Erreur Premium :",
+"Erreur vérification Premium :",
 error
 );
 
-
-window.location.href =
-"abonnement.html";
-
-
-return false;
-
+if(blocage) blocage.style.display = "block";
 
 }
 
-
 }
-
-
-
-
 
 
 
@@ -136,24 +85,17 @@ async function chargerPremium(){
 try{
 
 
-const response =
-await fetch(API_ANALYSE);
-
+const response = await fetch(API_URL);
 
 
 if(!response.ok){
 
-throw new Error(
-"Erreur API"
-);
+throw new Error("Erreur API");
 
 }
 
 
-
-const data =
-await response.json();
-
+const data = await response.json();
 
 
 console.log(
@@ -163,10 +105,8 @@ data
 
 
 
-
 const premium =
 data.tickets?.premium || {};
-
 
 
 const classement =
@@ -178,7 +118,6 @@ data.classement || [];
 // =====================================
 // SELECTION PREMIUM
 // =====================================
-
 
 afficherListe(
 
@@ -196,11 +135,9 @@ classement
 
 
 
-
 // =====================================
 // EXPLICATION
 // =====================================
-
 
 afficherTexte(
 
@@ -229,11 +166,9 @@ ${c.raison || "Analyse spécialisée en cours"}
 
 
 
-
 // =====================================
 // TICKETS
 // =====================================
-
 
 afficherTicket(
 "quinte-premium",
@@ -259,10 +194,10 @@ premium.trio
 
 
 
-// =====================================
-// COUPLE
-// =====================================
 
+// =====================================
+// COUPLE 3 NUMEROS
+// =====================================
 
 if(premium.couple_gagnant_place){
 
@@ -274,18 +209,28 @@ premium.couple_gagnant_place;
 
 if(Array.isArray(couple)){
 
+// Conserve chaque couple séparément.
+// Exemple API : [[3,5],[3,2],[5,2]]
+// Affichage : 3-5 | 3-2 | 5-2
 
 couple =
 couple
-.flat()
-.slice(0,3);
+.map(c => {
 
+if(Array.isArray(c)){
+
+return c.join(" - ");
 
 }
 
+return c;
 
+})
+.join(" | ");
 
-afficherTicket(
+}
+
+afficherTexte(
 
 "couple-premium",
 
@@ -305,6 +250,7 @@ couple
 
 // =====================================
 // CHAMP REDUIT
+// FORMAT : 3-5-X 2-X / 8-1-4-12
 // =====================================
 
 
@@ -314,7 +260,6 @@ if(premium.champ_reduit){
 let champ =
 premium.champ_reduit.format ||
 "Non disponible";
-
 
 
 afficherTexte(
@@ -334,9 +279,8 @@ champ
 
 
 
-
 // =====================================
-// DERNIERE MINUTE
+// DERNIERE MINUTE 6 NUMEROS
 // =====================================
 
 
@@ -406,7 +350,6 @@ distance, terrain et expérience.
 
 
 
-
 // =====================================
 // MESSAGE
 // =====================================
@@ -423,7 +366,6 @@ premium.message_fin ||
 );
 
 
-
 }
 
 
@@ -432,11 +374,8 @@ catch(error){
 
 
 console.error(
-
 "Erreur Premium :",
-
 error
-
 );
 
 
@@ -444,7 +383,6 @@ error
 
 
 }
-
 
 
 
@@ -488,6 +426,7 @@ return;
 
 
 zone.innerHTML =
+
 liste.join(" - ");
 
 
@@ -516,16 +455,13 @@ document.getElementById(id);
 
 if(zone){
 
-
 zone.innerHTML =
 liste.join(" - ");
 
-
 }
 
 
 }
-
 
 
 
@@ -549,13 +485,11 @@ document.getElementById(id);
 
 if(zone){
 
-
 zone.innerHTML =
 contenu;
 
-
 }
 
 
 }
-
+  
