@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 
 
-def enregistrer_course(classement, arrivee):
+def enregistrer_course(data):
 
     dossier = "data"
 
@@ -25,9 +25,11 @@ def enregistrer_course(classement, arrivee):
             "%Y-%m-%d %H:%M:%S"
         ),
 
-        "classement": classement,
+        "classement": data.get("classement", []),
 
-        "arrivee": arrivee
+        "tickets": data.get("tickets", {}),
+
+        "arrivee": data.get("arrivee")
 
     }
 
