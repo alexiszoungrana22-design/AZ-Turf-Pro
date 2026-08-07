@@ -2,7 +2,7 @@
 /* =====================================
    AZ TURF PRO
    TICKET PREMIUM CSS
-   VERSION AFFICHAGE LARGE
+   CARTES LARGES + NUMEROS COMPACTS
 ===================================== */
 
 
@@ -76,6 +76,7 @@
 
 /* =====================================
    CARTES
+   NE PAS MODIFIER L'ELARGISSEMENT
 ===================================== */
 
 .premium-card,
@@ -107,6 +108,7 @@
 
 /* =====================================
    CARTE TICKET
+   LARGEUR CONSERVEE
 ===================================== */
 
 .ticket-premium-box {
@@ -136,8 +138,7 @@
 
 
 /* =====================================
-   NUMEROS DES TICKETS
-   6 NUMEROS SUR UNE SEULE LIGNE
+   NUMEROS GENERAUX
 ===================================== */
 
 .numero-ticket,
@@ -149,11 +150,11 @@
 
     text-align: center;
 
-    font-size: 36px;
+    font-size: 28px;
 
     font-weight: 900;
 
-    letter-spacing: 1px;
+    letter-spacing: 0;
 
     line-height: 1.2;
 
@@ -169,29 +170,57 @@
 
 /* =====================================
    QUINTE PREMIUM
+   6 NUMEROS
 ===================================== */
 
 #quinte-premium {
-    font-size: 36px;
-    letter-spacing: 1px;
+
+    font-size: 28px;
+
+    letter-spacing: 0;
+
     white-space: nowrap;
+
+    overflow: hidden;
 }
 
 
 /* =====================================
-   QUARTE / TRIO
+   QUARTE PREMIUM
+   4 NUMEROS
 ===================================== */
 
-#quarte-premium,
-#trio-premium {
-    font-size: 36px;
-    letter-spacing: 2px;
+#quarte-premium {
+
+    font-size: 30px;
+
+    letter-spacing: 1px;
+
     white-space: nowrap;
+
+    overflow: hidden;
 }
 
 
 /* =====================================
-   COUPLE
+   TRIO PREMIUM
+   3 NUMEROS
+===================================== */
+
+#trio-premium {
+
+    font-size: 32px;
+
+    letter-spacing: 2px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+}
+
+
+/* =====================================
+   COUPLES
 ===================================== */
 
 #couple-premium {
@@ -200,19 +229,21 @@
 
     text-align: center;
 
-    font-size: 32px;
+    font-size: 25px;
 
     font-weight: 900;
 
-    line-height: 1.4;
+    line-height: 1.3;
+
+    letter-spacing: 0;
 
     white-space: nowrap;
 
     overflow-x: auto;
 
-    padding: 8px 0;
-
     box-sizing: border-box;
+
+    padding: 8px 0;
 }
 
 
@@ -226,17 +257,21 @@
 
     text-align: center;
 
-    font-size: 30px;
+    font-size: 24px;
 
     font-weight: 900;
 
-    line-height: 1.5;
+    line-height: 1.4;
+
+    letter-spacing: 0;
 
     white-space: nowrap;
 
     overflow-x: auto;
 
     box-sizing: border-box;
+
+    padding: 8px 0;
 }
 
 
@@ -250,11 +285,11 @@
 
     text-align: center;
 
-    font-size: 36px;
+    font-size: 28px;
 
     font-weight: 900;
 
-    letter-spacing: 1px;
+    letter-spacing: 0;
 
     line-height: 1.2;
 
@@ -277,11 +312,11 @@
 
     text-align: center;
 
-    font-size: 32px;
+    font-size: 28px;
 
     font-weight: 900;
 
-    letter-spacing: 2px;
+    letter-spacing: 1px;
 
     white-space: nowrap;
 
@@ -326,6 +361,7 @@
 
 /* =====================================
    MOBILE
+   CARTES INCHANGEES
 ===================================== */
 
 @media (max-width: 700px) {
@@ -359,73 +395,118 @@
     }
 
 
-    /* 6 NUMEROS TOUJOURS SUR UNE LIGNE */
+    /* ===============================
+       NUMEROS MOBILE
+       PLUS PETITS POUR TOUT AFFICHER
+    =============================== */
 
     .numero-ticket,
-    .ticket-grand,
+    .ticket-grand {
+
+        font-size: 23px;
+
+        letter-spacing: 0;
+
+        white-space: nowrap;
+
+        overflow: hidden;
+
+        padding: 7px 0;
+    }
+
+
+    /* QUINTE : 6 NUMEROS */
+
     #quinte-premium {
 
-        font-size: 30px;
+        font-size: 23px;
+
+        letter-spacing: 0;
+
+        white-space: nowrap;
+
+        overflow: hidden;
+    }
+
+
+    /* QUARTE */
+
+    #quarte-premium {
+
+        font-size: 25px;
+
+        letter-spacing: 1px;
+
+        white-space: nowrap;
+
+        overflow: hidden;
+    }
+
+
+    /* TRIO */
+
+    #trio-premium {
+
+        font-size: 27px;
+
+        letter-spacing: 1px;
+
+        white-space: nowrap;
+
+        overflow: hidden;
+    }
+
+
+    /* COUPLES */
+
+    #couple-premium {
+
+        font-size: 21px;
 
         letter-spacing: 0;
 
         white-space: nowrap;
 
         overflow-x: auto;
-
-        padding: 8px 0;
     }
 
 
-    #quarte-premium,
-    #trio-premium {
-
-        font-size: 30px;
-
-        letter-spacing: 1px;
-
-        white-space: nowrap;
-
-        overflow-x: auto;
-    }
-
-
-    #couple-premium {
-
-        font-size: 28px;
-
-        white-space: nowrap;
-
-        overflow-x: auto;
-    }
-
+    /* CHAMP REDUIT */
 
     #champ-reduit-premium {
 
-        font-size: 25px;
+        font-size: 20px;
+
+        letter-spacing: 0;
 
         white-space: nowrap;
 
         overflow-x: auto;
     }
 
+
+    /* DERNIERE MINUTE */
 
     #derniere-minute-premium {
 
-        font-size: 30px;
+        font-size: 23px;
+
+        letter-spacing: 0;
 
         white-space: nowrap;
 
         overflow-x: auto;
     }
 
+
+    /* SELECTION */
 
     .chevaux-premium,
     #selection-premium {
 
-        font-size: 27px;
+        font-size: 23px;
 
-        letter-spacing: 1px;
+        letter-spacing: 0;
 
         white-space: nowrap;
 
@@ -436,43 +517,52 @@
 
 
 /* =====================================
-   PETITS ECRANS
+   TRES PETITS ECRANS
 ===================================== */
 
 @media (max-width: 380px) {
 
-    .ticket-premium-box {
-        padding-left: 5px;
-        padding-right: 5px;
+    .numero-ticket,
+    .ticket-grand {
+
+        font-size: 21px;
     }
 
-    .numero-ticket,
-    .ticket-grand,
+
     #quinte-premium {
 
-        font-size: 27px;
-
-        letter-spacing: 0;
+        font-size: 21px;
     }
 
-    #quarte-premium,
+
+    #quarte-premium {
+
+        font-size: 23px;
+    }
+
+
     #trio-premium {
 
-        font-size: 27px;
-    }
-
-    #couple-premium {
         font-size: 25px;
     }
 
-    #champ-reduit-premium {
-        font-size: 22px;
+
+    #couple-premium {
+
+        font-size: 19px;
     }
 
+
+    #champ-reduit-premium {
+
+        font-size: 18px;
+    }
+
+
     #derniere-minute-premium {
-        font-size: 27px;
+
+        font-size: 21px;
     }
 
 }
 ```
-        
