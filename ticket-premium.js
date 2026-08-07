@@ -4,11 +4,11 @@
 // AFFICHAGE FINAL
 // =====================================
 
-const API\_URL =
-"[https://az-turf-pro.onrender.com/api/analyse](https://az-turf-pro.onrender.com/api/analyse)";
+const API_URL =
+"https://az-turf-pro.onrender.com/api/analyse";
 
-const API\_PREMIUM =
-"[https://az-turf-pro.onrender.com/api/premium/](https://az-turf-pro.onrender.com/api/premium/)";
+const API_PREMIUM =
+"https://az-turf-pro.onrender.com/api/premium/";
 
 
 document.addEventListener(
@@ -26,7 +26,7 @@ async function verifierAccesPremium(){
 
 
 const telephone =
-localStorage.getItem("AZ\_TURF\_TELEPHONE");
+localStorage.getItem("AZ_TURF_TELEPHONE");
 
 const contenu =
 document.getElementById("contenu-premium");
@@ -47,7 +47,7 @@ return;
 try{
 
 const reponse = await fetch(
-API\_PREMIUM + encodeURIComponent(telephone)
+API_PREMIUM + encodeURIComponent(telephone)
 );
 
 const data = await reponse.json();
@@ -85,7 +85,7 @@ async function chargerPremium(){
 try{
 
 
-const response = await fetch(API\_URL);
+const response = await fetch(API_URL);
 
 
 if(!response.ok){
@@ -145,18 +145,18 @@ afficherTexte(
 
 classement
 .slice(0,7)
-.map(c=>\`
+.map(c=>`
 
-\<p>
+<p>
 🏇 N°${c.numero}
 
-\<br>
+<br>
 
 ${c.raison || "Analyse spécialisée en cours"}
 
-\</p>
+</p>
 
-\`)
+`)
 .join("")
 
 );
@@ -199,11 +199,11 @@ premium.trio
 // COUPLE 3 NUMEROS
 // =====================================
 
-if(premium.couple\_gagnant\_place){
+if(premium.couple_gagnant_place){
 
 
 let couple =
-premium.couple\_gagnant\_place;
+premium.couple_gagnant_place;
 
 
 
@@ -238,8 +238,6 @@ couple
 
 );
 
-ajusterTailleUneLigne("couple-premium");
-
 
 }
 
@@ -256,11 +254,11 @@ ajusterTailleUneLigne("couple-premium");
 // =====================================
 
 
-if(premium.champ\_reduit){
+if(premium.champ_reduit){
 
 
 let champ =
-premium.champ\_reduit.format ||
+premium.champ_reduit.format ||
 "Non disponible";
 
 
@@ -271,8 +269,6 @@ afficherTexte(
 champ
 
 );
-
-ajusterTailleUneLigne("champ-reduit-premium");
 
 
 }
@@ -288,11 +284,11 @@ ajusterTailleUneLigne("champ-reduit-premium");
 // =====================================
 
 
-if(premium.ticket\_derniere\_minute){
+if(premium.ticket_derniere_minute){
 
 
 let derniere =
-premium.ticket\_derniere\_minute.selection || [];
+premium.ticket_derniere_minute.selection || [];
 
 
 
@@ -328,23 +324,23 @@ afficherTexte(
 
 "analyse-premium",
 
-\`
+`
 
-\<h3>📈 Points forts\</h3>
+<h3>📈 Points forts</h3>
 
-\<p>
+<p>
 Analyse de la forme, régularité,
 distance, terrain et expérience.
-\</p>
+</p>
 
 
-\<h3>📉 Points de vigilance\</h3>
+<h3>📉 Points de vigilance</h3>
 
-\<p>
+<p>
 Évaluation des risques liés à la course.
-\</p>
+</p>
 
-\`
+`
 
 );
 
@@ -363,7 +359,7 @@ afficherTexte(
 
 "message-premium",
 
-premium.message\_fin ||
+premium.message_fin ||
 
 "🍀 Bonne chance ! Jouez avec discipline."
 
@@ -391,74 +387,6 @@ error
 
 
 
-
-
-
-
-// =====================================
-// AJUSTEMENT AUTOMATIQUE DE TAILLE
-// Réduit la police tant que le contenu
-// dépasse la largeur de la carte, pour
-// que le ticket reste sur une seule ligne.
-// =====================================
-
-
-function ajusterTailleUneLigne(id){
-
-
-const zone =
-document.getElementById(id);
-
-
-if(!zone){
-
-return;
-
-}
-
-
-let taille =
-parseInt(
-window\.getComputedStyle(zone).fontSize
-) || 34;
-
-
-const tailleMinimum = 14;
-
-
-zone.style.whiteSpace = "nowrap";
-
-
-let securite = 0;
-
-
-// Etape 1 : réduire l'espacement des lettres
-// avant de toucher à la taille du texte
-if(zone.scrollWidth > zone.clientWidth){
-
-zone.style.letterSpacing = "0px";
-
-}
-
-
-// Etape 2 : réduire la taille de police
-// tant que le ticket dépasse d'une ligne
-while(
-zone.scrollWidth > zone.clientWidth &&
-taille > tailleMinimum &&
-securite < 60
-){
-
-taille -= 1;
-
-zone.style.fontSize = taille + "px";
-
-securite++;
-
-}
-
-
-}
 
 
 
@@ -502,9 +430,6 @@ zone.innerHTML =
 liste.join(" - ");
 
 
-ajusterTailleUneLigne(id);
-
-
 }
 
 
@@ -532,8 +457,6 @@ if(zone){
 
 zone.innerHTML =
 liste.join(" - ");
-
-ajusterTailleUneLigne(id);
 
 }
 
@@ -568,5 +491,5 @@ contenu;
 }
 
 
-} 
-
+  }
+  
