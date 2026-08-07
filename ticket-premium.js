@@ -1,8 +1,7 @@
 // =====================================
 // AZ TURF PRO
 // TICKET PREMIUM
-// AFFICHAGE FINAL
-// VERSION RESPONSIVE
+// VERSION FINALE
 // =====================================
 
 const API_URL =
@@ -11,10 +10,6 @@ const API_URL =
 const API_PREMIUM =
 "https://az-turf-pro.onrender.com/api/premium/";
 
-
-// =====================================
-// DEMARRAGE
-// =====================================
 
 document.addEventListener(
     "DOMContentLoaded",
@@ -54,9 +49,7 @@ async function verifierAccesPremium(){
             API_PREMIUM + encodeURIComponent(telephone)
         );
 
-
-        const data =
-            await reponse.json();
+        const data = await reponse.json();
 
 
         if(
@@ -82,14 +75,12 @@ async function verifierAccesPremium(){
 
         }
 
-
     }catch(error){
 
         console.error(
             "Erreur vérification Premium :",
             error
         );
-
 
         if(blocage){
             blocage.style.display = "block";
@@ -98,7 +89,6 @@ async function verifierAccesPremium(){
     }
 
 }
-
 
 
 // =====================================
@@ -114,11 +104,7 @@ async function chargerPremium(){
 
 
         if(!response.ok){
-
-            throw new Error(
-                "Erreur API"
-            );
-
+            throw new Error("Erreur API");
         }
 
 
@@ -135,27 +121,21 @@ async function chargerPremium(){
         const premium =
             data.tickets?.premium || {};
 
-
         const classement =
             data.classement || [];
 
 
-
         // =====================================
         // SELECTION PREMIUM
-        // 7 CHEVAUX
+        // EXACTEMENT 7 CHEVAUX
         // =====================================
 
         afficherListe(
-
             "selection-premium",
-
             classement
                 .slice(0,7)
                 .map(c => c.numero)
-
         );
-
 
 
         // =====================================
@@ -163,111 +143,100 @@ async function chargerPremium(){
         // =====================================
 
         afficherTexte(
-
             "explication-premium",
 
             classement
                 .slice(0,7)
                 .map(c => `
-
                     <p>
                         🏇 N°${c.numero}
-
                         <br>
-
-                        ${
-                            c.raison ||
-                            "Analyse spécialisée en cours"
-                        }
-
+                        ${c.raison || "Analyse spécialisée en cours"}
                     </p>
-
                 `)
                 .join("")
-
         );
-
 
 
         // =====================================
         // QUINTE PREMIUM
-        // 6 CHEVAUX
+        // EXACTEMENT 6 CHEVAUX
         // =====================================
 
-        let quintePremium =
+        let quinte =
             premium.quinte || [];
 
 
-        if(Array.isArray(quintePremium)){
+        if(Array.isArray(quinte)){
 
-            quintePremium =
-                quintePremium.slice(0,6);
+            quinte =
+                quinte.slice(0,6);
+
+        }else{
+
+            quinte = [];
 
         }
 
 
         afficherTicket(
-
             "quinte-premium",
-
-            quintePremium
-
+            quinte
         );
-
 
 
         // =====================================
         // QUARTE PREMIUM
-        // 5 CHEVAUX
+        // EXACTEMENT 5 CHEVAUX
         // =====================================
 
-        let quartePremium =
+        let quarte =
             premium.quarte || [];
 
 
-        if(Array.isArray(quartePremium)){
+        if(Array.isArray(quarte)){
 
-            quartePremium =
-                quartePremium.slice(0,5);
+            quarte =
+                quarte.slice(0,5);
+
+        }else{
+
+            quarte = [];
 
         }
 
 
         afficherTicket(
-
             "quarte-premium",
-
-            quartePremium
-
+            quarte
         );
-
 
 
         // =====================================
         // TRIO PREMIUM
-        // 3 CHEVAUX
+        // EXACTEMENT 3 CHEVAUX
         // =====================================
 
-        let trioPremium =
+        let trio =
             premium.trio || [];
 
 
-        if(Array.isArray(trioPremium)){
+        if(Array.isArray(trio)){
 
-            trioPremium =
-                trioPremium.slice(0,3);
+            trio =
+                trio.slice(0,3);
+
+        }else{
+
+            trio = [];
 
         }
 
 
         afficherTicket(
-
             "trio-premium",
-
-            trioPremium
-
+            trio
         );
-
 
 
         // =====================================
@@ -278,110 +247,87 @@ async function chargerPremium(){
         // 3-5 | 3-2 | 5-2
         // =====================================
 
-        if(
-            premium.couple_gagnant_place
-        ){
-
-            let couple =
-                premium.couple_gagnant_place;
+        let couples =
+            premium.couple_gagnant_place || [];
 
 
-            if(Array.isArray(couple)){
+        if(Array.isArray(couples)){
 
-                couple =
-                    couple
-                        .map(c => {
+            couples =
+                couples
+                    .slice(0,3)
+                    .map(couple => {
 
-                            if(Array.isArray(c)){
+                        if(Array.isArray(couple)){
 
-                                return c.join("-");
+                            return couple.join("-");
 
-                            }
+                        }
 
-                            return c;
+                        return couple;
 
-                        })
-                        .join(" | ");
-
-            }
-
-
-            afficherTexte(
-
-                "couple-premium",
-
-                couple
-
-            );
-
-
-            ajusterAffichage(
-                "couple-premium"
-            );
+                    })
+                    .join(" | ");
 
         }
 
+
+        afficherTexte(
+            "couple-premium",
+            couples || "Non disponible"
+        );
+
+
+        ajusterAffichage(
+            "couple-premium"
+        );
 
 
         // =====================================
         // CHAMP REDUIT
         // =====================================
 
-        if(
-            premium.champ_reduit
-        ){
-
-            let champ =
-                premium.champ_reduit.format ||
-                "Non disponible";
+        let champ =
+            premium.champ_reduit?.format ||
+            "Non disponible";
 
 
-            afficherTexte(
-
-                "champ-reduit-premium",
-
-                champ
-
-            );
+        afficherTexte(
+            "champ-reduit-premium",
+            champ
+        );
 
 
-            ajusterAffichage(
-                "champ-reduit-premium"
-            );
-
-        }
-
+        ajusterAffichage(
+            "champ-reduit-premium"
+        );
 
 
         // =====================================
         // DERNIERE MINUTE
-        // 6 NUMEROS
+        // EXACTEMENT 6 NUMEROS
         // =====================================
 
-        if(
-            premium.ticket_derniere_minute
-        ){
+        let derniere =
+            premium.ticket_derniere_minute?.selection || [];
 
-            let derniere =
-                premium
-                    .ticket_derniere_minute
-                    .selection || [];
 
+        if(Array.isArray(derniere)){
 
             derniere =
                 derniere.slice(0,6);
 
+        }else{
 
-            afficherTicket(
-
-                "derniere-minute-premium",
-
-                derniere
-
-            );
+            derniere = [];
 
         }
 
+
+        afficherTicket(
+            "derniere-minute-premium",
+            derniere
+        );
 
 
         // =====================================
@@ -393,7 +339,6 @@ async function chargerPremium(){
             "analyse-premium",
 
             `
-
             <h3>📈 Points forts</h3>
 
             <p>
@@ -401,17 +346,14 @@ async function chargerPremium(){
             distance, terrain et expérience.
             </p>
 
-
             <h3>📉 Points de vigilance</h3>
 
             <p>
             Évaluation des risques liés à la course.
             </p>
-
             `
 
         );
-
 
 
         // =====================================
@@ -423,7 +365,6 @@ async function chargerPremium(){
             "message-premium",
 
             premium.message_fin ||
-
             "🍀 Bonne chance ! Jouez avec discipline."
 
         );
@@ -441,15 +382,9 @@ async function chargerPremium(){
 }
 
 
-
 // =====================================
-// AJUSTEMENT RESPONSIVE
-//
-// IMPORTANT :
-// Aucun défilement horizontal.
-// Aucun forçage en nowrap.
-// Le navigateur peut adapter le texte
-// à la largeur disponible.
+// AFFICHAGE RESPONSIVE
+// AUCUN DEFILEMENT HORIZONTAL
 // =====================================
 
 function ajusterAffichage(id){
@@ -464,29 +399,34 @@ function ajusterAffichage(id){
 
 
     zone.style.width = "100%";
-
     zone.style.maxWidth = "100%";
-
     zone.style.minWidth = "0";
 
-    zone.style.boxSizing = "border-box";
+    zone.style.boxSizing =
+        "border-box";
 
-    zone.style.textAlign = "center";
+    zone.style.textAlign =
+        "center";
 
-    zone.style.whiteSpace = "normal";
+    zone.style.whiteSpace =
+        "normal";
 
-    zone.style.overflow = "visible";
+    zone.style.overflow =
+        "visible";
 
-    zone.style.overflowX = "visible";
+    zone.style.overflowX =
+        "visible";
 
-    zone.style.overflowWrap = "break-word";
+    zone.style.overflowWrap =
+        "break-word";
 
-    zone.style.wordBreak = "normal";
+    zone.style.wordBreak =
+        "normal";
 
-    zone.style.letterSpacing = "0px";
+    zone.style.letterSpacing =
+        "0px";
 
 }
-
 
 
 // =====================================
@@ -525,7 +465,6 @@ function afficherTicket(id,liste){
 }
 
 
-
 // =====================================
 // AFFICHAGE LISTE
 // =====================================
@@ -562,7 +501,6 @@ function afficherListe(id,liste){
 }
 
 
-
 // =====================================
 // AFFICHAGE TEXTE
 // =====================================
@@ -584,38 +522,30 @@ function afficherTexte(id,contenu){
 }
 
 
-
 // =====================================
-// SECURITE AFFICHAGE MOBILE
+// REAJUSTEMENT ECRAN
 // =====================================
 
 window.addEventListener(
     "resize",
     function(){
 
-        const ids = [
+        const zones = [
 
             "selection-premium",
-
             "quinte-premium",
-
             "quarte-premium",
-
             "trio-premium",
-
             "couple-premium",
-
             "champ-reduit-premium",
-
             "derniere-minute-premium"
 
         ];
 
 
-        ids.forEach(
+        zones.forEach(
             id => ajusterAffichage(id)
         );
 
     }
 );
-
