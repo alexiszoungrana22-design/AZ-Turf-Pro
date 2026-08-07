@@ -284,6 +284,10 @@
 
 
 /* FOOTER */
+/* Cohérent avec style.css : menu bas masqué
+   par défaut, visible seulement en mobile */
+
+@media(max-width:700px){
 
 .bottom-menu{
 
@@ -296,6 +300,8 @@
     gap:15px;
 
     padding:20px;
+
+}
 
 }
 
