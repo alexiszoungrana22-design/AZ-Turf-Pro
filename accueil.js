@@ -1,661 +1,602 @@
-const API = "https://az-turf-pro.onrender.com/api/analyse";
+```javascript
+// =====================================
+// AZ TURF PRO
+// ACCUEIL
+// ANALYSE + TENDANCES + PUBLICITÉ
+// =====================================
 
+const API =
+    "https://az-turf-pro.onrender.com/api/analyse";
 
-async function chargerAnalyse(){
 
-try{
+// =====================================
+// CHARGEMENT ANALYSE
+// =====================================
 
-const response = await fetch(API);
+async function chargerAnalyse() {
 
-if(!response.ok){
-throw new Error("Erreur API");
-}
+    try {
 
+        const response = await fetch(API);
 
-const data = await response.json();
+        if (!response.ok) {
+            throw new Error("Erreur API");
+        }
 
+        const data = await response.json();
 
-const chevaux =
-data.classement ||
-data.chevaux ||
-[];
+        const chevaux =
+            data.classement ||
+            data.chevaux ||
+            [];
 
 
+        // ===============================
+        // FONCTION AFFICHAGE
+        // ===============================
 
-// ===============================
-// FONCTION AFFICHAGE
-// ===============================
+        function afficher(id, valeur) {
 
-function afficher(id, valeur){
+            const element =
+                document.getElementById(id);
 
-const element =
-document.getElementById(id);
+            if (element) {
 
-if(element){
+                element.textContent =
+                    valeur || "-";
 
-element.textContent =
-valeur || "-";
+            }
 
-}
+        }
 
-}
 
+        // ===============================
+        // INFORMATIONS COURSE
+        // ===============================
 
+        afficher(
+            "meta-hippodrome",
+            data.hippodrome
+        );
 
-// ===============================
-// INFORMATIONS COURSE
-// ===============================
+        afficher(
+            "meta-course",
+            data.course
+        );
 
-afficher(
-"meta-hippodrome",
-data.hippodrome
-);
+        afficher(
+            "meta-discipline",
+            data.discipline
+        );
 
+        afficher(
+            "meta-distance",
+            data.distance
+                ? data.distance + " m"
+                : "-"
+        );
 
-afficher(
-"meta-course",
-data.course
-);
+        afficher(
+            "meta-partants",
+            data.partants
+        );
 
 
-afficher(
-"meta-discipline",
-data.discipline
-);
+        // ===============================
+        // PLUS JOUÉS
+        // ===============================
 
+        const popular =
+            document.getElementById(
+                "popular-horses"
+            );
 
-afficher(
-"meta-distance",
-data.distance ? data.distance + " m" : "-"
-);
+        if (popular) {
 
+            const plusJoues =
+                data.plus_joues || [];
 
-afficher(
-"meta-partants",
-data.partants
-);
+            if (plusJoues.length) {
 
+                popular.innerHTML =
+                    plusJoues.map(numero => `
+                        <div class="popular-number">
+                            ${numero}
+                        </div>
+                    `).join("");
 
+            } else {
 
+                popular.innerHTML =
+                    "Plus joué indisponible";
 
-// ===============================
-// PLUS JOUÉS
-// ===============================
+            }
 
-const popular =
-document.getElementById("popular-horses");
+        }
 
 
-if(popular){
+        // ===============================
+        // TENDANCE DE LA COURSE
+        // ===============================
 
-const plusJoues =
-data.plus_joues || [];
+        const tendance =
+            document.getElementById(
+                "course-tendance"
+            );
 
+        if (tendance && chevaux.length) {
 
-if(plusJoues.length){
+            tendance.innerHTML = `
 
-popular.innerHTML =
-plusJoues.map(numero =>
+                <p>
+                    🔥 Chevaux les plus joués :
+                    <strong>
+                        ${(data.plus_joues || []).join(" - ")}
+                    </strong>
+                </p>
 
-`
-<div class="popular-number">
-${numero}
-</div>
-`
+                <p>
+                    ⭐ Favori AZ :
+                    <strong>
+                        N°${chevaux[0].numero}
+                    </strong>
+                    avec un indice AZ de
+                    <strong>
+                        ${chevaux[0].indice_az || "-"}
+                    </strong>
+                </p>
 
-).join("");
+                <p>
+                    📊 La tendance est basée sur la forme,
+                    la régularité et le classement AZ.
+                </p>
 
-}else{
+            `;
 
-popular.innerHTML =
-"Plus joué indisponible";
+        }
 
-}
 
-}
+        // ===============================
+        // FAVORI AZ
+        // ===============================
 
+        const favori =
+            chevaux[0];
 
+        if (favori) {
 
+            afficher(
+                "favori-numero",
+                favori.numero
+            );
 
-// ===============================
-// TENDANCE DE LA COURSE
-// ===============================
+            afficher(
+                "favori-nom",
+                favori.nom
+            );
 
-const tendance =
-document.getElementById("course-tendance");
+            afficher(
+                "favori-indice",
+                favori.indice_az
+            );
 
+            afficher(
+                "favori-confiance",
+                (favori.confiance || "-") + " %"
+            );
 
-if(tendance && chevaux.length){
+            afficher(
+                "favori-raison",
+                favori.raison ||
+                "⭐ Favori AZ"
+            );
 
+        }
 
-tendance.innerHTML = `
 
-<p>
-🔥 Chevaux les plus joués :
-<strong>
-${(data.plus_joues || []).join(" - ")}
-</strong>
-</p>
+        // ===============================
+        // OUTSIDER AZ
+        // ===============================
 
+        const outsider =
+            chevaux[6];
 
-<p>
-⭐ Favori AZ :
-<strong>
-N°${chevaux[0].numero}
-</strong>
-avec un indice AZ de
-<strong>
-${chevaux[0].indice_az || "-"}
-</strong>
-</p>
+        if (outsider) {
 
+            afficher(
+                "outsider-numero",
+                outsider.numero
+            );
 
-<p>
-📊 La tendance est basée sur la forme, la régularité et le classement AZ.
-</p>
+            afficher(
+                "outsider-nom",
+                outsider.nom
+            );
 
-`;
+            afficher(
+                "outsider-indice",
+                outsider.indice_az
+            );
 
-}
+            afficher(
+                "outsider-confiance",
+                (outsider.confiance || "-") + " %"
+            );
 
+            afficher(
+                "outsider-raison",
+                outsider.raison ||
+                "🔥 Outsider AZ"
+            );
 
+        }
 
 
+        // ===============================
+        // TABLEAU DES PARTANTS
+        // ===============================
 
-// ===============================
-// FAVORI AZ
-// ===============================
+        const tableau =
+            document.getElementById(
+                "all-horses"
+            );
 
-const favori =
-chevaux[0];
+        if (tableau) {
 
+            tableau.innerHTML = "";
 
-if(favori){
+            chevaux.forEach(cheval => {
 
+                tableau.innerHTML += `
 
-afficher(
-"favori-numero",
-favori.numero
-);
+                    <tr>
 
+                        <td>
+                            ${cheval.numero || "-"}
+                        </td>
 
-afficher(
-"favori-nom",
-favori.nom
-);
+                        <td>
+                            ${cheval.nom || "-"}
+                        </td>
 
+                        <td>
+                            ${cheval.jockey || "-"}
+                        </td>
 
-afficher(
-"favori-indice",
-favori.indice_az
-);
+                        <td>
+                            ${cheval.entraineur || "-"}
+                        </td>
 
+                        <td>
+                            ${cheval.cote || "-"}
+                        </td>
 
-afficher(
-"favori-confiance",
-(favori.confiance || "-") + " %"
-);
+                    </tr>
 
+                `;
 
-afficher(
-"favori-raison",
-favori.raison ||
-"⭐ Favori AZ"
-);
+            });
 
-}
+        }
 
 
+        // ===============================
+        // TICKETS GRATUITS
+        // ===============================
 
+        const tickets =
+            data.tickets?.gratuit || {};
 
 
-// ===============================
-// OUTSIDER AZ
-// ===============================
+        afficher(
+            "quinte-gratuit",
+            (tickets.quinte || []).join(" - ")
+        );
 
-const outsider =
-chevaux[6];
 
+        afficher(
+            "deux-sur-quatre",
+            (tickets.deux_sur_quatre || []).join(" - ")
+        );
 
-if(outsider){
 
+        const couple =
+            document.getElementById(
+                "couple-place-gratuit"
+            );
 
-afficher(
-"outsider-numero",
-outsider.numero
-);
+        if (couple) {
 
+            couple.innerHTML =
+                (tickets.couple_place || [])
+                    .map(c => c.join(" - "))
+                    .join(" | ");
 
-afficher(
-"outsider-nom",
-outsider.nom
-);
+        }
 
 
-afficher(
-"outsider-indice",
-outsider.indice_az
-);
+        // ===============================
+        // INDICE DE CONFIANCE
+        // ===============================
 
+        afficherConfianceCourse(data);
 
-afficher(
-"outsider-confiance",
-(outsider.confiance || "-") + " %"
-);
 
+        // ===============================
+        // CHEVAUX À SURVEILLER
+        // ===============================
 
-afficher(
-"outsider-raison",
-outsider.raison ||
-"🔥 Outsider AZ"
-);
+        afficherChevauxSurveiller(data);
 
-}
 
+    }
+    catch (error) {
 
+        console.error(
+            "Erreur analyse :",
+            error
+        );
 
-
-
-
-// ===============================
-// TABLEAU DES PARTANTS
-// ===============================
-
-const tableau =
-document.getElementById("all-horses");
-
-
-if(tableau){
-
-
-tableau.innerHTML = "";
-
-
-chevaux.forEach(cheval => {
-
-
-tableau.innerHTML += `
-
-<tr>
-
-<td>${cheval.numero || "-"}</td>
-
-<td>${cheval.nom || "-"}</td>
-
-<td>${cheval.jockey || "-"}</td>
-
-<td>${cheval.entraineur || "-"}</td>
-
-<td>${cheval.cote || "-"}</td>
-
-</tr>
-
-`;
-
-});
-
-
-}
-
-
-
-
-
-
-
-// ===============================
-// TICKETS GRATUITS
-// ===============================
-
-const tickets =
-data.tickets?.gratuit || {};
-
-
-
-afficher(
-"quinte-gratuit",
-(tickets.quinte || []).join(" - ")
-);
-
-
-
-afficher(
-"deux-sur-quatre",
-(tickets.deux_sur_quatre || []).join(" - ")
-);
-
-
-
-const couple =
-document.getElementById("couple-place-gratuit");
-
-
-if(couple){
-
-couple.innerHTML =
-(tickets.couple_place || [])
-.map(c => c.join(" - "))
-.join(" | ");
-
-}
-
-
-
-
-
-}
-
-catch(error){
-
-console.log(
-"Erreur analyse :",
-error
-);
-
-}
+    }
 
 }
 
 
+// =====================================
+// LANCEMENT ANALYSE
+// =====================================
 
 document.addEventListener(
-"DOMContentLoaded",
-chargerAnalyse
+    "DOMContentLoaded",
+    chargerAnalyse
 );
-/* =====================================
-   AZ TURF PRO
-   SLIDER PUBLICITAIRE ACCUEIL V2
-===================================== */
 
+
+
+// =====================================
+// AZ TURF PRO
+// SLIDER PUBLICITAIRE ACCUEIL V2
+// =====================================
 
 const publicites = [
 
-{
-image:"images/pub1.jpg",
-titre:"⭐ AZ Turf Pro Premium",
-texte:"Analyses spécialisées et tickets exclusifs"
-},
+    {
+        image: "images/pub1.jpg",
+        titre: "⭐ AZ Turf Pro Premium",
+        texte: "Analyses spécialisées et tickets exclusifs"
+    },
 
-{
-image:"images/pub2.jpg",
-titre:"🏇 Analyse du Quinté",
-texte:"Des pronostics basés sur les performances"
-},
+    {
+        image: "images/pub2.jpg",
+        titre: "🏇 Analyse du Quinté",
+        texte: "Des pronostics basés sur les performances"
+    },
 
-{
-image:"images/pub3.jpg",
-titre:"💎 Abonnement Premium",
-texte:"Accédez aux sélections avancées"
-},
+    {
+        image: "images/pub3.jpg",
+        titre: "💎 Abonnement Premium",
+        texte: "Accédez aux sélections avancées"
+    },
 
-{
-image:"images/pub4.jpg",
-titre:"📢 Votre publicité ici",
-texte:"Un espace dédié aux partenaires"
-},
+    {
+        image: "images/pub4.jpg",
+        titre: "📢 Votre publicité ici",
+        texte: "Un espace dédié aux partenaires"
+    },
 
-{
-image:"images/pub5.jpg",
-titre:"🏆 AZ Turf Pro",
-texte:"Une analyse professionnelle au service des pronostics"
-}
+    {
+        image: "images/pub5.jpg",
+        titre: "🏆 AZ Turf Pro",
+        texte: "Une analyse professionnelle au service des pronostics"
+    }
 
 ];
-
 
 
 let indexPub = 0;
 
 
+function changerPublicite() {
 
-function changerPublicite(){
+    const image =
+        document.getElementById(
+            "pub-image"
+        );
 
+    const titre =
+        document.getElementById(
+            "pub-title"
+        );
 
-const image =
-document.getElementById("pub-image");
+    const texte =
+        document.getElementById(
+            "pub-text"
+        );
 
-
-const titre =
-document.getElementById("pub-title");
-
-
-const texte =
-document.getElementById("pub-text");
-
-
-const points =
-document.querySelectorAll(".dot");
-
-
-
-if(!image){
-
-return;
-
-}
+    const points =
+        document.querySelectorAll(".dot");
 
 
-
-indexPub++;
-
-
-
-if(indexPub >= publicites.length){
-
-indexPub = 0;
-
-}
+    if (!image) {
+        return;
+    }
 
 
-
-image.style.opacity = "0";
-
+    indexPub++;
 
 
-setTimeout(()=>{
+    if (
+        indexPub >= publicites.length
+    ) {
+
+        indexPub = 0;
+
+    }
 
 
-image.src =
-publicites[indexPub].image;
+    image.style.opacity = "0";
 
 
-if(titre){
+    setTimeout(() => {
 
-titre.innerHTML =
-publicites[indexPub].titre;
-
-}
+        image.src =
+            publicites[indexPub].image;
 
 
-if(texte){
+        if (titre) {
 
-texte.innerHTML =
-publicites[indexPub].texte;
+            titre.innerHTML =
+                publicites[indexPub].titre;
 
-}
-
-
-
-points.forEach(
-(point,i)=>{
-
-point.classList.toggle(
-"active",
-i===indexPub
-);
-
-}
-
-);
+        }
 
 
+        if (texte) {
 
-image.style.opacity="1";
+            texte.innerHTML =
+                publicites[indexPub].texte;
+
+        }
 
 
-},400);
+        points.forEach(
+            (point, i) => {
+
+                point.classList.toggle(
+                    "active",
+                    i === indexPub
+                );
+
+            }
+        );
 
 
+        image.style.opacity = "1";
+
+
+    }, 400);
 
 }
-
-
 
 
 setInterval(
-changerPublicite,
-4000
+    changerPublicite,
+    4000
 );
-/* =====================================
-   AZ TURF PRO
-   NOUVEAUX BLOCS ACCUEIL
-   INDICE CONFIANCE + SURVEILLANCE
-===================================== */
-
-
-function afficherConfianceCourse(data){
-
-
-const indice =
-document.getElementById("indice-confiance");
-
-
-const message =
-document.getElementById("message-confiance");
 
 
 
-if(!indice){
+// =====================================
+// INDICE CONFIANCE
+// =====================================
 
-return;
+function afficherConfianceCourse(data) {
 
-}
+    const indice =
+        document.getElementById(
+            "indice-confiance"
+        );
 
-
-
-/*
-   Utilise l'indice de confiance
-   déjà fourni par l'analyse
-*/
-
-let confiance = 
-data.favori?.confiance || 0;
-
-
-
-indice.innerHTML =
-confiance + "%";
+    const message =
+        document.getElementById(
+            "message-confiance"
+        );
 
 
+    if (!indice) {
+        return;
+    }
 
 
-if(message){
+    let confiance =
+        data.favori?.confiance || 0;
 
 
-if(confiance >= 80){
-
-message.innerHTML =
-"✅ Course avec un niveau de confiance élevé";
+    indice.innerHTML =
+        confiance + "%";
 
 
-}
+    if (message) {
 
-else if(confiance >= 60){
+        if (confiance >= 80) {
 
+            message.innerHTML =
+                "✅ Course avec un niveau de confiance élevé";
 
-message.innerHTML =
-"⚠️ Course avec quelques incertitudes";
+        }
+        else if (confiance >= 60) {
 
+            message.innerHTML =
+                "⚠️ Course avec quelques incertitudes";
 
-}
+        }
+        else {
 
-else{
+            message.innerHTML =
+                "🔎 Course ouverte, prudence recommandée";
 
+        }
 
-message.innerHTML =
-"🔎 Course ouverte, prudence recommandée";
-
-
-}
-
-
-}
-
+    }
 
 }
 
 
 
+// =====================================
+// CHEVAUX À SURVEILLER
+// =====================================
+
+function afficherChevauxSurveiller(data) {
+
+    const zone =
+        document.getElementById(
+            "chevaux-surveiller"
+        );
 
 
+    if (!zone) {
+        return;
+    }
 
 
-
-function afficherChevauxSurveiller(data){
-
-
-const zone =
-document.getElementById("chevaux-surveiller");
+    let chevaux = [];
 
 
+    if (data.classement) {
 
-if(!zone){
+        chevaux =
+            data.classement
+                .slice(0, 3);
 
-return;
-
-}
-
-
-
-let chevaux = [];
+    }
 
 
+    if (chevaux.length === 0) {
 
-if(data.classement){
+        zone.innerHTML =
+            "Analyse en cours...";
 
+        return;
 
-chevaux =
-data.classement
-.slice(0,3);
-
-
-}
+    }
 
 
+    zone.innerHTML =
 
+        chevaux.map(c => `
 
-if(chevaux.length===0){
+            <p>
 
+                🏇 N°${c.numero}
 
-zone.innerHTML =
-"Analyse en cours...";
+                <br>
 
+                ${c.raison || "Cheval à surveiller"}
 
-return;
+            </p>
 
-}
-
-
-
-
-
-zone.innerHTML =
-
-
-chevaux.map(c=>`
-
-<p>
-
-🏇 N°${c.numero}
-
-<br>
-
-${c.raison || "Cheval à surveiller"}
-
-</p>
-
-`).join("");
-
-
+        `).join("");
 
 }
+```
