@@ -218,7 +218,7 @@ async function chargerPremium(){
 
         // =====================================
         // QUARTE PREMIUM
-        // 4 CHEVAUX
+        // 5 CHEVAUX
         // =====================================
 
         let quartePremium =
@@ -228,7 +228,7 @@ async function chargerPremium(){
         if(Array.isArray(quartePremium)){
 
             quartePremium =
-                quartePremium.slice(0,4);
+                quartePremium.slice(0,5);
 
         }
 
