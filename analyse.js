@@ -553,3 +553,51 @@ document.addEventListener(
 chargerAnalyse
 
 );
+
+
+// ===============================
+// COMMENTAIRES VISITEURS
+// (affichage local, même logique que
+// commentaires.html — non persistant)
+// ===============================
+
+document.addEventListener("DOMContentLoaded", function(){
+
+const bouton = document.getElementById("envoyer-message");
+
+if(!bouton){
+
+return;
+
+}
+
+bouton.addEventListener("click", function(){
+
+const champ = document.getElementById("message-visiteur");
+
+const liste = document.getElementById("messages-visiteurs");
+
+const texte = champ ? champ.value.trim() : "";
+
+if(!texte){
+
+return;
+
+}
+
+if(liste){
+
+liste.innerHTML +=
+`<p>💬 ${texte}</p>`;
+
+}
+
+if(champ){
+
+champ.value = "";
+
+}
+
+});
+
+});
