@@ -35,6 +35,12 @@ def classer_chevaux(chevaux):
         reverse=True
     )
 
+    meilleur_indice = (
+        classement[0].get("indice_az", 0)
+        if classement
+        else 0
+    )
+
     for index, cheval in enumerate(classement, start=1):
 
         cheval["rang"] = index
@@ -43,6 +49,20 @@ def classer_chevaux(chevaux):
             cheval,
             index
         )
+
+        # Indice de confiance : pourcentage de l'indice AZ
+        # du cheval par rapport au meilleur indice de la course
+        if meilleur_indice > 0:
+
+            confiance = round(
+                (cheval.get("indice_az", 0) / meilleur_indice) * 100
+            )
+
+        else:
+
+            confiance = 0
+
+        cheval["confiance"] = max(0, min(confiance, 99 if index > 1 else 100))
 
     return classement
 
