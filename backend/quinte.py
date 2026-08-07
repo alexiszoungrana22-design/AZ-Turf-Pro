@@ -165,15 +165,15 @@ def generer_tickets_az(classement):
 
         # Ticket Quinté Premium joué
         "quinte":
-            numeros[:6],
+            numeros[:7],
 
 
         "quarte":
-            numeros[:5],
+            numeros[:4],
 
 
         "trio":
-            numeros[:4],
+            numeros[:3],
 
 
         "couple_gagnant_place":
@@ -202,3 +202,4 @@ def generer_tickets_az(classement):
         "premium": premium
 
     }
+    
