@@ -9,10 +9,10 @@
 
 .premium-container{
 
-    width:98%;
+    width:100%;
     max-width:1000px;
     margin:auto;
-    padding:15px;
+    padding:15px 6px;
 
 }
 
@@ -157,7 +157,7 @@
 
     margin:25px 0;
 
-    padding:30px 20px;
+    padding:20px 4px;
 
     border-radius:25px;
 
@@ -199,17 +199,15 @@
 
     text-align:center;
 
-    font-size:34px;
+    font-size:30px;
 
     font-weight:900;
 
-    letter-spacing:2px;
+    letter-spacing:0.5px;
 
-    white-space:normal;
+    white-space:nowrap;
 
-    overflow-wrap:break-word;
-
-    word-break:break-word;
+    overflow:hidden;
 
     padding:10px 0;
 
@@ -223,7 +221,7 @@
 
 #champ-reduit-premium{
 
-    font-size:32px;
+    font-size:24px;
 
     font-weight:900;
 
@@ -231,11 +229,11 @@
 
     line-height:1.5;
 
-    white-space:normal;
+    letter-spacing:0.5px;
 
-    overflow-wrap:break-word;
+    white-space:nowrap;
 
-    word-break:break-word;
+    overflow:hidden;
 
 }
 
@@ -251,15 +249,15 @@
 
     text-align:center;
 
-    font-size:36px;
+    font-size:30px;
 
     font-weight:900;
 
-    white-space:normal;
+    letter-spacing:0.5px;
 
-    overflow-wrap:break-word;
+    white-space:nowrap;
 
-    word-break:break-word;
+    overflow:hidden;
 
 }
 
@@ -335,7 +333,7 @@
 
     width:100%;
 
-    padding:10px;
+    padding:6px;
 
 }
 
@@ -345,7 +343,7 @@
 
     min-height:130px;
 
-    padding:25px 10px;
+    padding:16px 3px;
 
 }
 
@@ -361,9 +359,9 @@
 
 .numero-ticket{
 
-    font-size:30px;
+    font-size:24px;
 
-    letter-spacing:1px;
+    letter-spacing:0.5px;
 
 }
 
@@ -371,7 +369,9 @@
 
 #champ-reduit-premium{
 
-    font-size:23px;
+    font-size:17px;
+
+    letter-spacing:0.5px;
 
 }
 
@@ -379,7 +379,9 @@
 
 #derniere-minute-premium{
 
-    font-size:27px;
+    font-size:22px;
+
+    letter-spacing:0.5px;
 
 }
 
