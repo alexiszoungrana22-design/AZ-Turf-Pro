@@ -556,4 +556,4 @@ function afficherTexte(id,contenu){
     }
 
 }
-```
+
