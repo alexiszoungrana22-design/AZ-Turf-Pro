@@ -416,12 +416,14 @@ function ajusterTailleUneLigne(id){
     const zone =
         document.getElementById(id);
 
-
     if(!zone){
-
         return;
-
     }
+
+    zone.style.whiteSpace = "normal";
+    zone.style.overflow = "visible";
+    zone.style.letterSpacing = "0px";
+}
 
 
     let taille =
