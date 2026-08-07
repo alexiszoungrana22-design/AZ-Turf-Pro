@@ -396,18 +396,18 @@ error
 // =====================================
 
 
-function afficherTicket(id,liste){
+function ajusterTailleUneLigne(id){
 
+    const zone =
+        document.getElementById(id);
 
-const zone =
-document.getElementById(id);
+    if(!zone){
+        return;
+    }
 
-
-
-if(!zone){
-
-return;
-
+    zone.style.whiteSpace = "normal";
+    zone.style.overflow = "visible";
+    zone.style.letterSpacing = "0px";
 }
 
 
