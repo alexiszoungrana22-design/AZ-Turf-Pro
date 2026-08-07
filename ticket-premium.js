@@ -1,4 +1,3 @@
-```javascript
 // =====================================
 // AZ TURF PRO
 // TICKET PREMIUM
