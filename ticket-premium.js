@@ -238,6 +238,8 @@ couple
 
 );
 
+ajusterTailleUneLigne("couple-premium");
+
 
 }
 
@@ -269,6 +271,8 @@ afficherTexte(
 champ
 
 );
+
+ajusterTailleUneLigne("champ-reduit-premium");
 
 
 }
@@ -392,6 +396,74 @@ error
 
 
 // =====================================
+// AJUSTEMENT AUTOMATIQUE DE TAILLE
+// Réduit la police tant que le contenu
+// dépasse la largeur de la carte, pour
+// que le ticket reste sur une seule ligne.
+// =====================================
+
+
+function ajusterTailleUneLigne(id){
+
+
+const zone =
+document.getElementById(id);
+
+
+if(!zone){
+
+return;
+
+}
+
+
+let taille =
+parseInt(
+window.getComputedStyle(zone).fontSize
+) || 34;
+
+
+const tailleMinimum = 14;
+
+
+zone.style.whiteSpace = "nowrap";
+
+
+let securite = 0;
+
+
+// Etape 1 : réduire l'espacement des lettres
+// avant de toucher à la taille du texte
+if(zone.scrollWidth > zone.clientWidth){
+
+zone.style.letterSpacing = "0px";
+
+}
+
+
+// Etape 2 : réduire la taille de police
+// tant que le ticket dépasse d'une ligne
+while(
+zone.scrollWidth > zone.clientWidth &&
+taille > tailleMinimum &&
+securite < 60
+){
+
+taille -= 1;
+
+zone.style.fontSize = taille + "px";
+
+securite++;
+
+}
+
+
+}
+
+
+
+
+// =====================================
 // AFFICHAGE TICKET
 // =====================================
 
@@ -430,6 +502,9 @@ zone.innerHTML =
 liste.join(" - ");
 
 
+ajusterTailleUneLigne(id);
+
+
 }
 
 
@@ -457,6 +532,8 @@ if(zone){
 
 zone.innerHTML =
 liste.join(" - ");
+
+ajusterTailleUneLigne(id);
 
 }
 
@@ -491,4 +568,4 @@ contenu;
 }
 
 
-}
+  }
