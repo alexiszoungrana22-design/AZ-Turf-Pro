@@ -205,9 +205,11 @@
 
     letter-spacing:2px;
 
-    white-space:nowrap;
+    white-space:normal;
 
-    overflow:hidden;
+    overflow-wrap:break-word;
+
+    word-break:break-word;
 
     padding:10px 0;
 
@@ -229,6 +231,12 @@
 
     line-height:1.5;
 
+    white-space:normal;
+
+    overflow-wrap:break-word;
+
+    word-break:break-word;
+
 }
 
 
@@ -246,6 +254,12 @@
     font-size:36px;
 
     font-weight:900;
+
+    white-space:normal;
+
+    overflow-wrap:break-word;
+
+    word-break:break-word;
 
 }
 
@@ -284,8 +298,8 @@
 
 
 /* FOOTER */
-/* Cohérent avec style.css : menu bas masqué
-   par défaut, visible seulement en mobile */
+/* CohÃ©rent avec style.css : menu bas masquÃ©
+   par dÃ©faut, visible seulement en mobile */
 
 @media(max-width:700px){
 
@@ -378,4 +392,4 @@
 }
 
 
-}
+   }
