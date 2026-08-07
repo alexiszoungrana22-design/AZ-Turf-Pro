@@ -1,3 +1,4 @@
+```javascript
 // =====================================
 // AZ TURF PRO
 // TICKET PREMIUM
@@ -12,454 +13,466 @@ const API_PREMIUM =
 
 
 document.addEventListener(
-"DOMContentLoaded",
-verifierAccesPremium
+    "DOMContentLoaded",
+    verifierAccesPremium
 );
 
 
 // =====================================
 // VERIFICATION ACCES PREMIUM
-// (protège le contenu ci-dessous)
 // =====================================
 
 async function verifierAccesPremium(){
 
+    const telephone =
+        localStorage.getItem("AZ_TURF_TELEPHONE");
 
-const telephone =
-localStorage.getItem("AZ_TURF_TELEPHONE");
+    const contenu =
+        document.getElementById("contenu-premium");
 
-const contenu =
-document.getElementById("contenu-premium");
-
-const blocage =
-document.getElementById("message-blocage");
+    const blocage =
+        document.getElementById("message-blocage");
 
 
-if(!telephone){
+    if(!telephone){
 
-if(blocage) blocage.style.display = "block";
+        if(blocage){
+            blocage.style.display = "block";
+        }
 
-return;
+        return;
+    }
+
+
+    try{
+
+        const reponse = await fetch(
+            API_PREMIUM + encodeURIComponent(telephone)
+        );
+
+        const data = await reponse.json();
+
+
+        if(reponse.ok && data.statut === "ACTIF"){
+
+            if(contenu){
+                contenu.style.display = "block";
+            }
+
+            chargerPremium();
+
+        }else{
+
+            if(blocage){
+                blocage.style.display = "block";
+            }
+
+        }
+
+    }catch(error){
+
+        console.error(
+            "Erreur vérification Premium :",
+            error
+        );
+
+        if(blocage){
+            blocage.style.display = "block";
+        }
+
+    }
 
 }
 
 
-try{
-
-const reponse = await fetch(
-API_PREMIUM + encodeURIComponent(telephone)
-);
-
-const data = await reponse.json();
-
-if(reponse.ok && data.statut === "ACTIF"){
-
-if(contenu) contenu.style.display = "block";
-
-chargerPremium();
-
-}else{
-
-if(blocage) blocage.style.display = "block";
-
-}
-
-}catch(error){
-
-console.error(
-"Erreur vérification Premium :",
-error
-);
-
-if(blocage) blocage.style.display = "block";
-
-}
-
-}
-
-
+// =====================================
+// CHARGEMENT PREMIUM
+// =====================================
 
 async function chargerPremium(){
 
+    try{
 
-try{
+        const response =
+            await fetch(API_URL);
 
 
-const response = await fetch(API_URL);
+        if(!response.ok){
+
+            throw new Error("Erreur API");
+
+        }
 
 
-if(!response.ok){
+        const data =
+            await response.json();
 
-throw new Error("Erreur API");
+
+        console.log(
+            "Données Premium :",
+            data
+        );
+
+
+        const premium =
+            data.tickets?.premium || {};
+
+
+        const classement =
+            data.classement || [];
+
+
+
+        // =====================================
+        // SELECTION PREMIUM
+        // 7 CHEVAUX
+        // =====================================
+
+        afficherListe(
+
+            "selection-premium",
+
+            classement
+                .slice(0,7)
+                .map(c => c.numero)
+
+        );
+
+
+
+        // =====================================
+        // EXPLICATION
+        // =====================================
+
+        afficherTexte(
+
+            "explication-premium",
+
+            classement
+                .slice(0,7)
+                .map(c => `
+
+                    <p>
+                        🏇 N°${c.numero}
+
+                        <br>
+
+                        ${c.raison || "Analyse spécialisée en cours"}
+
+                    </p>
+
+                `)
+                .join("")
+
+        );
+
+
+
+        // =====================================
+        // QUINTE PREMIUM
+        // 6 CHEVAUX
+        // =====================================
+
+        let quintePremium =
+            premium.quinte || [];
+
+
+        if(Array.isArray(quintePremium)){
+
+            quintePremium =
+                quintePremium.slice(0,6);
+
+        }
+
+
+        afficherTicket(
+
+            "quinte-premium",
+
+            quintePremium
+
+        );
+
+
+
+        // =====================================
+        // QUARTE PREMIUM
+        // =====================================
+
+        let quartePremium =
+            premium.quarte || [];
+
+
+        if(Array.isArray(quartePremium)){
+
+            quartePremium =
+                quartePremium.slice(0,4);
+
+        }
+
+
+        afficherTicket(
+
+            "quarte-premium",
+
+            quartePremium
+
+        );
+
+
+
+        // =====================================
+        // TRIO PREMIUM
+        // =====================================
+
+        let trioPremium =
+            premium.trio || [];
+
+
+        if(Array.isArray(trioPremium)){
+
+            trioPremium =
+                trioPremium.slice(0,3);
+
+        }
+
+
+        afficherTicket(
+
+            "trio-premium",
+
+            trioPremium
+
+        );
+
+
+
+        // =====================================
+        // COUPLES PREMIUM
+        // 3 COUPLES COMPLETS
+        // Exemple :
+        // 3-5 | 3-2 | 5-2
+        // =====================================
+
+        if(premium.couple_gagnant_place){
+
+            let couple =
+                premium.couple_gagnant_place;
+
+
+            if(Array.isArray(couple)){
+
+                couple = couple
+                    .map(c => {
+
+                        if(Array.isArray(c)){
+
+                            return c.join("-");
+
+                        }
+
+                        return c;
+
+                    })
+                    .join(" | ");
+
+            }
+
+
+            afficherTexte(
+                "couple-premium",
+                couple
+            );
+
+
+            ajusterTailleUneLigne(
+                "couple-premium"
+            );
+
+        }
+
+
+
+        // =====================================
+        // CHAMP REDUIT
+        // =====================================
+
+        if(premium.champ_reduit){
+
+            let champ =
+                premium.champ_reduit.format ||
+                "Non disponible";
+
+
+            afficherTexte(
+
+                "champ-reduit-premium",
+
+                champ
+
+            );
+
+
+            ajusterTailleUneLigne(
+                "champ-reduit-premium"
+            );
+
+        }
+
+
+
+        // =====================================
+        // DERNIERE MINUTE
+        // 6 NUMEROS
+        // =====================================
+
+        if(premium.ticket_derniere_minute){
+
+            let derniere =
+                premium.ticket_derniere_minute.selection || [];
+
+
+            derniere =
+                derniere.slice(0,6);
+
+
+            afficherTicket(
+
+                "derniere-minute-premium",
+
+                derniere
+
+            );
+
+        }
+
+
+
+        // =====================================
+        // ANALYSE
+        // =====================================
+
+        afficherTexte(
+
+            "analyse-premium",
+
+            `
+
+            <h3>📈 Points forts</h3>
+
+            <p>
+            Analyse de la forme, régularité,
+            distance, terrain et expérience.
+            </p>
+
+
+            <h3>📉 Points de vigilance</h3>
+
+            <p>
+            Évaluation des risques liés à la course.
+            </p>
+
+            `
+
+        );
+
+
+
+        // =====================================
+        // MESSAGE
+        // =====================================
+
+        afficherTexte(
+
+            "message-premium",
+
+            premium.message_fin ||
+
+            "🍀 Bonne chance ! Jouez avec discipline."
+
+        );
+
+
+    }catch(error){
+
+        console.error(
+            "Erreur Premium :",
+            error
+        );
+
+    }
 
 }
 
 
-const data = await response.json();
-
-
-console.log(
-"Données Premium :",
-data
-);
-
-
-
-const premium =
-data.tickets?.premium || {};
-
-
-const classement =
-data.classement || [];
-
-
-
 
 // =====================================
-// SELECTION PREMIUM
+// AJUSTEMENT AUTOMATIQUE
+// GARDE LES NUMEROS SUR UNE LIGNE
 // =====================================
-
-afficherListe(
-
-"selection-premium",
-
-classement
-.slice(0,7)
-.map(c=>c.numero)
-
-);
-
-
-
-
-
-
-
-// =====================================
-// EXPLICATION
-// =====================================
-
-afficherTexte(
-
-"explication-premium",
-
-classement
-.slice(0,7)
-.map(c=>`
-
-<p>
-🏇 N°${c.numero}
-
-<br>
-
-${c.raison || "Analyse spécialisée en cours"}
-
-</p>
-
-`)
-.join("")
-
-);
-
-
-
-
-
-
-// =====================================
-// TICKETS
-// =====================================
-
-afficherTicket(
-"quinte-premium",
-premium.quinte
-);
-
-
-
-afficherTicket(
-"quarte-premium",
-premium.quarte
-);
-
-
-
-afficherTicket(
-"trio-premium",
-premium.trio
-);
-
-
-
-
-
-
-
-// =====================================
-// COUPLE 3 NUMEROS
-// =====================================
-
-if(premium.couple_gagnant_place){
-
-
-let couple =
-premium.couple_gagnant_place;
-
-
-
-if(Array.isArray(couple)){
-
-// Conserve chaque couple séparément.
-// Exemple API : [[3,5],[3,2],[5,2]]
-// Affichage : 3-5 | 3-2 | 5-2
-
-couple =
-couple
-.map(c => {
-
-if(Array.isArray(c)){
-
-return c.join(" - ");
-
-}
-
-return c;
-
-})
-.join(" | ");
-
-}
-
-afficherTexte(
-
-"couple-premium",
-
-couple
-
-);
-
-ajusterTailleUneLigne("couple-premium");
-
-
-}
-
-
-
-
-
-
-
-
-// =====================================
-// CHAMP REDUIT
-// FORMAT : 3-5-X 2-X / 8-1-4-12
-// =====================================
-
-
-if(premium.champ_reduit){
-
-
-let champ =
-premium.champ_reduit.format ||
-"Non disponible";
-
-
-afficherTexte(
-
-"champ-reduit-premium",
-
-champ
-
-);
-
-ajusterTailleUneLigne("champ-reduit-premium");
-
-
-}
-
-
-
-
-
-
-
-// =====================================
-// DERNIERE MINUTE 6 NUMEROS
-// =====================================
-
-
-if(premium.ticket_derniere_minute){
-
-
-let derniere =
-premium.ticket_derniere_minute.selection || [];
-
-
-
-derniere =
-derniere.slice(0,6);
-
-
-
-afficherTicket(
-
-"derniere-minute-premium",
-
-derniere
-
-);
-
-
-}
-
-
-
-
-
-
-
-
-// =====================================
-// ANALYSE
-// =====================================
-
-
-afficherTexte(
-
-"analyse-premium",
-
-`
-
-<h3>📈 Points forts</h3>
-
-<p>
-Analyse de la forme, régularité,
-distance, terrain et expérience.
-</p>
-
-
-<h3>📉 Points de vigilance</h3>
-
-<p>
-Évaluation des risques liés à la course.
-</p>
-
-`
-
-);
-
-
-
-
-
-
-
-// =====================================
-// MESSAGE
-// =====================================
-
-
-afficherTexte(
-
-"message-premium",
-
-premium.message_fin ||
-
-"🍀 Bonne chance ! Jouez avec discipline."
-
-);
-
-
-}
-
-
-
-catch(error){
-
-
-console.error(
-"Erreur Premium :",
-error
-);
-
-
-}
-
-
-}
-
-
-
-
-
-
-
-
-// =====================================
-// AJUSTEMENT AUTOMATIQUE DE TAILLE
-// Réduit la police tant que le contenu
-// dépasse la largeur de la carte, pour
-// que le ticket reste sur une seule ligne.
-// =====================================
-
 
 function ajusterTailleUneLigne(id){
 
+    const zone =
+        document.getElementById(id);
 
-const zone =
-document.getElementById(id);
+
+    if(!zone){
+
+        return;
+
+    }
 
 
-if(!zone){
+    let taille =
+        parseInt(
+            window.getComputedStyle(zone).fontSize
+        ) || 24;
 
-return;
+
+    const tailleMinimum = 14;
+
+
+    zone.style.whiteSpace =
+        "nowrap";
+
+
+    zone.style.letterSpacing =
+        "0px";
+
+
+    zone.style.overflow =
+        "visible";
+
+
+    let securite = 0;
+
+
+    while(
+
+        zone.scrollWidth >
+        zone.clientWidth &&
+
+        taille >
+        tailleMinimum &&
+
+        securite <
+        60
+
+    ){
+
+        taille -= 1;
+
+
+        zone.style.fontSize =
+            taille + "px";
+
+
+        securite++;
+
+    }
 
 }
-
-
-let taille =
-parseInt(
-window.getComputedStyle(zone).fontSize
-) || 34;
-
-
-const tailleMinimum = 14;
-
-
-zone.style.whiteSpace = "nowrap";
-
-
-let securite = 0;
-
-
-// Etape 1 : réduire l'espacement des lettres
-// avant de toucher à la taille du texte
-if(zone.scrollWidth > zone.clientWidth){
-
-zone.style.letterSpacing = "0px";
-
-}
-
-
-// Etape 2 : réduire la taille de police
-// tant que le ticket dépasse d'une ligne
-while(
-zone.scrollWidth > zone.clientWidth &&
-taille > tailleMinimum &&
-securite < 60
-){
-
-taille -= 1;
-
-zone.style.fontSize = taille + "px";
-
-securite++;
-
-}
-
-
-}
-
 
 
 
@@ -467,51 +480,36 @@ securite++;
 // AFFICHAGE TICKET
 // =====================================
 
-
 function afficherTicket(id,liste){
 
-
-const zone =
-document.getElementById(id);
-
+    const zone =
+        document.getElementById(id);
 
 
-if(!zone){
+    if(!zone){
 
-return;
+        return;
 
-}
-
-
-
-if(!liste || liste.length===0){
+    }
 
 
-zone.innerHTML =
-"Non disponible";
+    if(!liste || liste.length === 0){
+
+        zone.innerHTML =
+            "Non disponible";
+
+        return;
+
+    }
 
 
-return;
-
-}
-
+    zone.innerHTML =
+        liste.join(" - ");
 
 
-zone.innerHTML =
-
-liste.join(" - ");
-
-
-ajusterTailleUneLigne(id);
-
+    ajusterTailleUneLigne(id);
 
 }
-
-
-
-
-
-
 
 
 
@@ -519,31 +517,23 @@ ajusterTailleUneLigne(id);
 // AFFICHAGE LISTE
 // =====================================
 
-
 function afficherListe(id,liste){
 
-
-const zone =
-document.getElementById(id);
-
+    const zone =
+        document.getElementById(id);
 
 
-if(zone){
+    if(zone){
 
-zone.innerHTML =
-liste.join(" - ");
+        zone.innerHTML =
+            liste.join(" - ");
 
-ajusterTailleUneLigne(id);
 
-}
+        ajusterTailleUneLigne(id);
 
+    }
 
 }
-
-
-
-
-
 
 
 
@@ -551,21 +541,19 @@ ajusterTailleUneLigne(id);
 // AFFICHAGE TEXTE
 // =====================================
 
-
 function afficherTexte(id,contenu){
 
-
-const zone =
-document.getElementById(id);
-
+    const zone =
+        document.getElementById(id);
 
 
-if(zone){
+    if(zone){
 
-zone.innerHTML =
-contenu;
+        zone.innerHTML =
+            contenu;
+
+    }
 
 }
-
-
-  }
+```
+                      
