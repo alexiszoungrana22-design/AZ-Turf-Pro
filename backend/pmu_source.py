@@ -38,11 +38,11 @@ from datetime import datetime
 # =====================================
 
 PMU_BASE_URL = (
-    "https://offline.turfinfo.api.pmu.fr"
-    "/rest/client/7/programme"
+    "https://turfinfo.api.prd.pmutech.fr"
+    "/rest/client/61/programme"
 )
 
-TIMEOUT = 8
+TIMEOUT = 10
 
 
 # =====================================
