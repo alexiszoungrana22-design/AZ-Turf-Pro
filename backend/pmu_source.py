@@ -669,6 +669,14 @@ def transformer_course(
 # =====================================
 
 def recuperer_programme(date):
+    """
+    Récupère le programme PMU via l'API actuelle.
+
+    API actuelle :
+    turfinfo.api.prd.pmutech.fr
+    client/61
+    specialisation=INTERNET
+    """
 
     url = (
         f"{PMU_BASE_URL}/"
@@ -676,53 +684,42 @@ def recuperer_programme(date):
     )
 
     try:
-
         response = requests.get(
             url,
+            params={
+                "specialisation": "INTERNET"
+            },
             timeout=TIMEOUT,
             headers={
                 "Accept": "application/json",
-                "User-Agent":
-                    "AZ-Turf-Pro/1.0"
+                "User-Agent": "AZ-Turf-Pro/1.0"
             }
         )
 
         response.raise_for_status()
-
         donnees = response.json()
 
-        if not isinstance(
-            donnees,
-            dict
-        ):
+        if not isinstance(donnees, dict):
             return None
 
-        # ---------------------------------
-        # CORRECTIF : l'API PMU enveloppe le
-        # programme dans une cle "programme".
-        # On la depaquette ici, une seule fois,
-        # avec repli si l'API change un jour
-        # de forme et renvoie deja un objet
-        # non enveloppe (ne casse rien dans
-        # ce cas, se contente de le retourner
-        # tel quel).
-        # ---------------------------------
+        # L'API peut retourner directement une réunion
+        # avec ses courses.
+        if "courses" in donnees:
+            return {
+                "reunions": [donnees]
+            }
 
-        if (
-            "programme" in donnees
-            and isinstance(donnees["programme"], dict)
-        ):
-            return donnees["programme"]
+        # Format programme complet
+        if isinstance(donnees.get("reunions"), list):
+            return donnees
 
         return donnees
 
     except Exception as erreur:
-
         print(
             "Erreur programme PMU :",
             erreur
         )
-
         return None
 
 
@@ -931,58 +928,52 @@ def recuperer_participants(
     )
 
     url = (
-        f"{PMU_BASE_URL}/"
-        f"{date}/"
-        f"R{reunion_numero}/"
-        f"C{course_numero}/"
-        f"participants"
+    f"{PMU_BASE_URL}/"
+    f"{date}/"
+    f"R{reunion_numero}/"
+    f"C{course_numero}/"
+    f"participants"
     )
 
     try:
 
-        response = requests.get(
-            url,
-            timeout=TIMEOUT,
-            headers={
-                "Accept": "application/json",
-                "User-Agent":
-                    "AZ-Turf-Pro/1.0"
-            }
+    response = requests.get(
+        url,
+        params={
+            "specialisation": "INTERNET"
+        },
+        timeout=TIMEOUT,
+        headers={
+            "Accept": "application/json",
+            "User-Agent": "AZ-Turf-Pro/1.0"
+        }
+    )
+
+    response.raise_for_status()
+
+    donnees = response.json()
+
+    if isinstance(donnees, dict):
+
+        participants = donnees.get(
+            "participants",
+            []
         )
 
-        response.raise_for_status()
+        if isinstance(participants, list):
+            return participants
 
-        donnees = response.json()
+    if isinstance(donnees, list):
+        return donnees
 
-        if isinstance(
-            donnees,
-            dict
-        ):
-            participants = donnees.get(
-                "participants",
-                []
-            )
+except Exception as erreur:
 
-            if isinstance(
-                participants,
-                list
-            ):
-                return participants
+    print(
+        "Erreur participants PMU :",
+        erreur
+    )
 
-        if isinstance(
-            donnees,
-            list
-        ):
-            return donnees
-
-    except Exception as erreur:
-
-        print(
-            "Erreur participants PMU :",
-            erreur
-        )
-
-    return []
+return []
 
 
 # =====================================
