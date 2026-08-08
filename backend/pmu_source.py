@@ -637,13 +637,29 @@ def transformer_course(
             "pmu_live"
     }
 
-
 # =====================================
 # RECUPERATION PROGRAMME
 # =====================================
 
-def recuperer_programme(date, reunion="R1"):
-    reunion_numero = str(reunion or "R1").upper().replace("R", "").strip()
+def recuperer_programme(date, reunion=None):
+    """
+    Récupère le programme d'une réunion PMU.
+    Si reunion est None, la recherche automatique est effectuée
+    par trouver_quinte_du_jour().
+    """
+
+    if reunion is None:
+        return None
+
+    reunion_numero = (
+        str(reunion or "R1")
+        .upper()
+        .replace("R", "")
+        .strip()
+    )
+
+    if not reunion_numero:
+        return None
 
     url = (
         f"{PMU_BASE_URL}/"
@@ -663,6 +679,7 @@ def recuperer_programme(date, reunion="R1"):
         )
 
         response.raise_for_status()
+
         donnees = response.json()
 
         if not isinstance(donnees, dict):
@@ -671,7 +688,10 @@ def recuperer_programme(date, reunion="R1"):
         return donnees
 
     except Exception as erreur:
-        print("Erreur programme PMU :", erreur)
+        print(
+            f"Erreur programme PMU R{reunion_numero} :",
+            erreur
+        )
         return None
 
 
@@ -824,53 +844,195 @@ def recuperer_participants(date, reunion, course_numero):
 
     return []
 
+# =====================================
+# DETECTION AUTOMATIQUE DU QUINTE
+# =====================================
+
+def _contient_quinte(valeur):
+    """
+    Recherche récursive d'une indication Quinté dans
+    toutes les données textuelles d'une course.
+    """
+
+    if isinstance(valeur, str):
+        texte = (
+            valeur
+            .upper()
+            .replace("É", "E")
+            .replace("È", "E")
+            .replace("Ê", "E")
+        )
+
+        return (
+            "QUINTE" in texte
+            or "QUINTE+" in texte
+        )
+
+    if isinstance(valeur, dict):
+        return any(
+            _contient_quinte(v)
+            for v in valeur.values()
+        )
+
+    if isinstance(valeur, list):
+        return any(
+            _contient_quinte(v)
+            for v in valeur
+        )
+
+    return False
+
+
+def trouver_quinte_du_jour(date):
+    """
+    Recherche automatiquement le Quinté+ du jour
+    dans les réunions PMU.
+
+    Retourne :
+        (programme, reunion, course)
+    """
+
+    # On teste les réunions progressivement.
+    # Une journée PMU peut contenir plusieurs réunions.
+    for numero_reunion in range(1, 10):
+
+        reunion = f"R{numero_reunion}"
+
+        programme = recuperer_programme(
+            date,
+            reunion
+        )
+
+        if not programme:
+            continue
+
+        courses = programme.get(
+            "courses",
+            []
+        )
+
+        if not isinstance(courses, list):
+            continue
+
+        for course in courses:
+
+            if not isinstance(course, dict):
+                continue
+
+            if _contient_quinte(course):
+
+                numero_course = (
+                    course.get("numOrdre")
+                    or course.get("numCourse")
+                    or course.get("numero")
+                )
+
+                if numero_course is None:
+                    continue
+
+                print(
+                    "Quinté+ trouvé automatiquement :",
+                    reunion,
+                    f"C{numero_course}"
+                )
+
+                return (
+                    programme,
+                    reunion,
+                    course
+                )
+
+    print(
+        "Quinté+ du jour introuvable."
+    )
+
+    return (
+        None,
+        None,
+        None
+    )
 
 # =====================================
 # CHARGEMENT COURSE PMU
+# QUINTE AUTOMATIQUE
 # =====================================
 
 def charger_course_pmu(
     date,
-    reunion="R1",
-    course_numero="C1"
+    reunion=None,
+    course_numero=None
 ):
+    """
+    Charge automatiquement le Quinté+ du jour.
+
+    Les paramètres reunion/course_numero restent acceptés
+    pour conserver la compatibilité avec les anciens appels.
+    """
 
     try:
 
-        programme = recuperer_programme(
-            date
-        )
+        # =================================
+        # MODE AUTOMATIQUE QUINTE
+        # =================================
 
-        if not programme:
-            return None
+        if not reunion or not course_numero:
 
-        reunion_data = trouver_reunion(
-            programme,
-            reunion
-        )
+            programme, reunion_trouvee, course = (
+                trouver_quinte_du_jour(date)
+            )
 
-        if not reunion_data:
+            if not programme or not reunion_trouvee or not course:
+                return None
 
-            print(
-                "Réunion PMU introuvable :",
+            reunion = reunion_trouvee
+
+            course_numero = (
+                course.get("numOrdre")
+                or course.get("numCourse")
+                or course.get("numero")
+            )
+
+        # =================================
+        # MODE COURSE PRECISE
+        # =================================
+
+        else:
+
+            programme = recuperer_programme(
+                date,
                 reunion
             )
 
-            return None
+            if not programme:
+                return None
 
-        course = trouver_course(
-            reunion_data,
-            course_numero
-        )
+            reunion_data = trouver_reunion(
+                programme,
+                reunion
+            )
 
-        if not course:
+            if not reunion_data:
+                print(
+                    "Réunion PMU introuvable :",
+                    reunion
+                )
+                return None
 
-            print(
-                "Course PMU introuvable :",
+            course = trouver_course(
+                reunion_data,
                 course_numero
             )
 
-            return None
+            if not course:
+                print(
+                    "Course PMU introuvable :",
+                    course_numero
+                )
+                return None
+
+        # =================================
+        # PARTICIPANTS
+        # =================================
 
         participants = recuperer_participants(
             date,
@@ -886,6 +1048,10 @@ def charger_course_pmu(
 
             return None
 
+        # =================================
+        # TRANSFORMATION
+        # =================================
+
         resultat = transformer_course(
             course,
             participants
@@ -895,12 +1061,24 @@ def charger_course_pmu(
             return None
 
         resultat["reunion"] = reunion
+
         resultat["course_numero"] = (
-            course_numero
+            f"C{str(course_numero).replace('C', '')}"
         )
 
         if not resultat.get("date"):
             resultat["date"] = date
+
+        resultat["source"] = "pmu_live"
+
+        print(
+            "Quinté PMU chargé :",
+            resultat["reunion"],
+            resultat["course_numero"],
+            "-",
+            len(resultat.get("chevaux", [])),
+            "chevaux"
+        )
 
         return resultat
 
