@@ -10,8 +10,7 @@ def extraire_numeros(classement):
     return [
         cheval.get("numero")
         for cheval in classement
-        if isinstance(cheval, dict)
-        and cheval.get("numero") is not None
+        if cheval.get("numero") is not None
     ]
 
 
@@ -21,64 +20,53 @@ def extraire_numeros(classement):
 
 def generer_champ_reduit(classement):
     """
-    Format Premium voulu :
+    Format :
+    1er-2e-X-4e-X / 5e-6e-7e-8e
 
-    5-3-X-2-X / 1-4-8-7
+    Exemple avec :
+    5, 3, 1, 2, 4, 8, 7, 6
 
-    Les 2e et 4e positions correspondent aux chevaux
-    classés n°2 et n°4 dans la sélection AZ.
-
-    Les compléments utilisent les chevaux suivants
-    du classement.
+    donne :
+    5-3-X-2-X / 4-8-7-6
     """
 
     numeros = extraire_numeros(classement)
 
-    if not numeros:
+    if len(numeros) < 7:
         return {
             "format": "",
             "bases": [],
             "complements": []
         }
 
-    # Bases :
-    # position 1 = cheval AZ n°1
-    # position 2 = cheval AZ n°2
-    # position 3 = X
-    # position 4 = cheval AZ n°4
-    # position 5 = X
-
     bases = [
-        numeros[0] if len(numeros) > 0 else None,
-        numeros[1] if len(numeros) > 1 else None,
+        numeros[0],
+        numeros[1],
         "X",
-        numeros[3] if len(numeros) > 3 else None,
+        numeros[3],
         "X"
     ]
 
-    # Pour le format Premium normal, les compléments
-    # correspondent aux chevaux 5, 6, 3 et 7 du classement.
-    candidats_complements = []
-
-    for index in (4, 5, 2, 6):
-        if index < len(numeros):
-            numero = numeros[index]
-            if numero not in candidats_complements:
-                candidats_complements.append(numero)
-
-    bases_affichage = [
-        "X" if numero is None else numero
-        for numero in bases
+    complements = [
+        numeros[4],
+        numeros[5],
+        numeros[6]
     ]
+
+    # Le format demandé prévoit 4 compléments.
+    # Si le classement contient au moins 8 chevaux,
+    # le 8e est ajouté automatiquement.
+    if len(numeros) >= 8:
+        complements.append(numeros[7])
 
     return {
         "format": (
-            "-".join(map(str, bases_affichage))
+            "-".join(map(str, bases))
             + " / "
-            + "-".join(map(str, candidats_complements))
+            + "-".join(map(str, complements))
         ),
-        "bases": bases_affichage,
-        "complements": candidats_complements
+        "bases": bases,
+        "complements": complements
     }
 
 
@@ -89,7 +77,7 @@ def generer_champ_reduit(classement):
 def generer_ticket_derniere_minute(classement):
     """
     Ticket dernière minute :
-    6 chevaux maximum, dans l'ordre du classement AZ.
+    6 chevaux.
     """
 
     numeros = extraire_numeros(classement)
@@ -104,83 +92,17 @@ def generer_ticket_derniere_minute(classement):
 
 
 # =====================================
-# COUPLÉS GAGNANT / PLACÉ
-# =====================================
-
-def generer_couples(classement):
-    """
-    Format voulu :
-
-    5-3 / 5-2 / 3-2
-
-    Les trois premiers chevaux du classement
-    sont utilisés dans l'ordre AZ.
-    """
-
-    numeros = extraire_numeros(classement)
-
-    if len(numeros) < 2:
-        return []
-
-    couples = []
-
-    # 1er - 2e
-    couples.append([
-        numeros[0],
-        numeros[1]
-    ])
-
-    # 1er - 3e
-    if len(numeros) >= 3:
-        couples.append([
-            numeros[0],
-            numeros[2]
-        ])
-
-    # 2e - 3e
-    if len(numeros) >= 3:
-        couples.append([
-            numeros[1],
-            numeros[2]
-        ])
-
-    return couples
-
-
-def format_couples(couples):
-    """
-    Transforme :
-
-    [[5, 3], [5, 2], [3, 2]]
-
-    en :
-
-    5-3 / 5-2 / 3-2
-    """
-
-    formats = []
-
-    for couple in couples:
-        if (
-            isinstance(couple, list)
-            and len(couple) == 2
-        ):
-            formats.append(
-                f"{couple[0]}-{couple[1]}"
-            )
-
-    return " / ".join(formats)
-
-
-# =====================================
-# GENERATION PRINCIPALE DES TICKETS
+# GÉNÉRATION DES TICKETS AZ
 # =====================================
 
 def generer_tickets_az(classement):
 
     numeros = extraire_numeros(classement)
 
-    # Aucun cheval
+    # =================================
+    # PROTECTION
+    # =================================
+
     if not numeros:
         return {
             "gratuit": {},
@@ -192,135 +114,107 @@ def generer_tickets_az(classement):
     # =================================
 
     gratuit = {
+        # Quinté gratuit : maximum 7 chevaux
+        "quinte": numeros[:7],
 
-        # Quinté gratuit :
-        # maximum 7 chevaux
-        "quinte":
-            numeros[:7],
+        # 2 sur 4 : 4 chevaux
+        "deux_sur_quatre": numeros[:4],
 
-        # 2 sur 4 :
-        # 4 chevaux
-        "deux_sur_quatre":
-            numeros[:4],
-
-        # Couplé placé :
-        # 2 chevaux
-        "couple_place":
-            numeros[:2]
+        # Couplé placé : 2 chevaux
+        "couple_place": numeros[:2]
     }
+
+    # =================================
+    # COUPLÉS PREMIUM
+    # =================================
+
+    # Les 3 premiers chevaux du classement
+    # donnent les trois couples :
+    #
+    # 1er-2e
+    # 1er-3e
+    # 2e-3e
+
+    couples = []
+
+    if len(numeros) >= 2:
+        couples.append([
+            numeros[0],
+            numeros[1]
+        ])
+
+    if len(numeros) >= 3:
+        couples.append([
+            numeros[0],
+            numeros[2]
+        ])
+
+    if len(numeros) >= 3:
+        couples.append([
+            numeros[1],
+            numeros[2]
+        ])
 
     # =================================
     # PREMIUM
     # =================================
 
-    # ---------------------------------
-    # Sélection Premium
-    # ---------------------------------
-    #
-    # Format cible : 7 chevaux
-    #
-    selection_quinte = numeros[:7]
-
-    # ---------------------------------
-    # Quinté Premium
-    # ---------------------------------
-    #
-    # Format cible : 6 chevaux
-    #
-    quinte_premium = numeros[:6]
-
-    # ---------------------------------
-    # Quarté Premium
-    # ---------------------------------
-    #
-    # Format cible : 5 chevaux
-    #
-    quarte_premium = numeros[:5]
-
-    # ---------------------------------
-    # Trio Premium
-    # ---------------------------------
-    #
-    # Format cible : 3 chevaux
-    #
-    trio_premium = numeros[:3]
-
-    # ---------------------------------
-    # Couplés
-    # ---------------------------------
-
-    couples = generer_couples(classement)
-
-    couples_format = format_couples(couples)
-
-    # ---------------------------------
-    # Champ réduit
-    # ---------------------------------
-
-    champ_reduit = generer_champ_reduit(
-        classement
-    )
-
-    # ---------------------------------
-    # Dernière minute
-    # ---------------------------------
-
-    derniere_minute = (
-        generer_ticket_derniere_minute(
-            classement
-        )
-    )
-
-    # =================================
-    # OBJET PREMIUM
-    # =================================
-
     premium = {
 
-        # Sélection Premium 7 chevaux
+        # -----------------------------
+        # Sélection Premium
+        # -----------------------------
+        # Maximum 7 chevaux
         "selection_quinte":
-            selection_quinte,
+            numeros[:7],
 
-        # Alias explicite
-        "selection_premium":
-            selection_quinte,
-
-        # Quinté Premium 6 chevaux
+        # -----------------------------
+        # Quinté Premium
+        # -----------------------------
+        # 6 chevaux
         "quinte":
-            quinte_premium,
+            numeros[:6],
 
-        # Quarté Premium 5 chevaux
+        # -----------------------------
+        # Quarté Premium
+        # -----------------------------
+        # 5 chevaux
         "quarte":
-            quarte_premium,
+            numeros[:5],
 
-        # Trio Premium 3 chevaux
+        # -----------------------------
+        # Trio Premium
+        # -----------------------------
+        # 3 chevaux
         "trio":
-            trio_premium,
+            numeros[:3],
 
+        # -----------------------------
         # Couplé gagnant / placé
+        # -----------------------------
         "couple_gagnant_place":
             couples,
 
-        "couples":
-            couples,
-
-        "couples_format":
-            couples_format,
-
+        # -----------------------------
         # Champ réduit
+        # -----------------------------
         "champ_reduit":
-            champ_reduit,
+            generer_champ_reduit(classement),
 
-        # Dernière minute 6 chevaux
+        # -----------------------------
+        # Dernière minute
+        # -----------------------------
         "ticket_derniere_minute":
-            derniere_minute,
+            generer_ticket_derniere_minute(classement),
 
-        # Message Premium
+        # -----------------------------
+        # Message
+        # -----------------------------
         "message_fin":
             (
-                "🍀 Bonne chance ! Les tickets Premium "
-                "sont issus d'une analyse approfondie. "
-                "Jouez toujours avec discipline et responsabilité."
+                "🍀 Bonne chance ! Les tickets Premium sont issus "
+                "d'une analyse approfondie. Jouez toujours avec "
+                "discipline et responsabilité."
             )
     }
 
@@ -329,71 +223,7 @@ def generer_tickets_az(classement):
     # =================================
 
     return {
-
-        "gratuit":
-            gratuit,
-
-        "premium":
-            premium
-
+        "gratuit": gratuit,
+        "premium": premium
     }
 
-
-# =====================================
-# TEST DIRECT DU MODULE
-# =====================================
-
-if __name__ == "__main__":
-
-    exemple = [
-        {"numero": 5},
-        {"numero": 3},
-        {"numero": 1},
-        {"numero": 2},
-        {"numero": 4},
-        {"numero": 8},
-        {"numero": 7}
-    ]
-
-    tickets = generer_tickets_az(
-        exemple
-    )
-
-    print("=====================================")
-    print("AZ TURF PRO - TEST TICKETS")
-    print("=====================================")
-
-    print(
-        "Sélection Premium :",
-        tickets["premium"]["selection_premium"]
-    )
-
-    print(
-        "Quinté Premium :",
-        tickets["premium"]["quinte"]
-    )
-
-    print(
-        "Quarté Premium :",
-        tickets["premium"]["quarte"]
-    )
-
-    print(
-        "Trio Premium :",
-        tickets["premium"]["trio"]
-    )
-
-    print(
-        "Couplés :",
-        tickets["premium"]["couples_format"]
-    )
-
-    print(
-        "Champ réduit :",
-        tickets["premium"]["champ_reduit"]["format"]
-    )
-
-    print(
-        "Dernière minute :",
-        tickets["premium"]["ticket_derniere_minute"]["format"]
-    )
