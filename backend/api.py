@@ -56,45 +56,33 @@ def charger_course_locale():
 
 
 # =====================================
-# ANALYSE AZ TURF
+# CHARGEMENT COURSE
+# PMU PRIORITAIRE + FALLBACK LOCAL
 # =====================================
 
-@router.get("/analyse")
-def analyse():
+def charger_course():
 
-    source = "local"
+    aujourd_hui = datetime.now()
+
+    # Format attendu par l'API PMU
+    date_pmu = aujourd_hui.strftime(
+        "%d%m%Y"
+    )
+
+    reunion = "R1"
+    course_numero = "C1"
+
+    # =================================
+    # 1. TENTATIVE PMU
+    # =================================
 
     try:
 
-        # ---------------------------------
-        # 1. Tentative PMU
-        # ---------------------------------
-
-        aujourd_hui = datetime.now()
-
-        date_pmu = aujourd_hui.strftime("%d%m%Y")
-
-        reunion = "R1"
-        course_numero = "C1"
-
-        course = None
-
-        try:
-
-            course = charger_course_pmu(
-                date_pmu,
-                reunion,
-                course_numero
-            )
-
-        except Exception:
-
-            course = None
-
-
-        # ---------------------------------
-        # 2. Vérification des données PMU
-        # ---------------------------------
+        course = charger_course_pmu(
+            date_pmu,
+            reunion,
+            course_numero
+        )
 
         if (
             course
@@ -102,50 +90,147 @@ def analyse():
             and course.get("chevaux")
         ):
 
-            source = "pmu_live"
+            print(
+                "Source utilisée : PMU réel"
+            )
 
-        else:
+            return course, "pmu_live"
 
-            # ---------------------------------
-            # 3. Fallback courses.json
-            # ---------------------------------
+    except Exception as erreur:
 
-            course = charger_course_locale()
+        print(
+            "PMU indisponible :",
+            erreur
+        )
 
-            source = "local"
+    # =================================
+    # 2. FALLBACK LOCAL
+    # =================================
 
+    try:
+
+        course = charger_course_locale()
+
+        if (
+            course
+            and isinstance(course, dict)
+            and course.get("chevaux")
+        ):
+
+            print(
+                "Source utilisée : données locales"
+            )
+
+            return course, "local"
+
+    except Exception as erreur:
+
+        print(
+            "Erreur chargement local :",
+            erreur
+        )
+
+    return None, "none"
+
+
+# =====================================
+# ANALYSE AZ TURF
+# =====================================
+
+@router.get("/analyse")
+def analyse():
+
+    try:
+
+        # =================================
+        # 1. CHARGEMENT DES DONNÉES
+        # =================================
+
+        course, source = charger_course()
+
+        if not course:
+
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    "Aucune donnée de course "
+                    "disponible actuellement."
+                )
+            )
+
+        # =================================
+        # 2. CHEVAUX
+        # =================================
 
         chevaux = course.get(
             "chevaux",
             []
         )
 
-
         if not chevaux:
 
-            raise Exception(
-                "Aucun cheval trouvé dans la course"
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    "Aucun cheval trouvé "
+                    "dans la course."
+                )
             )
 
-
-        # ---------------------------------
-        # 4. Moteur AZ
-        # ---------------------------------
+        # =================================
+        # 3. MOTEUR AZ
+        # =================================
 
         resultat = lancer_analyse(
             chevaux
         )
 
+        if not isinstance(
+            resultat,
+            dict
+        ):
+            raise Exception(
+                "Réponse invalide du moteur AZ"
+            )
 
         classement = resultat.get(
             "chevaux",
             []
         )
 
+        if not classement:
 
-        # ---------------------------------
-        # 5. Réponse API
-        # ---------------------------------
+            raise Exception(
+                "Le moteur AZ n'a retourné "
+                "aucun classement."
+            )
+
+        # =================================
+        # 4. INFORMATIONS COURSE
+        # =================================
+
+        aujourd_hui = datetime.now()
+
+        date_course = (
+            course.get("date")
+            or aujourd_hui.strftime(
+                "%Y-%m-%d"
+            )
+        )
+
+        reunion = (
+            course.get("reunion")
+            or "R1"
+        )
+
+        course_numero = (
+            course.get("course_numero")
+            or "C1"
+        )
+
+        # =================================
+        # 5. RÉPONSE API
+        # =================================
 
         return {
 
@@ -162,22 +247,13 @@ def analyse():
                 ),
 
             "date":
-                course.get(
-                    "date",
-                    ""
-                ),
+                date_course,
 
             "reunion":
-                course.get(
-                    "reunion",
-                    reunion
-                ),
+                reunion,
 
             "course_numero":
-                course.get(
-                    "course_numero",
-                    course_numero
-                ),
+                course_numero,
 
             "hippodrome":
                 course.get(
@@ -212,7 +288,7 @@ def analyse():
             "source_plus_joues":
                 course.get(
                     "source_plus_joues",
-                    ""
+                    "Non disponible"
                 ),
 
             "partants":
@@ -238,8 +314,15 @@ def analyse():
 
         }
 
+    except HTTPException:
+        raise
 
-    except Exception as e:
+    except Exception as erreur:
+
+        print(
+            "Erreur analyse AZ :",
+            erreur
+        )
 
         raise HTTPException(
 
@@ -247,7 +330,7 @@ def analyse():
 
             detail=(
                 "Erreur AZ : "
-                f"{str(e)}"
+                f"{str(erreur)}"
             )
 
         )
@@ -278,14 +361,13 @@ def abonnement(
 
         }
 
-
-    except Exception as e:
+    except Exception as erreur:
 
         raise HTTPException(
 
             status_code=500,
 
-            detail=str(e)
+            detail=str(erreur)
 
         )
 
@@ -307,7 +389,6 @@ def activation_premium(
 
     )
 
-
     if abonnement is None:
 
         raise HTTPException(
@@ -318,7 +399,6 @@ def activation_premium(
                 "Aucun abonnement trouvé"
 
         )
-
 
     abonnement["date_fin"] = (
 
@@ -340,7 +420,6 @@ def activation_premium(
         )
 
     ).isoformat()
-
 
     return {
 
