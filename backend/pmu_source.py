@@ -19,35 +19,54 @@ PMU_BASE_URL = (
 
 TIMEOUT = 8
 
+HEADERS = {
+    "Accept": "application/json",
+    "User-Agent": "AZ-Turf-Pro/1.0"
+}
+
 
 # =====================================
 # OUTILS
 # =====================================
 
 def limiter_score(valeur):
+
     try:
         valeur = float(valeur)
+
     except (TypeError, ValueError):
+
         return 5.0
 
-    return max(0.0, min(10.0, valeur))
+    return max(
+        0.0,
+        min(10.0, valeur)
+    )
 
 
 def extraire_positions(musique):
+
     if not musique:
         return []
 
     texte = str(musique).upper()
 
     positions = []
+
     nombre = ""
 
     for caractere in texte:
+
         if caractere.isdigit():
+
             nombre += caractere
+
         else:
+
             if nombre:
+
                 try:
+
                     position = int(nombre)
 
                     if position > 0:
@@ -59,7 +78,9 @@ def extraire_positions(musique):
                 nombre = ""
 
     if nombre:
+
         try:
+
             position = int(nombre)
 
             if position > 0:
@@ -76,13 +97,15 @@ def extraire_positions(musique):
 # =====================================
 
 def calculer_forme(positions):
+
     if not positions:
         return 5.0
 
     recentes = positions[:5]
 
     moyenne = (
-        sum(recentes) / len(recentes)
+        sum(recentes)
+        / len(recentes)
     )
 
     score = 10.0 - moyenne
@@ -95,13 +118,15 @@ def calculer_forme(positions):
 # =====================================
 
 def calculer_regularite(positions):
+
     if len(positions) < 2:
         return 5.0
 
     recentes = positions[:8]
 
     moyenne = (
-        sum(recentes) / len(recentes)
+        sum(recentes)
+        / len(recentes)
     )
 
     variance = sum(
@@ -109,7 +134,9 @@ def calculer_regularite(positions):
         for position in recentes
     ) / len(recentes)
 
-    ecart_type = math.sqrt(variance)
+    ecart_type = math.sqrt(
+        variance
+    )
 
     score = 10.0 - ecart_type
 
@@ -120,12 +147,21 @@ def calculer_regularite(positions):
 # EXPERIENCE
 # =====================================
 
-def calculer_experience(nombre_courses):
+def calculer_experience(
+    nombre_courses
+):
+
     try:
+
         nombre_courses = float(
             nombre_courses or 0
         )
-    except (TypeError, ValueError):
+
+    except (
+        TypeError,
+        ValueError
+    ):
+
         nombre_courses = 0
 
     return limiter_score(
@@ -137,12 +173,23 @@ def calculer_experience(nombre_courses):
 # NORMALISATION
 # =====================================
 
-def normaliser(valeur, minimum, maximum):
+def normaliser(
+    valeur,
+    minimum,
+    maximum
+):
+
     try:
+
         valeur = float(valeur)
         minimum = float(minimum)
         maximum = float(maximum)
-    except (TypeError, ValueError):
+
+    except (
+        TypeError,
+        ValueError
+    ):
+
         return 5.0
 
     if maximum == minimum:
@@ -161,12 +208,17 @@ def normaliser(valeur, minimum, maximum):
 # =====================================
 
 def obtenir_cote(participant):
+
     rapport_data = participant.get(
         "dernierRapportDirect",
         {}
     )
 
-    if not isinstance(rapport_data, dict):
+    if not isinstance(
+        rapport_data,
+        dict
+    ):
+
         rapport_data = {}
 
     rapport = rapport_data.get(
@@ -174,8 +226,14 @@ def obtenir_cote(participant):
     )
 
     try:
+
         rapport = float(rapport)
-    except (TypeError, ValueError):
+
+    except (
+        TypeError,
+        ValueError
+    ):
+
         return None
 
     if rapport <= 0:
@@ -188,11 +246,17 @@ def obtenir_cote(participant):
 # SCORES COTES
 # =====================================
 
-def calculer_scores_cotes(participants):
+def calculer_scores_cotes(
+    participants
+):
+
     cotes = []
 
     for participant in participants:
-        cote = obtenir_cote(participant)
+
+        cote = obtenir_cote(
+            participant
+        )
 
         if cote is not None:
             cotes.append(cote)
@@ -206,6 +270,7 @@ def calculer_scores_cotes(participants):
     resultats = {}
 
     for participant in participants:
+
         numero = participant.get(
             "numPmu"
         )
@@ -215,23 +280,32 @@ def calculer_scores_cotes(participants):
         )
 
         if cote is None:
+
             resultats[numero] = {
                 "score": 5.0,
                 "cote": None
             }
+
             continue
 
         if maximum == minimum:
+
             score = 5.0
+
         else:
+
             score = (
                 (maximum - cote)
                 / (maximum - minimum)
             ) * 10.0
 
         resultats[numero] = {
-            "score": limiter_score(score),
-            "cote": cote
+
+            "score":
+                limiter_score(score),
+
+            "cote":
+                cote
         }
 
     return resultats
@@ -242,12 +316,17 @@ def calculer_scores_cotes(participants):
 # =====================================
 
 def obtenir_gains(participant):
+
     gains_data = participant.get(
         "gainsParticipant",
         {}
     )
 
-    if not isinstance(gains_data, dict):
+    if not isinstance(
+        gains_data,
+        dict
+    ):
+
         gains_data = {}
 
     gains = gains_data.get(
@@ -256,12 +335,21 @@ def obtenir_gains(participant):
     )
 
     try:
+
         return float(gains or 0)
-    except (TypeError, ValueError):
+
+    except (
+        TypeError,
+        ValueError
+    ):
+
         return 0.0
 
 
-def calculer_scores_gains(participants):
+def calculer_scores_gains(
+    participants
+):
+
     valeurs = [
         obtenir_gains(p)
         for p in participants
@@ -276,6 +364,7 @@ def calculer_scores_gains(participants):
     resultats = {}
 
     for participant in participants:
+
         numero = participant.get(
             "numPmu"
         )
@@ -298,6 +387,7 @@ def calculer_scores_gains(participants):
 # =====================================
 
 def obtenir_terrain(course):
+
     penetrometre = course.get(
         "penetrometre",
         {}
@@ -307,6 +397,7 @@ def obtenir_terrain(course):
         penetrometre,
         dict
     ):
+
         return penetrometre.get(
             "intitule",
             "Non disponible"
@@ -316,24 +407,82 @@ def obtenir_terrain(course):
 
 
 # =====================================
-# EXTRACTION NOMBRE DE COURSES
+# NOMBRE DE COURSES
 # =====================================
 
-def obtenir_nombre_courses(participant):
+def obtenir_nombre_courses(
+    participant
+):
+
     for cle in (
         "nombreCourses",
         "nombreCoursesCarriere",
         "nbCourses"
     ):
-        valeur = participant.get(cle)
+
+        valeur = participant.get(
+            cle
+        )
 
         if valeur not in (
             None,
             ""
         ):
+
             return valeur
 
     return 0
+
+
+# =====================================
+# EXTRACTION HIPPODROME
+# =====================================
+
+def obtenir_hippodrome(course):
+
+    hippodrome = course.get(
+        "hippodrome",
+        ""
+    )
+
+    if isinstance(
+        hippodrome,
+        dict
+    ):
+
+        return (
+            hippodrome.get("libelleLong")
+            or hippodrome.get("libelle")
+            or hippodrome.get("nom")
+            or ""
+        )
+
+    return hippodrome
+
+
+# =====================================
+# EXTRACTION DISCIPLINE
+# =====================================
+
+def obtenir_discipline(course):
+
+    discipline = course.get(
+        "discipline",
+        ""
+    )
+
+    if isinstance(
+        discipline,
+        dict
+    ):
+
+        return (
+            discipline.get("libelle")
+            or discipline.get("nom")
+            or ""
+        )
+
+    return discipline
 
 
 # =====================================
@@ -418,8 +567,10 @@ def transformer_participant(
         "cote"
     )
 
-    nombre_courses = obtenir_nombre_courses(
-        participant
+    nombre_courses = (
+        obtenir_nombre_courses(
+            participant
+        )
     )
 
     experience = calculer_experience(
@@ -430,8 +581,17 @@ def transformer_participant(
     # VALEURS NEUTRES
     # =================================
 
+    # Pas de statistique fiable dans
+    # cet endpoint pour individualiser
+    # la distance.
     distance_score = 5.0
+
+    # Le terrain du jour est connu,
+    # mais pas l'affinité individuelle.
     terrain_score = 5.0
+
+    # Pas de statistique jockey/driver
+    # suffisamment fiable ici.
     jockey_score = 5.0
 
     terrain_info = obtenir_terrain(
@@ -452,75 +612,47 @@ def transformer_participant(
 
         "entraineur": entraineur,
 
-        "performances": performances,
+        "performances":
+            performances,
 
-        "forme": forme,
+        "forme":
+            forme,
 
-        "regularite": regularite,
+        "regularite":
+            regularite,
 
-        "gains": gains,
+        "gains":
+            gains,
 
-        "jockey_score": jockey_score,
+        "jockey_score":
+            jockey_score,
 
-        "cote": cote,
+        "cote":
+            cote,
 
-        "distance": distance_score,
+        "distance":
+            distance_score,
 
-        "terrain": terrain_score,
+        "terrain":
+            terrain_score,
 
-        "terrain_info": terrain_info,
+        "terrain_info":
+            terrain_info,
 
-        "experience": experience,
+        "experience":
+            experience,
 
-        "cote_brute": cote_brute,
+        "cote_brute":
+            cote_brute,
 
         "gains_carriere_brute":
-            obtenir_gains(participant),
+            obtenir_gains(
+                participant
+            ),
 
-        "musique_brute": musique
+        "musique_brute":
+            musique
     }
-
-
-# =====================================
-# EXTRACTION INFOS COURSE
-# =====================================
-
-def obtenir_hippodrome(course):
-    hippodrome = course.get(
-        "hippodrome",
-        ""
-    )
-
-    if isinstance(
-        hippodrome,
-        dict
-    ):
-        return (
-            hippodrome.get("libelle")
-            or hippodrome.get("nom")
-            or ""
-        )
-
-    return hippodrome
-
-
-def obtenir_discipline(course):
-    discipline = course.get(
-        "discipline",
-        ""
-    )
-
-    if isinstance(
-        discipline,
-        dict
-    ):
-        return (
-            discipline.get("libelle")
-            or discipline.get("nom")
-            or ""
-        )
-
-    return discipline
 
 
 # =====================================
@@ -558,8 +690,13 @@ def transformer_course(
             scores_gains
         )
 
-        if cheval.get("numero") is not None:
-            chevaux.append(cheval)
+        if cheval.get(
+            "numero"
+        ) is not None:
+
+            chevaux.append(
+                cheval
+            )
 
     if not chevaux:
         return None
@@ -604,10 +741,14 @@ def transformer_course(
             course_numero,
 
         "hippodrome":
-            obtenir_hippodrome(course),
+            obtenir_hippodrome(
+                course
+            ),
 
         "discipline":
-            obtenir_discipline(course),
+            obtenir_discipline(
+                course
+            ),
 
         "distance_course":
             course.get(
@@ -639,10 +780,12 @@ def transformer_course(
 
 
 # =====================================
-# RECUPERATION PROGRAMME
+# RECUPERATION PROGRAMME PMU
 # =====================================
 
-def recuperer_programme(date):
+def recuperer_programme(
+    date
+):
 
     url = (
         f"{PMU_BASE_URL}/"
@@ -654,11 +797,7 @@ def recuperer_programme(date):
         response = requests.get(
             url,
             timeout=TIMEOUT,
-            headers={
-                "Accept": "application/json",
-                "User-Agent":
-                    "AZ-Turf-Pro/1.0"
-            }
+            headers=HEADERS
         )
 
         response.raise_for_status()
@@ -669,7 +808,31 @@ def recuperer_programme(date):
             donnees,
             dict
         ):
+
+            print(
+                "Réponse programme PMU invalide."
+            )
+
             return None
+
+        # =================================
+        # API PMU : enveloppe "programme"
+        # =================================
+
+        if (
+            "programme" in donnees
+            and isinstance(
+                donnees["programme"],
+                dict
+            )
+        ):
+
+            return donnees["programme"]
+
+        # =================================
+        # Compatibilité si l'API renvoie
+        # directement le programme.
+        # =================================
 
         return donnees
 
@@ -681,6 +844,98 @@ def recuperer_programme(date):
         )
 
         return None
+
+
+# =====================================
+# SELECTION AUTOMATIQUE
+# =====================================
+
+def choisir_premiere_course_disponible(
+    programme
+):
+
+    if not programme:
+        return None, None
+
+    reunions = programme.get(
+        "reunions",
+        []
+    )
+
+    if not isinstance(
+        reunions,
+        list
+    ):
+
+        return None, None
+
+    # On cherche la première réunion
+    # contenant réellement au moins
+    # une course exploitable.
+
+    for reunion_data in reunions:
+
+        if not isinstance(
+            reunion_data,
+            dict
+        ):
+
+            continue
+
+        numero_reunion = (
+            reunion_data.get(
+                "numReunion"
+            )
+            or reunion_data.get(
+                "numero"
+            )
+        )
+
+        if numero_reunion is None:
+            continue
+
+        courses = reunion_data.get(
+            "courses",
+            []
+        )
+
+        if not isinstance(
+            courses,
+            list
+        ):
+
+            continue
+
+        for course in courses:
+
+            if not isinstance(
+                course,
+                dict
+            ):
+
+                continue
+
+            numero_course = (
+                course.get(
+                    "numOrdre"
+                )
+                or course.get(
+                    "numCourse"
+                )
+                or course.get(
+                    "numero"
+                )
+            )
+
+            if numero_course is None:
+                continue
+
+            return (
+                f"R{numero_reunion}",
+                f"C{numero_course}"
+            )
+
+    return None, None
 
 
 # =====================================
@@ -704,18 +959,26 @@ def trouver_reunion(
         reunions,
         list
     ):
+
         return None
 
     code_reunion = str(
         reunion or ""
     ).upper().strip()
 
-    if code_reunion.startswith("R"):
+    if code_reunion.startswith(
+        "R"
+    ):
+
         numero_reunion = (
             code_reunion[1:]
         )
+
     else:
-        numero_reunion = code_reunion
+
+        numero_reunion = (
+            code_reunion
+        )
 
     for reunion_data in reunions:
 
@@ -723,14 +986,22 @@ def trouver_reunion(
             reunion_data,
             dict
         ):
+
             continue
 
         numero = (
-            reunion_data.get("numReunion")
-            or reunion_data.get("numero")
+            reunion_data.get(
+                "numReunion"
+            )
+            or reunion_data.get(
+                "numero"
+            )
         )
 
-        if str(numero).strip() == numero_reunion:
+        if str(numero).strip() == (
+            numero_reunion
+        ):
+
             return reunion_data
 
         libelle = str(
@@ -740,7 +1011,11 @@ def trouver_reunion(
             )
         ).upper()
 
-        if code_reunion in libelle:
+        if (
+            code_reunion
+            and code_reunion in libelle
+        ):
+
             return reunion_data
 
     return None
@@ -767,13 +1042,17 @@ def trouver_course(
         courses,
         list
     ):
+
         return None
 
     numero_recherche = str(
         course_numero or ""
     ).upper().strip()
 
-    if numero_recherche.startswith("C"):
+    if numero_recherche.startswith(
+        "C"
+    ):
+
         numero_recherche = (
             numero_recherche[1:]
         )
@@ -784,15 +1063,25 @@ def trouver_course(
             course,
             dict
         ):
+
             continue
 
         numero = (
-            course.get("numOrdre")
-            or course.get("numCourse")
-            or course.get("numero")
+            course.get(
+                "numOrdre"
+            )
+            or course.get(
+                "numCourse"
+            )
+            or course.get(
+                "numero"
+            )
         )
 
-        if str(numero).strip() == numero_recherche:
+        if str(numero).strip() == (
+            numero_recherche
+        ):
+
             return course
 
         libelle = str(
@@ -806,6 +1095,7 @@ def trouver_course(
             numero_recherche
             and numero_recherche in libelle
         ):
+
             return course
 
     return None
@@ -823,17 +1113,33 @@ def recuperer_participants(
 
     reunion_numero = str(
         reunion or ""
-    ).upper().replace(
-        "R",
-        ""
-    )
+    ).upper().strip()
+
+    if reunion_numero.startswith(
+        "R"
+    ):
+
+        reunion_numero = (
+            reunion_numero[1:]
+        )
 
     course_numero = str(
         course_numero or ""
-    ).upper().replace(
-        "C",
-        ""
-    )
+    ).upper().strip()
+
+    if course_numero.startswith(
+        "C"
+    ):
+
+        course_numero = (
+            course_numero[1:]
+        )
+
+    if not reunion_numero:
+        return []
+
+    if not course_numero:
+        return []
 
     url = (
         f"{PMU_BASE_URL}/"
@@ -848,11 +1154,7 @@ def recuperer_participants(
         response = requests.get(
             url,
             timeout=TIMEOUT,
-            headers={
-                "Accept": "application/json",
-                "User-Agent":
-                    "AZ-Turf-Pro/1.0"
-            }
+            headers=HEADERS
         )
 
         response.raise_for_status()
@@ -863,21 +1165,26 @@ def recuperer_participants(
             donnees,
             dict
         ):
-            participants = donnees.get(
-                "participants",
-                []
+
+            participants = (
+                donnees.get(
+                    "participants",
+                    []
+                )
             )
 
             if isinstance(
                 participants,
                 list
             ):
+
                 return participants
 
         if isinstance(
             donnees,
             list
         ):
+
             return donnees
 
     except Exception as erreur:
@@ -896,115 +1203,21 @@ def recuperer_participants(
 
 def charger_course_pmu(
     date,
-    reunion="R1",
-    course_numero="C1"
+    reunion=None,
+    course_numero=None
 ):
 
-    try:
+    programme = recuperer_programme(
+        date
+    )
 
-        programme = recuperer_programme(
-            date
-        )
-
-        if not programme:
-            return None
-
-        reunion_data = trouver_reunion(
-            programme,
-            reunion
-        )
-
-        if not reunion_data:
-
-            print(
-                "Réunion PMU introuvable :",
-                reunion
-            )
-
-            return None
-
-        course = trouver_course(
-            reunion_data,
-            course_numero
-        )
-
-        if not course:
-
-            print(
-                "Course PMU introuvable :",
-                course_numero
-            )
-
-            return None
-
-        participants = recuperer_participants(
-            date,
-            reunion,
-            course_numero
-        )
-
-        if not participants:
-
-            print(
-                "Aucun participant PMU trouvé."
-            )
-
-            return None
-
-        resultat = transformer_course(
-            course,
-            participants
-        )
-
-        if not resultat:
-            return None
-
-        resultat["reunion"] = reunion
-        resultat["course_numero"] = (
-            course_numero
-        )
-
-        if not resultat.get("date"):
-            resultat["date"] = date
-
-        return resultat
-
-    except Exception as erreur:
-
-        print(
-            "Erreur chargement course PMU :",
-            erreur
-        )
+    if not programme:
 
         return None
 
+    # =================================
+    # SI REUNION ET COURSE NON FOURNIES
+    # =================================
 
-# =====================================
-# TEST
-# =====================================
-
-if __name__ == "__main__":
-
-    print(
-        "AZ Turf Pro - Source PMU"
-    )
-
-    print(
-        "Module chargé correctement."
-    )
-
-    print(
-        "Distance : 5.0"
-    )
-
-    print(
-        "Terrain : 5.0"
-    )
-
-    print(
-        "Jockey : 5.0"
-    )
-
-    print(
-        "Connexion PMU disponible."
-    )
+    if (
+        not reu
