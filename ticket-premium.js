@@ -5,10 +5,10 @@
 // =====================================
 
 const API_URL =
-"https://az-turf-pro.onrender.com/api/analyse";
+    "https://az-turf-pro.onrender.com/api/analyse";
 
 const API_PREMIUM =
-"https://az-turf-pro.onrender.com/api/premium/";
+    "https://az-turf-pro.onrender.com/api/premium/";
 
 
 document.addEventListener(
@@ -123,6 +123,13 @@ async function chargerPremium(){
 
         const classement =
             data.classement || [];
+
+
+        // =====================================
+        // INFORMATIONS DE LA COURSE
+        // =====================================
+
+        afficherInformationsCourse(data);
 
 
         // =====================================
@@ -383,6 +390,390 @@ async function chargerPremium(){
 
 
 // =====================================
+// INFORMATIONS DE LA COURSE
+// =====================================
+
+function afficherInformationsCourse(data){
+
+    const contenu =
+        document.getElementById("contenu-premium");
+
+
+    if(!contenu){
+        return;
+    }
+
+
+    // Evite de créer le bloc plusieurs fois
+    let bloc =
+        document.getElementById("informations-course-premium");
+
+
+    if(!bloc){
+
+        bloc =
+            document.createElement("section");
+
+        bloc.id =
+            "informations-course-premium";
+
+
+        // Insertion juste avant la sélection du jour
+        const selection =
+            document.getElementById("selection-premium");
+
+
+        if(selection){
+
+            const parent =
+                selection.parentElement;
+
+            if(parent){
+
+                parent.insertBefore(
+                    bloc,
+                    selection
+                );
+
+            }else{
+
+                contenu.prepend(bloc);
+
+            }
+
+        }else{
+
+            contenu.prepend(bloc);
+
+        }
+
+    }
+
+
+    // =====================================
+    // DONNEES
+    // =====================================
+
+    const course =
+        data.course || "Course du jour";
+
+    const date =
+        formaterDateCourse(data.date);
+
+    const reunion =
+        data.reunion || "";
+
+    const numeroCourse =
+        data.course_numero || "";
+
+    const hippodrome =
+        data.hippodrome || "";
+
+    const discipline =
+        data.discipline || "";
+
+    const distance =
+        data.distance
+            ? `${data.distance} m`
+            : "";
+
+
+    // =====================================
+    // AFFICHAGE
+    // =====================================
+
+    bloc.innerHTML = `
+
+        <div class="course-premium-header">
+
+            <div class="course-premium-titre">
+                🏇 ${echapperHTML(course)}
+            </div>
+
+            ${
+                date
+                ? `
+                <div class="course-premium-date">
+                    📅 ${echapperHTML(date)}
+                </div>
+                `
+                : ""
+            }
+
+            <div class="course-premium-details">
+
+                ${
+                    hippodrome
+                    ? `
+                    <span>
+                        📍 ${echapperHTML(hippodrome)}
+                    </span>
+                    `
+                    : ""
+                }
+
+                ${
+                    reunion || numeroCourse
+                    ? `
+                    <span>
+                        🏁 ${echapperHTML(
+                            `${reunion}${numeroCourse ? " — " + numeroCourse : ""}`
+                        )}
+                    </span>
+                    `
+                    : ""
+                }
+
+                ${
+                    discipline
+                    ? `
+                    <span>
+                        🐎 ${echapperHTML(discipline)}
+                    </span>
+                    `
+                    : ""
+                }
+
+                ${
+                    distance
+                    ? `
+                    <span>
+                        📏 ${echapperHTML(distance)}
+                    </span>
+                    `
+                    : ""
+                }
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    // =====================================
+    // STYLE LOCAL
+    // Ne dépend pas d'une modification
+    // obligatoire de style.css
+    // =====================================
+
+    bloc.style.width =
+        "100%";
+
+    bloc.style.maxWidth =
+        "100%";
+
+    bloc.style.boxSizing =
+        "border-box";
+
+    bloc.style.margin =
+        "0 0 20px 0";
+
+    bloc.style.textAlign =
+        "center";
+
+
+    const header =
+        bloc.querySelector(
+            ".course-premium-header"
+        );
+
+
+    if(header){
+
+        header.style.width =
+            "100%";
+
+        header.style.boxSizing =
+            "border-box";
+
+        header.style.padding =
+            "16px 12px";
+
+        header.style.borderRadius =
+            "16px";
+
+        header.style.marginBottom =
+            "8px";
+
+        header.style.background =
+            "#ffffff";
+
+        header.style.border =
+            "2px solid #d4af37";
+
+        header.style.overflow =
+            "hidden";
+
+    }
+
+
+    const titre =
+        bloc.querySelector(
+            ".course-premium-titre"
+        );
+
+
+    if(titre){
+
+        titre.style.fontSize =
+            "20px";
+
+        titre.style.fontWeight =
+            "700";
+
+        titre.style.lineHeight =
+            "1.3";
+
+        titre.style.marginBottom =
+            "8px";
+
+    }
+
+
+    const dateElement =
+        bloc.querySelector(
+            ".course-premium-date"
+        );
+
+
+    if(dateElement){
+
+        dateElement.style.fontSize =
+            "16px";
+
+        dateElement.style.fontWeight =
+            "600";
+
+        dateElement.style.marginBottom =
+            "10px";
+
+    }
+
+
+    const details =
+        bloc.querySelector(
+            ".course-premium-details"
+        );
+
+
+    if(details){
+
+        details.style.display =
+            "flex";
+
+        details.style.flexWrap =
+            "wrap";
+
+        details.style.justifyContent =
+            "center";
+
+        details.style.gap =
+            "6px 12px";
+
+        details.style.fontSize =
+            "14px";
+
+        details.style.lineHeight =
+            "1.5";
+
+    }
+
+}
+
+
+// =====================================
+// FORMATAGE DATE
+// =====================================
+
+function formaterDateCourse(date){
+
+    if(!date){
+        return "";
+    }
+
+
+    const texte =
+        String(date);
+
+
+    const correspondance =
+        texte.match(
+            /^(\d{4})-(\d{2})-(\d{2})$/
+        );
+
+
+    if(!correspondance){
+
+        return texte;
+
+    }
+
+
+    const annee =
+        correspondance[1];
+
+    const mois =
+        correspondance[2];
+
+    const jour =
+        correspondance[3];
+
+
+    const moisNoms = [
+
+        "janvier",
+        "février",
+        "mars",
+        "avril",
+        "mai",
+        "juin",
+        "juillet",
+        "août",
+        "septembre",
+        "octobre",
+        "novembre",
+        "décembre"
+
+    ];
+
+
+    const indexMois =
+        Number(mois) - 1;
+
+
+    if(
+        indexMois < 0 ||
+        indexMois > 11
+    ){
+
+        return texte;
+
+    }
+
+
+    return `${jour} ${moisNoms[indexMois]} ${annee}`;
+
+}
+
+
+// =====================================
+// PROTECTION AFFICHAGE HTML
+// =====================================
+
+function echapperHTML(texte){
+
+    return String(texte)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+// =====================================
 // AFFICHAGE RESPONSIVE
 // AUCUN DEFILEMENT HORIZONTAL
 // =====================================
@@ -398,9 +789,14 @@ function ajusterAffichage(id){
     }
 
 
-    zone.style.width = "100%";
-    zone.style.maxWidth = "100%";
-    zone.style.minWidth = "0";
+    zone.style.width =
+        "100%";
+
+    zone.style.maxWidth =
+        "100%";
+
+    zone.style.minWidth =
+        "0";
 
     zone.style.boxSizing =
         "border-box";
@@ -549,3 +945,4 @@ window.addEventListener(
 
     }
 );
+
