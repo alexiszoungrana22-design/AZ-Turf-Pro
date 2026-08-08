@@ -1,264 +1,88 @@
+```python
 # =====================================
 # AZ TURF PRO
 # DATABASE
-# Gestion historique + Premium PostgreSQL
+# Abonnements Premium + Historique
 # =====================================
 
-import os
-import psycopg2
 from datetime import datetime, timedelta
 
 
 # =====================================
-# DATABASE_URL (fourni par Render)
-# =====================================
-
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-if not DATABASE_URL:
-    raise RuntimeError(
-        "DATABASE_URL n'est pas dÃ©finie. "
-        "Sur Render : ajoutez une base PostgreSQL et liez sa DATABASE_URL "
-        "aux variables d'environnement du service."
-    )
-
-
-# =====================================
-# CONNEXION DATABASE
-# =====================================
-
-def connexion():
-
-    return psycopg2.connect(DATABASE_URL, sslmode="require")
-
-
-# =====================================
-# CREATION TABLES
-# =====================================
-
-def initialiser_database():
-
-    conn = connexion()
-
-    try:
-        cursor = conn.cursor()
-
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS abonnements (
-
-            id SERIAL PRIMARY KEY,
-
-            telephone TEXT UNIQUE,
-
-            offre TEXT,
-
-            prix INTEGER,
-
-            duree INTEGER,
-
-            paiement TEXT,
-
-            reference TEXT,
-
-            statut TEXT,
-
-            date_creation TEXT,
-
-            date_fin TEXT
-
-        )
-        """)
-
-        conn.commit()
-
-    finally:
-        conn.close()
-
-
-initialiser_database()
-
-
-# =====================================
-# HISTORIQUE TICKETS
+# HISTORIQUE DES TICKETS
 # =====================================
 
 historique = []
 
 
 def enregistrer(ticket):
-
     historique.append(ticket)
 
 
 def voir_historique():
-
     return historique
 
 
 # =====================================
-# CREER OU METTRE A JOUR ABONNEMENT
+# ABONNEMENTS PREMIUM
+# =====================================
+
+abonnements = []
+
+
+# =====================================
+# CREATION ABONNEMENT
 # =====================================
 
 def creer_abonnement(data):
 
-    conn = connexion()
+    telephone = str(
+        data.get("telephone", "")
+    ).strip()
 
-    try:
-        cursor = conn.cursor()
-
-        ancien = trouver_abonnement(
-            data.get("telephone")
+    if not telephone:
+        raise ValueError(
+            "Numéro de téléphone obligatoire"
         )
 
-        if ancien:
-
-            cursor.execute(
-                """
-                UPDATE abonnements
-
-                SET offre=%s,
-                    prix=%s,
-                    duree=%s,
-                    paiement=%s,
-                    statut=%s
-
-                WHERE telephone=%s
-
-                """,
-
-                (
-
-                    data.get("offre"),
-
-                    data.get("prix"),
-
-                    data.get("duree"),
-
-                    data.get("paiement"),
-
-                    "EN_ATTENTE",
-
-                    data.get("telephone")
-
-                )
-
+    abonnement = {
+        "telephone": telephone,
+        "nom": data.get("nom", ""),
+        "reference": data.get(
+            "reference",
+            ""
+        ),
+        "duree": int(
+            data.get(
+                "duree",
+                30
             )
-
-        else:
-
-            cursor.execute(
-                """
-                INSERT INTO abonnements
-
-                (
-
-                telephone,
-                offre,
-                prix,
-                duree,
-                paiement,
-                reference,
-                statut,
-                date_creation,
-                date_fin
-
-                )
-
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-
-                """,
-
-                (
-
-                data.get("telephone"),
-
-                data.get("offre"),
-
-                data.get("prix"),
-
-                data.get("duree"),
-
-                data.get("paiement"),
-
-                "",
-
-                "EN_ATTENTE",
-
-                datetime.now().isoformat(),
-
-                ""
-
-                )
-
-            )
-
-        conn.commit()
-
-    finally:
-        conn.close()
-
-    return data
-
-
-# =====================================
-# TROUVER ABONNEMENT
-# =====================================
-
-def trouver_abonnement(telephone):
-
-    conn = connexion()
-
-    try:
-        cursor = conn.cursor()
-
-        cursor.execute(
-            """
-            SELECT *
-            FROM abonnements
-            WHERE telephone=%s
-
-            """,
-
-            (telephone,)
-
-        )
-
-        resultat = cursor.fetchone()
-
-    finally:
-        conn.close()
-
-    if resultat is None:
-
-        return None
-
-    return {
-
-        "id": resultat[0],
-
-        "telephone": resultat[1],
-
-        "offre": resultat[2],
-
-        "prix": resultat[3],
-
-        "duree": resultat[4],
-
-        "paiement": resultat[5],
-
-        "reference": resultat[6],
-
-        "statut": resultat[7],
-
-        "date_creation": resultat[8],
-
-        "date_fin": resultat[9]
-
+        ),
+        "statut": "EN_ATTENTE",
+        "date_creation":
+            datetime.now().isoformat(),
+        "date_activation": None,
+        "date_fin": None
     }
 
+    # Évite les doublons actifs/en attente
+    for ancien in abonnements:
+
+        if (
+            ancien.get("telephone")
+            == telephone
+            and ancien.get("statut")
+            in ["EN_ATTENTE", "ACTIF"]
+        ):
+            return ancien
+
+    abonnements.append(abonnement)
+
+    return abonnement
+
 
 # =====================================
-# ACTIVER PREMIUM
+# ACTIVATION PREMIUM
 # =====================================
 
 def activer_abonnement(
@@ -266,283 +90,175 @@ def activer_abonnement(
     reference
 ):
 
-    abonnement = trouver_abonnement(
+    telephone = str(
         telephone
-    )
+    ).strip()
 
-    if abonnement is None:
+    reference = str(
+        reference
+    ).strip()
 
-        return None
+    for abonnement in abonnements:
 
-    duree = int(
-        abonnement.get(
-            "duree",
-            30
-        )
-    )
+        if (
+            abonnement.get("telephone")
+            == telephone
+            and (
+                not reference
+                or abonnement.get(
+                    "reference",
+                    ""
+                )
+                == reference
+            )
+        ):
 
-    date_fin = (
-
-        datetime.now()
-
-        +
-
-        timedelta(
-            days=duree
-        )
-
-    ).isoformat()
-
-    conn = connexion()
-
-    try:
-        cursor = conn.cursor()
-
-        cursor.execute(
-            """
-
-            UPDATE abonnements
-
-            SET statut=%s,
-
-                reference=%s,
-
-                date_fin=%s
-
-
-            WHERE telephone=%s
-
-
-            """,
-
-            (
-
-            "ACTIF",
-
-            reference,
-
-            date_fin,
-
-            telephone
-
+            duree = int(
+                abonnement.get(
+                    "duree",
+                    30
+                )
             )
 
-        )
+            maintenant = datetime.now()
 
-        conn.commit()
+            date_fin = (
+                maintenant
+                + timedelta(
+                    days=duree
+                )
+            )
 
-    finally:
-        conn.close()
+            abonnement[
+                "statut"
+            ] = "ACTIF"
 
-    abonnement["statut"] = "ACTIF"
+            abonnement[
+                "date_activation"
+            ] = maintenant.isoformat()
 
-    abonnement["reference"] = reference
+            abonnement[
+                "date_fin"
+            ] = date_fin.isoformat()
 
-    abonnement["date_fin"] = date_fin
+            return abonnement
 
-    return abonnement
+    return None
 
 
 # =====================================
-# VERIFIER PREMIUM
+# VERIFICATION PREMIUM
 # =====================================
 
-def verifier_premium(telephone):
+def verifier_premium(
+    telephone
+):
 
-    abonnement = trouver_abonnement(
+    telephone = str(
         telephone
-    )
+    ).strip()
 
-    if abonnement is None:
+    for abonnement in abonnements:
 
-        return {
+        if (
+            abonnement.get(
+                "telephone"
+            )
+            == telephone
+        ):
 
-            "statut": "INACTIF"
-
-        }
-
-    statut = abonnement.get(
-        "statut",
-        "INACTIF"
-    )
-
-    date_fin = abonnement.get(
-        "date_fin",
-        ""
-    )
-
-    if statut == "ACTIF" and date_fin:
-
-        try:
-
-            expiration = datetime.fromisoformat(
-                date_fin
+            statut = abonnement.get(
+                "statut",
+                "INACTIF"
             )
 
-            if datetime.now() > expiration:
+            date_fin = abonnement.get(
+                "date_fin"
+            )
 
-                conn = connexion()
+            # Vérification automatique
+            # de l'expiration
+            if (
+                statut == "ACTIF"
+                and date_fin
+            ):
 
                 try:
-                    cursor = conn.cursor()
 
-                    cursor.execute(
-                        """
-
-                        UPDATE abonnements
-
-                        SET statut=%s
-
-                        WHERE telephone=%s
-
-                        """,
-
-                        (
-
-                        "EXPIRE",
-
-                        telephone
-
+                    expiration = (
+                        datetime.fromisoformat(
+                            date_fin
                         )
-
                     )
 
-                    conn.commit()
+                    if datetime.now() >= expiration:
 
-                finally:
-                    conn.close()
+                        abonnement[
+                            "statut"
+                        ] = "EXPIRE"
 
-                statut = "EXPIRE"
+                        statut = "EXPIRE"
 
-        except Exception:
+                except ValueError:
+                    pass
 
-            pass
+            return {
+                "telephone": telephone,
+                "statut": statut,
+                "date_fin": abonnement.get(
+                    "date_fin"
+                )
+            }
 
     return {
-
-        "statut": statut,
-
-        "date_fin": date_fin
-
+        "telephone": telephone,
+        "statut": "INACTIF",
+        "date_fin": None
     }
 
 
 # =====================================
-# ADMIN - LISTE DES ABONNEMENTS
+# LISTE DES ABONNEMENTS
 # =====================================
 
 def lister_abonnements():
-
-    conn = connexion()
-
-    try:
-        cursor = conn.cursor()
-
-        cursor.execute(
-            """
-            SELECT *
-            FROM abonnements
-            ORDER BY id DESC
-            """
-        )
-
-        resultats = cursor.fetchall()
-
-    finally:
-        conn.close()
-
-    abonnements = []
-
-    for resultat in resultats:
-
-        abonnements.append({
-
-            "id": resultat[0],
-
-            "telephone": resultat[1],
-
-            "offre": resultat[2],
-
-            "prix": resultat[3],
-
-            "duree": resultat[4],
-
-            "paiement": resultat[5],
-
-            "reference": resultat[6],
-
-            "statut": resultat[7],
-
-            "date_creation": resultat[8],
-
-            "date_fin": resultat[9]
-
-        })
 
     return abonnements
 
 
 # =====================================
-# ADMIN - STATISTIQUES ABONNEMENTS
+# STATISTIQUES ABONNEMENTS
 # =====================================
 
 def statistiques_abonnements():
 
-    conn = connexion()
+    total = len(abonnements)
 
-    try:
-        cursor = conn.cursor()
+    actifs = 0
+    en_attente = 0
+    expires = 0
 
-        cursor.execute(
-            """
-            SELECT COUNT(*)
-            FROM abonnements
-            """
+    for abonnement in abonnements:
+
+        statut = abonnement.get(
+            "statut",
+            "INACTIF"
         )
 
-        total = cursor.fetchone()[0]
+        if statut == "ACTIF":
+            actifs += 1
 
-        cursor.execute(
-            """
-            SELECT COUNT(*)
-            FROM abonnements
-            WHERE statut='ACTIF'
-            """
-        )
+        elif statut == "EN_ATTENTE":
+            en_attente += 1
 
-        actifs = cursor.fetchone()[0]
-
-        cursor.execute(
-            """
-            SELECT COUNT(*)
-            FROM abonnements
-            WHERE statut='EN_ATTENTE'
-            """
-        )
-
-        attente = cursor.fetchone()[0]
-
-        cursor.execute(
-            """
-            SELECT COUNT(*)
-            FROM abonnements
-            WHERE statut='EXPIRE'
-            """
-        )
-
-        expires = cursor.fetchone()[0]
-
-    finally:
-        conn.close()
+        elif statut == "EXPIRE":
+            expires += 1
 
     return {
-
         "total": total,
-
         "actifs": actifs,
-
-        "en_attente": attente,
-
+        "en_attente": en_attente,
         "expires": expires
-
     }
+```
+            
