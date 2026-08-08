@@ -670,57 +670,82 @@ def transformer_course(
 
 def recuperer_programme(date):
     """
-    Récupère le programme PMU via l'API actuelle.
+    Récupère le programme PMU du jour.
 
-    API actuelle :
-    turfinfo.api.prd.pmutech.fr
-    client/61
-    specialisation=INTERNET
+    L'API PMU actuelle utilise :
+    /rest/client/61/programme/{date}/R{reunion}
+    avec specialisation=INTERNET.
+
+    On récupère les réunions disponibles puis on les
+    rassemble dans un format compatible avec le reste
+    du module.
     """
 
-    url = (
-        f"{PMU_BASE_URL}/"
-        f"{date}/"
-    )
+    reunions = []
 
     try:
-        response = requests.get(
-            url,
-            params={
-                "specialisation": "INTERNET"
-            },
-            timeout=TIMEOUT,
-            headers={
-                "Accept": "application/json",
-                "User-Agent": "AZ-Turf-Pro/1.0"
-            }
-        )
+        # Les réunions PMU sont généralement numérotées
+        # R1, R2, R3...
+        for numero_reunion in range(1, 20):
 
-        response.raise_for_status()
-        donnees = response.json()
+            url = (
+                f"{PMU_BASE_URL}/"
+                f"{date}/"
+                f"R{numero_reunion}"
+            )
 
-        if not isinstance(donnees, dict):
-            return None
+            response = requests.get(
+                url,
+                params={
+                    "specialisation": "INTERNET"
+                },
+                timeout=TIMEOUT,
+                headers={
+                    "Accept": "application/json",
+                    "User-Agent": "AZ-Turf-Pro/1.0"
+                }
+            )
 
-        # L'API peut retourner directement une réunion
-        # avec ses courses.
-        if "courses" in donnees:
-            return {
-                "reunions": [donnees]
-            }
+            # Une réunion inexistante n'est pas une raison
+            # pour interrompre tout le programme.
+            if response.status_code == 404:
+                continue
 
-        # Format programme complet
-        if isinstance(donnees.get("reunions"), list):
-            return donnees
+            response.raise_for_status()
 
-        return donnees
+            donnees = response.json()
+
+            if not isinstance(donnees, dict):
+                continue
+
+            # L'API renvoie directement une réunion.
+            if donnees.get("numReunion") is not None:
+                reunions.append(donnees)
+
+            elif donnees.get("numExterne") is not None:
+                reunions.append(donnees)
+
+            # Protection supplémentaire si l'API renvoie
+            # exceptionnellement un conteneur de réunions.
+            elif isinstance(donnees.get("reunions"), list):
+                reunions.extend(
+                    r for r in donnees["reunions"]
+                    if isinstance(r, dict)
+                )
 
     except Exception as erreur:
+
         print(
             "Erreur programme PMU :",
             erreur
         )
+
+    if not reunions:
         return None
+
+    return {
+        "reunions": reunions
+            }
 
 
 # =====================================
