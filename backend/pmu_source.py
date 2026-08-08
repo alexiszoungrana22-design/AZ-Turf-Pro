@@ -1,4 +1,3 @@
-```python
 # =====================================
 # AZ TURF PRO
 # SOURCE PMU
@@ -1053,7 +1052,7 @@ def charger_course_pmu(
             )
             return None
 
-                # =================================
+        # =================================
         # RECHERCHE REUNION
         # =================================
 
@@ -1063,12 +1062,10 @@ def charger_course_pmu(
         )
 
         if reunion_data is None:
-
             print(
                 "Réunion PMU introuvable :",
                 reunion
             )
-
             return None
 
         # =================================
@@ -1081,12 +1078,10 @@ def charger_course_pmu(
         )
 
         if course_data is None:
-
             print(
                 "Course PMU introuvable :",
                 course_numero
             )
-
             return None
 
         # =================================
@@ -1100,13 +1095,11 @@ def charger_course_pmu(
         )
 
         if not participants:
-
             print(
                 "Aucun participant PMU trouvé :",
                 reunion,
                 course_numero
             )
-
             return None
 
         # =================================
@@ -1119,11 +1112,9 @@ def charger_course_pmu(
         )
 
         if course is None:
-
             print(
                 "Impossible de transformer la course PMU"
             )
-
             return None
 
         return course
