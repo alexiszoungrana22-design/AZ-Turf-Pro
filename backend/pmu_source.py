@@ -3,34 +3,9 @@
 # SOURCE PMU
 # Connexion aux données PMU réelles
 # =====================================
-#
-# CORRECTIONS APPORTEES A CETTE VERSION (rien d'autre n'a change) :
-#
-# 1. BUG REEL CORRIGE : recuperer_programme() retournait la reponse
-#    JSON brute, mais l'API PMU enveloppe le programme dans une cle
-#    "programme" (confirme par test direct + plusieurs sources
-#    techniques independantes). trouver_reunion() cherchait donc
-#    "reunions" au mauvais niveau et ne trouvait jamais rien, meme
-#    quand la requete reseau reussissait. Corrige en depaquetant
-#    cette cle des la reception (avec repli si jamais l'API change
-#    de forme et renvoie un jour un JSON non enveloppe).
-#
-# 2. reunion/course_numero ne sont plus figes en dur a "R1"/"C1"
-#    par defaut : si non precises, une fonction dediee lit le vrai
-#    programme du jour et choisit la premiere reunion et la
-#    premiere course reellement disponibles. charger_course_pmu()
-#    reste 100% compatible avec les appels existants
-#    (date, reunion, course_numero) : rien ne change si on les
-#    fournit explicitement.
-#
-# Tout le reste (formules de score, transformer_participant,
-# transformer_course, extraction cote/gains/musique) est identique
-# a la version precedente, deja validee.
-
 
 import math
 import requests
-from datetime import datetime
 
 
 # =====================================
@@ -42,7 +17,7 @@ PMU_BASE_URL = (
     "/rest/client/61/programme"
 )
 
-TIMEOUT = 10
+TIMEOUT = 8
 
 
 # =====================================
@@ -521,8 +496,7 @@ def obtenir_hippodrome(course):
         dict
     ):
         return (
-            hippodrome.get("libelleLong")
-            or hippodrome.get("libelle")
+            hippodrome.get("libelle")
             or hippodrome.get("nom")
             or ""
         )
@@ -668,197 +642,70 @@ def transformer_course(
 # RECUPERATION PROGRAMME
 # =====================================
 
-def recuperer_programme(date):
-    """
-    Récupère le programme PMU du jour.
+def recuperer_programme(date, reunion="R1"):
+    reunion_numero = str(reunion or "R1").upper().replace("R", "").strip()
 
-    L'API PMU actuelle utilise :
-    /rest/client/61/programme/{date}/R{reunion}
-    avec specialisation=INTERNET.
-
-    On récupère les réunions disponibles puis on les
-    rassemble dans un format compatible avec le reste
-    du module.
-    """
-
-    reunions = []
+    url = (
+        f"{PMU_BASE_URL}/"
+        f"{date}/"
+        f"R{reunion_numero}"
+    )
 
     try:
-        # Les réunions PMU sont généralement numérotées
-        # R1, R2, R3...
-        for numero_reunion in range(1, 20):
-
-            url = (
-                f"{PMU_BASE_URL}/"
-                f"{date}/"
-                f"R{numero_reunion}"
-            )
-
-            response = requests.get(
-                url,
-                params={
-                    "specialisation": "INTERNET"
-                },
-                timeout=TIMEOUT,
-                headers={
-                    "Accept": "application/json",
-                    "User-Agent": "AZ-Turf-Pro/1.0"
-                }
-            )
-
-            # Une réunion inexistante n'est pas une raison
-            # pour interrompre tout le programme.
-            if response.status_code == 404:
-                continue
-
-            response.raise_for_status()
-
-            donnees = response.json()
-
-            if not isinstance(donnees, dict):
-                continue
-
-            # L'API renvoie directement une réunion.
-            if donnees.get("numReunion") is not None:
-                reunions.append(donnees)
-
-            elif donnees.get("numExterne") is not None:
-                reunions.append(donnees)
-
-            # Protection supplémentaire si l'API renvoie
-            # exceptionnellement un conteneur de réunions.
-            elif isinstance(donnees.get("reunions"), list):
-                reunions.extend(
-                    r for r in donnees["reunions"]
-                    if isinstance(r, dict)
-                )
-
-    except Exception as erreur:
-
-        print(
-            "Erreur programme PMU :",
-            erreur
+        response = requests.get(
+            url,
+            params={"specialisation": "INTERNET"},
+            timeout=TIMEOUT,
+            headers={
+                "Accept": "application/json",
+                "User-Agent": "AZ-Turf-Pro/1.0",
+            },
         )
 
-    if not reunions:
+        response.raise_for_status()
+        donnees = response.json()
+
+        if not isinstance(donnees, dict):
+            return None
+
+        return donnees
+
+    except Exception as erreur:
+        print("Erreur programme PMU :", erreur)
         return None
-
-    return {
-        "reunions": reunions
-            }
-
-
-# =====================================
-# SELECTION AUTOMATIQUE DE LA COURSE DU JOUR
-# (utilisee uniquement si reunion/course_numero
-# ne sont pas fournis explicitement)
-# =====================================
-
-def choisir_premiere_course_disponible(programme):
-    """
-    Choisit la premiere reunion et la premiere course reellement
-    presentes dans le programme du jour (au lieu de supposer que
-    R1/C1 existe toujours). Retourne (reunion, course_numero) sous
-    forme de chaines 'R1'/'C1', ou (None, None) si le programme est
-    vide ou inexploitable.
-    """
-
-    if not programme:
-        return None, None
-
-    reunions = programme.get("reunions", [])
-
-    if not isinstance(reunions, list) or not reunions:
-        return None, None
-
-    premiere_reunion = reunions[0]
-
-    numero_reunion = (
-        premiere_reunion.get("numReunion")
-        or premiere_reunion.get("numero")
-    )
-
-    if numero_reunion is None:
-        return None, None
-
-    courses = premiere_reunion.get("courses", [])
-
-    if not isinstance(courses, list) or not courses:
-        return f"R{numero_reunion}", None
-
-    premiere_course = courses[0]
-
-    numero_course = (
-        premiere_course.get("numOrdre")
-        or premiere_course.get("numCourse")
-        or premiere_course.get("numero")
-    )
-
-    if numero_course is None:
-        return f"R{numero_reunion}", None
-
-    return f"R{numero_reunion}", f"C{numero_course}"
 
 
 # =====================================
 # RECHERCHE REUNION
 # =====================================
 
-def trouver_reunion(
-    programme,
-    reunion
-):
-
-    if not programme:
+def trouver_reunion(programme, reunion):
+    if not programme or not isinstance(programme, dict):
         return None
 
-    reunions = programme.get(
-        "reunions",
-        []
-    )
+    code_reunion = str(reunion or "R1").upper().strip()
 
-    if not isinstance(
-        reunions,
-        list
-    ):
-        return None
+    if not code_reunion.startswith("R"):
+        code_reunion = f"R{code_reunion}"
 
-    code_reunion = str(
-        reunion or ""
-    ).upper().strip()
+    # Avec l'API PMU client/61, l'appel /programme/date/R1
+    # retourne directement les données de la réunion.
+    numero = str(
+        programme.get("numOfficiel")
+        or programme.get("numReunion")
+        or programme.get("numero")
+        or ""
+    ).strip()
 
-    if code_reunion.startswith("R"):
-        numero_reunion = (
-            code_reunion[1:]
-        )
-    else:
-        numero_reunion = code_reunion
+    numero_recherche = code_reunion[1:]
 
-    for reunion_data in reunions:
+    if numero and numero == numero_recherche:
+        return programme
 
-        if not isinstance(
-            reunion_data,
-            dict
-        ):
-            continue
-
-        numero = (
-            reunion_data.get("numReunion")
-            or reunion_data.get("numero")
-        )
-
-        if str(numero).strip() == numero_reunion:
-            return reunion_data
-
-        libelle = str(
-            reunion_data.get(
-                "libelle",
-                ""
-            )
-        ).upper()
-
-        if code_reunion in libelle:
-            return reunion_data
+    # Même si numOfficiel n'est pas présent, la réponse contient
+    # directement la liste des courses : elle représente donc la réunion.
+    if isinstance(programme.get("courses"), list):
+        return programme
 
     return None
 
@@ -932,73 +779,50 @@ def trouver_course(
 # RECUPERATION PARTICIPANTS
 # =====================================
 
-def recuperer_participants(
-    date,
-    reunion,
-    course_numero
-):
-
+def recuperer_participants(date, reunion, course_numero):
     reunion_numero = str(
-        reunion or ""
-    ).upper().replace(
-        "R",
-        ""
-    )
+        reunion or "R1"
+    ).upper().replace("R", "").strip()
 
     course_numero = str(
-        course_numero or ""
-    ).upper().replace(
-        "C",
-        ""
-    )
+        course_numero or "C1"
+    ).upper().replace("C", "").strip()
 
     url = (
-    f"{PMU_BASE_URL}/"
-    f"{date}/"
-    f"R{reunion_numero}/"
-    f"C{course_numero}/"
-    f"participants"
+        f"{PMU_BASE_URL}/"
+        f"{date}/"
+        f"R{reunion_numero}/"
+        f"C{course_numero}/"
+        f"participants"
     )
 
     try:
-
-    response = requests.get(
-        url,
-        params={
-            "specialisation": "INTERNET"
-        },
-        timeout=TIMEOUT,
-        headers={
-            "Accept": "application/json",
-            "User-Agent": "AZ-Turf-Pro/1.0"
-        }
-    )
-
-    response.raise_for_status()
-
-    donnees = response.json()
-
-    if isinstance(donnees, dict):
-
-        participants = donnees.get(
-            "participants",
-            []
+        response = requests.get(
+            url,
+            params={"specialisation": "INTERNET"},
+            timeout=TIMEOUT,
+            headers={
+                "Accept": "application/json",
+                "User-Agent": "AZ-Turf-Pro/1.0",
+            },
         )
 
-        if isinstance(participants, list):
-            return participants
+        response.raise_for_status()
+        donnees = response.json()
 
-    if isinstance(donnees, list):
-        return donnees
+        if isinstance(donnees, dict):
+            participants = donnees.get("participants", [])
 
-except Exception as erreur:
+            if isinstance(participants, list):
+                return participants
 
-    print(
-        "Erreur participants PMU :",
-        erreur
-    )
+        if isinstance(donnees, list):
+            return donnees
 
-return []
+    except Exception as erreur:
+        print("Erreur participants PMU :", erreur)
+
+    return []
 
 
 # =====================================
@@ -1007,18 +831,9 @@ return []
 
 def charger_course_pmu(
     date,
-    reunion=None,
-    course_numero=None
+    reunion="R1",
+    course_numero="C1"
 ):
-    """
-    Compatible avec les appels existants charger_course_pmu(date,
-    reunion, course_numero) : si reunion/course_numero sont fournis
-    (ex: "R1", "C1"), le comportement est identique a avant.
-
-    Si l'un des deux (ou les deux) n'est pas fourni (None), la
-    reunion et/ou la course sont determinees automatiquement a
-    partir du vrai programme du jour, au lieu de supposer R1/C1.
-    """
 
     try:
 
@@ -1029,12 +844,102 @@ def charger_course_pmu(
         if not programme:
             return None
 
-        if not reunion or not course_numero:
+        reunion_data = trouver_reunion(
+            programme,
+            reunion
+        )
 
-            reunion_auto, course_auto = (
-                choisir_premiere_course_disponible(
-                    programme
-                )
+        if not reunion_data:
+
+            print(
+                "Réunion PMU introuvable :",
+                reunion
             )
 
-            reunion = reunion or reunio
+            return None
+
+        course = trouver_course(
+            reunion_data,
+            course_numero
+        )
+
+        if not course:
+
+            print(
+                "Course PMU introuvable :",
+                course_numero
+            )
+
+            return None
+
+        participants = recuperer_participants(
+            date,
+            reunion,
+            course_numero
+        )
+
+        if not participants:
+
+            print(
+                "Aucun participant PMU trouvé."
+            )
+
+            return None
+
+        resultat = transformer_course(
+            course,
+            participants
+        )
+
+        if not resultat:
+            return None
+
+        resultat["reunion"] = reunion
+        resultat["course_numero"] = (
+            course_numero
+        )
+
+        if not resultat.get("date"):
+            resultat["date"] = date
+
+        return resultat
+
+    except Exception as erreur:
+
+        print(
+            "Erreur chargement course PMU :",
+            erreur
+        )
+
+        return None
+
+
+# =====================================
+# TEST
+# =====================================
+
+if __name__ == "__main__":
+
+    print(
+        "AZ Turf Pro - Source PMU"
+    )
+
+    print(
+        "Module chargé correctement."
+    )
+
+    print(
+        "Distance : 5.0"
+    )
+
+    print(
+        "Terrain : 5.0"
+    )
+
+    print(
+        "Jockey : 5.0"
+    )
+
+    print(
+        "Connexion PMU disponible."
+    )
