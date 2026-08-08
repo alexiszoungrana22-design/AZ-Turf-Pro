@@ -1053,7 +1053,7 @@ def charger_course_pmu(
             )
             return None
 
-        # =================================
+                # =================================
         # RECHERCHE REUNION
         # =================================
 
@@ -1065,4 +1065,65 @@ def charger_course_pmu(
         if reunion_data is None:
 
             print(
-                "Réunion PM
+                "Réunion PMU introuvable :",
+                reunion
+            )
+
+            return None
+
+        # =================================
+        # RECHERCHE COURSE
+        # =================================
+
+        course_data = trouver_course(
+            reunion_data,
+            course_numero
+        )
+
+        if course_data is None:
+
+            print(
+                "Course PMU introuvable :",
+                course_numero
+            )
+
+            return None
+
+        # =================================
+        # RECUPERATION PARTICIPANTS
+        # =================================
+
+        participants = recuperer_participants(
+            date,
+            reunion,
+            course_numero
+        )
+
+        if not participants:
+
+            print(
+                "Aucun participant PMU trouvé :",
+                reunion,
+                course_numero
+            )
+
+            return None
+
+        # =================================
+        # TRANSFORMATION COURSE
+        # =================================
+
+        course = transformer_course(
+            course_data,
+            participants
+        )
+
+        if course is None:
+
+            print(
+                "Impossible de transformer la course PMU"
+            )
+
+            return None
+
+        return course
