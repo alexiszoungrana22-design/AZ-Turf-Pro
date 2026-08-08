@@ -1,0 +1,344 @@
+[
+    {
+        "date_analyse": "2026-08-08 14:48:17",
+        "classement": [
+            {
+                "numero": 6,
+                "nom": "MAZZALA",
+                "indice_az": 158.04813278008297,
+                "rang": 1,
+                "raison": "⭐ Favori AZ : meilleur indice et profil prioritaire",
+                "confiance": 100
+            },
+            {
+                "numero": 3,
+                "nom": "PRESAGE NOCTURNE",
+                "indice_az": 140.801427389283,
+                "rang": 2,
+                "raison": "🔥 Base solide : régularité et forte chance de podium",
+                "confiance": 89
+            },
+            {
+                "numero": 2,
+                "nom": "TENABILITY",
+                "indice_az": 137.73166108810193,
+                "rang": 3,
+                "raison": "🔥 Base solide : régularité et forte chance de podium",
+                "confiance": 87
+            },
+            {
+                "numero": 4,
+                "nom": "PARACHUTISTE",
+                "indice_az": 131.93288881710055,
+                "rang": 4,
+                "raison": "🎯 Chance AZ : potentiel pour intégrer l'arrivée",
+                "confiance": 83
+            },
+            {
+                "numero": 5,
+                "nom": "ORACLE",
+                "indice_az": 119.0164465922342,
+                "rang": 5,
+                "raison": "🎯 Chance AZ : potentiel pour intégrer l'arrivée",
+                "confiance": 75
+            },
+            {
+                "numero": 1,
+                "nom": "UTHRED",
+                "indice_az": 83.61095838225035,
+                "rang": 6,
+                "raison": "⚠️ Coup spéculatif",
+                "confiance": 53
+            }
+        ],
+        "tickets": {
+            "gratuit": {
+                "quinte": [
+                    6,
+                    3,
+                    2,
+                    4,
+                    5,
+                    1
+                ],
+                "deux_sur_quatre": [
+                    6,
+                    3,
+                    2,
+                    4
+                ],
+                "couple_place": [
+                    6,
+                    3
+                ]
+            },
+            "premium": {
+                "selection_quinte": [
+                    6,
+                    3,
+                    2,
+                    4,
+                    5,
+                    1
+                ],
+                "selection_premium": [
+                    6,
+                    3,
+                    2,
+                    4,
+                    5,
+                    1
+                ],
+                "quinte": [
+                    6,
+                    3,
+                    2,
+                    4,
+                    5,
+                    1
+                ],
+                "quarte": [
+                    6,
+                    3,
+                    2,
+                    4,
+                    5
+                ],
+                "trio": [
+                    6,
+                    3,
+                    2
+                ],
+                "couple_gagnant_place": [
+                    [
+                        6,
+                        3
+                    ],
+                    [
+                        6,
+                        2
+                    ],
+                    [
+                        3,
+                        2
+                    ]
+                ],
+                "couples": [
+                    [
+                        6,
+                        3
+                    ],
+                    [
+                        6,
+                        2
+                    ],
+                    [
+                        3,
+                        2
+                    ]
+                ],
+                "couples_format": "6-3 / 6-2 / 3-2",
+                "champ_reduit": {
+                    "format": "6-3-X-4-X / 5-1-2",
+                    "bases": [
+                        6,
+                        3,
+                        "X",
+                        4,
+                        "X"
+                    ],
+                    "complements": [
+                        5,
+                        1,
+                        2
+                    ]
+                },
+                "ticket_derniere_minute": {
+                    "selection": [
+                        6,
+                        3,
+                        2,
+                        4,
+                        5,
+                        1
+                    ],
+                    "joker": null,
+                    "format": "6-3-2-4-5-1"
+                },
+                "message_fin": "🍀 Bonne chance ! Les tickets Premium sont issus d'une analyse approfondie. Jouez toujours avec discipline et responsabilité."
+            }
+        },
+        "arrivee": null
+    },
+    {
+        "date_analyse": "2026-08-08 15:10:09",
+        "classement": [
+            {
+                "numero": 6,
+                "nom": "MAZZALA",
+                "indice_az": 158.04813278008297,
+                "rang": 1,
+                "raison": "⭐ Favori AZ : meilleur indice et profil prioritaire",
+                "confiance": 100
+            },
+            {
+                "numero": 3,
+                "nom": "PRESAGE NOCTURNE",
+                "indice_az": 140.801427389283,
+                "rang": 2,
+                "raison": "🔥 Base solide : régularité et forte chance de podium",
+                "confiance": 89
+            },
+            {
+                "numero": 2,
+                "nom": "TENABILITY",
+                "indice_az": 137.73166108810193,
+                "rang": 3,
+                "raison": "🔥 Base solide : régularité et forte chance de podium",
+                "confiance": 87
+            },
+            {
+                "numero": 4,
+                "nom": "PARACHUTISTE",
+                "indice_az": 131.93288881710055,
+                "rang": 4,
+                "raison": "🎯 Chance AZ : potentiel pour intégrer l'arrivée",
+                "confiance": 83
+            },
+            {
+                "numero": 5,
+                "nom": "ORACLE",
+                "indice_az": 119.0164465922342,
+                "rang": 5,
+                "raison": "🎯 Chance AZ : potentiel pour intégrer l'arrivée",
+                "confiance": 75
+            },
+            {
+                "numero": 1,
+                "nom": "UTHRED",
+                "indice_az": 83.61095838225035,
+                "rang": 6,
+                "raison": "⚠️ Coup spéculatif",
+                "confiance": 53
+            }
+        ],
+        "tickets": {
+            "gratuit": {
+                "quinte": [
+                    6,
+                    3,
+                    2,
+                    4,
+                    5,
+                    1
+                ],
+                "deux_sur_quatre": [
+                    6,
+                    3,
+                    2,
+                    4
+                ],
+                "couple_place": [
+                    6,
+                    3
+                ]
+            },
+            "premium": {
+                "selection_quinte": [
+                    6,
+                    3,
+                    2,
+                    4,
+                    5,
+                    1
+                ],
+                "selection_premium": [
+                    6,
+                    3,
+                    2,
+                    4,
+                    5,
+                    1
+                ],
+                "quinte": [
+                    6,
+                    3,
+                    2,
+                    4,
+                    5,
+                    1
+                ],
+                "quarte": [
+                    6,
+                    3,
+                    2,
+                    4,
+                    5
+                ],
+                "trio": [
+                    6,
+                    3,
+                    2
+                ],
+                "couple_gagnant_place": [
+                    [
+                        6,
+                        3
+                    ],
+                    [
+                        6,
+                        2
+                    ],
+                    [
+                        3,
+                        2
+                    ]
+                ],
+                "couples": [
+                    [
+                        6,
+                        3
+                    ],
+                    [
+                        6,
+                        2
+                    ],
+                    [
+                        3,
+                        2
+                    ]
+                ],
+                "couples_format": "6-3 / 6-2 / 3-2",
+                "champ_reduit": {
+                    "format": "6-3-X-4-X / 5-1-2",
+                    "bases": [
+                        6,
+                        3,
+                        "X",
+                        4,
+                        "X"
+                    ],
+                    "complements": [
+                        5,
+                        1,
+                        2
+                    ]
+                },
+                "ticket_derniere_minute": {
+                    "selection": [
+                        6,
+                        3,
+                        2,
+                        4,
+                        5,
+                        1
+                    ],
+                    "joker": null,
+                    "format": "6-3-2-4-5-1"
+                },
+                "message_fin": "🍀 Bonne chance ! Les tickets Premium sont issus d'une analyse approfondie. Jouez toujours avec discipline et responsabilité."
+            }
+        },
+        "arrivee": null
+    }
+]
