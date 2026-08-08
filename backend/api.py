@@ -3,6 +3,25 @@
 # API
 # Analyse + Premium
 # =====================================
+#
+# CORRECTIONS APPORTEES A CETTE VERSION (rien d'autre n'a change) :
+#
+# 1. charger_course() ne fige plus reunion="R1"/course_numero="C1"
+#    en dur : ces valeurs sont desormais laissees a
+#    charger_course_pmu(), qui lit le vrai programme du jour et
+#    choisit la premiere reunion/course reellement disponible
+#    (cf. pmu_source.py corrige). Avant, meme si R1/C1 n'existait
+#    pas ce jour-la, on ne le savait jamais - PMU echouait toujours
+#    silencieusement et on retombait sur courses.json.
+#
+# 2. Quand la source reelle echoue et qu'on retombe sur
+#    courses.json, la reponse de /api/analyse indique desormais
+#    clairement qu'il s'agit de donnees de demonstration (source
+#    "demo" + message explicite + date_demo separee de la date du
+#    jour), pour ne jamais laisser croire que c'est la course
+#    actuelle. Toutes les autres routes (abonnement, activation,
+#    premium, admin) sont strictement inchangees.
+
 
 from fastapi import APIRouter, HTTPException
 
@@ -69,19 +88,20 @@ def charger_course():
         "%d%m%Y"
     )
 
-    reunion = "R1"
-    course_numero = "C1"
-
     # =================================
     # 1. TENTATIVE PMU
+    # reunion/course_numero ne sont plus
+    # fixes en dur : charger_course_pmu()
+    # determine elle-meme la premiere
+    # reunion/course reellement
+    # disponible dans le programme du
+    # jour si on ne lui impose rien.
     # =================================
 
     try:
 
         course = charger_course_pmu(
-            date_pmu,
-            reunion,
-            course_numero
+            date_pmu
         )
 
         if (
@@ -91,7 +111,7 @@ def charger_course():
         ):
 
             print(
-                "Source utilisée : PMU réel"
+                "Source utilisÃ©e : PMU rÃ©el"
             )
 
             return course, "pmu_live"
@@ -105,6 +125,10 @@ def charger_course():
 
     # =================================
     # 2. FALLBACK LOCAL
+    # Marque explicitement comme donnee
+    # de demonstration : ne doit jamais
+    # etre presentee comme la course du
+    # jour.
     # =================================
 
     try:
@@ -118,10 +142,12 @@ def charger_course():
         ):
 
             print(
-                "Source utilisée : données locales"
+                "Source utilisÃ©e : donnÃ©es locales (dÃ©mo)"
             )
 
-            return course, "local"
+            course["donnees_demo"] = True
+
+            return course, "demo"
 
     except Exception as erreur:
 
@@ -143,7 +169,7 @@ def analyse():
     try:
 
         # =================================
-        # 1. CHARGEMENT DES DONNÉES
+        # 1. CHARGEMENT DES DONNÃ‰ES
         # =================================
 
         course, source = charger_course()
@@ -153,7 +179,7 @@ def analyse():
             raise HTTPException(
                 status_code=503,
                 detail=(
-                    "Aucune donnée de course "
+                    "Aucune donnÃ©e de course "
                     "disponible actuellement."
                 )
             )
@@ -172,7 +198,7 @@ def analyse():
             raise HTTPException(
                 status_code=503,
                 detail=(
-                    "Aucun cheval trouvé "
+                    "Aucun cheval trouvÃ© "
                     "dans la course."
                 )
             )
@@ -190,7 +216,7 @@ def analyse():
             dict
         ):
             raise Exception(
-                "Réponse invalide du moteur AZ"
+                "RÃ©ponse invalide du moteur AZ"
             )
 
         classement = resultat.get(
@@ -201,7 +227,7 @@ def analyse():
         if not classement:
 
             raise Exception(
-                "Le moteur AZ n'a retourné "
+                "Le moteur AZ n'a retournÃ© "
                 "aucun classement."
             )
 
@@ -210,6 +236,8 @@ def analyse():
         # =================================
 
         aujourd_hui = datetime.now()
+
+        est_demo = (source == "demo")
 
         date_course = (
             course.get("date")
@@ -229,16 +257,29 @@ def analyse():
         )
 
         # =================================
-        # 5. RÉPONSE API
+        # 5. RÃ‰PONSE API
         # =================================
 
-        return {
+        reponse = {
 
-            "message":
-                "Analyse AZ Turf terminée",
+            "message": (
+                "Analyse AZ Turf terminÃ©e"
+                if not est_demo else
+                "Analyse AZ Turf terminÃ©e "
+                "(donnÃ©es de dÃ©monstration, "
+                "aucune course rÃ©elle "
+                "disponible actuellement)"
+            ),
 
             "source":
                 source,
+
+            # Indique explicitement au frontend
+            # qu'il ne s'agit pas d'une course
+            # reelle du jour, pour eviter toute
+            # confusion.
+            "donnees_demo":
+                est_demo,
 
             "course":
                 course.get(
@@ -314,6 +355,17 @@ def analyse():
 
         }
 
+        if est_demo:
+
+            reponse["avertissement"] = (
+                "Ces donnÃ©es sont des donnÃ©es de "
+                "dÃ©monstration figÃ©es et ne "
+                "correspondent pas Ã  une course "
+                "rÃ©elle du jour."
+            )
+
+        return reponse
+
     except HTTPException:
         raise
 
@@ -354,7 +406,7 @@ def abonnement(
         return {
 
             "message":
-                "Abonnement enregistré",
+                "Abonnement enregistrÃ©",
 
             "abonnement":
                 resultat
@@ -396,7 +448,7 @@ def activation_premium(
             status_code=404,
 
             detail=
-                "Aucun abonnement trouvé"
+                "Aucun abonnement trouvÃ©"
 
         )
 
@@ -424,7 +476,7 @@ def activation_premium(
     return {
 
         "message":
-            "Premium activé",
+            "Premium activÃ©",
 
         "statut":
             "ACTIF",
