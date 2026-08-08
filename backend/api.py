@@ -5,6 +5,7 @@
 # =====================================
 
 from fastapi import APIRouter, HTTPException
+
 from engine import lancer_analyse
 
 from database import (
@@ -20,10 +21,11 @@ from models import (
     ActivationRequest
 )
 
+from pmu_source import charger_course_pmu
+
 import json
 import os
 from datetime import datetime, timedelta
-
 
 
 router = APIRouter(
@@ -31,6 +33,26 @@ router = APIRouter(
     tags=["AZ Turf"]
 )
 
+
+# =====================================
+# CHARGEMENT COURSE LOCALE
+# =====================================
+
+def charger_course_locale():
+
+    chemin = os.path.join(
+        os.path.dirname(__file__),
+        "data",
+        "courses.json"
+    )
+
+    with open(
+        chemin,
+        "r",
+        encoding="utf-8"
+    ) as fichier:
+
+        return json.load(fichier)
 
 
 # =====================================
@@ -40,20 +62,57 @@ router = APIRouter(
 @router.get("/analyse")
 def analyse():
 
+    source = "local"
+
     try:
 
-        chemin = os.path.join(
-            "data",
-            "courses.json"
-        )
+        # ---------------------------------
+        # 1. Tentative PMU
+        # ---------------------------------
 
-        with open(
-            chemin,
-            "r",
-            encoding="utf-8"
-        ) as fichier:
+        aujourd_hui = datetime.now()
 
-            course = json.load(fichier)
+        date_pmu = aujourd_hui.strftime("%d%m%Y")
+
+        reunion = "R1"
+        course_numero = "C1"
+
+        course = None
+
+        try:
+
+            course = charger_course_pmu(
+                date_pmu,
+                reunion,
+                course_numero
+            )
+
+        except Exception:
+
+            course = None
+
+
+        # ---------------------------------
+        # 2. Vérification des données PMU
+        # ---------------------------------
+
+        if (
+            course
+            and isinstance(course, dict)
+            and course.get("chevaux")
+        ):
+
+            source = "pmu_live"
+
+        else:
+
+            # ---------------------------------
+            # 3. Fallback courses.json
+            # ---------------------------------
+
+            course = charger_course_locale()
+
+            source = "local"
 
 
         chevaux = course.get(
@@ -65,9 +124,13 @@ def analyse():
         if not chevaux:
 
             raise Exception(
-                "Aucun cheval trouvé dans courses.json"
+                "Aucun cheval trouvé dans la course"
             )
 
+
+        # ---------------------------------
+        # 4. Moteur AZ
+        # ---------------------------------
 
         resultat = lancer_analyse(
             chevaux
@@ -80,50 +143,86 @@ def analyse():
         )
 
 
+        # ---------------------------------
+        # 5. Réponse API
+        # ---------------------------------
+
         return {
 
-            "message": "Analyse AZ Turf terminée",
+            "message":
+                "Analyse AZ Turf terminée",
 
-            "course": course.get(
-                "course",
-                "Course"
-            ),
+            "source":
+                source,
 
-            "date": course.get(
-                "date",
-                ""
-            ),
+            "course":
+                course.get(
+                    "course",
+                    "Course"
+                ),
 
-            "hippodrome": course.get(
-                "hippodrome",
-                ""
-            ),
+            "date":
+                course.get(
+                    "date",
+                    ""
+                ),
 
-            "discipline": course.get(
-                "discipline",
-                ""
-            ),
+            "reunion":
+                course.get(
+                    "reunion",
+                    reunion
+                ),
 
-            "distance": course.get(
-                "distance_course",
-                ""
-            ),
+            "course_numero":
+                course.get(
+                    "course_numero",
+                    course_numero
+                ),
 
-            "plus_joues": course.get(
-                "plus_joues",
-                []
-            ),
+            "hippodrome":
+                course.get(
+                    "hippodrome",
+                    ""
+                ),
 
-            "source_plus_joues": course.get(
-                "source_plus_joues",
-                ""
-            ),
+            "discipline":
+                course.get(
+                    "discipline",
+                    ""
+                ),
 
-            "partants": len(chevaux),
+            "distance":
+                course.get(
+                    "distance_course",
+                    ""
+                ),
 
-            "chevaux": classement,
+            "allocation":
+                course.get(
+                    "allocation",
+                    ""
+                ),
 
-            "classement": classement,
+            "plus_joues":
+                course.get(
+                    "plus_joues",
+                    []
+                ),
+
+            "source_plus_joues":
+                course.get(
+                    "source_plus_joues",
+                    ""
+                ),
+
+            "partants":
+                len(chevaux),
+
+            "chevaux":
+                classement,
+
+            "classement":
+                classement,
 
             "favori": (
                 classement[0]
@@ -131,10 +230,11 @@ def analyse():
                 else {}
             ),
 
-            "tickets": resultat.get(
-                "tickets",
-                {}
-            )
+            "tickets":
+                resultat.get(
+                    "tickets",
+                    {}
+                )
 
         }
 
@@ -142,12 +242,15 @@ def analyse():
     except Exception as e:
 
         raise HTTPException(
+
             status_code=500,
-            detail=f"Erreur AZ : {str(e)}"
+
+            detail=(
+                "Erreur AZ : "
+                f"{str(e)}"
+            )
+
         )
-
-
-
 
 
 # =====================================
@@ -155,7 +258,9 @@ def analyse():
 # =====================================
 
 @router.post("/abonnement")
-def abonnement(data: AbonnementRequest):
+def abonnement(
+    data: AbonnementRequest
+):
 
     try:
 
@@ -165,9 +270,11 @@ def abonnement(data: AbonnementRequest):
 
         return {
 
-            "message": "Abonnement enregistré",
+            "message":
+                "Abonnement enregistré",
 
-            "abonnement": resultat
+            "abonnement":
+                resultat
 
         }
 
@@ -183,9 +290,6 @@ def abonnement(data: AbonnementRequest):
         )
 
 
-
-
-
 # =====================================
 # ACTIVATION PREMIUM ADMIN
 # =====================================
@@ -196,50 +300,60 @@ def activation_premium(
 ):
 
     abonnement = activer_abonnement(
+
         activation.telephone,
+
         activation.reference
+
     )
 
 
     if abonnement is None:
 
         raise HTTPException(
+
             status_code=404,
-            detail="Aucun abonnement trouvé"
+
+            detail=
+                "Aucun abonnement trouvé"
+
         )
 
 
-
     abonnement["date_fin"] = (
+
         datetime.now()
+
         +
+
         timedelta(
+
             days=int(
+
                 abonnement.get(
                     "duree",
                     30
                 )
-            )
-        )
-    ).isoformat()
 
+            )
+
+        )
+
+    ).isoformat()
 
 
     return {
 
         "message":
-        "Premium activé",
+            "Premium activé",
 
         "statut":
-        "ACTIF",
+            "ACTIF",
 
         "date_fin":
-        abonnement["date_fin"]
+            abonnement["date_fin"]
 
     }
-
-
-
 
 
 # =====================================
@@ -254,6 +368,8 @@ def premium(
     return verifier_premium(
         telephone
     )
+
+
 # =====================================
 # ADMIN - ABONNEMENTS
 # =====================================
@@ -262,8 +378,13 @@ def premium(
 def admin_abonnements():
 
     return {
-        "abonnements": lister_abonnements()
+
+        "abonnements":
+            lister_abonnements()
+
     }
+
+
 # =====================================
 # ADMIN - STATISTIQUES
 # =====================================
