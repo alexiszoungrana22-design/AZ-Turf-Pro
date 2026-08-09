@@ -1,42 +1,10 @@
 # =====================================
 # AZ TURF PRO
 # SOURCE PMU
-# Connexion aux donnÃ©es PMU rÃ©elles
+# Connexion aux donnees PMU reelles
 # =====================================
-#
-# VERSION DEFINITIVE - fichier complet, pret a remplacer
-# backend/pmu_source.py directement.
-#
-# CE QUI A CHANGE PAR RAPPORT A LA VERSION PRECEDENTE :
-#
-# - _contient_quinte() ne fait plus une recherche de texte "QUINTE"
-#   dans TOUS les champs de la course (trop permissif : provoquait
-#   un faux positif sur une course ordinaire a 6 partants). La
-#   detection se fait desormais en 2 temps :
-#     1. Recherche ciblee dans la liste des types de paris proposes
-#        sur la course (champ "paris"/"parisPMU"/"typesParis" selon
-#        ce que l'API expose reellement - plusieurs noms possibles
-#        tentes, car non garanti par une documentation officielle).
-#     2. A defaut, repli sur une recherche textuelle du libelle,
-#        MAIS uniquement si le nombre de partants declares est >= 10
-#        (un vrai Quinte+ reunit toujours un grand champ - c'est
-#        cette condition qui elimine le faux positif observe).
-# - Fonctions dupliquees (recuperer_programme/trouver_reunion
-#   presentes deux fois dans le fichier fourni precedemment)
-#   nettoyees : une seule definition propre de chacune.
-#
-# CE QUI N'A PAS CHANGE :
-# - PMU_BASE_URL (client 61, turfinfo.api.prd.pmutech.fr) conserve.
-# - Toutes les formules de score (forme, regularite, gains, cote,
-#   experience), transformer_participant, transformer_course :
-#   identiques, non touchees.
-# - charger_course_pmu(date, reunion=None, course_numero=None) :
-#   signature identique, compatible avec api.py.
-# - quinte.py : aucune dependance, non concerne, non touche. Les
-#   tailles de tickets (Quinte 6, Quarte 5, Trio 3, etc.) restent
-#   sous la responsabilite exclusive de quinte.py, jamais de ce
-#   fichier.
-
+# VERSION COMPLETE - detection QuintÃ©+ fiabilisee
+# Compatible avec api.py : charger_course_pmu(date, reunion=None, course_numero=None)
 
 import math
 import requests
@@ -52,6 +20,7 @@ PMU_BASE_URL = (
 )
 
 TIMEOUT = 8
+PARTANTS_MINIMUM_QUINTE = 10
 
 
 # =====================================
@@ -63,7 +32,6 @@ def limiter_score(valeur):
         valeur = float(valeur)
     except (TypeError, ValueError):
         return 5.0
-
     return max(0.0, min(10.0, valeur))
 
 
@@ -72,7 +40,6 @@ def extraire_positions(musique):
         return []
 
     texte = str(musique).upper()
-
     positions = []
     nombre = ""
 
@@ -83,22 +50,17 @@ def extraire_positions(musique):
             if nombre:
                 try:
                     position = int(nombre)
-
                     if position > 0:
                         positions.append(position)
-
                 except ValueError:
                     pass
-
                 nombre = ""
 
     if nombre:
         try:
             position = int(nombre)
-
             if position > 0:
                 positions.append(position)
-
         except ValueError:
             pass
 
@@ -114,14 +76,8 @@ def calculer_forme(positions):
         return 5.0
 
     recentes = positions[:5]
-
-    moyenne = (
-        sum(recentes) / len(recentes)
-    )
-
-    score = 10.0 - moyenne
-
-    return limiter_score(score)
+    moyenne = sum(recentes) / len(recentes)
+    return limiter_score(10.0 - moyenne)
 
 
 # =====================================
@@ -133,10 +89,7 @@ def calculer_regularite(positions):
         return 5.0
 
     recentes = positions[:8]
-
-    moyenne = (
-        sum(recentes) / len(recentes)
-    )
+    moyenne = sum(recentes) / len(recentes)
 
     variance = sum(
         (position - moyenne) ** 2
@@ -144,10 +97,7 @@ def calculer_regularite(positions):
     ) / len(recentes)
 
     ecart_type = math.sqrt(variance)
-
-    score = 10.0 - ecart_type
-
-    return limiter_score(score)
+    return limiter_score(10.0 - ecart_type)
 
 
 # =====================================
@@ -156,15 +106,11 @@ def calculer_regularite(positions):
 
 def calculer_experience(nombre_courses):
     try:
-        nombre_courses = float(
-            nombre_courses or 0
-        )
+        nombre_courses = float(nombre_courses or 0)
     except (TypeError, ValueError):
         nombre_courses = 0
 
-    return limiter_score(
-        nombre_courses / 10.0
-    )
+    return limiter_score(nombre_courses / 10.0)
 
 
 # =====================================
@@ -182,11 +128,7 @@ def normaliser(valeur, minimum, maximum):
     if maximum == minimum:
         return 5.0
 
-    score = (
-        (valeur - minimum)
-        / (maximum - minimum)
-    ) * 10.0
-
+    score = ((valeur - minimum) / (maximum - minimum)) * 10.0
     return limiter_score(score)
 
 
@@ -195,17 +137,12 @@ def normaliser(valeur, minimum, maximum):
 # =====================================
 
 def obtenir_cote(participant):
-    rapport_data = participant.get(
-        "dernierRapportDirect",
-        {}
-    )
+    rapport_data = participant.get("dernierRapportDirect", {})
 
     if not isinstance(rapport_data, dict):
         rapport_data = {}
 
-    rapport = rapport_data.get(
-        "rapport"
-    )
+    rapport = rapport_data.get("rapport")
 
     try:
         rapport = float(rapport)
@@ -227,7 +164,6 @@ def calculer_scores_cotes(participants):
 
     for participant in participants:
         cote = obtenir_cote(participant)
-
         if cote is not None:
             cotes.append(cote)
 
@@ -236,36 +172,24 @@ def calculer_scores_cotes(participants):
 
     minimum = min(cotes)
     maximum = max(cotes)
-
     resultats = {}
 
     for participant in participants:
-        numero = participant.get(
-            "numPmu"
-        )
-
-        cote = obtenir_cote(
-            participant
-        )
+        numero = participant.get("numPmu")
+        cote = obtenir_cote(participant)
 
         if cote is None:
-            resultats[numero] = {
-                "score": 5.0,
-                "cote": None
-            }
+            resultats[numero] = {"score": 5.0, "cote": None}
             continue
 
         if maximum == minimum:
             score = 5.0
         else:
-            score = (
-                (maximum - cote)
-                / (maximum - minimum)
-            ) * 10.0
+            score = ((maximum - cote) / (maximum - minimum)) * 10.0
 
         resultats[numero] = {
             "score": limiter_score(score),
-            "cote": cote
+            "cote": cote,
         }
 
     return resultats
@@ -276,18 +200,12 @@ def calculer_scores_cotes(participants):
 # =====================================
 
 def obtenir_gains(participant):
-    gains_data = participant.get(
-        "gainsParticipant",
-        {}
-    )
+    gains_data = participant.get("gainsParticipant", {})
 
     if not isinstance(gains_data, dict):
         gains_data = {}
 
-    gains = gains_data.get(
-        "gainsCarriere",
-        0
-    )
+    gains = gains_data.get("gainsCarriere", 0)
 
     try:
         return float(gains or 0)
@@ -296,32 +214,23 @@ def obtenir_gains(participant):
 
 
 def calculer_scores_gains(participants):
-    valeurs = [
-        obtenir_gains(p)
-        for p in participants
-    ]
+    valeurs = [obtenir_gains(p) for p in participants]
 
     if not valeurs:
         return {}
 
     minimum = min(valeurs)
     maximum = max(valeurs)
-
     resultats = {}
 
     for participant in participants:
-        numero = participant.get(
-            "numPmu"
-        )
-
-        gains = obtenir_gains(
-            participant
-        )
+        numero = participant.get("numPmu")
+        gains = obtenir_gains(participant)
 
         resultats[numero] = normaliser(
             gains,
             minimum,
-            maximum
+            maximum,
         )
 
     return resultats
@@ -332,19 +241,10 @@ def calculer_scores_gains(participants):
 # =====================================
 
 def obtenir_terrain(course):
-    penetrometre = course.get(
-        "penetrometre",
-        {}
-    )
+    penetrometre = course.get("penetrometre", {})
 
-    if isinstance(
-        penetrometre,
-        dict
-    ):
-        return penetrometre.get(
-            "intitule",
-            "Non disponible"
-        )
+    if isinstance(penetrometre, dict):
+        return penetrometre.get("intitule", "Non disponible")
 
     return "Non disponible"
 
@@ -357,14 +257,10 @@ def obtenir_nombre_courses(participant):
     for cle in (
         "nombreCourses",
         "nombreCoursesCarriere",
-        "nbCourses"
+        "nbCourses",
     ):
         valeur = participant.get(cle)
-
-        if valeur not in (
-            None,
-            ""
-        ):
+        if valeur not in (None, ""):
             return valeur
 
     return 0
@@ -378,27 +274,12 @@ def transformer_participant(
     participant,
     course,
     scores_cotes,
-    scores_gains
+    scores_gains,
 ):
-
-    numero = participant.get(
-        "numPmu"
-    )
-
-    nom = participant.get(
-        "nom",
-        ""
-    )
-
-    age = participant.get(
-        "age",
-        0
-    )
-
-    sexe = participant.get(
-        "sexe",
-        ""
-    )
+    numero = participant.get("numPmu")
+    nom = participant.get("nom", "")
+    age = participant.get("age", 0)
+    sexe = participant.get("sexe", "")
 
     if str(sexe).upper() == "HONGRES":
         sexe = "M"
@@ -416,102 +297,47 @@ def transformer_participant(
         or ""
     )
 
-    musique = participant.get(
-        "musique",
-        ""
-    )
+    musique = participant.get("musique", "")
+    performances = extraire_positions(musique)
 
-    performances = extraire_positions(
-        musique
-    )
+    forme = calculer_forme(performances)
+    regularite = calculer_regularite(performances)
 
-    forme = calculer_forme(
-        performances
-    )
+    gains = scores_gains.get(numero, 5.0)
 
-    regularite = calculer_regularite(
-        performances
-    )
+    cote_data = scores_cotes.get(numero, {})
+    cote = cote_data.get("score", 5.0)
+    cote_brute = cote_data.get("cote")
 
-    gains = scores_gains.get(
-        numero,
-        5.0
-    )
-
-    cote_data = scores_cotes.get(
-        numero,
-        {}
-    )
-
-    cote = cote_data.get(
-        "score",
-        5.0
-    )
-
-    cote_brute = cote_data.get(
-        "cote"
-    )
-
-    nombre_courses = obtenir_nombre_courses(
-        participant
-    )
-
-    experience = calculer_experience(
-        nombre_courses
-    )
-
-    # =================================
-    # VALEURS NEUTRES
-    # =================================
+    nombre_courses = obtenir_nombre_courses(participant)
+    experience = calculer_experience(nombre_courses)
 
     distance_score = 5.0
     terrain_score = 5.0
     jockey_score = 5.0
 
-    terrain_info = obtenir_terrain(
-        course
-    )
+    terrain_info = obtenir_terrain(course)
 
     return {
-
         "numero": numero,
-
         "nom": nom,
-
         "age": age,
-
         "sexe": sexe,
-
         "jockey": jockey,
-
         "entraineur": entraineur,
-
         "performances": performances,
-
         "forme": forme,
-
         "regularite": regularite,
-
         "gains": gains,
-
         "jockey_score": jockey_score,
-
         "cote": cote,
-
         "distance": distance_score,
-
         "terrain": terrain_score,
-
         "terrain_info": terrain_info,
-
         "experience": experience,
-
         "cote_brute": cote_brute,
-
-        "gains_carriere_brute":
-            obtenir_gains(participant),
-
-        "musique_brute": musique
+        "gains_carriere_brute": obtenir_gains(participant),
+        "musique_brute": musique,
     }
 
 
@@ -520,15 +346,9 @@ def transformer_participant(
 # =====================================
 
 def obtenir_hippodrome(course):
-    hippodrome = course.get(
-        "hippodrome",
-        ""
-    )
+    hippodrome = course.get("hippodrome", "")
 
-    if isinstance(
-        hippodrome,
-        dict
-    ):
+    if isinstance(hippodrome, dict):
         return (
             hippodrome.get("libelle")
             or hippodrome.get("nom")
@@ -539,15 +359,9 @@ def obtenir_hippodrome(course):
 
 
 def obtenir_discipline(course):
-    discipline = course.get(
-        "discipline",
-        ""
-    )
+    discipline = course.get("discipline", "")
 
-    if isinstance(
-        discipline,
-        dict
-    ):
+    if isinstance(discipline, dict):
         return (
             discipline.get("libelle")
             or discipline.get("nom")
@@ -561,35 +375,21 @@ def obtenir_discipline(course):
 # TRANSFORMATION COURSE
 # =====================================
 
-def transformer_course(
-    course,
-    participants
-):
-
+def transformer_course(course, participants):
     if not participants:
         return None
 
-    scores_cotes = (
-        calculer_scores_cotes(
-            participants
-        )
-    )
-
-    scores_gains = (
-        calculer_scores_gains(
-            participants
-        )
-    )
+    scores_cotes = calculer_scores_cotes(participants)
+    scores_gains = calculer_scores_gains(participants)
 
     chevaux = []
 
     for participant in participants:
-
         cheval = transformer_participant(
             participant,
             course,
             scores_cotes,
-            scores_gains
+            scores_gains,
         )
 
         if cheval.get("numero") is not None:
@@ -618,57 +418,24 @@ def transformer_course(
     )
 
     return {
-
-        "course":
-            course.get(
-                "libelle",
-                course.get(
-                    "nom",
-                    "Course"
-                )
-            ),
-
-        "date":
-            date_course,
-
-        "reunion":
-            reunion,
-
-        "course_numero":
-            course_numero,
-
-        "hippodrome":
-            obtenir_hippodrome(course),
-
-        "discipline":
-            obtenir_discipline(course),
-
-        "distance_course":
-            course.get(
-                "distance",
-                ""
-            ),
-
-        "allocation":
-            course.get(
-                "montantPrix",
-                course.get(
-                    "allocation",
-                    ""
-                )
-            ),
-
-        "chevaux":
-            chevaux,
-
-        "plus_joues":
-            [],
-
-        "source_plus_joues":
-            "non disponible via API PMU",
-
-        "source":
-            "pmu_live"
+        "course": course.get(
+            "libelle",
+            course.get("nom", "Course"),
+        ),
+        "date": date_course,
+        "reunion": reunion,
+        "course_numero": course_numero,
+        "hippodrome": obtenir_hippodrome(course),
+        "discipline": obtenir_discipline(course),
+        "distance_course": course.get("distance", ""),
+        "allocation": course.get(
+            "montantPrix",
+            course.get("allocation", ""),
+        ),
+        "chevaux": chevaux,
+        "plus_joues": [],
+        "source_plus_joues": "non disponible via API PMU",
+        "source": "pmu_live",
     }
 
 
@@ -677,14 +444,6 @@ def transformer_course(
 # =====================================
 
 def recuperer_programme(date, reunion=None):
-    """
-    RÃ©cupÃ¨re le programme d'une rÃ©union PMU.
-
-    reunion=None est volontairement acceptÃ© afin que la recherche
-    automatique (trouver_quinte_du_jour) puisse parcourir les
-    rÃ©unions de la journÃ©e. Sans rÃ©union prÃ©cisÃ©e, retourne None.
-    """
-
     if reunion is None:
         return None
 
@@ -716,7 +475,6 @@ def recuperer_programme(date, reunion=None):
         )
 
         response.raise_for_status()
-
         donnees = response.json()
 
         if not isinstance(donnees, dict):
@@ -727,7 +485,7 @@ def recuperer_programme(date, reunion=None):
     except Exception as erreur:
         print(
             f"Erreur programme PMU R{reunion_numero} :",
-            erreur
+            erreur,
         )
         return None
 
@@ -737,14 +495,6 @@ def recuperer_programme(date, reunion=None):
 # =====================================
 
 def trouver_reunion(programme, reunion):
-    """
-    Avec l'API PMU client/61, l'appel /programme/date/R{n} retourne
-    directement les donnÃ©es de la rÃ©union (pas une liste de
-    rÃ©unions Ã  filtrer) : cette fonction vÃ©rifie simplement que la
-    rÃ©ponse correspond bien Ã  la rÃ©union demandÃ©e, ou qu'elle
-    contient au moins une liste de courses exploitable.
-    """
-
     if not programme or not isinstance(programme, dict):
         return None
 
@@ -778,23 +528,13 @@ def trouver_reunion(programme, reunion):
 # RECHERCHE COURSE
 # =====================================
 
-def trouver_course(
-    reunion_data,
-    course_numero
-):
-
+def trouver_course(reunion_data, course_numero):
     if not reunion_data:
         return None
 
-    courses = reunion_data.get(
-        "courses",
-        []
-    )
+    courses = reunion_data.get("courses", [])
 
-    if not isinstance(
-        courses,
-        list
-    ):
+    if not isinstance(courses, list):
         return None
 
     numero_recherche = str(
@@ -802,16 +542,10 @@ def trouver_course(
     ).upper().strip()
 
     if numero_recherche.startswith("C"):
-        numero_recherche = (
-            numero_recherche[1:]
-        )
+        numero_recherche = numero_recherche[1:]
 
     for course in courses:
-
-        if not isinstance(
-            course,
-            dict
-        ):
+        if not isinstance(course, dict):
             continue
 
         numero = (
@@ -823,19 +557,6 @@ def trouver_course(
         if str(numero).strip() == numero_recherche:
             return course
 
-        libelle = str(
-            course.get(
-                "libelle",
-                ""
-            )
-        ).upper()
-
-        if (
-            numero_recherche
-            and numero_recherche in libelle
-        ):
-            return course
-
     return None
 
 
@@ -844,13 +565,25 @@ def trouver_course(
 # =====================================
 
 def recuperer_participants(date, reunion, course_numero):
-    reunion_numero = str(
-        reunion or "R1"
-    ).upper().replace("R", "").strip()
+    if reunion is None or course_numero is None:
+        return []
 
-    course_numero = str(
-        course_numero or "C1"
-    ).upper().replace("C", "").strip()
+    reunion_numero = (
+        str(reunion)
+        .upper()
+        .replace("R", "")
+        .strip()
+    )
+
+    course_numero = (
+        str(course_numero)
+        .upper()
+        .replace("C", "")
+        .strip()
+    )
+
+    if not reunion_numero.isdigit() or not course_numero.isdigit():
+        return []
 
     url = (
         f"{PMU_BASE_URL}/"
@@ -876,7 +609,6 @@ def recuperer_participants(date, reunion, course_numero):
 
         if isinstance(donnees, dict):
             participants = donnees.get("participants", [])
-
             if isinstance(participants, list):
                 return participants
 
@@ -890,24 +622,17 @@ def recuperer_participants(date, reunion, course_numero):
 
 
 # =====================================
-# DETECTION FIABILISEE DU QUINTE+
+# DETECTION QUINTE+
 # =====================================
-#
-# NOMBRE MINIMUM DE PARTANTS pour qu'une course puisse
-# raisonnablement etre le Quinte+ (un vrai Quinte+ reunit toujours
-# un grand champ, historiquement 14 a 20 partants). Ce seuil sert
-# de garde-fou anti-faux-positif : une course a 6 partants ne peut
-# jamais etre retenue, meme si le mot "quinte" apparait ailleurs
-# dans son JSON.
-
-PARTANTS_MINIMUM_QUINTE = 10
-
 
 def _nombre_partants(course):
+    if not isinstance(course, dict):
+        return 0
+
     for cle in (
         "nombreDeclaresPartants",
         "nombrePartants",
-        "nbPartants"
+        "nbPartants",
     ):
         valeur = course.get(cle)
 
@@ -915,22 +640,47 @@ def _nombre_partants(course):
             if valeur not in (None, ""):
                 return int(valeur)
         except (TypeError, ValueError):
-            continue
+            pass
+
+    participants = course.get("participants")
+
+    if isinstance(participants, list):
+        return len(participants)
 
     return 0
 
 
+def _texte_contient_quinte(valeur):
+    if valeur is None:
+        return False
+
+    if isinstance(valeur, dict):
+        for cle, contenu in valeur.items():
+            cle_texte = str(cle).upper()
+            if "QUINTE" in cle_texte:
+                return True
+            if isinstance(contenu, (str, list, dict)):
+                if _texte_contient_quinte(contenu):
+                    return True
+        return False
+
+    if isinstance(valeur, list):
+        return any(_texte_contient_quinte(item) for item in valeur)
+
+    return "QUINTE" in str(valeur).upper()
+
+
 def _extraire_types_paris(course):
-    """
-    Retourne la liste des types de paris proposes sur la course, si
-    le champ existe. Le nom exact de ce champ n'est pas garanti par
-    une documentation officielle publique de l'API PMU : plusieurs
-    noms plausibles sont donc tentes.
-    """
+    if not isinstance(course, dict):
+        return []
 
-    for cle in ("paris", "parisPMU", "typesParis", "listePari"):
+    for cle in (
+        "paris",
+        "parisPMU",
+        "typesParis",
+        "listePari",
+    ):
         valeur = course.get(cle)
-
         if isinstance(valeur, list):
             return valeur
 
@@ -939,23 +689,182 @@ def _extraire_types_paris(course):
 
 def _contient_quinte(course):
     """
-    DÃ©tection du QuintÃ©+ en deux temps, du plus fiable au moins
-    fiable - corrige le faux positif observe (course a 6 partants
-    retenue a tort par une simple recherche de texte globale) :
-
-    1. Recherche CIBLEE dans la liste des types de paris proposes
-       sur la course (si ce champ existe dans la reponse API) : on
-       cherche un code contenant "QUINTE" explicitement dans cette
-       liste, pas n'importe ou dans le JSON.
-
-    2. A DEFAUT SEULEMENT, repli sur une recherche textuelle du
-       libelle de la course - mais UNIQUEMENT si le nombre de
-       partants declares est >= PARTANTS_MINIMUM_QUINTE. Cette
-       condition est ce qui empeche desormais une course ordinaire
-       a peu de partants d'etre confondue avec le Quinte+.
+    Detection securisee :
+    1. Si l'API expose explicitement les types de paris, recherche
+       ciblee du QuintÃ©+ dans ces champs.
+    2. Sinon, recherche dans les champs d'identification de la course
+       avec un minimum de 10 partants.
+    Une course a 6 partants ne peut donc pas etre retenue.
     """
-
     if not isinstance(course, dict):
         return False
 
-    # ---- 1. Detection ciblee via la
+    types_paris = _extraire_types_paris(course)
+
+    if types_paris:
+        for pari in types_paris:
+            if _texte_contient_quinte(pari):
+                return True
+
+        return False
+
+    nombre_partants = _nombre_partants(course)
+
+    if nombre_partants < PARTANTS_MINIMUM_QUINTE:
+        return False
+
+    champs_identification = (
+        "libelle",
+        "nom",
+        "libelleCourt",
+        "libelleLong",
+        "typeCourse",
+    )
+
+    for cle in champs_identification:
+        valeur = course.get(cle)
+
+        if isinstance(valeur, str):
+            if "QUINTE" in valeur.upper():
+                return True
+
+    return False
+
+
+# =====================================
+# RECHERCHE QUINTE+ DU JOUR
+# =====================================
+
+def trouver_quinte_du_jour(date):
+    """
+    Parcourt les reunions disponibles et retourne :
+        (programme, reunion, course)
+    pour le vrai QuintÃ©+ detecte.
+
+    Aucun R1/C1 n'est impose pour la recherche automatique.
+    """
+    for numero_reunion in range(1, 13):
+        reunion = f"R{numero_reunion}"
+
+        programme = recuperer_programme(
+            date,
+            reunion,
+        )
+
+        if not programme:
+            continue
+
+        reunion_data = trouver_reunion(
+            programme,
+            reunion,
+        )
+
+        if not reunion_data:
+            continue
+
+        courses = reunion_data.get("courses", [])
+
+        if not isinstance(courses, list):
+            continue
+
+        for course in courses:
+            if not isinstance(course, dict):
+                continue
+
+            if _contient_quinte(course):
+                return (
+                    programme,
+                    reunion,
+                    course,
+                )
+
+    return None, None, None
+
+
+# =====================================
+# CHARGEMENT COURSE PMU
+# =====================================
+
+def charger_course_pmu(
+    date,
+    reunion=None,
+    course_numero=None,
+):
+    """
+    Charge une course PMU.
+
+    - Sans reunion/course : recherche automatique du vrai QuintÃ©+.
+    - Avec reunion/course : charge explicitement la course demandee.
+    """
+    try:
+        # =================================
+        # MODE AUTOMATIQUE QUINTE+
+        # =================================
+        if reunion is None and course_numero is None:
+            programme, reunion_trouvee, course = (
+                trouver_quinte_du_jour(date)
+            )
+
+            if not course:
+                print(
+                    "Aucun QuintÃ©+ PMU trouve pour",
+                    date,
+                )
+                return None
+
+            reunion = reunion_trouvee
+            course_numero = (
+                course.get("numOrdre")
+                or course.get("numCourse")
+                or course.get("numero")
+            )
+
+        # =================================
+        # MODE COURSE PRECISE
+        # =================================
+        else:
+            if reunion is None or course_numero is None:
+                return None
+
+            programme = recuperer_programme(
+                date,
+                reunion,
+            )
+
+            if not programme:
+                return None
+
+            reunion_data = trouver_reunion(
+                programme,
+                reunion,
+            )
+
+            if not reunion_data:
+                print(
+                    "Reunion PMU introuvable :",
+                    reunion,
+                )
+                return None
+
+            course = trouver_course(
+                reunion_data,
+                course_numero,
+            )
+
+            if not course:
+                print(
+                    "Course PMU introuvable :",
+                    course_numero,
+                )
+                return None
+
+        # =================================
+        # RECUPERATION PARTICIPANTS
+        # =================================
+        participants = recuperer_participants(
+            date,
+            reunion,
+            course_numero,
+        )
+
+     
