@@ -25,6 +25,8 @@ def enregistrer_course(data):
             "%Y-%m-%d %H:%M:%S"
         ),
 
+        "course": data.get("course", {}),
+
         "classement": data.get("classement", []),
 
         "tickets": data.get("tickets", {}),
