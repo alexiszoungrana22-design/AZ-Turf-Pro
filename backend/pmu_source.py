@@ -867,4 +867,66 @@ def charger_course_pmu(
             course_numero,
         )
 
-        if
+         if not participants:
+            print(
+                "Aucun participant PMU trouve pour",
+                reunion,
+                course_numero,
+            )
+            return None
+
+        # =================================
+        # TRANSFORMATION DANS LE FORMAT
+        # ATTENDU PAR engine.py
+        # =================================
+        resultat = transformer_course(
+            course,
+            participants,
+        )
+
+        if not resultat:
+            return None
+
+        resultat["reunion"] = reunion
+        resultat["course_numero"] = course_numero
+
+        if not resultat.get("date"):
+            resultat["date"] = date
+
+        return resultat
+
+    except Exception as erreur:
+        print(
+            "Erreur chargement course PMU :",
+            erreur,
+        )
+        return None
+
+
+# =====================================
+# TEST
+# =====================================
+
+if __name__ == "__main__":
+    from datetime import datetime
+
+    print("AZ Turf Pro - Source PMU")
+    print("Module charge correctement.")
+
+    date_test = datetime.now().strftime("%d%m%Y")
+    resultat = charger_course_pmu(date_test)
+
+    if resultat:
+        print("Connexion PMU disponible.")
+        print("Course trouvee :", resultat.get("course"))
+        print(
+            "Reunion/Course :",
+            resultat.get("reunion"),
+            resultat.get("course_numero"),
+        )
+        print("Partants :", len(resultat.get("chevaux", [])))
+    else:
+        print(
+            "PMU indisponible ou aucun Quinte+ trouve "
+            "aujourd'hui (voir messages ci-dessus)."
+        )
