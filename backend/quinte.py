@@ -57,9 +57,11 @@ def generer_champ_reduit(classement):
         "X"
     ]
 
-    # Tous les chevaux restants deviennent
-    # les compléments.
-    complements = numeros[3:]
+    # Le champ réduit AZ utilise exactement
+    # 4 compléments après le "/".
+    # Les compléments sont les 4 chevaux suivants
+    # du classement AZ.
+    complements = numeros[3:7]
 
     format_bases = "-".join(
         str(numero)
@@ -260,3 +262,4 @@ def generer_tickets_az(classement):
             premium
 
     }
+    
