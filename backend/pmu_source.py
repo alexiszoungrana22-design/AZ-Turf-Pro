@@ -3,7 +3,7 @@
 # SOURCE PMU
 # Connexion aux donnees PMU reelles
 # =====================================
-# VERSION COMPLETE - detection QuintÃ©+ fiabilisee
+# VERSION COMPLETE - detection Quinté+ fiabilisee
 # Compatible avec api.py : charger_course_pmu(date, reunion=None, course_numero=None)
 
 import math
@@ -691,7 +691,7 @@ def _contient_quinte(course):
     """
     Detection securisee :
     1. Si l'API expose explicitement les types de paris, recherche
-       ciblee du QuintÃ©+ dans ces champs.
+       ciblee du Quinté+ dans ces champs.
     2. Sinon, recherche dans les champs d'identification de la course
        avec un minimum de 10 partants.
     Une course a 6 partants ne peut donc pas etre retenue.
@@ -739,7 +739,7 @@ def trouver_quinte_du_jour(date):
     """
     Parcourt les reunions disponibles et retourne :
         (programme, reunion, course)
-    pour le vrai QuintÃ©+ detecte.
+    pour le vrai Quinté+ detecte.
 
     Aucun R1/C1 n'est impose pour la recherche automatique.
     """
@@ -793,7 +793,7 @@ def charger_course_pmu(
     """
     Charge une course PMU.
 
-    - Sans reunion/course : recherche automatique du vrai QuintÃ©+.
+    - Sans reunion/course : recherche automatique du vrai Quinté+.
     - Avec reunion/course : charge explicitement la course demandee.
     """
     try:
@@ -807,7 +807,7 @@ def charger_course_pmu(
 
             if not course:
                 print(
-                    "Aucun QuintÃ©+ PMU trouve pour",
+                    "Aucun Quinté+ PMU trouve pour",
                     date,
                 )
                 return None
@@ -867,4 +867,4 @@ def charger_course_pmu(
             course_numero,
         )
 
-     
+        if
