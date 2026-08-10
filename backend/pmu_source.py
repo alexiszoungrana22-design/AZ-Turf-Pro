@@ -867,7 +867,7 @@ def charger_course_pmu(
             course_numero,
         )
 
-         if not participants:
+        if not participants:
             print(
                 "Aucun participant PMU trouve pour",
                 reunion,
