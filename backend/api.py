@@ -208,7 +208,19 @@ def analyse():
         # =================================
 
         resultat = lancer_analyse(
-            chevaux
+            chevaux,
+            {
+                "course": course.get("course", "Course"),
+                "date": course.get("date") or datetime.now().strftime("%Y-%m-%d"),
+                "reunion": course.get("reunion", "R1"),
+                "course_numero": course.get("course_numero", "C1"),
+                "hippodrome": course.get("hippodrome", ""),
+                "discipline": course.get("discipline", ""),
+                "distance": course.get("distance_course", ""),
+                "allocation": course.get("allocation", ""),
+                "partants": len(chevaux),
+                "source": source
+            }
         )
 
         if not isinstance(
@@ -389,6 +401,41 @@ def analyse():
 
 
 # =====================================
+# JOURNAL DES ANALYSES
+# =====================================
+
+@router.get("/journal")
+def journal():
+    """
+    Retourne les analyses réellement enregistrées par le moteur.
+    Les résultats officiels restent absents tant qu'ils ne sont pas
+    fournis par une source de résultats : on ne les invente pas.
+    """
+    chemin = os.path.join(
+        os.path.dirname(__file__),
+        "data",
+        "historique_az.json"
+    )
+
+    historique = []
+
+    try:
+        if os.path.exists(chemin):
+            with open(chemin, "r", encoding="utf-8") as fichier:
+                contenu = json.load(fichier)
+                if isinstance(contenu, list):
+                    historique = contenu
+    except Exception as erreur:
+        print("Erreur lecture journal :", erreur)
+
+    return {
+        "source": "historique_az",
+        "total": len(historique),
+        "analyses": historique[-20:][::-1]
+    }
+
+
+# =====================================
 # CREATION ABONNEMENT PREMIUM
 # =====================================
 
@@ -524,3 +571,4 @@ def admin_abonnements():
 def admin_statistiques():
 
     return statistiques_abonnements()
+        
