@@ -571,4 +571,4 @@ def admin_abonnements():
 def admin_statistiques():
 
     return statistiques_abonnements()
-        
+                      
