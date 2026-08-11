@@ -3,7 +3,7 @@
 # SOURCE PMU
 # Connexion aux donnees PMU reelles
 # =====================================
-# VERSION COMPLETE - detection Quinté+ fiabilisee
+# VERSION COMPLETE - detection QuintÃ©+ fiabilisee
 # Compatible avec api.py : charger_course_pmu(date, reunion=None, course_numero=None)
 
 import math
@@ -139,7 +139,7 @@ def normaliser(valeur, minimum, maximum):
 def _extraire_nom_personne(valeur):
     """
     Normalise les champs jockey/entraineur PMU.
-    L'API peut retourner une chaîne ou un objet.
+    L'API peut retourner une chaÃ®ne ou un objet.
     """
     if isinstance(valeur, str):
         return valeur.strip()
@@ -194,7 +194,7 @@ def _extraire_valeur_numerique(valeur):
 def obtenir_cote(participant):
     """
     Extrait la cote/rapport brut quel que soit le format courant
-    rencontré dans la réponse PMU.
+    rencontrÃ© dans la rÃ©ponse PMU.
     """
     for cle in (
         "dernierRapportDirect",
@@ -415,7 +415,9 @@ def obtenir_hippodrome(course):
 
         if isinstance(valeur, dict):
             valeur = (
-                valeur.get("libelle")
+                valeur.get("libelleLong")
+                or valeur.get("libelleCourt")
+                or valeur.get("libelle")
                 or valeur.get("nom")
                 or valeur.get("label")
                 or ""
@@ -766,7 +768,7 @@ def _contient_quinte(course):
     """
     Detection securisee :
     1. Si l'API expose explicitement les types de paris, recherche
-       ciblee du Quinté+ dans ces champs.
+       ciblee du QuintÃ©+ dans ces champs.
     2. Sinon, recherche dans les champs d'identification de la course
        avec un minimum de 10 partants.
     Une course a 6 partants ne peut donc pas etre retenue.
@@ -814,7 +816,7 @@ def trouver_quinte_du_jour(date):
     """
     Parcourt les reunions disponibles et retourne :
         (programme, reunion, course)
-    pour le vrai Quinté+ detecte.
+    pour le vrai QuintÃ©+ detecte.
 
     Aucun R1/C1 n'est impose pour la recherche automatique.
     """
@@ -868,7 +870,7 @@ def charger_course_pmu(
     """
     Charge une course PMU.
 
-    - Sans reunion/course : recherche automatique du vrai Quinté+.
+    - Sans reunion/course : recherche automatique du vrai QuintÃ©+.
     - Avec reunion/course : charge explicitement la course demandee.
     """
     try:
@@ -882,7 +884,7 @@ def charger_course_pmu(
 
             if not course:
                 print(
-                    "Aucun Quinté+ PMU trouve pour",
+                    "Aucun QuintÃ©+ PMU trouve pour",
                     date,
                 )
                 return None
