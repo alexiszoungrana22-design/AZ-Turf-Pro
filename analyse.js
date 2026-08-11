@@ -26,20 +26,6 @@ data.classement ||
 data.chevaux ||
 [];
 
-// ===============================
-// INFORMATIONS COURSE
-// ===============================
-function afficherInfoCourse(){
-    afficher("course-nom", data.course || "Course");
-    afficher("course-date", data.date || "-");
-    afficher("course-reunion", `${data.reunion || "R?"}${data.course_numero || ""}`);
-    afficher("course-hippodrome", data.hippodrome || "Non communiqué par l'API PMU");
-    afficher("course-discipline", data.discipline || "-");
-    afficher("course-distance", data.distance ? data.distance + " m" : "-");
-    afficher("course-partants", data.partants || chevaux.length);
-}
-
-
 
 
 
@@ -64,26 +50,23 @@ valeur || "-";
 
 
 // ===============================
-// SELECTION DU JOUR 8 CHEVAUX
+// SELECTION DU JOUR — 8 CHEVAUX
 // ===============================
+// Une seule source pour la sélection et le tableau :
+// les 8 premiers chevaux valides du classement AZ.
+const selection = chevaux
+.filter(c => c && c.numero !== undefined && c.numero !== null)
+.slice(0, 8);
 
+const selectionZone = document.getElementById("selection-jour");
 
-const indicesSelection = [0, 2, 4, 6, 8, 10, 12];
-const selection = indicesSelection
-.map(i => chevaux[i])
-.filter(Boolean);
+if(selectionZone){
 
+    selectionZone.innerHTML = selection.map(c => `
+        <span class="numero-selection-jour">${c.numero}</span>
+    `).join("");
 
-
-afficher(
-
-"selection-jour",
-
-selection
-.map(c=>c.numero)
-.join(" - ")
-
-);
+}
 
 
 
@@ -290,7 +273,8 @@ if(raisons){
 raisons.innerHTML =
 
 
-selection
+chevaux
+.slice(0,8)
 .map(c => `
 
 <div class="raison-cheval">
@@ -339,8 +323,7 @@ tableau.innerHTML = "";
 
 
 
-chevaux
-.slice(0,8)
+selection
 .forEach(cheval => {
 
 
@@ -617,4 +600,3 @@ champ.value = "";
 });
 
 });
- 
