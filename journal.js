@@ -60,7 +60,7 @@ function afficherJournalLonab(donneesJournal){
 
         zone.innerHTML = `
             <p>
-            📄 Journal hippique bientôt disponible.
+            ðŸ“„ Journal hippique bientÃ´t disponible.
             </p>
         `;
 
@@ -74,28 +74,28 @@ function afficherJournalLonab(donneesJournal){
     zone.innerHTML = `
 
     <p>
-    🏇 <strong>${entete.libelle_course || "Course du jour"}</strong>
+    ðŸ‡ <strong>${entete.libelle_course || "Course du jour"}</strong>
     <br>
-    📍 ${entete.hippodrome || "-"}
-    ${entete.type_pari ? " — " + entete.type_pari : ""}
-    ${entete.distance ? " — " + entete.distance : ""}
+    ðŸ“ ${entete.hippodrome || "-"}
+    ${entete.type_pari ? " â€” " + entete.type_pari : ""}
+    ${entete.distance ? " â€” " + entete.distance : ""}
     </p>
 
     ${
     synthese.favoris && synthese.favoris.length
-    ? `<p>⭐ <strong>Favoris :</strong> ${synthese.favoris.join(" - ")}</p>`
+    ? `<p>â­ <strong>Favoris :</strong> ${synthese.favoris.join(" - ")}</p>`
     : ""
     }
 
     ${
     synthese.entraineurs_en_forme && synthese.entraineurs_en_forme.length
-    ? `<p>🏆 <strong>Entraîneurs en forme :</strong> ${synthese.entraineurs_en_forme.join(", ")}</p>`
+    ? `<p>ðŸ† <strong>EntraÃ®neurs en forme :</strong> ${synthese.entraineurs_en_forme.join(", ")}</p>`
     : ""
     }
 
     ${
     donneesJournal.pdf_url
-    ? `<p><a href="${donneesJournal.pdf_url}" target="_blank" class="btn-vip">📄 Télécharger le journal hippique du jour (PDF)</a></p>`
+    ? `<p><a href="${donneesJournal.pdf_url}" target="_blank" class="btn-vip">ðŸ“„ TÃ©lÃ©charger le journal hippique du jour (PDF)</a></p>`
     : ""
     }
 
@@ -119,8 +119,8 @@ function afficherArrivees(donneesJournal){
 
         zone.innerHTML = `
             <p>
-            Les dernières arrivées seront disponibles
-            après la publication officielle.
+            Les derniÃ¨res arrivÃ©es seront disponibles
+            aprÃ¨s la publication officielle.
             </p>
         `;
 
@@ -132,7 +132,7 @@ function afficherArrivees(donneesJournal){
 
     actualites.map(a => `
         <p>
-        🏁 <strong>${a.type_pari}</strong> du ${a.date} :
+        ðŸ <strong>${a.type_pari}</strong> du ${a.date} :
         ${a.arrivee.join(" - ")}
         </p>
     `).join("");
@@ -155,8 +155,8 @@ function afficherRapports(donneesJournal){
 
         zone.innerHTML = `
             <p>
-            Les rapports PMU seront affichés
-            après validation des résultats.
+            Les rapports PMU seront affichÃ©s
+            aprÃ¨s validation des rÃ©sultats.
             </p>
         `;
 
@@ -167,7 +167,7 @@ function afficherRapports(donneesJournal){
     zone.innerHTML =
 
     masses.map(m => `
-        <p>💰 Masse à partager : <strong>${m}</strong></p>
+        <p>ðŸ’° Masse Ã  partager : <strong>${m}</strong></p>
     `).join("");
 
 }
@@ -194,12 +194,11 @@ function afficherActualitesHippiques(donneesJournal){
 
     commentaires.map(c => `
         <li>
-        🏇 N°${c.numero} <strong>${c.nom}</strong> :
+        ðŸ‡ NÂ°${c.numero} <strong>${c.nom}</strong> :
         ${c.commentaire}
         </li>
     `).join("") +
 
     "</ul>";
 
-        }
-        
+}
