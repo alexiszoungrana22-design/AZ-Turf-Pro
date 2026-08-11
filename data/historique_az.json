@@ -1,344 +1,266 @@
 [
     {
-        "date_analyse": "2026-08-08 14:48:17",
+        "date_analyse": "2026-07-25 07:59:00",
         "classement": [
             {
-                "numero": 6,
-                "nom": "MAZZALA",
-                "indice_az": 158.04813278008297,
                 "rang": 1,
-                "raison": "⭐ Favori AZ : meilleur indice et profil prioritaire",
-                "confiance": 100
-            },
-            {
                 "numero": 3,
-                "nom": "PRESAGE NOCTURNE",
-                "indice_az": 140.801427389283,
-                "rang": 2,
-                "raison": "🔥 Base solide : régularité et forte chance de podium",
-                "confiance": 89
-            },
-            {
-                "numero": 2,
-                "nom": "TENABILITY",
-                "indice_az": 137.73166108810193,
-                "rang": 3,
-                "raison": "🔥 Base solide : régularité et forte chance de podium",
-                "confiance": 87
-            },
-            {
-                "numero": 4,
-                "nom": "PARACHUTISTE",
-                "indice_az": 131.93288881710055,
-                "rang": 4,
-                "raison": "🎯 Chance AZ : potentiel pour intégrer l'arrivée",
-                "confiance": 83
-            },
-            {
-                "numero": 5,
-                "nom": "ORACLE",
-                "indice_az": 119.0164465922342,
-                "rang": 5,
-                "raison": "🎯 Chance AZ : potentiel pour intégrer l'arrivée",
-                "confiance": 75
-            },
-            {
-                "numero": 1,
-                "nom": "UTHRED",
-                "indice_az": 83.61095838225035,
-                "rang": 6,
-                "raison": "⚠️ Coup spéculatif",
-                "confiance": 53
-            }
-        ],
-        "tickets": {
-            "gratuit": {
-                "quinte": [
-                    6,
-                    3,
+                "nom": "Cheval AZ 3",
+                "age": 6,
+                "sexe": "M",
+                "jockey": "Jockey 3",
+                "entraineur": "Entraîneur 3",
+                "performances": [
+                    1,
+                    1,
                     2,
-                    4,
-                    5,
-                    1
-                ],
-                "deux_sur_quatre": [
-                    6,
-                    3,
-                    2,
-                    4
-                ],
-                "couple_place": [
-                    6,
                     3
-                ]
+                ],
+                "indice_az": 252,
+                "confiance": 95,
+                "type": "Favori AZ"
             },
-            "premium": {
-                "selection_quinte": [
-                    6,
-                    3,
+            {
+                "rang": 2,
+                "numero": 5,
+                "nom": "Cheval AZ 5",
+                "age": 5,
+                "sexe": "M",
+                "jockey": "Jockey 5",
+                "entraineur": "Entraîneur 5",
+                "performances": [
                     2,
-                    4,
-                    5,
-                    1
-                ],
-                "selection_premium": [
-                    6,
                     3,
-                    2,
-                    4,
-                    5,
-                    1
-                ],
-                "quinte": [
-                    6,
-                    3,
-                    2,
-                    4,
-                    5,
-                    1
-                ],
-                "quarte": [
-                    6,
-                    3,
-                    2,
-                    4,
+                    1,
                     5
                 ],
-                "trio": [
-                    6,
+                "indice_az": 224,
+                "confiance": 89,
+                "type": "Chance régulière"
+            },
+            {
+                "rang": 3,
+                "numero": 2,
+                "nom": "Cheval AZ 2",
+                "age": 5,
+                "sexe": "M",
+                "jockey": "Jockey 2",
+                "entraineur": "Entraîneur 2",
+                "performances": [
+                    2,
+                    1,
+                    4,
+                    3
+                ],
+                "indice_az": 219,
+                "confiance": 87,
+                "type": "Chance régulière"
+            },
+            {
+                "rang": 4,
+                "numero": 7,
+                "nom": "Cheval AZ 7",
+                "age": 5,
+                "sexe": "F",
+                "jockey": "Jockey 7",
+                "entraineur": "Entraîneur 7",
+                "performances": [
                     3,
+                    2,
+                    5,
+                    1
+                ],
+                "indice_az": 206,
+                "confiance": 82,
+                "type": "Chance régulière"
+            },
+            {
+                "rang": 5,
+                "numero": 1,
+                "nom": "Cheval AZ 1",
+                "age": 6,
+                "sexe": "M",
+                "jockey": "Jockey 1",
+                "entraineur": "Entraîneur 1",
+                "performances": [
+                    3,
+                    5,
+                    2,
+                    7
+                ],
+                "indice_az": 199,
+                "confiance": 79,
+                "type": "Outsider"
+            },
+            {
+                "rang": 6,
+                "numero": 6,
+                "nom": "Cheval AZ 6",
+                "age": 6,
+                "sexe": "M",
+                "jockey": "Jockey 6",
+                "entraineur": "Entraîneur 6",
+                "performances": [
+                    4,
+                    3,
+                    6,
                     2
                 ],
-                "couple_gagnant_place": [
-                    [
-                        6,
-                        3
-                    ],
-                    [
-                        6,
-                        2
-                    ],
-                    [
-                        3,
-                        2
-                    ]
+                "indice_az": 191,
+                "confiance": 76,
+                "type": "Outsider"
+            },
+            {
+                "rang": 7,
+                "numero": 4,
+                "nom": "Cheval AZ 4",
+                "age": 7,
+                "sexe": "F",
+                "jockey": "Jockey 4",
+                "entraineur": "Entraîneur 4",
+                "performances": [
+                    8,
+                    6,
+                    7,
+                    5
                 ],
-                "couples": [
-                    [
-                        6,
-                        3
-                    ],
-                    [
-                        6,
-                        2
-                    ],
-                    [
-                        3,
-                        2
-                    ]
-                ],
-                "couples_format": "6-3 / 6-2 / 3-2",
-                "champ_reduit": {
-                    "format": "6-3-X-4-X / 5-1-2",
-                    "bases": [
-                        6,
-                        3,
-                        "X",
-                        4,
-                        "X"
-                    ],
-                    "complements": [
-                        5,
-                        1,
-                        2
-                    ]
-                },
-                "ticket_derniere_minute": {
-                    "selection": [
-                        6,
-                        3,
-                        2,
-                        4,
-                        5,
-                        1
-                    ],
-                    "joker": null,
-                    "format": "6-3-2-4-5-1"
-                },
-                "message_fin": "🍀 Bonne chance ! Les tickets Premium sont issus d'une analyse approfondie. Jouez toujours avec discipline et responsabilité."
+                "indice_az": 159,
+                "confiance": 63,
+                "type": "Outsider"
             }
-        },
-        "arrivee": null
+        ],
+        "arrivee": []
     },
     {
-        "date_analyse": "2026-08-08 15:10:09",
+        "date_analyse": "2026-07-25 08:17:25",
         "classement": [
             {
-                "numero": 6,
-                "nom": "MAZZALA",
-                "indice_az": 158.04813278008297,
                 "rang": 1,
-                "raison": "⭐ Favori AZ : meilleur indice et profil prioritaire",
-                "confiance": 100
-            },
-            {
                 "numero": 3,
-                "nom": "PRESAGE NOCTURNE",
-                "indice_az": 140.801427389283,
-                "rang": 2,
-                "raison": "🔥 Base solide : régularité et forte chance de podium",
-                "confiance": 89
-            },
-            {
-                "numero": 2,
-                "nom": "TENABILITY",
-                "indice_az": 137.73166108810193,
-                "rang": 3,
-                "raison": "🔥 Base solide : régularité et forte chance de podium",
-                "confiance": 87
-            },
-            {
-                "numero": 4,
-                "nom": "PARACHUTISTE",
-                "indice_az": 131.93288881710055,
-                "rang": 4,
-                "raison": "🎯 Chance AZ : potentiel pour intégrer l'arrivée",
-                "confiance": 83
-            },
-            {
-                "numero": 5,
-                "nom": "ORACLE",
-                "indice_az": 119.0164465922342,
-                "rang": 5,
-                "raison": "🎯 Chance AZ : potentiel pour intégrer l'arrivée",
-                "confiance": 75
-            },
-            {
-                "numero": 1,
-                "nom": "UTHRED",
-                "indice_az": 83.61095838225035,
-                "rang": 6,
-                "raison": "⚠️ Coup spéculatif",
-                "confiance": 53
-            }
-        ],
-        "tickets": {
-            "gratuit": {
-                "quinte": [
-                    6,
-                    3,
+                "nom": "Cheval AZ 3",
+                "age": 6,
+                "sexe": "M",
+                "jockey": "Jockey 3",
+                "entraineur": "Entraîneur 3",
+                "performances": [
+                    1,
+                    1,
                     2,
-                    4,
-                    5,
-                    1
-                ],
-                "deux_sur_quatre": [
-                    6,
-                    3,
-                    2,
-                    4
-                ],
-                "couple_place": [
-                    6,
                     3
-                ]
+                ],
+                "indice_az": 252,
+                "confiance": 95,
+                "type": "Favori AZ"
             },
-            "premium": {
-                "selection_quinte": [
-                    6,
-                    3,
+            {
+                "rang": 2,
+                "numero": 5,
+                "nom": "Cheval AZ 5",
+                "age": 5,
+                "sexe": "M",
+                "jockey": "Jockey 5",
+                "entraineur": "Entraîneur 5",
+                "performances": [
                     2,
-                    4,
-                    5,
-                    1
-                ],
-                "selection_premium": [
-                    6,
                     3,
-                    2,
-                    4,
-                    5,
-                    1
-                ],
-                "quinte": [
-                    6,
-                    3,
-                    2,
-                    4,
-                    5,
-                    1
-                ],
-                "quarte": [
-                    6,
-                    3,
-                    2,
-                    4,
+                    1,
                     5
                 ],
-                "trio": [
-                    6,
+                "indice_az": 224,
+                "confiance": 89,
+                "type": "Chance régulière"
+            },
+            {
+                "rang": 3,
+                "numero": 2,
+                "nom": "Cheval AZ 2",
+                "age": 5,
+                "sexe": "M",
+                "jockey": "Jockey 2",
+                "entraineur": "Entraîneur 2",
+                "performances": [
+                    2,
+                    1,
+                    4,
+                    3
+                ],
+                "indice_az": 219,
+                "confiance": 87,
+                "type": "Chance régulière"
+            },
+            {
+                "rang": 4,
+                "numero": 7,
+                "nom": "Cheval AZ 7",
+                "age": 5,
+                "sexe": "F",
+                "jockey": "Jockey 7",
+                "entraineur": "Entraîneur 7",
+                "performances": [
                     3,
+                    2,
+                    5,
+                    1
+                ],
+                "indice_az": 206,
+                "confiance": 82,
+                "type": "Chance régulière"
+            },
+            {
+                "rang": 5,
+                "numero": 1,
+                "nom": "Cheval AZ 1",
+                "age": 6,
+                "sexe": "M",
+                "jockey": "Jockey 1",
+                "entraineur": "Entraîneur 1",
+                "performances": [
+                    3,
+                    5,
+                    2,
+                    7
+                ],
+                "indice_az": 199,
+                "confiance": 79,
+                "type": "Outsider"
+            },
+            {
+                "rang": 6,
+                "numero": 6,
+                "nom": "Cheval AZ 6",
+                "age": 6,
+                "sexe": "M",
+                "jockey": "Jockey 6",
+                "entraineur": "Entraîneur 6",
+                "performances": [
+                    4,
+                    3,
+                    6,
                     2
                 ],
-                "couple_gagnant_place": [
-                    [
-                        6,
-                        3
-                    ],
-                    [
-                        6,
-                        2
-                    ],
-                    [
-                        3,
-                        2
-                    ]
+                "indice_az": 191,
+                "confiance": 76,
+                "type": "Outsider"
+            },
+            {
+                "rang": 7,
+                "numero": 4,
+                "nom": "Cheval AZ 4",
+                "age": 7,
+                "sexe": "F",
+                "jockey": "Jockey 4",
+                "entraineur": "Entraîneur 4",
+                "performances": [
+                    8,
+                    6,
+                    7,
+                    5
                 ],
-                "couples": [
-                    [
-                        6,
-                        3
-                    ],
-                    [
-                        6,
-                        2
-                    ],
-                    [
-                        3,
-                        2
-                    ]
-                ],
-                "couples_format": "6-3 / 6-2 / 3-2",
-                "champ_reduit": {
-                    "format": "6-3-X-4-X / 5-1-2",
-                    "bases": [
-                        6,
-                        3,
-                        "X",
-                        4,
-                        "X"
-                    ],
-                    "complements": [
-                        5,
-                        1,
-                        2
-                    ]
-                },
-                "ticket_derniere_minute": {
-                    "selection": [
-                        6,
-                        3,
-                        2,
-                        4,
-                        5,
-                        1
-                    ],
-                    "joker": null,
-                    "format": "6-3-2-4-5-1"
-                },
-                "message_fin": "🍀 Bonne chance ! Les tickets Premium sont issus d'une analyse approfondie. Jouez toujours avec discipline et responsabilité."
+                "indice_az": 159,
+                "confiance": 63,
+                "type": "Outsider"
             }
-        },
-        "arrivee": null
+        ],
+        "arrivee": []
     }
-]
+                ]
