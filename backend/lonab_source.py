@@ -82,7 +82,7 @@ def _normaliser_accents(texte):
     """
     Retire les accents d'un texte pour permettre une comparaison
     fiable, quelle que soit la forme exacte utilisee par le site
-    LONAB (ex: 'AOUT' vs 'AOÃ›T').
+    LONAB (ex: 'AOUT' vs 'AOÛT').
     """
     import unicodedata
 
@@ -190,11 +190,6 @@ def trouver_url_pdf_du_jour(date_obj):
 
     return None
 
-    if url_pdf.startswith("/"):
-        url_pdf = LONAB_BASE_URL + url_pdf
-
-    return url_pdf
-
 
 # =====================================
 # 2. TELECHARGER ET EXTRAIRE LE TEXTE
@@ -262,7 +257,7 @@ def extraire_entete(texte):
         resultat["type_pari"] = type_pari.group(1)
 
     hippodrome = re.search(
-        r"\n([A-ZÃ€-Å¸'\- ]{4,})\s*-\s*(PRIX[^\n]+)", texte
+        r"\n([A-ZÀ-Ãœ'\- ]{4,})\s*-\s*(PRIX[^\n]+)", texte
     )
     if hippodrome:
         resultat["hippodrome"] = hippodrome.group(1).strip()
@@ -300,8 +295,8 @@ def extraire_commentaires_chevaux(texte, nombre_concurrents):
     commentaires = []
 
     motif = re.compile(
-        r"^(\d{1,2})\s*-\s*([A-ZÃ€-Å¸' ]{2,}?)\s*:\s*(.+?)"
-        r"(?=\n\d{1,2}\s*-\s*[A-ZÃ€-Å¸' ]{2,}?\s*:|\Z)",
+        r"^(\d{1,2})\s*-\s*([A-ZÀ-Ãœ' ]{2,}?)\s*:\s*(.+?)"
+        r"(?=\n\d{1,2}\s*-\s*[A-ZÀ-Ãœ' ]{2,}?\s*:|\Z)",
         re.DOTALL | re.MULTILINE,
     )
 
@@ -382,24 +377,25 @@ def extraire_synthese(texte):
         "jockeys_en_forme": [],
     }
 
+    # Correction des plages regex pour eviter les erreurs de caracteres corrompus
     favoris = re.search(
-        r"FAVORIS\s*:\s*((?:\d{1,2}\s*[â€“\-]\s*)+\d{1,2})", texte
+        r"FAVORIS\s*:\s*((?:\d{1,2}\s*[-–—]\s*)+\d{1,2})", texte
     )
     if favoris:
         resultat["favoris"] = [
             int(n.strip())
-            for n in re.split(r"[â€“\-]", favoris.group(1))
+            for n in re.split(r"[-–—]", favoris.group(1))
             if n.strip().isdigit()
         ]
 
     for critere in ("FORME", "CLASSE", "PROGRES", "REGULARITE"):
         motif = re.search(
-            critere + r"\s*:\s*((?:\d{1,2}\s*[â€“\-]\s*)+\d{1,2})", texte
+            critere + r"\s*:\s*((?:\d{1,2}\s*[-–—]\s*)+\d{1,2})", texte
         )
         if motif:
             resultat["classement"][critere.lower()] = [
                 int(n.strip())
-                for n in re.split(r"[â€“\-]", motif.group(1))
+                for n in re.split(r"[-–—]", motif.group(1))
                 if n.strip().isdigit()
             ]
 
@@ -409,7 +405,7 @@ def extraire_synthese(texte):
     if entraineurs:
         resultat["entraineurs_en_forme"] = [
             nom.strip()
-            for nom in entraineurs.group(1).split("â€“")
+            for nom in re.split(r"[-–—]", entraineurs.group(1))
             if nom.strip()
         ]
 
@@ -419,7 +415,7 @@ def extraire_synthese(texte):
     if jockeys:
         resultat["jockeys_en_forme"] = [
             nom.strip()
-            for nom in jockeys.group(1).split("â€“")
+            for nom in re.split(r"[-–—]", jockeys.group(1))
             if nom.strip()
         ]
 
@@ -434,13 +430,13 @@ def extraire_horaires(texte):
     resultat = {"arret_des_jeux": "", "depart": ""}
 
     arret = re.search(
-        r"ARR[ÃŠE]T DES JEUX EST FIX[Ã‰E]\s*:\s*([0-9hHmMn ]+)", texte
+        r"ARR[EÉÊ]T DES JEUX EST FIX[EÉ]\s*:\s*([0-9hHmMn ]+)", texte
     )
     if arret:
         resultat["arret_des_jeux"] = arret.group(1).strip()
 
     depart = re.search(
-        r"D[Ã‰E]PART DE LA COURSE\s*:\s*([0-9hHmMn ]+)", texte
+        r"D[EÉ]PART DE LA COURSE\s*:\s*([0-9hHmMn ]+)", texte
     )
     if depart:
         resultat["depart"] = depart.group(1).strip()
@@ -462,7 +458,7 @@ def extraire_actualites(texte):
 
     motif = re.compile(
         r'ARRIVEE DU\s+"(QUINTE\+?|QUARTE|TIERCE)"\s+DU\s+'
-        r"([A-ZÃ‰]+\s+\d{1,2}\s+\w+\s+\d{4})\s*:\s*"
+        r"([A-ZÉ]+\s+\d{1,2}\s+\w+\s+\d{4})\s*:\s*"
         r"((?:\d{1,2}\s*-\s*)+\d{1,2})"
     )
 
@@ -489,7 +485,7 @@ def extraire_masses_a_partager(texte):
     """
 
     montants = re.findall(
-        r"Masse\s+[Ã a]\s+partager\s*:\s*([\d\s]+)\s*F", texte
+        r"Masse\s+[àa]\s+partager\s*:\s*([\d\s]+)\s*F", texte
     )
 
     return [m.strip() + " F" for m in montants]
