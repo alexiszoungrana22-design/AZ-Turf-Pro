@@ -493,4 +493,3 @@ if __name__ == "__main__":
         print("Chevaux commentes :", len(resultat["commentaires_chevaux"]))
     else:
         print("Journal LONAB indisponible aujourd'hui.")
-        
