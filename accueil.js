@@ -44,16 +44,42 @@ valeur || "-";
 
 // ===============================
 // INFORMATIONS COURSE
-// (carte "Course du jour" retirée de
-// l'accueil : déjà présente sur la
-// page Analyse)
 // ===============================
 
+afficher(
+"meta-hippodrome",
+data.hippodrome
+);
+
+
+afficher(
+"meta-course",
+data.course
+);
+
+
+afficher(
+"meta-discipline",
+data.discipline
+);
+
+
+afficher(
+"meta-distance",
+data.distance ? data.distance + " m" : "-"
+);
+
+
+afficher(
+"meta-partants",
+data.partants
+);
+
 
 
 
 // ===============================
-// PLUS JOUÉS
+// PLUS JOUÃ‰S
 // ===============================
 
 const popular =
@@ -82,7 +108,7 @@ ${numero}
 }else{
 
 popular.innerHTML =
-"Plus joué indisponible";
+"Plus jouÃ© indisponible";
 
 }
 
@@ -105,7 +131,7 @@ if(tendance && chevaux.length){
 tendance.innerHTML = `
 
 <p>
-🔥 Chevaux les plus joués :
+ðŸ”¥ Chevaux les plus jouÃ©s :
 <strong>
 ${(data.plus_joues || []).join(" - ")}
 </strong>
@@ -113,9 +139,9 @@ ${(data.plus_joues || []).join(" - ")}
 
 
 <p>
-⭐ Favori AZ :
+â­ Favori AZ :
 <strong>
-N°${chevaux[0].numero}
+NÂ°${chevaux[0].numero}
 </strong>
 avec un indice AZ de
 <strong>
@@ -125,7 +151,7 @@ ${chevaux[0].indice_az || "-"}
 
 
 <p>
-📊 La tendance est basée sur la forme, la régularité et le classement AZ.
+ðŸ“Š La tendance est basÃ©e sur la forme, la rÃ©gularitÃ© et le classement AZ.
 </p>
 
 `;
@@ -174,7 +200,7 @@ afficher(
 afficher(
 "favori-raison",
 favori.raison ||
-"⭐ Favori AZ"
+"â­ Favori AZ"
 );
 
 }
@@ -221,7 +247,7 @@ afficher(
 afficher(
 "outsider-raison",
 outsider.raison ||
-"🔥 Outsider AZ"
+"ðŸ”¥ Outsider AZ"
 );
 
 }
@@ -353,31 +379,31 @@ const publicites = [
 
 {
 image:"images/pub1.jpg",
-titre:"⭐ AZ Turf Pro Premium",
-texte:"Analyses spécialisées et tickets exclusifs"
+titre:"â­ AZ Turf Pro Premium",
+texte:"Analyses spÃ©cialisÃ©es et tickets exclusifs"
 },
 
 {
 image:"images/pub2.jpg",
-titre:"🏇 Analyse du Quinté",
-texte:"Des pronostics basés sur les performances"
+titre:"ðŸ‡ Analyse du QuintÃ©",
+texte:"Des pronostics basÃ©s sur les performances"
 },
 
 {
 image:"images/pub3.jpg",
-titre:"💎 Abonnement Premium",
-texte:"Accédez aux sélections avancées"
+titre:"ðŸ’Ž Abonnement Premium",
+texte:"AccÃ©dez aux sÃ©lections avancÃ©es"
 },
 
 {
 image:"images/pub4.jpg",
-titre:"📢 Votre publicité ici",
-texte:"Un espace dédié aux partenaires"
+titre:"ðŸ“¢ Votre publicitÃ© ici",
+texte:"Un espace dÃ©diÃ© aux partenaires"
 },
 
 {
 image:"images/pub5.jpg",
-titre:"🏆 AZ Turf Pro",
+titre:"ðŸ† AZ Turf Pro",
 texte:"Une analyse professionnelle au service des pronostics"
 }
 
@@ -516,7 +542,7 @@ return;
 
 /*
    Utilise l'indice de confiance
-   déjà fourni par l'analyse
+   dÃ©jÃ  fourni par l'analyse
 */
 
 let confiance = 
@@ -536,7 +562,7 @@ if(message){
 if(confiance >= 80){
 
 message.innerHTML =
-"✅ Course avec un niveau de confiance élevé";
+"âœ… Course avec un niveau de confiance Ã©levÃ©";
 
 
 }
@@ -545,7 +571,7 @@ else if(confiance >= 60){
 
 
 message.innerHTML =
-"⚠️ Course avec quelques incertitudes";
+"âš ï¸ Course avec quelques incertitudes";
 
 
 }
@@ -554,7 +580,7 @@ else{
 
 
 message.innerHTML =
-"🔎 Course ouverte, prudence recommandée";
+"ðŸ”Ž Course ouverte, prudence recommandÃ©e";
 
 
 }
@@ -610,14 +636,14 @@ return;
 // LOGIQUE "CHEVAUX A SURVEILLER"
 //
 // Ce ne sont PAS simplement les 3 premiers
-// du classement (déjà mis en avant comme
+// du classement (dÃ©jÃ  mis en avant comme
 // Favori/Outsider ailleurs sur la page).
 //
 // Ce sont des chevaux hors du top 2 dont
 // l'indice AZ reste suffisamment proche du
-// leader pour représenter une vraie menace :
+// leader pour reprÃ©senter une vraie menace :
 // capables de battre les favoris ou de
-// créer la surprise, d'après les données
+// crÃ©er la surprise, d'aprÃ¨s les donnÃ©es
 // de l'analyse (indice_az / confiance).
 // =====================================
 
@@ -625,8 +651,8 @@ const meilleurIndice =
 classement[0].indice_az || 0;
 
 const SEUIL_MENACE = 0.70;
-// un cheval hors du top 2 est considéré
-// "à surveiller" si son indice AZ atteint
+// un cheval hors du top 2 est considÃ©rÃ©
+// "Ã  surveiller" si son indice AZ atteint
 // au moins 70% du meilleur indice de la course
 
 let candidats =
@@ -641,9 +667,9 @@ meilleurIndice > 0 &&
 
 
 // Repli : si aucun cheval n'atteint le seuil
-// (course très hiérarchisée), on prend quand
-// même les mieux placés juste derrière le podium,
-// plutôt que de laisser le bloc vide.
+// (course trÃ¨s hiÃ©rarchisÃ©e), on prend quand
+// mÃªme les mieux placÃ©s juste derriÃ¨re le podium,
+// plutÃ´t que de laisser le bloc vide.
 if(candidats.length === 0){
 
 candidats =
@@ -678,15 +704,15 @@ return `
 
 <p>
 
-🏇 N°${c.numero} ${c.nom || ""}
+ðŸ‡ NÂ°${c.numero} ${c.nom || ""}
 
 <br>
 
-${c.raison || "Cheval à surveiller"}
+${c.raison || "Cheval Ã  surveiller"}
 
 <br>
 
-⚡ ${ecart}% de l'indice du leader — capable de créer la surprise
+âš¡ ${ecart}% de l'indice du leader â€” capable de crÃ©er la surprise
 
 </p>
 
@@ -697,4 +723,4 @@ ${c.raison || "Cheval à surveiller"}
 
 
    }
-
+    
