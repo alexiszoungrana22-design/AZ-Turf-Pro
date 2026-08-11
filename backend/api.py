@@ -533,11 +533,6 @@ def admin_statistiques():
 # =====================================
 #
 # Route additive : n'affecte aucune route existante ci-dessus.
-# Alimente la page "journal" avec le vrai journal hippique LONAB du
-# jour (indices/commentaires par cheval, consensus de plusieurs
-# medias reels, favoris, horaires, actualites, lien PDF officiel
-# telechargeable). Ne touche ni au moteur AZ, ni aux tickets, ni a
-# l'analyse Premium.
 
 @router.get("/journal")
 def journal():
@@ -581,4 +576,41 @@ def journal():
                 f"{str(erreur)}"
             )
 
-            )
+        )
+
+
+# =====================================
+# DEBUG TEMPORAIRE - JSON BRUT PMU
+# =====================================
+#
+# Route temporaire, a retirer une fois le probleme d'hippodrome
+# resolu. Retourne le dict "course" brut tel que recu de l'API PMU,
+# AVANT toute transformation, pour identifier le vrai nom du champ
+# hippodrome dans le schema reel de l'API client/61.
+
+@router.get("/debug-pmu")
+def debug_pmu():
+
+    from pmu_source import trouver_quinte_du_jour
+
+    aujourd_hui = datetime.now()
+    date_pmu = aujourd_hui.strftime("%d%m%Y")
+
+    try:
+
+        programme, reunion, course = trouver_quinte_du_jour(
+            date_pmu
+        )
+
+        return {
+            "reunion": reunion,
+            "programme_brut": programme,
+            "course_brute": course,
+        }
+
+    except Exception as erreur:
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erreur debug PMU : {erreur}"
+    )
