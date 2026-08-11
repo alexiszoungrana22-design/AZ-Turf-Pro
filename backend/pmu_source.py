@@ -136,23 +136,81 @@ def normaliser(valeur, minimum, maximum):
 # EXTRACTION COTE
 # =====================================
 
+def _extraire_nom_personne(valeur):
+    """
+    Normalise les champs jockey/entraineur PMU.
+    L'API peut retourner une chaîne ou un objet.
+    """
+    if isinstance(valeur, str):
+        return valeur.strip()
+
+    if isinstance(valeur, dict):
+        for cle in (
+            "nom",
+            "nomComplet",
+            "libelle",
+            "identite",
+            "nomPrenom",
+        ):
+            valeur_nom = valeur.get(cle)
+            if valeur_nom:
+                return str(valeur_nom).strip()
+
+        prenom = valeur.get("prenom") or ""
+        nom = valeur.get("nom") or ""
+        resultat = f"{prenom} {nom}".strip()
+        if resultat:
+            return resultat
+
+    return ""
+
+
+def _extraire_valeur_numerique(valeur):
+    if isinstance(valeur, (int, float)):
+        return float(valeur)
+
+    if isinstance(valeur, dict):
+        for cle in (
+            "rapport",
+            "rapportDirect",
+            "rapportProbable",
+            "cote",
+            "valeur",
+        ):
+            resultat = _extraire_valeur_numerique(valeur.get(cle))
+            if resultat is not None:
+                return resultat
+
+    if isinstance(valeur, str):
+        texte = valeur.replace(",", ".").strip()
+        try:
+            return float(texte)
+        except (TypeError, ValueError):
+            return None
+
+    return None
+
+
 def obtenir_cote(participant):
-    rapport_data = participant.get("dernierRapportDirect", {})
+    """
+    Extrait la cote/rapport brut quel que soit le format courant
+    rencontré dans la réponse PMU.
+    """
+    for cle in (
+        "dernierRapportDirect",
+        "rapportDirect",
+        "dernierRapport",
+        "coteProbable",
+        "cote",
+        "rapport",
+    ):
+        valeur = _extraire_valeur_numerique(
+            participant.get(cle)
+        )
+        if valeur is not None and valeur > 0:
+            return valeur
 
-    if not isinstance(rapport_data, dict):
-        rapport_data = {}
-
-    rapport = rapport_data.get("rapport")
-
-    try:
-        rapport = float(rapport)
-    except (TypeError, ValueError):
-        return None
-
-    if rapport <= 0:
-        return None
-
-    return rapport
+    return None
 
 
 # =====================================
@@ -284,17 +342,17 @@ def transformer_participant(
     if str(sexe).upper() == "HONGRES":
         sexe = "M"
 
-    jockey = (
+    jockey = _extraire_nom_personne(
         participant.get("driver")
         or participant.get("jockey")
         or participant.get("pilote")
-        or ""
+        or participant.get("conducteur")
     )
 
-    entraineur = (
+    entraineur = _extraire_nom_personne(
         participant.get("entraineur")
         or participant.get("trainer")
-        or ""
+        or participant.get("entraineurNom")
     )
 
     musique = participant.get("musique", "")
@@ -346,16 +404,28 @@ def transformer_participant(
 # =====================================
 
 def obtenir_hippodrome(course):
-    hippodrome = course.get("hippodrome", "")
+    for cle in (
+        "hippodrome",
+        "hippodromeLibelle",
+        "hippodromeNom",
+        "lieu",
+        "site",
+    ):
+        valeur = course.get(cle, "")
 
-    if isinstance(hippodrome, dict):
-        return (
-            hippodrome.get("libelle")
-            or hippodrome.get("nom")
-            or ""
-        )
+        if isinstance(valeur, dict):
+            valeur = (
+                valeur.get("libelle")
+                or valeur.get("nom")
+                or valeur.get("label")
+                or ""
+            )
 
-    return hippodrome
+        if valeur:
+            return str(valeur).strip()
+
+    return "Non disponible"
+
 
 
 def obtenir_discipline(course):
@@ -427,7 +497,12 @@ def transformer_course(course, participants):
         "course_numero": course_numero,
         "hippodrome": obtenir_hippodrome(course),
         "discipline": obtenir_discipline(course),
-        "distance_course": course.get("distance", ""),
+        "distance_course": (
+            course.get("distance")
+            or course.get("distanceCourse")
+            or course.get("distanceMetres")
+            or ""
+        ),
         "allocation": course.get(
             "montantPrix",
             course.get("allocation", ""),
@@ -930,3 +1005,4 @@ if __name__ == "__main__":
             "PMU indisponible ou aucun Quinte+ trouve "
             "aujourd'hui (voir messages ci-dessus)."
         )
+        
