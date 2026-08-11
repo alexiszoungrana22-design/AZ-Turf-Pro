@@ -98,9 +98,23 @@ def generer_ticket_derniere_minute(classement):
 
     numeros = extraire_numeros(classement)
 
-    # Le ticket dernière minute doit contenir
-    # les 6 premiers chevaux disponibles.
-    selection = numeros[:6]
+    # Sélection indépendante du Premium : on privilégie des
+    # chevaux de complément / outsiders du classement plutôt que
+    # de recopier automatiquement les 6 premiers.
+    indices = [4, 5, 7, 9, 11, 13]
+    selection = [
+        numeros[i]
+        for i in indices
+        if i < len(numeros)
+    ]
+
+    # Si le classement est trop court, compléter sans doublon.
+    if len(selection) < min(6, len(numeros)):
+        for numero in numeros:
+            if numero not in selection:
+                selection.append(numero)
+            if len(selection) >= min(6, len(numeros)):
+                break
 
     return {
         "selection": selection,
@@ -148,21 +162,38 @@ def generer_tickets_az(classement):
     # PREMIUM
     # =================================
 
-    # Sélection Premium :
-    # toujours les 7 premiers disponibles
-    selection_quinte = numeros[:7]
+    # Le Premium ne doit PAS recopier le ticket gratuit.
+    # Il conserve les meilleures bases AZ mais introduit des
+    # chevaux de complément issus des rangs suivants pour créer
+    # une sélection réellement différente.
+    #
+    # Sélection Premium : rangs 1-4 + 6 + 8 + 9
+    # Quinté Premium : rangs 1-4 + 6 + 8
+    # Quarté Premium : rangs 1-3 + 6 + 8
+    # Trio Premium : rangs 1 + 2 + 6
+    indices_premium = [0, 1, 2, 3, 5, 7, 8]
 
-    # Quinté Premium :
-    # 6 chevaux
-    quinte = numeros[:6]
+    selection_quinte = [
+        numeros[i]
+        for i in indices_premium
+        if i < len(numeros)
+    ]
 
-    # Quarté Premium :
-    # 5 chevaux
-    quarte = numeros[:5]
+    quinte = selection_quinte[:6]
 
-    # Trio Premium :
-    # 3 chevaux
-    trio = numeros[:3]
+    indices_quarte = [0, 1, 2, 5, 7]
+    quarte = [
+        numeros[i]
+        for i in indices_quarte
+        if i < len(numeros)
+    ]
+
+    indices_trio = [0, 1, 5]
+    trio = [
+        numeros[i]
+        for i in indices_trio
+        if i < len(numeros)
+    ]
 
     # =================================
     # COUPLES GAGNANT / PLACE
@@ -202,6 +233,9 @@ def generer_tickets_az(classement):
     # DERNIERE MINUTE
     # =================================
 
+    # La Dernière Minute est volontairement indépendante de la
+    # sélection Premium : elle ne doit pas simplement recopier le
+    # Quinté Premium.
     ticket_derniere_minute = (
         generer_ticket_derniere_minute(
             classement
@@ -263,3 +297,4 @@ def generer_tickets_az(classement):
 
     }
 
+    
