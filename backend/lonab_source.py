@@ -190,7 +190,7 @@ def extraire_entete(texte):
         resultat["type_pari"] = type_pari.group(1)
 
     hippodrome = re.search(
-        r"\n([A-ZÀ-Ü'\- ]{4,})\s*-\s*(PRIX[^\n]+)", texte
+        r"\n([A-ZÃ€-Ãœ'\- ]{4,})\s*-\s*(PRIX[^\n]+)", texte
     )
     if hippodrome:
         resultat["hippodrome"] = hippodrome.group(1).strip()
@@ -228,8 +228,8 @@ def extraire_commentaires_chevaux(texte, nombre_concurrents):
     commentaires = []
 
     motif = re.compile(
-        r"^(\d{1,2})\s*-\s*([A-ZÀ-Ü' ]{2,}?)\s*:\s*(.+?)"
-        r"(?=\n\d{1,2}\s*-\s*[A-ZÀ-Ü' ]{2,}?\s*:|\Z)",
+        r"^(\d{1,2})\s*-\s*([A-ZÃ€-Ãœ' ]{2,}?)\s*:\s*(.+?)"
+        r"(?=\n\d{1,2}\s*-\s*[A-ZÃ€-Ãœ' ]{2,}?\s*:|\Z)",
         re.DOTALL | re.MULTILINE,
     )
 
@@ -311,23 +311,23 @@ def extraire_synthese(texte):
     }
 
     favoris = re.search(
-        r"FAVORIS\s*:\s*((?:\d{1,2}\s*[–\-]\s*)+\d{1,2})", texte
+        r"FAVORIS\s*:\s*((?:\d{1,2}\s*[â€“\-]\s*)+\d{1,2})", texte
     )
     if favoris:
         resultat["favoris"] = [
             int(n.strip())
-            for n in re.split(r"[–\-]", favoris.group(1))
+            for n in re.split(r"[â€“\-]", favoris.group(1))
             if n.strip().isdigit()
         ]
 
     for critere in ("FORME", "CLASSE", "PROGRES", "REGULARITE"):
         motif = re.search(
-            critere + r"\s*:\s*((?:\d{1,2}\s*[–\-]\s*)+\d{1,2})", texte
+            critere + r"\s*:\s*((?:\d{1,2}\s*[â€“\-]\s*)+\d{1,2})", texte
         )
         if motif:
             resultat["classement"][critere.lower()] = [
                 int(n.strip())
-                for n in re.split(r"[–\-]", motif.group(1))
+                for n in re.split(r"[â€“\-]", motif.group(1))
                 if n.strip().isdigit()
             ]
 
@@ -337,7 +337,7 @@ def extraire_synthese(texte):
     if entraineurs:
         resultat["entraineurs_en_forme"] = [
             nom.strip()
-            for nom in entraineurs.group(1).split("–")
+            for nom in entraineurs.group(1).split("â€“")
             if nom.strip()
         ]
 
@@ -347,7 +347,7 @@ def extraire_synthese(texte):
     if jockeys:
         resultat["jockeys_en_forme"] = [
             nom.strip()
-            for nom in jockeys.group(1).split("–")
+            for nom in jockeys.group(1).split("â€“")
             if nom.strip()
         ]
 
@@ -362,13 +362,13 @@ def extraire_horaires(texte):
     resultat = {"arret_des_jeux": "", "depart": ""}
 
     arret = re.search(
-        r"ARR[ÊE]T DES JEUX EST FIX[ÉE]\s*:\s*([0-9hHmMn ]+)", texte
+        r"ARR[ÃŠE]T DES JEUX EST FIX[Ã‰E]\s*:\s*([0-9hHmMn ]+)", texte
     )
     if arret:
         resultat["arret_des_jeux"] = arret.group(1).strip()
 
     depart = re.search(
-        r"D[ÉE]PART DE LA COURSE\s*:\s*([0-9hHmMn ]+)", texte
+        r"D[Ã‰E]PART DE LA COURSE\s*:\s*([0-9hHmMn ]+)", texte
     )
     if depart:
         resultat["depart"] = depart.group(1).strip()
@@ -390,7 +390,7 @@ def extraire_actualites(texte):
 
     motif = re.compile(
         r'ARRIVEE DU\s+"(QUINTE\+?|QUARTE|TIERCE)"\s+DU\s+'
-        r"([A-ZÉ]+\s+\d{1,2}\s+\w+\s+\d{4})\s*:\s*"
+        r"([A-ZÃ‰]+\s+\d{1,2}\s+\w+\s+\d{4})\s*:\s*"
         r"((?:\d{1,2}\s*-\s*)+\d{1,2})"
     )
 
@@ -408,6 +408,19 @@ def extraire_actualites(texte):
         })
 
     return actualites
+
+
+def extraire_masses_a_partager(texte):
+    """
+    Extrait les montants "Masse a partager" imprimes dans le
+    journal (rapports financiers des dernieres courses).
+    """
+
+    montants = re.findall(
+        r"Masse\s+[Ã a]\s+partager\s*:\s*([\d\s]+)\s*F", texte
+    )
+
+    return [m.strip() + " F" for m in montants]
 
 
 # =====================================
@@ -446,6 +459,7 @@ def recuperer_journal_lonab(date_obj):
         synthese = extraire_synthese(texte)
         horaires = extraire_horaires(texte)
         actualites = extraire_actualites(texte)
+        masses_a_partager = extraire_masses_a_partager(texte)
 
         return {
             "source": "lonab",
@@ -456,6 +470,7 @@ def recuperer_journal_lonab(date_obj):
             "synthese": synthese,
             "horaires": horaires,
             "actualites": actualites,
+            "masses_a_partager": masses_a_partager,
         }
 
     except Exception as erreur:
