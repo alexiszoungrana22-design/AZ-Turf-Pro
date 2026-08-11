@@ -41,7 +41,7 @@ def generer_champ_reduit(classement):
     # =================================
     # STRUCTURE DU CHAMP REDUIT
     #
-    # Exemple souhaité :
+    # Exemple souhaitÃ© :
     # 5-3-X-2-X / 1-4-8-7
     # =================================
 
@@ -57,9 +57,9 @@ def generer_champ_reduit(classement):
         "X"
     ]
 
-    # Le champ réduit AZ utilise exactement
-    # 4 compléments après le "/".
-    # Les compléments sont les 4 chevaux suivants
+    # Le champ rÃ©duit AZ utilise exactement
+    # 4 complÃ©ments aprÃ¨s le "/".
+    # Les complÃ©ments sont les 4 chevaux suivants
     # du classement AZ.
     complements = numeros[3:7]
 
@@ -96,25 +96,39 @@ def generer_champ_reduit(classement):
 
 def generer_ticket_derniere_minute(classement):
 
-    numeros = extraire_numeros(classement)
+    # Le ticket "derniÃ¨re minute" reflÃ¨te la tendance du marchÃ©
+    # (cote), pas le classement AZ pur : il peut donc lÃ©gitimement
+    # diffÃ©rer de la SÃ©lection/QuintÃ© Premium (basÃ©s sur l'indice
+    # AZ). C'est cohÃ©rent avec l'idÃ©e rÃ©elle d'un ticket "derniÃ¨re
+    # minute", gÃ©nÃ©ralement liÃ© aux derniers mouvements de cotes
+    # avant le dÃ©part.
 
-    # Sélection indépendante du Premium : on privilégie des
-    # chevaux de complément / outsiders du classement plutôt que
-    # de recopier automatiquement les 6 premiers.
-    indices = [4, 5, 7, 9, 11, 13]
-    selection = [
-        numeros[i]
-        for i in indices
-        if i < len(numeros)
+    if not isinstance(classement, list):
+        return {
+            "selection": [],
+            "joker": None,
+            "format": ""
+        }
+
+    chevaux_valides = [
+        cheval
+        for cheval in classement
+        if isinstance(cheval, dict)
+        and cheval.get("numero") is not None
     ]
 
-    # Si le classement est trop court, compléter sans doublon.
-    if len(selection) < min(6, len(numeros)):
-        for numero in numeros:
-            if numero not in selection:
-                selection.append(numero)
-            if len(selection) >= min(6, len(numeros)):
-                break
+    # Tri par cote (score de favori marchÃ©, 0-10, plus haut =
+    # plus favori) plutÃ´t que par ordre du classement AZ.
+    classement_par_cote = sorted(
+        chevaux_valides,
+        key=lambda c: c.get("cote", 0),
+        reverse=True
+    )
+
+    selection = [
+        cheval.get("numero")
+        for cheval in classement_par_cote[:6]
+    ]
 
     return {
         "selection": selection,
@@ -148,13 +162,13 @@ def generer_tickets_az(classement):
     # =================================
 
     gratuit = {
-        # Quinté gratuit : 7 chevaux maximum
+        # QuintÃ© gratuit : 7 chevaux maximum
         "quinte": numeros[:7],
 
         # 2 sur 4 : 4 chevaux
         "deux_sur_quatre": numeros[:4],
 
-        # Couplé placé : 2 chevaux
+        # CouplÃ© placÃ© : 2 chevaux
         "couple_place": numeros[:2]
     }
 
@@ -162,38 +176,25 @@ def generer_tickets_az(classement):
     # PREMIUM
     # =================================
 
-    # Le Premium ne doit PAS recopier le ticket gratuit.
-    # Il conserve les meilleures bases AZ mais introduit des
-    # chevaux de complément issus des rangs suivants pour créer
-    # une sélection réellement différente.
-    #
-    # Sélection Premium : rangs 1-4 + 6 + 8 + 9
-    # Quinté Premium : rangs 1-4 + 6 + 8
-    # Quarté Premium : rangs 1-3 + 6 + 8
-    # Trio Premium : rangs 1 + 2 + 6
-    indices_premium = [0, 1, 2, 3, 5, 7, 8]
+    # SÃ©lection Premium :
+    # 8 chevaux (le dÃ©tail complet de l'analyse AZ,
+    # cohÃ©rent avec la "SÃ©lection du jour" affichÃ©e
+    # sur la page Analyse). Volontairement diffÃ©rente
+    # du QuintÃ© Gratuit (7 chevaux) pour ne pas offrir
+    # exactement le mÃªme contenu aux deux niveaux.
+    selection_quinte = numeros[:8]
 
-    selection_quinte = [
-        numeros[i]
-        for i in indices_premium
-        if i < len(numeros)
-    ]
+    # QuintÃ© Premium :
+    # 6 chevaux
+    quinte = numeros[:6]
 
-    quinte = selection_quinte[:6]
+    # QuartÃ© Premium :
+    # 5 chevaux
+    quarte = numeros[:5]
 
-    indices_quarte = [0, 1, 2, 5, 7]
-    quarte = [
-        numeros[i]
-        for i in indices_quarte
-        if i < len(numeros)
-    ]
-
-    indices_trio = [0, 1, 5]
-    trio = [
-        numeros[i]
-        for i in indices_trio
-        if i < len(numeros)
-    ]
+    # Trio Premium :
+    # 3 chevaux
+    trio = numeros[:3]
 
     # =================================
     # COUPLES GAGNANT / PLACE
@@ -233,9 +234,6 @@ def generer_tickets_az(classement):
     # DERNIERE MINUTE
     # =================================
 
-    # La Dernière Minute est volontairement indépendante de la
-    # sélection Premium : elle ne doit pas simplement recopier le
-    # Quinté Premium.
     ticket_derniere_minute = (
         generer_ticket_derniere_minute(
             classement
@@ -248,15 +246,15 @@ def generer_tickets_az(classement):
 
     premium = {
 
-        # Sélection Premium : 7 chevaux
+        # SÃ©lection Premium : 7 chevaux
         "selection_quinte":
             selection_quinte,
 
-        # Quinté Premium : 6 chevaux
+        # QuintÃ© Premium : 6 chevaux
         "quinte":
             quinte,
 
-        # Quarté Premium : 5 chevaux
+        # QuartÃ© Premium : 5 chevaux
         "quarte":
             quarte,
 
@@ -264,23 +262,23 @@ def generer_tickets_az(classement):
         "trio":
             trio,
 
-        # Couplé gagnant / placé
+        # CouplÃ© gagnant / placÃ©
         "couple_gagnant_place":
             couples,
 
-        # Champ réduit
+        # Champ rÃ©duit
         "champ_reduit":
             champ_reduit,
 
-        # Ticket dernière minute : 6 chevaux
+        # Ticket derniÃ¨re minute : 6 chevaux
         "ticket_derniere_minute":
             ticket_derniere_minute,
 
         # Message
         "message_fin":
-            "🍀 Bonne chance ! Les tickets Premium sont issus "
+            "ðŸ€ Bonne chance ! Les tickets Premium sont issus "
             "d'une analyse approfondie. Jouez toujours avec "
-            "discipline et responsabilité."
+            "discipline et responsabilitÃ©."
     }
 
     # =================================
@@ -296,5 +294,4 @@ def generer_tickets_az(classement):
             premium
 
     }
-
     
