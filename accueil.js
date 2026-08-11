@@ -15,10 +15,20 @@ throw new Error("Erreur API");
 const data = await response.json();
 
 
-const chevaux =
+const chevauxClassement =
 data.classement ||
 data.chevaux ||
 [];
+
+const chevaux =
+[...chevauxClassement].sort(
+    (a, b) => Number(a.numero || 0) - Number(b.numero || 0)
+);
+
+const classement =
+[...chevauxClassement].sort(
+    (a, b) => Number(a.rang || 0) - Number(b.rang || 0)
+);
 
 
 
@@ -79,7 +89,7 @@ data.partants
 
 
 // ===============================
-// PLUS JOUÃ‰S
+// PLUS JOUÉS
 // ===============================
 
 const popular =
@@ -108,7 +118,7 @@ ${numero}
 }else{
 
 popular.innerHTML =
-"Plus jouÃ© indisponible";
+"Plus joué indisponible";
 
 }
 
@@ -125,13 +135,13 @@ const tendance =
 document.getElementById("course-tendance");
 
 
-if(tendance && chevaux.length){
+if(tendance && classement.length){
 
 
 tendance.innerHTML = `
 
 <p>
-ðŸ”¥ Chevaux les plus jouÃ©s :
+🔥 Chevaux les plus joués :
 <strong>
 ${(data.plus_joues || []).join(" - ")}
 </strong>
@@ -139,19 +149,19 @@ ${(data.plus_joues || []).join(" - ")}
 
 
 <p>
-â­ Favori AZ :
+⭐ Favori AZ :
 <strong>
-NÂ°${chevaux[0].numero}
+N°${classement[0].numero}
 </strong>
 avec un indice AZ de
 <strong>
-${chevaux[0].indice_az || "-"}
+${classement[0].indice_az || "-"}
 </strong>
 </p>
 
 
 <p>
-ðŸ“Š La tendance est basÃ©e sur la forme, la rÃ©gularitÃ© et le classement AZ.
+📊 La tendance est basée sur la forme, la régularité et le classement AZ.
 </p>
 
 `;
@@ -167,7 +177,7 @@ ${chevaux[0].indice_az || "-"}
 // ===============================
 
 const favori =
-chevaux[0];
+classement[0];
 
 
 if(favori){
@@ -200,7 +210,7 @@ afficher(
 afficher(
 "favori-raison",
 favori.raison ||
-"â­ Favori AZ"
+"⭐ Favori AZ"
 );
 
 }
@@ -214,7 +224,7 @@ favori.raison ||
 // ===============================
 
 const outsider =
-chevaux[6];
+classement[6];
 
 
 if(outsider){
@@ -247,7 +257,7 @@ afficher(
 afficher(
 "outsider-raison",
 outsider.raison ||
-"ðŸ”¥ Outsider AZ"
+"🔥 Outsider AZ"
 );
 
 }
@@ -273,20 +283,39 @@ tableau.innerHTML = "";
 
 chevaux.forEach(cheval => {
 
+const numero =
+cheval.numero ?? "-";
+
+const jockey =
+cheval.jockey ||
+cheval.driver ||
+cheval.pilote ||
+"-";
+
+const entraineur =
+cheval.entraineur ||
+cheval.trainer ||
+"-";
+
+const cote =
+cheval.cote_brute ??
+cheval.rapport ??
+cheval.cote ??
+"-";
 
 tableau.innerHTML += `
 
 <tr>
 
-<td>${cheval.numero || "-"}</td>
+<td>${numero}</td>
 
 <td>${cheval.nom || "-"}</td>
 
-<td>${cheval.jockey || "-"}</td>
+<td>${jockey}</td>
 
-<td>${cheval.entraineur || "-"}</td>
+<td>${entraineur}</td>
 
-<td>${cheval.cote || "-"}</td>
+<td>${cote}</td>
 
 </tr>
 
@@ -379,31 +408,31 @@ const publicites = [
 
 {
 image:"images/pub1.jpg",
-titre:"â­ AZ Turf Pro Premium",
-texte:"Analyses spÃ©cialisÃ©es et tickets exclusifs"
+titre:"⭐ AZ Turf Pro Premium",
+texte:"Analyses spécialisées et tickets exclusifs"
 },
 
 {
 image:"images/pub2.jpg",
-titre:"ðŸ‡ Analyse du QuintÃ©",
-texte:"Des pronostics basÃ©s sur les performances"
+titre:"🏇 Analyse du Quinté",
+texte:"Des pronostics basés sur les performances"
 },
 
 {
 image:"images/pub3.jpg",
-titre:"ðŸ’Ž Abonnement Premium",
-texte:"AccÃ©dez aux sÃ©lections avancÃ©es"
+titre:"💎 Abonnement Premium",
+texte:"Accédez aux sélections avancées"
 },
 
 {
 image:"images/pub4.jpg",
-titre:"ðŸ“¢ Votre publicitÃ© ici",
-texte:"Un espace dÃ©diÃ© aux partenaires"
+titre:"📢 Votre publicité ici",
+texte:"Un espace dédié aux partenaires"
 },
 
 {
 image:"images/pub5.jpg",
-titre:"ðŸ† AZ Turf Pro",
+titre:"🏆 AZ Turf Pro",
 texte:"Une analyse professionnelle au service des pronostics"
 }
 
@@ -542,7 +571,7 @@ return;
 
 /*
    Utilise l'indice de confiance
-   dÃ©jÃ  fourni par l'analyse
+   déjà fourni par l'analyse
 */
 
 let confiance = 
@@ -562,7 +591,7 @@ if(message){
 if(confiance >= 80){
 
 message.innerHTML =
-"âœ… Course avec un niveau de confiance Ã©levÃ©";
+"✅ Course avec un niveau de confiance élevé";
 
 
 }
@@ -571,7 +600,7 @@ else if(confiance >= 60){
 
 
 message.innerHTML =
-"âš ï¸ Course avec quelques incertitudes";
+"⚠️ Course avec quelques incertitudes";
 
 
 }
@@ -580,7 +609,7 @@ else{
 
 
 message.innerHTML =
-"ðŸ”Ž Course ouverte, prudence recommandÃ©e";
+"🔎 Course ouverte, prudence recommandée";
 
 
 }
@@ -636,14 +665,14 @@ return;
 // LOGIQUE "CHEVAUX A SURVEILLER"
 //
 // Ce ne sont PAS simplement les 3 premiers
-// du classement (dÃ©jÃ  mis en avant comme
+// du classement (déjà mis en avant comme
 // Favori/Outsider ailleurs sur la page).
 //
 // Ce sont des chevaux hors du top 2 dont
 // l'indice AZ reste suffisamment proche du
-// leader pour reprÃ©senter une vraie menace :
+// leader pour représenter une vraie menace :
 // capables de battre les favoris ou de
-// crÃ©er la surprise, d'aprÃ¨s les donnÃ©es
+// créer la surprise, d'après les données
 // de l'analyse (indice_az / confiance).
 // =====================================
 
@@ -651,8 +680,8 @@ const meilleurIndice =
 classement[0].indice_az || 0;
 
 const SEUIL_MENACE = 0.70;
-// un cheval hors du top 2 est considÃ©rÃ©
-// "Ã  surveiller" si son indice AZ atteint
+// un cheval hors du top 2 est considéré
+// "à surveiller" si son indice AZ atteint
 // au moins 70% du meilleur indice de la course
 
 let candidats =
@@ -667,9 +696,9 @@ meilleurIndice > 0 &&
 
 
 // Repli : si aucun cheval n'atteint le seuil
-// (course trÃ¨s hiÃ©rarchisÃ©e), on prend quand
-// mÃªme les mieux placÃ©s juste derriÃ¨re le podium,
-// plutÃ´t que de laisser le bloc vide.
+// (course très hiérarchisée), on prend quand
+// même les mieux placés juste derrière le podium,
+// plutôt que de laisser le bloc vide.
 if(candidats.length === 0){
 
 candidats =
@@ -704,15 +733,15 @@ return `
 
 <p>
 
-ðŸ‡ NÂ°${c.numero} ${c.nom || ""}
+🏇 N°${c.numero} ${c.nom || ""}
 
 <br>
 
-${c.raison || "Cheval Ã  surveiller"}
+${c.raison || "Cheval à surveiller"}
 
 <br>
 
-âš¡ ${ecart}% de l'indice du leader â€” capable de crÃ©er la surprise
+⚡ ${ecart}% de l'indice du leader — capable de créer la surprise
 
 </p>
 
@@ -723,4 +752,5 @@ ${c.raison || "Cheval Ã  surveiller"}
 
 
    }
-    
+
+   
