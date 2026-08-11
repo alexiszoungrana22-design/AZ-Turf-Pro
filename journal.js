@@ -201,4 +201,4 @@ function afficherActualitesHippiques(donneesJournal){
 
     "</ul>";
 
-       }
+                                      }
