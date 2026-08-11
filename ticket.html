@@ -6,84 +6,163 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Journal Hippique - AZ Turf Pro</title>
+<title>AZ Turf Pro</title>
 
 <link rel="stylesheet" href="style.css">
 
 </head>
 
-
 <body>
-
 
 <header class="top-header">
 
-
 <div class="brand-zone">
-
 
 <div class="logo">
 🏇 <span>AZ Turf Pro</span>
 </div>
 
-
-<div class="mini-countdown">
-📰 Journal Hippique
+<div id="mini-countdown" class="mini-countdown">
+⏱ Départ : --:--:--
 </div>
 
-
 </div>
-
-
 
 
 <nav class="top-menu">
-
 
 <a href="index.html">
 🏠 Accueil
 </a>
 
-
 <a href="analyse.html">
 📊 Analyse
 </a>
-
 
 <a href="ticket.html">
 📰 Journal
 </a>
 
-
 <a href="historique.html">
 🏆 Historique
 </a>
 
-
 </nav>
-
-
+  
+<a href="abonnement.html" class="btn-vip">
+💎 Premium
+</a>
+  
 </header>
-
-
-
-
 
 
 
 <main class="content">
 
-<section class="card">
-<h2>🏇 Course du jour</h2>
-<div id="journal-course">
-<p><strong>Course :</strong> <span id="course-nom">-</span></p>
-<p><strong>Date :</strong> <span id="course-date">-</span></p>
-<p><strong>Réunion :</strong> <span id="course-reunion">-</span></p>
-<p><strong>Hippodrome :</strong> <span id="course-hippodrome">-</span></p>
-<p><strong>Discipline :</strong> <span id="course-discipline">-</span></p>
-<p><strong>Distance :</strong> <span id="course-distance">-</span></p>
-<p><strong>Partants :</strong> <span id="course-partants">-</span></p>
+
+<section class="card course-card">
+
+<h2>🏆 Course du jour</h2>
+
+<p>📍 Hippodrome :
+<strong id="meta-hippodrome">-</strong>
+</p>
+
+<p>🏇 Course :
+<strong id="meta-course">-</strong>
+</p>
+
+<p>🏁 Discipline :
+<strong id="meta-discipline">-</strong>
+</p>
+
+<p>📏 Distance :
+<strong id="meta-distance">-</strong>
+</p>
+
+<p>🐎 Partants :
+<strong id="meta-partants">-</strong>
+</p>
+
+</section>
+
+
+
+
+<section class="card pub-box">
+
+<h2>📢 Publicité</h2>
+
+<div class="slider-pub">
+
+<img id="pub-image"
+src="images/pub1.jpg"
+alt="Publicité AZ Turf Pro">
+
+
+<div class="pub-overlay">
+
+<h3 id="pub-title">
+⭐ AZ Turf Pro Premium
+</h3>
+
+<p id="pub-text">
+Analyse professionnelle et pronostics hippiques
+</p>
+
 </div>
+
+
+</div>
+
+
+<div class="slider-dots">
+
+<span class="dot active"></span>
+<span class="dot"></span>
+<span class="dot"></span>
+<span class="dot"></span>
+<span class="dot"></span>
+
+</div>
+
+
+</section>
+
+
+
+
+
+<section class="card">
+
+<h2>🐎 Tous les partants</h2>
+
+<div class="table-container">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>N°</th>
+<th>Cheval</th>
+<th>Jockey</th>
+<th>Entraîneur</th>
+<th>Cote</th>
+
+</tr>
+
+</thead>
+
+<tbody id="all-horses">
+
+</tbody>
+
+</table>
+
+</div>
+
 </section>
 
 
@@ -91,16 +170,100 @@
 
 
 
-<section class="card">
+<section class="card analyse-az">
+
+<h2>⭐ Analyse AZ du jour</h2>
+
+<div class="analyse-az-container">
 
 
-<h1>
-📰 Journal Hippique AZ Turf Pro
-</h1>
+<div class="az-box favori-az">
 
+<h3>🟢 Favori AZ</h3>
+
+<div class="az-numero" id="favori-numero">
+-
+</div>
+
+<h4 id="favori-nom">
+Chargement...
+</h4>
 
 <p>
-Toutes les informations utiles pour suivre les courses hippiques.
+📊 Indice AZ :
+<strong id="favori-indice">-</strong>
+</p>
+
+<p>
+🎯 Confiance :
+<strong id="favori-confiance">-</strong>
+</p>
+
+<p id="favori-raison">
+Analyse en cours...
+</p>
+
+</div>
+
+
+
+
+<div class="az-box outsider-az">
+
+<h3>🟠 Outsider AZ</h3>
+
+<div class="az-numero outsider-numero" id="outsider-numero">
+-
+</div>
+
+<h4 id="outsider-nom">
+Chargement...
+</h4>
+
+<p>
+📊 Indice AZ :
+<strong id="outsider-indice">-</strong>
+</p>
+
+<p>
+🎯 Confiance :
+<strong id="outsider-confiance">-</strong>
+</p>
+
+<p id="outsider-raison">
+Analyse en cours...
+</p>
+
+</div>
+
+
+</div>
+
+</section>
+
+
+<!-- =====================================
+     INDICE DE CONFIANCE COURSE
+===================================== -->
+
+<section class="card confiance-box">
+
+<h2>
+📊 Indice de confiance de la course
+</h2>
+
+
+<div class="confiance-score">
+
+<span id="indice-confiance">
+-
+</span>
+
+</div>
+
+
+<p id="message-confiance">
+Analyse en cours...
 </p>
 
 
@@ -112,65 +275,38 @@ Toutes les informations utiles pour suivre les courses hippiques.
 
 
 
+<!-- =====================================
+     CHEVAUX A SURVEILLER
+===================================== -->
 
-<section class="card">
-
+<section class="card surveillance-box">
 
 <h2>
-🇧🇫 Journal PMU'B LONAB
+👀 Chevaux à surveiller
 </h2>
 
 
-<p>
-Dernières informations officielles disponibles.
-</p>
+<div id="chevaux-surveiller">
 
-
-
-
-<div class="journal-box">
-
-
-<div id="journal-lonab">
-
-
-📄 Journal hippique bientôt disponible.
+Analyse en cours...
 
 </div>
-
-
-
-</div>
-
 
 
 </section>
-
-
-
-
-
 
 
 
 
 <section class="card">
 
+<h2>🔥 Chevaux les plus joués</h2>
 
-<h2>
-🏁 Dernières arrivées
-</h2>
-
-
-<div id="dernieres-arrivees">
-
-
-📄 Résultats bientôt disponibles.
-
+<div id="popular-horses"
+class="popular-horizontal">
 
 </div>
 
-
 </section>
 
 
@@ -179,25 +315,16 @@ Dernières informations officielles disponibles.
 
 
 
+<section class="card tendance-box">
 
+<h2>📈 Tendance de la course</h2>
 
-<section class="card">
+<div id="course-tendance">
 
-
-<h2>
-💰 Résultats et rapports
-</h2>
-
-
-<div id="rapports-courses">
-
-
-📄 Rapports bientôt disponibles.
-
+Analyse en cours...
 
 </div>
 
-
 </section>
 
 
@@ -206,78 +333,11 @@ Dernières informations officielles disponibles.
 
 
 
+<section class="news-bar">
 
-<section class="card">
-
-
-<h2>
-🌍 Actualités hippiques
-</h2>
-
-
-<div id="actualites-hippiques">
-
-
-<ul>
-
-
-<li>
-🏇 Préparation des grandes courses
-</li>
-
-
-<li>
-📊 Analyse des performances des chevaux
-</li>
-
-
-<li>
-⭐ Suivi des favoris et outsiders
-</li>
-
-
-</ul>
-
-
-</div>
-
+📢 AZ Turf Pro : une analyse professionnelle et approfondie au service des pronostics hippiques
 
 </section>
-
-
-
-
-
-
-
-
-<section class="card premium-access">
-
-
-<h2>
-💎 Espace Premium
-</h2>
-
-
-<p>
-Les tickets Premium et combinaisons avancées sont réservés aux membres abonnés.
-</p>
-
-
-
-<a href="abonnement.html">
-
-Accéder à Premium
-
-</a>
-
-
-</section>
-
-
-
-
-
 
 
 </main>
@@ -287,30 +347,23 @@ Accéder à Premium
 
 
 
-
-
 <footer class="bottom-menu">
-
 
 <a href="index.html">
 🏠 Accueil
 </a>
 
-
 <a href="analyse.html">
 📊 Analyse
 </a>
-
 
 <a href="ticket.html">
 📰 Journal
 </a>
 
-
 <a href="historique.html">
 🏆 Historique
 </a>
-
 
 </footer>
 
@@ -318,10 +371,9 @@ Accéder à Premium
 
 
 
+<script src="accueil.js?v=13"></script>
 
-
-
-<script src="journal.js?v=3"></script>
 </body>
 
-</html>
+  </html>
+  
