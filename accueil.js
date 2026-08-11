@@ -15,10 +15,20 @@ throw new Error("Erreur API");
 const data = await response.json();
 
 
-const chevaux =
+const chevauxClassement =
 data.classement ||
 data.chevaux ||
 [];
+
+const chevaux =
+[...chevauxClassement].sort(
+    (a, b) => Number(a.numero || 0) - Number(b.numero || 0)
+);
+
+const classement =
+[...chevauxClassement].sort(
+    (a, b) => Number(a.rang || 0) - Number(b.rang || 0)
+);
 
 
 
@@ -125,7 +135,7 @@ const tendance =
 document.getElementById("course-tendance");
 
 
-if(tendance && chevaux.length){
+if(tendance && classement.length){
 
 
 tendance.innerHTML = `
@@ -141,11 +151,11 @@ ${(data.plus_joues || []).join(" - ")}
 <p>
 ⭐ Favori AZ :
 <strong>
-N°${chevaux[0].numero}
+N°${classement[0].numero}
 </strong>
 avec un indice AZ de
 <strong>
-${chevaux[0].indice_az || "-"}
+${classement[0].indice_az || "-"}
 </strong>
 </p>
 
@@ -167,7 +177,7 @@ ${chevaux[0].indice_az || "-"}
 // ===============================
 
 const favori =
-chevaux[0];
+classement[0];
 
 
 if(favori){
@@ -214,7 +224,7 @@ favori.raison ||
 // ===============================
 
 const outsider =
-chevaux[6];
+classement[6];
 
 
 if(outsider){
@@ -273,20 +283,39 @@ tableau.innerHTML = "";
 
 chevaux.forEach(cheval => {
 
+const numero =
+cheval.numero ?? "-";
+
+const jockey =
+cheval.jockey ||
+cheval.driver ||
+cheval.pilote ||
+"-";
+
+const entraineur =
+cheval.entraineur ||
+cheval.trainer ||
+"-";
+
+const cote =
+cheval.cote_brute ??
+cheval.rapport ??
+cheval.cote ??
+"-";
 
 tableau.innerHTML += `
 
 <tr>
 
-<td>${cheval.numero || "-"}</td>
+<td>${numero}</td>
 
 <td>${cheval.nom || "-"}</td>
 
-<td>${cheval.jockey || "-"}</td>
+<td>${jockey}</td>
 
-<td>${cheval.entraineur || "-"}</td>
+<td>${entraineur}</td>
 
-<td>${cheval.cote || "-"}</td>
+<td>${cote}</td>
 
 </tr>
 
