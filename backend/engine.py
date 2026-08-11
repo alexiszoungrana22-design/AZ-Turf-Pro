@@ -4,7 +4,7 @@ from quinte import generer_tickets_az
 from learning import enregistrer_course
 
 
-def lancer_analyse(chevaux, course_info=None):
+def lancer_analyse(chevaux):
 
     if not chevaux:
         return {
@@ -50,16 +50,15 @@ def lancer_analyse(chevaux, course_info=None):
 
     try:
 
-        donnees_historique = {
+        enregistrer_course({
+
             "chevaux": chevaux,
+
             "classement": classement,
+
             "tickets": tickets
-        }
 
-        if isinstance(course_info, dict):
-            donnees_historique["course"] = course_info
-
-        enregistrer_course(donnees_historique)
+        })
 
     except Exception:
 
