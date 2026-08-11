@@ -53,7 +53,6 @@
 
 
 import re
-import unicodedata
 import requests
 
 try:
@@ -64,8 +63,7 @@ except ImportError:
 
 
 LONAB_BASE_URL = "https://lonab.bf"
-LONAB_PROGRAMME_URL = f"{LONAB_BASE_URL}/fr/programme-pmub"
-LONAB_PROGRAMME_URL_FALLBACK = f"{LONAB_BASE_URL}/programme-pmub"
+LONAB_PROGRAMME_URL = f"{LONAB_BASE_URL}/programme-pmub"
 
 TIMEOUT = 10
 
@@ -80,72 +78,122 @@ MOIS_FR = {
 # 1. TROUVER LE PDF DU JOUR
 # =====================================
 
-def normaliser_texte(texte):
-    """Normalise casse et accents pour les recherches LONAB."""
-    texte = str(texte or "")
-    texte = unicodedata.normalize("NFD", texte)
-    texte = "".join(c for c in texte if unicodedata.category(c) != "Mn")
-    return texte.upper()
+def _normaliser_accents(texte):
+    """
+    Retire les accents d'un texte pour permettre une comparaison
+    fiable, quelle que soit la forme exacte utilisee par le site
+    LONAB (ex: 'AOUT' vs 'AOÃ›T').
+    """
+    import unicodedata
 
+    normalise = unicodedata.normalize("NFKD", texte)
 
-def _pages_programme_lonab():
-    urls = [LONAB_PROGRAMME_URL, LONAB_PROGRAMME_URL_FALLBACK]
-    for base in (LONAB_PROGRAMME_URL, LONAB_PROGRAMME_URL_FALLBACK):
-        for page in range(0, 13):
-            urls.append(f"{base}?page={page}")
-    resultat, vus = [], set()
-    for url in urls:
-        if url not in vus:
-            vus.add(url)
-            resultat.append(url)
-    return resultat
-
-
-def _extraire_pdf_depuis_html(html, date_obj):
-    cible = normaliser_texte(
-        f"journal hippique PMU'B du {date_obj.day:02d} {MOIS_FR[date_obj.month]} {date_obj.year}"
+    return "".join(
+        caractere
+        for caractere in normalise
+        if not unicodedata.combining(caractere)
     )
-    motif = re.compile(
-        r"<a\b[^>]*?href=[\"']([^\"']+\.pdf(?:\?[^\"']*)?)[\"'][^>]*>(.*?)</a>",
-        re.IGNORECASE | re.DOTALL,
-    )
-    for href, contenu in motif.findall(html):
-        texte_lien = normaliser_texte(re.sub(r"<[^>]+>", " ", contenu))
-        if cible in texte_lien or normaliser_texte(
-            f"{date_obj.day:02d} {MOIS_FR[date_obj.month]} {date_obj.year}"
-        ) in texte_lien:
-            return href
-    html_norm = normaliser_texte(html)
-    for position in [m.start() for m in re.finditer(re.escape(cible), html_norm)]:
-        trouve = re.search(r"href=[\"']([^\"']+\.pdf(?:\?[^\"']*)?)[\"']", html[position:position+5000], re.I)
-        if trouve:
-            return trouve.group(1)
-    return None
-
-
-def _absolutiser_url(url):
-    if not url:
-        return None
-    url = url.strip()
-    if url.startswith(("http://", "https://")):
-        return url
-    if url.startswith("/"):
-        return LONAB_BASE_URL + url
-    return LONAB_BASE_URL + "/" + url.lstrip("./")
 
 
 def trouver_url_pdf_du_jour(date_obj):
-    """Trouve le PDF officiel LONAB, sans dependre des accents ni d'une page unique."""
-    for page_url in _pages_programme_lonab():
-        try:
-            reponse = requests.get(page_url, timeout=TIMEOUT, headers={"User-Agent": "AZ-Turf-Pro/1.0"})
-            reponse.raise_for_status()
-            url_pdf = _extraire_pdf_depuis_html(reponse.text, date_obj)
-            if url_pdf:
-                return _absolutiser_url(url_pdf)
-        except Exception as erreur:
-            print(f"Erreur page programme LONAB ({page_url}) :", erreur)
+    """
+    Cherche, sur la page de listing LONAB, le lien du journal
+    hippique correspondant a la date donnee (objet datetime.date
+    ou datetime.datetime).
+
+    Deux methodes essayees, dans l'ordre :
+    1. Recherche du libelle de date dans la page HTML de listing
+       (insensible aux accents et aux espaces multiples).
+    2. Repli : URL directe prevmarisible, deja confirmee valide
+       pour au moins une date reelle testee
+       (ex: JH_PMUB_DU_10-08-2026.pdf).
+
+    Retourne l'URL absolue du PDF, ou None si aucune des deux
+    methodes n'aboutit.
+    """
+
+    libelle_date = (
+        f"{date_obj.day:02d} {MOIS_FR[date_obj.month]} {date_obj.year}"
+    )
+    libelle_date_normalise = _normaliser_accents(libelle_date).upper()
+
+    try:
+        reponse = requests.get(
+            LONAB_PROGRAMME_URL,
+            timeout=TIMEOUT,
+            headers={"User-Agent": "AZ-Turf-Pro/1.0"},
+        )
+        reponse.raise_for_status()
+        html = reponse.text
+    except Exception as erreur:
+        print("Erreur page programme LONAB :", erreur)
+        html = None
+
+    if html:
+
+        html_normalise = _normaliser_accents(html).upper()
+
+        # Recherche insensible aux accents et aux espaces multiples
+        # (\s+ au lieu d'un espace simple entre jour/mois/annee).
+        motif_normalise = re.compile(
+            r"DU\s+"
+            + re.escape(f"{date_obj.day:02d}")
+            + r"\s+"
+            + re.escape(MOIS_FR[date_obj.month])
+            + r"\s+"
+            + re.escape(str(date_obj.year))
+        )
+
+        position = motif_normalise.search(html_normalise)
+
+        if position:
+
+            # On cherche le lien .pdf dans les 500 caracteres
+            # suivants du HTML ORIGINAL (pas normalise, pour
+            # recuperer une URL intacte).
+            zone = html[position.start():position.start() + 800]
+
+            lien = re.search(r'href="([^"]+\.pdf)"', zone, re.IGNORECASE)
+
+            if lien:
+                url_pdf = lien.group(1)
+
+                if url_pdf.startswith("/"):
+                    url_pdf = LONAB_BASE_URL + url_pdf
+
+                return url_pdf
+
+    # =================================
+    # REPLI : URL DIRECTE PREVISIBLE
+    # =================================
+    # Format confirme valide par test direct :
+    # https://lonab.bf/sites/default/files/2026-08/JH_PMUB_DU_10-08-2026.pdf
+
+    url_directe = (
+        f"{LONAB_BASE_URL}/sites/default/files/"
+        f"{date_obj.year}-{date_obj.month:02d}/"
+        f"JH_PMUB_DU_{date_obj.day:02d}-{date_obj.month:02d}-{date_obj.year}.pdf"
+    )
+
+    try:
+        verification = requests.head(
+            url_directe,
+            timeout=TIMEOUT,
+            headers={"User-Agent": "AZ-Turf-Pro/1.0"},
+        )
+
+        if verification.status_code == 200:
+            return url_directe
+
+    except Exception as erreur:
+        print("Erreur verification URL directe LONAB :", erreur)
+
     return None
+
+    if url_pdf.startswith("/"):
+        url_pdf = LONAB_BASE_URL + url_pdf
+
+    return url_pdf
 
 
 # =====================================
@@ -214,7 +262,7 @@ def extraire_entete(texte):
         resultat["type_pari"] = type_pari.group(1)
 
     hippodrome = re.search(
-        r"\n([A-ZÃ€-Ãœ'\- ]{4,})\s*-\s*(PRIX[^\n]+)", texte
+        r"\n([A-ZÃ€-ÃƒÅ“'\- ]{4,})\s*-\s*(PRIX[^\n]+)", texte
     )
     if hippodrome:
         resultat["hippodrome"] = hippodrome.group(1).strip()
@@ -252,8 +300,8 @@ def extraire_commentaires_chevaux(texte, nombre_concurrents):
     commentaires = []
 
     motif = re.compile(
-        r"^(\d{1,2})\s*-\s*([A-ZÃ€-Ãœ' ]{2,}?)\s*:\s*(.+?)"
-        r"(?=\n\d{1,2}\s*-\s*[A-ZÃ€-Ãœ' ]{2,}?\s*:|\Z)",
+        r"^(\d{1,2})\s*-\s*([A-ZÃ€-ÃƒÅ“' ]{2,}?)\s*:\s*(.+?)"
+        r"(?=\n\d{1,2}\s*-\s*[A-ZÃ€-ÃƒÅ“' ]{2,}?\s*:|\Z)",
         re.DOTALL | re.MULTILINE,
     )
 
@@ -335,23 +383,23 @@ def extraire_synthese(texte):
     }
 
     favoris = re.search(
-        r"FAVORIS\s*:\s*((?:\d{1,2}\s*[â€“\-]\s*)+\d{1,2})", texte
+        r"FAVORIS\s*:\s*((?:\d{1,2}\s*[Ã¢â‚¬â€œ\-]\s*)+\d{1,2})", texte
     )
     if favoris:
         resultat["favoris"] = [
             int(n.strip())
-            for n in re.split(r"[â€“\-]", favoris.group(1))
+            for n in re.split(r"[Ã¢â‚¬â€œ\-]", favoris.group(1))
             if n.strip().isdigit()
         ]
 
     for critere in ("FORME", "CLASSE", "PROGRES", "REGULARITE"):
         motif = re.search(
-            critere + r"\s*:\s*((?:\d{1,2}\s*[â€“\-]\s*)+\d{1,2})", texte
+            critere + r"\s*:\s*((?:\d{1,2}\s*[Ã¢â‚¬â€œ\-]\s*)+\d{1,2})", texte
         )
         if motif:
             resultat["classement"][critere.lower()] = [
                 int(n.strip())
-                for n in re.split(r"[â€“\-]", motif.group(1))
+                for n in re.split(r"[Ã¢â‚¬â€œ\-]", motif.group(1))
                 if n.strip().isdigit()
             ]
 
@@ -361,7 +409,7 @@ def extraire_synthese(texte):
     if entraineurs:
         resultat["entraineurs_en_forme"] = [
             nom.strip()
-            for nom in entraineurs.group(1).split("â€“")
+            for nom in entraineurs.group(1).split("Ã¢â‚¬â€œ")
             if nom.strip()
         ]
 
@@ -371,7 +419,7 @@ def extraire_synthese(texte):
     if jockeys:
         resultat["jockeys_en_forme"] = [
             nom.strip()
-            for nom in jockeys.group(1).split("â€“")
+            for nom in jockeys.group(1).split("Ã¢â‚¬â€œ")
             if nom.strip()
         ]
 
@@ -386,7 +434,7 @@ def extraire_horaires(texte):
     resultat = {"arret_des_jeux": "", "depart": ""}
 
     arret = re.search(
-        r"ARR[ÃŠE]T DES JEUX EST FIX[Ã‰E]\s*:\s*([0-9hHmMn ]+)", texte
+        r"ARR[ÃƒÅ E]T DES JEUX EST FIX[Ã‰E]\s*:\s*([0-9hHmMn ]+)", texte
     )
     if arret:
         resultat["arret_des_jeux"] = arret.group(1).strip()
@@ -405,117 +453,46 @@ def extraire_horaires(texte):
 # =====================================
 
 def extraire_actualites(texte):
-    """Extrait les arrivees precedentes imprimees dans le journal."""
+    """
+    Extrait les arrivees des courses precedentes mentionnees dans
+    le journal (sert d'actualite/rappel pour l'utilisateur).
+    """
+
     actualites = []
+
     motif = re.compile(
-        r'ARRIVEE DU\s+"(QUINTE\+?|QUARTE|TIERCE|4\+1)"\s+DU\s+'
-        r"([A-ZÃ€-Ã–Ã˜-Ã0-9Ã‰ÃˆÃŠÃ‹Ã€Ã‚ÃŽÃÃ”Ã™Ã›ÃœÃ‡'./ -]+?)\s*:\s*"
-        r"((?:\d{1,2}\s*[-â€“]\s*)+\d{1,2})", re.I
+        r'ARRIVEE DU\s+"(QUINTE\+?|QUARTE|TIERCE)"\s+DU\s+'
+        r"([A-ZÃ‰]+\s+\d{1,2}\s+\w+\s+\d{4})\s*:\s*"
+        r"((?:\d{1,2}\s*-\s*)+\d{1,2})"
     )
+
     for type_pari, date_texte, arrivee_texte in motif.findall(texte):
-        arrivee = [int(n.strip()) for n in re.split(r"[-â€“]", arrivee_texte) if n.strip().isdigit()]
-        if arrivee:
-            actualites.append({"type_pari": type_pari.upper(), "date": date_texte.strip(), "arrivee": arrivee})
+        arrivee = [
+            int(n.strip())
+            for n in arrivee_texte.split("-")
+            if n.strip().isdigit()
+        ]
+
+        actualites.append({
+            "type_pari": type_pari,
+            "date": date_texte.strip(),
+            "arrivee": arrivee,
+        })
+
     return actualites
 
 
-def _extraire_arrivee_depuis_texte_resultat(texte):
-    for motif in (
-        r"ARR\s*:\s*((?:\d{1,2}\s*[-â€“]\s*)+\d{1,2})",
-        r"ARRIVEE\s*:?\s*((?:\d{1,2}\s*[-â€“]\s*)+\d{1,2})",
-        r"ARRIV[Ã‰E]E\s*:?\s*((?:\d{1,2}\s*[-â€“]\s*)+\d{1,2})",
-    ): 
-        trouve = re.search(motif, texte, re.I)
-        if trouve:
-            arrivee = [int(n.strip()) for n in re.split(r"[-â€“]", trouve.group(1)) if n.strip().isdigit()]
-            if arrivee:
-                return arrivee
-    return []
-
-
-def extraire_rapports_lonab(texte):
-    rapports = {}
-    motifs = [
-        ("ordre", r"Ordre\s*:\s*(.*?)(?=\s+(?:D[Ã©e]sordre|Bonus|Tierc[Ã©e]|Coupl[Ã©e]|Report|Masse)\s*:|$)"),
-        ("desordre", r"D[Ã©e]sordre\s*:\s*(.*?)(?=\s+(?:Ordre|Bonus|Tierc[Ã©e]|Coupl[Ã©e]|Report|Masse)\s*:|$)"),
-        ("bonus", r"Bonus\s*:\s*(.*?)(?=\s+(?:Ordre|D[Ã©e]sordre|Tierc[Ã©e]|Coupl[Ã©e]|Report|Masse)\s*:|$)"),
-        ("tierce", r"Tierc[Ã©e][^:]*:\s*(.*?)(?=\s+(?:Ordre|D[Ã©e]sordre|Bonus|Coupl[Ã©e]|Report|Masse)\s*:|$)"),
-        ("couple_gagnant", r"Coupl[Ã©e]\s+Gagnant\s*:\s*(.*?)(?=\s+(?:Ordre|D[Ã©e]sordre|Bonus|Tierc[Ã©e]|Coupl[Ã©e]|Report|Masse)\s*:|$)"),
-        ("couple_place_a", r"Coupl[Ã©e]\s+Plac[Ã©e]\s+A\s*:\s*(.*?)(?=\s+(?:Ordre|D[Ã©e]sordre|Bonus|Tierc[Ã©e]|Coupl[Ã©e]|Report|Masse)\s*:|$)"),
-        ("couple_place_b", r"Coupl[Ã©e]\s+Plac[Ã©e]\s+B\s*:\s*(.*?)(?=\s+(?:Ordre|D[Ã©e]sordre|Bonus|Tierc[Ã©e]|Coupl[Ã©e]|Report|Masse)\s*:|$)"),
-        ("couple_place_c", r"Coupl[Ã©e]\s+Plac[Ã©e]\s+C\s*:\s*(.*?)(?=\s+(?:Ordre|D[Ã©e]sordre|Bonus|Tierc[Ã©e]|Coupl[Ã©e]|Report|Masse)\s*:|$)"),
-        ("report_ordre", r"Report\s+Ordre[^:]*:\s*(.*?)(?=\s+(?:Ordre|D[Ã©e]sordre|Bonus|Tierc[Ã©e]|Coupl[Ã©e]|Masse)\s*:|$)"),
-        ("masse_a_partager", r"Masse\s+[Ã a]\s+partager\s*:\s*(.*?)(?=\s+(?:Ordre|D[Ã©e]sordre|Bonus|Tierc[Ã©e]|Coupl[Ã©e]|Report|Masse)\s*:|$)"),
-    ]
-    for cle, motif in motifs:
-        valeurs = re.findall(motif, texte, re.I)
-        if valeurs:
-            rapports[cle] = [" ".join(v.split()) for v in valeurs]
-    return rapports
-
-
 def extraire_masses_a_partager(texte):
-    return extraire_rapports_lonab(texte).get("masse_a_partager", [])
+    """
+    Extrait les montants "Masse a partager" imprimes dans le
+    journal (rapports financiers des dernieres courses).
+    """
 
+    montants = re.findall(
+        r"Masse\s+[Ã a]\s+partager\s*:\s*([\d\s]+)\s*F", texte
+    )
 
-def _trouver_article_resultat_lonab(date_obj):
-    date_cible = normaliser_texte(f"{date_obj.day:02d} {MOIS_FR[date_obj.month]} {date_obj.year}")
-    pages = _pages_programme_lonab() + [LONAB_BASE_URL, f"{LONAB_BASE_URL}/fr"]
-    for page_url in pages:
-        try:
-            reponse = requests.get(page_url, timeout=TIMEOUT, headers={"User-Agent": "AZ-Turf-Pro/1.0"})
-            reponse.raise_for_status()
-            html = reponse.text
-            if date_cible not in normaliser_texte(html):
-                continue
-            for href, contenu in re.findall(r"<a\b[^>]*?href=[\"']([^\"']+)[\"'][^>]*>(.*?)</a>", html, re.I | re.S):
-                texte_lien = normaliser_texte(re.sub(r"<[^>]+>", " ", contenu))
-                if date_cible in texte_lien and ("RESULTAT" in texte_lien or "ARRIVEE" in texte_lien):
-                    return _absolutiser_url(href)
-        except Exception:
-            continue
-    return None
-
-
-def recuperer_resultats_lonab(date_obj):
-    url_article = _trouver_article_resultat_lonab(date_obj)
-    textes = []
-    if url_article:
-        try:
-            reponse = requests.get(url_article, timeout=TIMEOUT, headers={"User-Agent": "AZ-Turf-Pro/1.0"})
-            reponse.raise_for_status()
-            texte = re.sub(r"<[^>]+>", " ", reponse.text)
-            textes.append(re.sub(r"\s+", " ", texte))
-        except Exception as erreur:
-            print("Erreur article resultat LONAB :", erreur)
-    if not textes:
-        for page_url in (LONAB_BASE_URL, f"{LONAB_BASE_URL}/fr"):
-            try:
-                reponse = requests.get(page_url, timeout=TIMEOUT, headers={"User-Agent": "AZ-Turf-Pro/1.0"})
-                reponse.raise_for_status()
-                texte = re.sub(r"<[^>]+>", " ", reponse.text)
-                textes.append(re.sub(r"\s+", " ", texte))
-            except Exception:
-                pass
-    for texte in textes:
-        arrivee = _extraire_arrivee_depuis_texte_resultat(texte)
-        rapports = extraire_rapports_lonab(texte)
-        if arrivee or rapports:
-            return {"source": "lonab_officiel", "url": url_article or LONAB_BASE_URL, "arrivee": arrivee, "rapports": rapports}
-    return {"source": "lonab_officiel", "url": url_article or LONAB_BASE_URL, "arrivee": [], "rapports": {}}
-
-
-def extraire_plus_joues(texte):
-    """Retourne les plus joues uniquement si la LONAB les imprime dans la source."""
-    for motif in (
-        r"PLUS\s+JOU[Ã‰E]S?\s*:?\s*((?:\d{1,2}\s*[-â€“]\s*)+\d{1,2})",
-        r"LES\s+PLUS\s+JOU[Ã‰E]S?\s*:?\s*((?:\d{1,2}\s*[-â€“]\s*)+\d{1,2})",
-    ):
-        trouve = re.search(motif, texte, re.I)
-        if trouve:
-            return [int(n.strip()) for n in re.split(r"[-â€“]", trouve.group(1)) if n.strip().isdigit()]
-    return []
-
+    return [m.strip() + " F" for m in montants]
 
 
 # =====================================
@@ -555,8 +532,6 @@ def recuperer_journal_lonab(date_obj):
         horaires = extraire_horaires(texte)
         actualites = extraire_actualites(texte)
         masses_a_partager = extraire_masses_a_partager(texte)
-        plus_joues = extraire_plus_joues(texte)
-        resultats_officiels = recuperer_resultats_lonab(date_obj)
 
         return {
             "source": "lonab",
@@ -568,15 +543,81 @@ def recuperer_journal_lonab(date_obj):
             "horaires": horaires,
             "actualites": actualites,
             "masses_a_partager": masses_a_partager,
-            "plus_joues": plus_joues,
-            "resultats_officiels": resultats_officiels,
-            "arrivee": resultats_officiels.get("arrivee", []),
-            "rapports": resultats_officiels.get("rapports", {}),
         }
 
     except Exception as erreur:
         print("Erreur recuperation journal LONAB :", erreur)
         return None
+
+
+# =====================================
+# DIAGNOSTIC DETAILLE (etape par etape)
+# =====================================
+#
+# N'affecte pas recuperer_journal_lonab() ci-dessus. Sert
+# uniquement a exposer, via une route de debug temporaire dans
+# api.py, a quelle etape precise la recuperation echoue - sans
+# necessiter un acces aux logs Render.
+
+def diagnostiquer_journal_lonab(date_obj):
+
+    diagnostic = {
+        "libelle_date_recherchee": (
+            f"{date_obj.day:02d} {MOIS_FR[date_obj.month]} "
+            f"{date_obj.year}"
+        ),
+        "page_listing_accessible": False,
+        "url_pdf_trouvee": None,
+        "pdf_telecharge_et_lisible": False,
+        "longueur_texte_extrait": 0,
+        "erreur": None,
+    }
+
+    try:
+        reponse = requests.get(
+            LONAB_PROGRAMME_URL,
+            timeout=TIMEOUT,
+            headers={"User-Agent": "AZ-Turf-Pro/1.0"},
+        )
+        reponse.raise_for_status()
+        diagnostic["page_listing_accessible"] = True
+        diagnostic["taille_page_listing"] = len(reponse.text)
+
+    except Exception as erreur:
+        diagnostic["erreur"] = (
+            f"Page de listing LONAB inaccessible : {erreur}"
+        )
+        return diagnostic
+
+    url_pdf = trouver_url_pdf_du_jour(date_obj)
+    diagnostic["url_pdf_trouvee"] = url_pdf
+
+    if not url_pdf:
+        diagnostic["erreur"] = (
+            "Aucun lien PDF trouve sur la page de listing pour "
+            "la date recherchee (le libelle de date ne correspond "
+            "peut-etre pas exactement au format utilise par LONAB "
+            "ce jour-la)."
+        )
+        return diagnostic
+
+    diagnostic["pdfplumber_disponible"] = PDFPLUMBER_DISPONIBLE
+
+    texte = extraire_texte_pdf(url_pdf)
+
+    if not texte:
+        diagnostic["erreur"] = (
+            "PDF trouve mais impossible d'en extraire le texte "
+            "(pdfplumber absent, telechargement echoue, ou PDF "
+            "illisible)."
+        )
+        return diagnostic
+
+    diagnostic["pdf_telecharge_et_lisible"] = True
+    diagnostic["longueur_texte_extrait"] = len(texte)
+    diagnostic["extrait_texte"] = texte[:500]
+
+    return diagnostic
 
 
 # =====================================
