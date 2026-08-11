@@ -42,6 +42,8 @@ from models import (
 
 from pmu_source import charger_course_pmu
 
+from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
+
 import json
 import os
 from datetime import datetime, timedelta
@@ -296,12 +298,6 @@ def analyse():
             "course_numero":
                 course_numero,
 
-            "heure_depart":
-                course.get(
-                    "heure_depart",
-                    course.get("heureDepart", "")
-                ),
-
             "hippodrome":
                 course.get(
                     "hippodrome",
@@ -531,4 +527,118 @@ def admin_statistiques():
 
     return statistiques_abonnements()
 
-        
+
+# =====================================
+# JOURNAL HIPPIQUE (LONAB)
+# =====================================
+#
+# Route additive : n'affecte aucune route existante ci-dessus.
+
+@router.get("/journal")
+def journal():
+
+    try:
+
+        aujourd_hui = datetime.now()
+
+        resultat = recuperer_journal_lonab(
+            aujourd_hui
+        )
+
+        if not resultat:
+
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    "Journal hippique LONAB indisponible "
+                    "actuellement."
+                )
+            )
+
+        return resultat
+
+    except HTTPException:
+        raise
+
+    except Exception as erreur:
+
+        print(
+            "Erreur journal LONAB :",
+            erreur
+        )
+
+        raise HTTPException(
+
+            status_code=500,
+
+            detail=(
+                "Erreur journal : "
+                f"{str(erreur)}"
+            )
+
+        )
+
+
+# =====================================
+# DEBUG TEMPORAIRE - JSON BRUT PMU
+# =====================================
+#
+# Route temporaire, a retirer une fois le probleme d'hippodrome
+# resolu. Retourne le dict "course" brut tel que recu de l'API PMU,
+# AVANT toute transformation, pour identifier le vrai nom du champ
+# hippodrome dans le schema reel de l'API client/61.
+
+@router.get("/debug-pmu")
+def debug_pmu():
+
+    from pmu_source import trouver_quinte_du_jour
+
+    aujourd_hui = datetime.now()
+    date_pmu = aujourd_hui.strftime("%d%m%Y")
+
+    try:
+
+        programme, reunion, course = trouver_quinte_du_jour(
+            date_pmu
+        )
+
+        return {
+            "reunion": reunion,
+            "programme_brut": programme,
+            "course_brute": course,
+        }
+
+    except Exception as erreur:
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erreur debug PMU : {erreur}"
+        )
+
+
+# =====================================
+# DEBUG TEMPORAIRE - JOURNAL LONAB
+# =====================================
+#
+# Route temporaire, a retirer une fois le journal fonctionnel.
+# Montre precisement a quelle etape la recuperation LONAB echoue.
+
+@router.get("/debug-journal")
+def debug_journal():
+
+    aujourd_hui = datetime.now()
+
+    try:
+
+        diagnostic = diagnostiquer_journal_lonab(
+            aujourd_hui
+        )
+
+        return diagnostic
+
+    except Exception as erreur:
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erreur debug journal : {erreur}"
+)
