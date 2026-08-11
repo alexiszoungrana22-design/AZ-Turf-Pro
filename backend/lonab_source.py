@@ -190,7 +190,7 @@ def extraire_entete(texte):
         resultat["type_pari"] = type_pari.group(1)
 
     hippodrome = re.search(
-        r"\n([A-ZÃ€-Ãœ'\- ]{4,})\s*-\s*(PRIX[^\n]+)", texte
+        r"\n([A-ZÃ€-ÃƒÅ“'\- ]{4,})\s*-\s*(PRIX[^\n]+)", texte
     )
     if hippodrome:
         resultat["hippodrome"] = hippodrome.group(1).strip()
@@ -228,8 +228,8 @@ def extraire_commentaires_chevaux(texte, nombre_concurrents):
     commentaires = []
 
     motif = re.compile(
-        r"^(\d{1,2})\s*-\s*([A-ZÃ€-Ãœ' ]{2,}?)\s*:\s*(.+?)"
-        r"(?=\n\d{1,2}\s*-\s*[A-ZÃ€-Ãœ' ]{2,}?\s*:|\Z)",
+        r"^(\d{1,2})\s*-\s*([A-ZÃ€-ÃƒÅ“' ]{2,}?)\s*:\s*(.+?)"
+        r"(?=\n\d{1,2}\s*-\s*[A-ZÃ€-ÃƒÅ“' ]{2,}?\s*:|\Z)",
         re.DOTALL | re.MULTILINE,
     )
 
@@ -311,23 +311,23 @@ def extraire_synthese(texte):
     }
 
     favoris = re.search(
-        r"FAVORIS\s*:\s*((?:\d{1,2}\s*[â€“\-]\s*)+\d{1,2})", texte
+        r"FAVORIS\s*:\s*((?:\d{1,2}\s*[Ã¢â‚¬â€œ\-]\s*)+\d{1,2})", texte
     )
     if favoris:
         resultat["favoris"] = [
             int(n.strip())
-            for n in re.split(r"[â€“\-]", favoris.group(1))
+            for n in re.split(r"[Ã¢â‚¬â€œ\-]", favoris.group(1))
             if n.strip().isdigit()
         ]
 
     for critere in ("FORME", "CLASSE", "PROGRES", "REGULARITE"):
         motif = re.search(
-            critere + r"\s*:\s*((?:\d{1,2}\s*[â€“\-]\s*)+\d{1,2})", texte
+            critere + r"\s*:\s*((?:\d{1,2}\s*[Ã¢â‚¬â€œ\-]\s*)+\d{1,2})", texte
         )
         if motif:
             resultat["classement"][critere.lower()] = [
                 int(n.strip())
-                for n in re.split(r"[â€“\-]", motif.group(1))
+                for n in re.split(r"[Ã¢â‚¬â€œ\-]", motif.group(1))
                 if n.strip().isdigit()
             ]
 
@@ -337,7 +337,7 @@ def extraire_synthese(texte):
     if entraineurs:
         resultat["entraineurs_en_forme"] = [
             nom.strip()
-            for nom in entraineurs.group(1).split("â€“")
+            for nom in entraineurs.group(1).split("Ã¢â‚¬â€œ")
             if nom.strip()
         ]
 
@@ -347,7 +347,7 @@ def extraire_synthese(texte):
     if jockeys:
         resultat["jockeys_en_forme"] = [
             nom.strip()
-            for nom in jockeys.group(1).split("â€“")
+            for nom in jockeys.group(1).split("Ã¢â‚¬â€œ")
             if nom.strip()
         ]
 
@@ -362,7 +362,7 @@ def extraire_horaires(texte):
     resultat = {"arret_des_jeux": "", "depart": ""}
 
     arret = re.search(
-        r"ARR[ÃŠE]T DES JEUX EST FIX[Ã‰E]\s*:\s*([0-9hHmMn ]+)", texte
+        r"ARR[ÃƒÅ E]T DES JEUX EST FIX[Ã‰E]\s*:\s*([0-9hHmMn ]+)", texte
     )
     if arret:
         resultat["arret_des_jeux"] = arret.group(1).strip()
