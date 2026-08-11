@@ -42,8 +42,6 @@ from models import (
 
 from pmu_source import charger_course_pmu
 
-from lonab_source import recuperer_journal_lonab
-
 import json
 import os
 from datetime import datetime, timedelta
@@ -113,7 +111,7 @@ def charger_course():
         ):
 
             print(
-                "Source utilisée : PMU réel"
+                "Source utilisÃ©e : PMU rÃ©el"
             )
 
             return course, "pmu_live"
@@ -144,7 +142,7 @@ def charger_course():
         ):
 
             print(
-                "Source utilisée : données locales (démo)"
+                "Source utilisÃ©e : donnÃ©es locales (dÃ©mo)"
             )
 
             course["donnees_demo"] = True
@@ -171,7 +169,7 @@ def analyse():
     try:
 
         # =================================
-        # 1. CHARGEMENT DES DONNÉES
+        # 1. CHARGEMENT DES DONNÃ‰ES
         # =================================
 
         course, source = charger_course()
@@ -181,7 +179,7 @@ def analyse():
             raise HTTPException(
                 status_code=503,
                 detail=(
-                    "Aucune donnée de course "
+                    "Aucune donnÃ©e de course "
                     "disponible actuellement."
                 )
             )
@@ -200,7 +198,7 @@ def analyse():
             raise HTTPException(
                 status_code=503,
                 detail=(
-                    "Aucun cheval trouvé "
+                    "Aucun cheval trouvÃ© "
                     "dans la course."
                 )
             )
@@ -218,7 +216,7 @@ def analyse():
             dict
         ):
             raise Exception(
-                "Réponse invalide du moteur AZ"
+                "RÃ©ponse invalide du moteur AZ"
             )
 
         classement = resultat.get(
@@ -229,7 +227,7 @@ def analyse():
         if not classement:
 
             raise Exception(
-                "Le moteur AZ n'a retourné "
+                "Le moteur AZ n'a retournÃ© "
                 "aucun classement."
             )
 
@@ -259,17 +257,17 @@ def analyse():
         )
 
         # =================================
-        # 5. RÉPONSE API
+        # 5. RÃ‰PONSE API
         # =================================
 
         reponse = {
 
             "message": (
-                "Analyse AZ Turf terminée"
+                "Analyse AZ Turf terminÃ©e"
                 if not est_demo else
-                "Analyse AZ Turf terminée "
-                "(données de démonstration, "
-                "aucune course réelle "
+                "Analyse AZ Turf terminÃ©e "
+                "(donnÃ©es de dÃ©monstration, "
+                "aucune course rÃ©elle "
                 "disponible actuellement)"
             ),
 
@@ -360,10 +358,10 @@ def analyse():
         if est_demo:
 
             reponse["avertissement"] = (
-                "Ces données sont des données de "
-                "démonstration figées et ne "
-                "correspondent pas à une course "
-                "réelle du jour."
+                "Ces donnÃ©es sont des donnÃ©es de "
+                "dÃ©monstration figÃ©es et ne "
+                "correspondent pas Ã  une course "
+                "rÃ©elle du jour."
             )
 
         return reponse
@@ -408,7 +406,7 @@ def abonnement(
         return {
 
             "message":
-                "Abonnement enregistré",
+                "Abonnement enregistrÃ©",
 
             "abonnement":
                 resultat
@@ -450,7 +448,7 @@ def activation_premium(
             status_code=404,
 
             detail=
-                "Aucun abonnement trouvé"
+                "Aucun abonnement trouvÃ©"
 
         )
 
@@ -478,7 +476,7 @@ def activation_premium(
     return {
 
         "message":
-            "Premium activé",
+            "Premium activÃ©",
 
         "statut":
             "ACTIF",
@@ -526,60 +524,4 @@ def admin_abonnements():
 def admin_statistiques():
 
     return statistiques_abonnements()
-
-
-# =====================================
-# JOURNAL HIPPIQUE (LONAB)
-# =====================================
-#
-# Route additive : n'affecte aucune route existante ci-dessus.
-# Alimente la page "journal" avec le vrai journal hippique LONAB du
-# jour (indices/commentaires par cheval, consensus de plusieurs
-# medias reels, favoris, horaires, actualites, lien PDF officiel
-# telechargeable). Ne touche ni au moteur AZ, ni aux tickets, ni a
-# l'analyse Premium.
-
-@router.get("/journal")
-def journal():
-
-    try:
-
-        aujourd_hui = datetime.now()
-
-        resultat = recuperer_journal_lonab(
-            aujourd_hui
-        )
-
-        if not resultat:
-
-            raise HTTPException(
-                status_code=503,
-                detail=(
-                    "Journal hippique LONAB indisponible "
-                    "actuellement."
-                )
-            )
-
-        return resultat
-
-    except HTTPException:
-        raise
-
-    except Exception as erreur:
-
-        print(
-            "Erreur journal LONAB :",
-            erreur
-        )
-
-        raise HTTPException(
-
-            status_code=500,
-
-            detail=(
-                "Erreur journal : "
-                f"{str(erreur)}"
-            )
-
-        )
         
