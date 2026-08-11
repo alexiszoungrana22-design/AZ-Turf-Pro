@@ -1745,3 +1745,38 @@ td{
 .selection-jour .numero-cheval {
     font-size: 55px !important;
 }
+
+/* =====================================
+   SELECTION DU JOUR — 8 CHEVAUX
+   ===================================== */
+
+#selection-jour{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+}
+
+.numero-selection-jour{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:48px;
+    height:48px;
+    padding:0 8px;
+    border-radius:12px;
+    font-size:28px;
+    font-weight:900;
+    line-height:1;
+    background:#f5f5f5;
+    border:2px solid #08783f;
+}
+
+@media(max-width:600px){
+    .numero-selection-jour{
+        min-width:42px;
+        height:42px;
+        font-size:24px;
+    }
+}
