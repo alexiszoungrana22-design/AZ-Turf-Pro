@@ -14,6 +14,8 @@ throw new Error("Erreur API");
 
 const data = await response.json();
 
+afficherChronometre(data);
+
 
 const chevauxClassement =
 data.classement ||
@@ -394,6 +396,115 @@ error
 
 
 
+
+/* =====================================
+   AZ TURF PRO
+   CHRONOMETRE REEL DE LA COURSE
+===================================== */
+
+let chronoTimer = null;
+
+function normaliserHeureDepart(valeur){
+    if(!valeur) return null;
+
+    let texte = String(valeur).trim().toLowerCase();
+
+    // HHhMM / HHhMMm / HH:MM / HH:MM:SS
+    texte = texte.replace(/h/g, ":").replace(/m/g, ":");
+    texte = texte.replace(/\s+/g, "");
+
+    const morceaux = texte.split(":").filter(Boolean);
+
+    if(morceaux.length < 2) return null;
+
+    const heures = parseInt(morceaux[0], 10);
+    const minutes = parseInt(morceaux[1], 10);
+    const secondes = morceaux.length >= 3
+        ? parseInt(morceaux[2], 10) || 0
+        : 0;
+
+    if(
+        Number.isNaN(heures) ||
+        Number.isNaN(minutes) ||
+        heures < 0 || heures > 23 ||
+        minutes < 0 || minutes > 59 ||
+        secondes < 0 || secondes > 59
+    ){
+        return null;
+    }
+
+    return {
+        heures,
+        minutes,
+        secondes
+    };
+}
+
+function afficherChronometre(data){
+    const zone = document.getElementById("mini-countdown");
+
+    if(!zone) return;
+
+    if(chronoTimer){
+        clearInterval(chronoTimer);
+        chronoTimer = null;
+    }
+
+    const heure = normaliserHeureDepart(
+        data?.heure_depart
+    );
+
+    if(!heure){
+        zone.textContent = "⏱ Départ : heure indisponible";
+        return;
+    }
+
+    function mettreAJour(){
+        const maintenant = new Date();
+
+        const depart = new Date(maintenant);
+        depart.setHours(
+            heure.heures,
+            heure.minutes,
+            heure.secondes,
+            0
+        );
+
+        let difference = depart.getTime() - maintenant.getTime();
+
+        if(difference <= 0){
+            zone.textContent = "🏁 Départ imminent / course en cours";
+            clearInterval(chronoTimer);
+            chronoTimer = null;
+            return;
+        }
+
+        const totalSecondes = Math.floor(difference / 1000);
+
+        const heuresRestantes = Math.floor(
+            totalSecondes / 3600
+        );
+
+        const minutesRestantes = Math.floor(
+            (totalSecondes % 3600) / 60
+        );
+
+        const secondesRestantes =
+            totalSecondes % 60;
+
+        zone.textContent =
+            "⏱ Départ dans " +
+            String(heuresRestantes).padStart(2, "0") +
+            ":" +
+            String(minutesRestantes).padStart(2, "0") +
+            ":" +
+            String(secondesRestantes).padStart(2, "0");
+    }
+
+    mettreAJour();
+    chronoTimer = setInterval(mettreAJour, 1000);
+}
+
 document.addEventListener(
 "DOMContentLoaded",
 chargerAnalyse
@@ -753,4 +864,5 @@ ${c.raison || "Cheval à surveiller"}
 
    }
 
-   
+
+        
