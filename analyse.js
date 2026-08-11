@@ -50,23 +50,23 @@ valeur || "-";
 
 
 // ===============================
-// SELECTION DU JOUR — 8 CHEVAUX
+// SELECTION DU JOUR 8 CHEVAUX
 // ===============================
-// Une seule source pour la sélection et le tableau :
-// les 8 premiers chevaux valides du classement AZ.
-const selection = chevaux
-.filter(c => c && c.numero !== undefined && c.numero !== null)
-.slice(0, 8);
 
-const selectionZone = document.getElementById("selection-jour");
 
-if(selectionZone){
+const selection = chevaux.slice(0,8);
 
-    selectionZone.innerHTML = selection.map(c => `
-        <span class="numero-selection-jour">${c.numero}</span>
-    `).join("");
 
-}
+
+afficher(
+
+"selection-jour",
+
+selection
+.map(c=>c.numero)
+.join(" - ")
+
+);
 
 
 
@@ -323,7 +323,8 @@ tableau.innerHTML = "";
 
 
 
-selection
+chevaux
+.slice(0,8)
 .forEach(cheval => {
 
 
@@ -600,3 +601,4 @@ champ.value = "";
 });
 
 });
+ 
