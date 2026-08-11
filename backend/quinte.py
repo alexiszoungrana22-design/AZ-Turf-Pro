@@ -133,32 +133,15 @@ def generer_tickets_az(classement):
     # GRATUIT
     # =================================
 
-    # Le gratuit doit rester une porte d'entrée et ne doit pas
-    # révéler la sélection Premium. Les positions sont volontairement
-    # différentes du noyau Premium.
-    indices_gratuit = [0, 2, 4, 7, 9, 11, 13]
-
-    quinte_gratuit = [
-        numeros[i]
-        for i in indices_gratuit
-        if i < len(numeros)
-    ]
-
-    deux_sur_quatre = [
-        numeros[i]
-        for i in [0, 2, 4, 6]
-        if i < len(numeros)
-    ]
-
-    couple_place = [
-        numeros[0],
-        numeros[2]
-    ] if len(numeros) >= 3 else numeros[:2]
-
     gratuit = {
-        "quinte": quinte_gratuit,
-        "deux_sur_quatre": deux_sur_quatre,
-        "couple_place": couple_place
+        # Quinté gratuit : 7 chevaux maximum
+        "quinte": numeros[:7],
+
+        # 2 sur 4 : 4 chevaux
+        "deux_sur_quatre": numeros[:4],
+
+        # Couplé placé : 2 chevaux
+        "couple_place": numeros[:2]
     }
 
     # =================================
@@ -280,4 +263,3 @@ def generer_tickets_az(classement):
 
     }
 
-    
