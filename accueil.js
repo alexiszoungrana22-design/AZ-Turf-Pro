@@ -44,36 +44,10 @@ valeur || "-";
 
 // ===============================
 // INFORMATIONS COURSE
+// (carte "Course du jour" retirée de
+// l'accueil : déjà présente sur la
+// page Analyse)
 // ===============================
-
-afficher(
-"meta-hippodrome",
-data.hippodrome
-);
-
-
-afficher(
-"meta-course",
-data.course
-);
-
-
-afficher(
-"meta-discipline",
-data.discipline
-);
-
-
-afficher(
-"meta-distance",
-data.distance ? data.distance + " m" : "-"
-);
-
-
-afficher(
-"meta-partants",
-data.partants
-);
 
 
 
@@ -723,4 +697,4 @@ ${c.raison || "Cheval à surveiller"}
 
 
    }
-    
+
