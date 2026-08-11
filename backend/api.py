@@ -42,6 +42,8 @@ from models import (
 
 from pmu_source import charger_course_pmu
 
+from lonab_source import recuperer_journal_lonab
+
 import json
 import os
 from datetime import datetime, timedelta
@@ -524,4 +526,59 @@ def admin_abonnements():
 def admin_statistiques():
 
     return statistiques_abonnements()
-        
+
+
+# =====================================
+# JOURNAL HIPPIQUE (LONAB)
+# =====================================
+#
+# Route additive : n'affecte aucune route existante ci-dessus.
+# Alimente la page "journal" avec le vrai journal hippique LONAB du
+# jour (indices/commentaires par cheval, consensus de plusieurs
+# medias reels, favoris, horaires, actualites, lien PDF officiel
+# telechargeable). Ne touche ni au moteur AZ, ni aux tickets, ni a
+# l'analyse Premium.
+
+@router.get("/journal")
+def journal():
+
+    try:
+
+        aujourd_hui = datetime.now()
+
+        resultat = recuperer_journal_lonab(
+            aujourd_hui
+        )
+
+        if not resultat:
+
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    "Journal hippique LONAB indisponible "
+                    "actuellement."
+                )
+            )
+
+        return resultat
+
+    except HTTPException:
+        raise
+
+    except Exception as erreur:
+
+        print(
+            "Erreur journal LONAB :",
+            erreur
+        )
+
+        raise HTTPException(
+
+            status_code=500,
+
+            detail=(
+                "Erreur journal : "
+                f"{str(erreur)}"
+            )
+
+            )
