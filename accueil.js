@@ -263,4 +263,3 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-<script src="tri-partants.js"></script>
