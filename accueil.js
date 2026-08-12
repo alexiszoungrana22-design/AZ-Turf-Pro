@@ -428,57 +428,48 @@ async function chargerAnalyse() {
         console.log("Erreur analyse :", error);
     }
 }
-
-/* =====================================
-   CORRECTION CHRONOMETRE
-===================================== */
-let chronoTimer = null;
-
-function normaliserHeureDepart(valeur) {
-    if (!valeur) return null;
+function normaliserHeureDepart(valeur){
+    if(!valeur) return null;
     let texte = String(valeur).trim().toLowerCase();
     texte = texte.replace(/h/g, ":").replace(/m/g, ":").replace(/\s+/g, "");
     const morceaux = texte.split(":").filter(Boolean);
-    if (morceaux.length < 2) return null;
-
+    if(morceaux.length < 2) return null;
     const heures = parseInt(morceaux[0], 10);
     const minutes = parseInt(morceaux[1], 10);
-    if (isNaN(heures) || isNaN(minutes) || heures > 23 || minutes > 59) return null;
+    if(isNaN(heures) || isNaN(minutes) || heures > 23 || minutes > 59) return null;
     return { heures, minutes, secondes: 0 };
 }
 
-function afficherChronometre(data) {
+function afficherChronometre(data){
     const zone = document.getElementById("mini-countdown");
-    if (!zone) return;
+    if(!zone) return;
 
     // PrioritÃ© Ã  l'heure du journal LONAB, sinon heure de l'API
     const heureBrute = (data.horaires && data.horaires.depart) ? data.horaires.depart : data.heure_depart;
     const heure = normaliserHeureDepart(heureBrute);
 
-    if (!heure) {
+    if(!heure){
         zone.textContent = "â± DÃ©part : heure indisponible";
         return;
     }
 
-    if (chronoTimer) clearInterval(chronoTimer);
+    if(window.chronoTimer) clearInterval(window.chronoTimer);
 
     function mettreAJour() {
         const maintenant = new Date();
         const depart = new Date();
         depart.setHours(heure.heures, heure.minutes, 0, 0);
 
-        // BASCULE AUTO : Si 4h sont passÃ©es aprÃ¨s le dÃ©part
         const quatreHeuresPlusTard = new Date(depart.getTime() + (4 * 60 * 60 * 1000));
         
         if (maintenant > quatreHeuresPlusTard) {
-            zone.textContent = "ðŸ Course terminÃ©e - En attente du QuintÃ© de demain";
-            clearInterval(chronoTimer);
+            zone.textContent = "ðŸ Course terminÃ©e";
             return;
         }
 
         let diff = depart.getTime() - maintenant.getTime();
         if (diff <= 0) {
-            zone.textContent = "ðŸ DÃ©part imminent / course en cours";
+            zone.textContent = "ðŸ DÃ©part imminent";
             return;
         }
 
@@ -489,10 +480,8 @@ function afficherChronometre(data) {
     }
 
     mettreAJour();
-    chronoTimer = setInterval(mettreAJour, 1000);
+    window.chronoTimer = setInterval(mettreAJour, 1000);
 }
-
-document.addEventListener("DOMContentLoaded", chargerAnalyse);
 
 
 
