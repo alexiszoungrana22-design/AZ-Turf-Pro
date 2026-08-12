@@ -1,4 +1,3 @@
-
 const API = "https://az-turf-pro.onrender.com/api/analyse";
 const HISTORIQUE_STORAGE = "az_turf_pro_historique_v1";
 
@@ -123,7 +122,7 @@ function afficherHistorique(donnees){
     if(!donnees.length){
         body.innerHTML = `
             <tr>
-                <td colspan="5">
+                <td colspan="5" style="text-align: center; padding: 15px; color: #9ca3af;">
                     Aucune course passée enregistrée.
                 </td>
             </tr>
@@ -154,19 +153,19 @@ function afficherHistorique(donnees){
         }
 
         body.innerHTML += `
-            <tr>
-                <td>${item.date || "-"}</td>
-                <td>
+            <tr style="border-bottom: 1px solid #374151;">
+                <td style="padding: 12px; color: #fff;">${item.date || "-"}</td>
+                <td style="padding: 12px; color: #fff;">
                     ${item.course || "-"}
                     ${
                         item.hippodrome
-                        ? "<br>📍 " + item.hippodrome
+                        ? "<br><span style='font-size: 12px; color: #9ca3af;'>📍 " + item.hippodrome + "</span>"
                         : ""
                     }
                 </td>
-                <td>${favori}</td>
-                <td>${selection}</td>
-                <td>${resultat}</td>
+                <td style="padding: 12px; color: #10b981; font-weight: bold;">${favori}</td>
+                <td style="padding: 12px; color: #fff;">${selection}</td>
+                <td style="padding: 12px; color: #e5e7eb;">${resultat}</td>
             </tr>
         `;
     });
