@@ -1,4 +1,66 @@
-document.addEventListener("DOMContentLoaded", () => {
+const API_PREMIUM =
+"https://az-turf-pro.onrender.com/api/premium/";
+
+
+document.addEventListener("DOMContentLoaded", verifierAccesPremium);
+
+
+// =====================================
+// VERIFICATION ACCES PREMIUM
+// (meme principe que ticket-premium.js)
+// =====================================
+
+async function verifierAccesPremium(){
+
+    const telephone =
+    localStorage.getItem("AZ_TURF_TELEPHONE");
+
+    const contenu =
+    document.getElementById("contenu-premium");
+
+    const blocage =
+    document.getElementById("message-blocage");
+
+    if(!telephone){
+
+        if(blocage) blocage.style.display = "block";
+
+        return;
+
+    }
+
+    try{
+
+        const reponse = await fetch(
+            API_PREMIUM + encodeURIComponent(telephone)
+        );
+
+        const data = await reponse.json();
+
+        if(reponse.ok && data.statut === "ACTIF"){
+
+            if(contenu) contenu.style.display = "block";
+
+            initialiserBoutonToggle();
+
+        }else{
+
+            if(blocage) blocage.style.display = "block";
+
+        }
+
+    }catch(error){
+
+        console.error("Erreur vÃ©rification Premium :", error);
+
+        if(blocage) blocage.style.display = "block";
+
+    }
+
+}
+
+
+function initialiserBoutonToggle(){
     const btnToggle = document.getElementById("btn-toggle-tableau");
     const conteneurTableau = document.getElementById("conteneur-tableau");
 
@@ -6,18 +68,18 @@ document.addEventListener("DOMContentLoaded", () => {
         btnToggle.addEventListener("click", () => {
             if (conteneurTableau.style.display === "none") {
                 conteneurTableau.style.display = "block";
-                btnToggle.innerHTML = "📊 Masquer le Tableau des Partants";
+                btnToggle.innerHTML = "ðŸ“Š Masquer le Tableau des Partants";
                 btnToggle.style.background = "#ef4444"; 
 
                 chargerDonneesLive();
             } else {
                 conteneurTableau.style.display = "none";
-                btnToggle.innerHTML = "📊 Afficher le Tableau des Partants (Live)";
+                btnToggle.innerHTML = "ðŸ“Š Afficher le Tableau des Partants (Live)";
                 btnToggle.style.background = "#10b981"; 
             }
         });
     }
-});
+}
 
 async function chargerDonneesLive() {
     const tableau = document.getElementById("all-horses");
@@ -42,8 +104,8 @@ async function chargerDonneesLive() {
                 const rang = cheval.rang ?? "-";
                 const numero = cheval.numero ?? "-"; 
                 const nom = cheval.nom || "-";
-                const indice = cheval.indice_az ? Math.round(cheval.indice_az) : "-";
-                const confiance = cheval.confiance ? cheval.confiance + " %" : "-";
+                const indice = (cheval.indice_az !== null && cheval.indice_az !== undefined) ? Math.round(cheval.indice_az) : "-";
+                const confiance = (cheval.confiance !== null && cheval.confiance !== undefined) ? cheval.confiance + " %" : "-";
 
                 tableau.innerHTML += `
                     <tr style="border-bottom: 1px solid #374151;">
@@ -59,8 +121,8 @@ async function chargerDonneesLive() {
             tableau.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #ef4444; padding: 15px;">Le tableau 'classement' est vide.</td></tr>`;
         }
     } catch (erreur) {
-        console.error("Erreur attrapée :", erreur);
-        // Affiche l'erreur directement sur ton écran de téléphone pour qu'on sache quoi corriger
+        console.error("Erreur attrapÃ©e :", erreur);
+        // Affiche l'erreur directement sur ton Ã©cran de tÃ©lÃ©phone pour qu'on sache quoi corriger
         tableau.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #ef4444; padding: 15px;">Erreur : ${erreur.message}</td></tr>`;
     }
 }
