@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>AZ Turf Pro - Live VIP</title>
+    <!-- Ton fichier de style pour le design -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- 1. Le bloc Live qu'on a fait avant -->
+    <div id="zone-live-premium"></div>
+
+    <!-- 2. Le Bouton pour afficher/masquer le tableau -->
+    <button id="btn-toggle-tableau" style="background: #10b981; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; margin: 15px 0;">
+        📊 Afficher le Tableau des Partants (Live)
+    </button>
+
+    <!-- 3. Le Tableau (masqué par défaut) -->
+    <div id="conteneur-tableau" style="display: none; margin-top: 15px; overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; background: #111827; color: #fff; border-radius: 8px; overflow: hidden;">
+            <thead>
+                <tr style="background: #1f2937; text-align: left; font-size: 14px; color: #9ca3af;">
+                    <th style="padding: 12px;">Rang</th>
+                    <th style="padding: 12px;">N°</th>
+                    <th style="padding: 12px;">Cheval</th>
+                    <th style="padding: 12px;">Indice AZ</th>
+                    <th style="padding: 12px;">Confiance</th>
+                </tr>
+            </thead>
+            <tbody id="all-horses">
+                <!-- Les données de l'API s'afficheront ici -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 4. LE SCRIPT JS À METTRE ICI (ou dans ton script.js lié) -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const btnToggle = document.getElementById("btn-toggle-tableau");
+            const conteneurTableau = document.getElementById("conteneur-tableau");
+
+            if (btnToggle && conteneurTableau) {
+                btnToggle.addEventListener("click", () => {
+                    if (conteneurTableau.style.display === "none") {
+                        conteneurTableau.style.display = "block";
+                        btnToggle.innerHTML = "📊 Masquer le Tableau des Partants";
+                        btnToggle.style.background = "#ef4444"; // Rouge
+
+                        chargerDonneesAPI();
+                    } else {
+                        conteneurTableau.style.display = "none";
+                        btnToggle.innerHTML = "📊 Afficher le Tableau des Partants (Live)";
+                        btnToggle.style.background = "#10b981"; // Vert
+                    }
+                });
+            }
+        });
+
+        async function chargerDonneesAPI() {
+            const tableau = document.getElementById("all-horses");
+            if (!tableau) return;
+
+            tableau.innerHTML = `<tr><td colspan="5" style="padding: 15px; text-align: center; color: #9ca3af;">Chargement des partants en cours...</td></tr>`;
+
+            try {
+                const reponse = await fetch("https://az-turf-pro.onrender.com/api/analyse"); 
+                const data = await reponse.json();
+                const listeCheval = data.classement || data;
+
+                if (Array.isArray(listeCheval) && listeCheval.length > 0) {
+                    tableau.innerHTML = "";
+                    listeCheval.forEach(cheval => {
+                        const rang = cheval.rang ?? "-";
+                        const numero = cheval.numero ?? "-"; 
+                        const nom = cheval.nom || "-";
+                        const indice = cheval.indice_az ? Math.round(cheval.indice_az) : "-";
+                        const confiance = cheval.confiance ? cheval.confiance + " %" : "-";
+
+                        tableau.innerHTML += `
+                            <tr style="border-bottom: 1px solid #374151;">
+                                <td style="padding: 12px;"><strong>${rang}</strong></td>
+                                <td style="padding: 12px;"><strong>${numero}</strong></td>
+                                <td style="padding: 12px;">${nom}</td>
+                                <td style="padding: 12px;"><span style="background: #1f2937; padding: 4px 8px; border-radius: 4px; color: #10b981; font-weight: bold;">${indice}</span></td>
+                                <td style="padding: 12px;">${confiance}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    tableau.innerHTML = `<tr><td colspan="5" style="padding: 15px; text-align: center; color: #ef4444;">Aucun partant trouvé.</td></tr>`;
+                }
+            } catch (erreur) {
+                console.error("Erreur :", erreur);
+                tableau.innerHTML = `<tr><td colspan="5" style="padding: 15px; text-align: center; color: #ef4444;">Erreur de connexion à l'API.</td></tr>`;
+            }
+        }
+    </script>
+</body>
+</html>
