@@ -1,5 +1,5 @@
 // =====================================
-// MODULE INDÃ‰PENDANT : TRI DES PARTANTS
+// MODULE INDEPENDANT : TRI DES PARTANTS
 // =====================================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -11,19 +11,19 @@ function initialiserFiltresTri() {
     const tableau = document.getElementById("all-horses") || document.getElementById("corps-tableau-partants");
     if (!tableau) return;
 
-    // CrÃ©er une barre de boutons de tri au-dessus du tableau si elle n'existe pas dÃ©jÃ 
+    // Creer une barre de boutons de tri au-dessus du tableau si elle n'existe pas deja
     const parentTable = tableau.closest("table") || tableau.parentElement;
     if (!document.getElementById("barre-tri-partants")) {
         const barreTri = document.createElement("div");
         barreTri.id = "barre-tri-partants";
         barreTri.style.cssText = "margin-bottom: 12px; display: flex; gap: 8px; flex-wrap: wrap;";
         barreTri.innerHTML = `
-            <button id="btn-tri-numero" class="btn-tri" style="padding: 6px 12px; font-size: 12px; cursor: pointer;">Trier par NumÃ©ro</button>
-            <button id="btn-tri-cote" class="btn-tri" style="padding: 6px 12px; font-size: 12px; cursor: pointer;">Trier par CÃ´te</button>
+            <button id="btn-tri-numero" class="btn-tri" style="padding: 6px 12px; font-size: 12px; cursor: pointer;">Trier par Numero</button>
+            <button id="btn-tri-cote" class="btn-tri" style="padding: 6px 12px; font-size: 12px; cursor: pointer;">Trier par Cote</button>
         `;
         parentTable.before(barreTri);
 
-        // Ã‰vÃ©nements sur les boutons
+        // Evenements sur les boutons
         document.getElementById("btn-tri-numero").addEventListener("click", () => trierTableauPar("numero"));
         document.getElementById("btn-tri-cote").addEventListener("click", () => trierTableauPar("cote"));
     }
@@ -48,7 +48,7 @@ function trierTableauPar(critere) {
         } 
         
         if (critere === "cote") {
-            // Nettoyage de la cote (ex: supprime les symboles pour comparer les nombres)
+            // Nettoyage de la cote pour comparer les nombres
             const coteAStr = colsA[4].textContent.trim().replace(",", ".");
             const coteBStr = colsB[4].textContent.trim().replace(",", ".");
             const coteA = parseFloat(coteAStr) || 9999;
@@ -59,7 +59,7 @@ function trierTableauPar(critere) {
         return 0;
     });
 
-    // RÃ©injection des lignes triÃ©es dans le tableau
+    // Reinjection des lignes triees dans le tableau
     tableau.innerHTML = "";
     lignes.forEach(ligne => tableau.appendChild(ligne));
-                }
+}
