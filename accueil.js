@@ -64,31 +64,32 @@ async function chargerAnalyse(){
             afficher("outsider-confiance", (outsider.confiance || "-") + " %");
             afficher("outsider-raison", outsider.raison || "Outsider AZ");
         }
+// ===============================
+// TABLEAU DES PARTANTS (Sans aucun préfixe)
+// ===============================
+const tableau = document.getElementById("all-horses") || document.getElementById("corps-tableau-partants");
+if(tableau){
+    tableau.innerHTML = "";
+    classement.forEach(cheval => {
+        const rang = cheval.rang ?? "-";
+        const numero = cheval.numero ?? "-"; // Uniquement le chiffre (ex: 1, 12...)
+        const nom = cheval.nom || "-";
+        const indice = cheval.indice_az ? Math.round(cheval.indice_az) : "-";
+        const confiance = cheval.confiance ? cheval.confiance + " %" : "-";
 
-        // ===============================
-        // TABLEAU DES PARTANTS (Adapte API)
-        // ===============================
-        const tableau = document.getElementById("all-horses") || document.getElementById("corps-tableau-partants");
-        if(tableau){
-            tableau.innerHTML = "";
-            classement.forEach(cheval => {
-                const rang = cheval.rang ?? "-";
-                const numero = cheval.numero ?? "-";
-                const nom = cheval.nom || "-";
-                const indice = cheval.indice_az ? Math.round(cheval.indice_az) : "-";
-                const confiance = cheval.confiance ? cheval.confiance + " %" : "-";
-
-                tableau.innerHTML += `
-                    <tr>
-                        <td><strong>${rang}</strong></td>
-                        <td><strong>NÂ°${numero}</strong></td>
-                        <td>${nom}</td>
-                        <td><span class="badge-cote">${indice}</span></td>
-                        <td>${confiance}</td>
-                    </tr>
-                `;
-            });
-        }
+        tableau.innerHTML += `
+            <tr>
+                <td><strong>${rang}</strong></td>
+                <td><strong>${numero}</strong></td>
+                <td>${nom}</td>
+                <td><span class="badge-indice">${indice}</span></td>
+                <td>${confiance}</td>
+            </tr>
+        `;
+    });
+}
+            
+        
 
         const tickets = data.tickets?.gratuit || {};
         afficher("quinte-gratuit", (tickets.quinte || []).join(" - "));
