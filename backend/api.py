@@ -261,6 +261,13 @@ def analyse():
         # =================================
         # 5. RÃ‰PONSE API
         # =================================
+        
+        # Récupération sécurisée des données LONAB
+        try:
+            donnees_lonab = recuperer_journal_lonab(datetime.now())
+            horaires = donnees_lonab.get("horaires", {"depart": ""})
+        except:
+            horaires = {"depart": ""}
 
         reponse = {
 
@@ -268,93 +275,31 @@ def analyse():
                 "Analyse AZ Turf terminÃ©e"
                 if not est_demo else
                 "Analyse AZ Turf terminÃ©e "
-                "(donnÃ©es de dÃ©monstration, "
-                "aucune course rÃ©elle "
-                "disponible actuellement)"
+                "(donnÃ©es de dÃ©monstration)"
             ),
 
-            "source":
-                source,
+            "source": source,
+            "donnees_demo": est_demo,
+            
+            # Passage des horaires au frontend pour le chronomètre
+            "horaires": horaires,
 
-            # Indique explicitement au frontend
-            # qu'il ne s'agit pas d'une course
-            # reelle du jour, pour eviter toute
-            # confusion.
-            "donnees_demo":
-                est_demo,
-
-            "course":
-                course.get(
-                    "course",
-                    "Course"
-                ),
-
-            "date":
-                date_course,
-
-            "reunion":
-                reunion,
-
-            "course_numero":
-                course_numero,
-
-            "hippodrome":
-                course.get(
-                    "hippodrome",
-                    ""
-                ),
-
-            "discipline":
-                course.get(
-                    "discipline",
-                    ""
-                ),
-
-            "distance":
-                course.get(
-                    "distance_course",
-                    ""
-                ),
-
-            "allocation":
-                course.get(
-                    "allocation",
-                    ""
-                ),
-
-            "plus_joues":
-                course.get(
-                    "plus_joues",
-                    []
-                ),
-
-            "source_plus_joues":
-                course.get(
-                    "source_plus_joues",
-                    "Non disponible"
-                ),
-
-            "partants":
-                len(chevaux),
-
-            "chevaux":
-                classement,
-
-            "classement":
-                classement,
-
-            "favori": (
-                classement[0]
-                if classement
-                else {}
-            ),
-
-            "tickets":
-                resultat.get(
-                    "tickets",
-                    {}
-                )
-
+            "course": course.get("course", "Course"),
+            "date": date_course,
+            "reunion": reunion,
+            "course_numero": course_numero,
+            "heure_depart": course.get("heure_depart", course.get("heureDepart", "")),
+            "hippodrome": course.get("hippodrome", ""),
+            "discipline": course.get("discipline", ""),
+            "distance": course.get("distance_course", ""),
+            "allocation": course.get("allocation", ""),
+            "plus_joues": course.get("plus_joues", []),
+            "source_plus_joues": course.get("source_plus_joues", "Non disponible"),
+            "partants": len(chevaux),
+            "chevaux": classement,
+            "classement": classement,
+            "favori": (classement[0] if classement else {}),
+            "tickets": resultat.get("tickets", {})
         }
 
         if est_demo:
