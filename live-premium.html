@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AZ Turf Pro - Espace Live VIP</title>
+    <title>AZ Turf Pro - Live VIP</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,27 +12,10 @@
             margin: 0;
             padding: 20px;
         }
-
         .container {
             max-width: 800px;
             margin: 0 auto;
         }
-
-        @keyframes pulse {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 8px rgba(16, 185, 129, 0.6); }
-            100% { transform: scale(0.95); opacity: 0.8; }
-        }
-
-        .live-badge-point {
-            width: 12px; 
-            height: 12px; 
-            background: #10b981; 
-            border-radius: 50%; 
-            display: inline-block; 
-            animation: pulse 1.5s infinite;
-        }
-
         #btn-toggle-tableau {
             background: #10b981; 
             color: white; 
@@ -45,20 +28,14 @@
             margin: 20px 0;
             width: 100%;
         }
-
-        .table-responsive {
-            overflow-x: auto;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
-
         table {
             width: 100%; 
             border-collapse: collapse; 
             background: #111827; 
             color: #fff; 
+            border-radius: 8px;
+            overflow: hidden;
         }
-
         th {
             background: #1f2937; 
             text-align: left; 
@@ -66,7 +43,6 @@
             color: #9ca3af;
             padding: 12px;
         }
-
         td {
             padding: 12px;
             border-bottom: 1px solid #374151;
@@ -76,23 +52,6 @@
 <body>
 
     <div class="container">
-        <!-- Encadré du Live -->
-        <div style="background: #111827; padding: 20px; border-radius: 12px; border: 1px solid #374151; margin-bottom: 20px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 style="margin: 0; font-size: 18px; display: flex; align-items: center; gap: 8px;">
-                    <span class="live-badge-point"></span>
-                    Live VIP - AZ Turf Pro
-                </h3>
-                <span style="font-size: 12px; background: #1f2937; padding: 4px 8px; border-radius: 6px; color: #9ca3af;">Exclusif Abonnés</span>
-            </div>
-            <div style="background: #1f2937; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
-                <p style="margin: 0; font-size: 14px; color: #e5e7eb;">Statut actuel : <strong>Suivi actif sur les pistes</strong></p>
-            </div>
-            <p style="margin: 0; font-size: 13px; color: #9ca3af; line-height: 1.4;">
-                💡 Cliquez sur le bouton ci-dessous pour afficher ou masquer le tableau des partants et les indices en direct.
-            </p>
-        </div>
-
         <!-- Bouton pour afficher/masquer le tableau -->
         <button id="btn-toggle-tableau">
             📊 Afficher le Tableau des Partants (Live)
@@ -100,7 +59,7 @@
 
         <!-- Le Tableau (Masqué par défaut) -->
         <div id="conteneur-tableau" style="display: none;">
-            <div class="table-responsive">
+            <div style="overflow-x: auto;">
                 <table>
                     <thead>
                         <tr>
@@ -119,6 +78,7 @@
         </div>
     </div>
 
+    <!-- Tout le code JavaScript est directement ici -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const btnToggle = document.getElementById("btn-toggle-tableau");
@@ -131,7 +91,7 @@
                         btnToggle.innerHTML = "📊 Masquer le Tableau des Partants";
                         btnToggle.style.background = "#ef4444"; 
 
-                        chargerDonneesAPI();
+                        chargerDonneesLive();
                     } else {
                         conteneurTableau.style.display = "none";
                         btnToggle.innerHTML = "📊 Afficher le Tableau des Partants (Live)";
@@ -141,21 +101,25 @@
             }
         });
 
-        async function chargerDonneesAPI() {
+        async function chargerDonneesLive() {
             const tableau = document.getElementById("all-horses");
             if (!tableau) return;
 
-            tableau.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #9ca3af;">Chargement des partants en cours...</td></tr>`;
+            tableau.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #9ca3af; padding: 15px;">Chargement en cours...</td></tr>`;
 
             try {
                 const reponse = await fetch("https://az-turf-pro.onrender.com/api/analyse"); 
-                const data = await reponse.json();
                 
-                // CORRECTION ICI : On cible bien la propriété "classement" de ton objet JSON
+                if (!reponse.ok) {
+                    throw new Error(`Erreur HTTP : ${reponse.status}`);
+                }
+
+                const data = await reponse.json();
                 const listeCheval = data.classement;
 
                 if (Array.isArray(listeCheval) && listeCheval.length > 0) {
                     tableau.innerHTML = "";
+                    
                     listeCheval.forEach(cheval => {
                         const rang = cheval.rang ?? "-";
                         const numero = cheval.numero ?? "-"; 
@@ -165,23 +129,22 @@
 
                         tableau.innerHTML += `
                             <tr>
-                                <td><strong>${rang}</strong></td>
-                                <td><strong>${numero}</strong></td>
-                                <td>${nom}</td>
+                                <td style="color: #fff;"><strong>${rang}</strong></td>
+                                <td style="color: #fff;"><strong>${numero}</strong></td>
+                                <td style="color: #fff;">${nom}</td>
                                 <td><span style="background: #1f2937; padding: 4px 8px; border-radius: 4px; color: #10b981; font-weight: bold;">${indice}</span></td>
-                                <td>${confiance}</td>
+                                <td style="color: #fff;">${confiance}</td>
                             </tr>
                         `;
                     });
                 } else {
-                    tableau.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #ef4444;">Aucun partant trouvé.</td></tr>`;
+                    tableau.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #ef4444; padding: 15px;">Le tableau 'classement' est vide.</td></tr>`;
                 }
             } catch (erreur) {
-                console.error("Erreur :", erreur);
-                tableau.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #ef4444;">Erreur de connexion à l'API Render.</td></tr>`;
+                console.error("Erreur attrapée :", erreur);
+                tableau.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #ef4444; padding: 15px;">Erreur : ${erreur.message}</td></tr>`;
             }
         }
-      
-    <script src="live-premium.js"></script>
+    </script>
 </body>
 </html>
