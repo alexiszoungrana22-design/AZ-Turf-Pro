@@ -270,7 +270,7 @@ outsider.raison ||
 
 
 // ===============================
-// TABLEAU DES PARTANTS (CorrigÃ©)
+// TABLEAU DES PARTANTS
 // ===============================
 
 const tableau =
