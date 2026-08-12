@@ -3,30 +3,9 @@
 # API
 # Analyse + Premium
 # =====================================
-#
-# CORRECTIONS APPORTEES A CETTE VERSION (rien d'autre n'a change) :
-#
-# 1. charger_course() ne fige plus reunion="R1"/course_numero="C1"
-#    en dur : ces valeurs sont desormais laissees a
-#    charger_course_pmu(), qui lit le vrai programme du jour et
-#    choisit la premiere reunion/course reellement disponible
-#    (cf. pmu_source.py corrige). Avant, meme si R1/C1 n'existait
-#    pas ce jour-la, on ne le savait jamais - PMU echouait toujours
-#    silencieusement et on retombait sur courses.json.
-#
-# 2. Quand la source reelle echoue et qu'on retombe sur
-#    courses.json, la reponse de /api/analyse indique desormais
-#    clairement qu'il s'agit de donnees de demonstration (source
-#    "demo" + message explicite + date_demo separee de la date du
-#    jour), pour ne jamais laisser croire que c'est la course
-#    actuelle. Toutes les autres routes (abonnement, activation,
-#    premium, admin) sont strictement inchangees.
-
 
 from fastapi import APIRouter, HTTPException
-
 from engine import lancer_analyse
-
 from database import (
     creer_abonnement,
     activer_abonnement,
@@ -34,132 +13,53 @@ from database import (
     lister_abonnements,
     statistiques_abonnements
 )
-
 from models import (
     AbonnementRequest,
     ActivationRequest
 )
-
 from pmu_source import charger_course_pmu
-
+# Importation corrigÃ©e
 from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
 
 import json
 import os
 from datetime import datetime, timedelta
 
-
 router = APIRouter(
     prefix="/api",
     tags=["AZ Turf"]
 )
-
 
 # =====================================
 # CHARGEMENT COURSE LOCALE
 # =====================================
 
 def charger_course_locale():
-
-    chemin = os.path.join(
-        os.path.dirname(__file__),
-        "data",
-        "courses.json"
-    )
-
-    with open(
-        chemin,
-        "r",
-        encoding="utf-8"
-    ) as fichier:
-
+    chemin = os.path.join(os.path.dirname(__file__), "data", "courses.json")
+    with open(chemin, "r", encoding="utf-8") as fichier:
         return json.load(fichier)
-
 
 # =====================================
 # CHARGEMENT COURSE
-# PMU PRIORITAIRE + FALLBACK LOCAL
 # =====================================
 
 def charger_course():
-
     aujourd_hui = datetime.now()
-
-    # Format attendu par l'API PMU
-    date_pmu = aujourd_hui.strftime(
-        "%d%m%Y"
-    )
-
-    # =================================
-    # 1. TENTATIVE PMU
-    # reunion/course_numero ne sont plus
-    # fixes en dur : charger_course_pmu()
-    # determine elle-meme la premiere
-    # reunion/course reellement
-    # disponible dans le programme du
-    # jour si on ne lui impose rien.
-    # =================================
-
+    date_pmu = aujourd_hui.strftime("%d%m%Y")
     try:
-
-        course = charger_course_pmu(
-            date_pmu
-        )
-
-        if (
-            course
-            and isinstance(course, dict)
-            and course.get("chevaux")
-        ):
-
-            print(
-                "Source utilisÃ©e : PMU rÃ©el"
-            )
-
+        course = charger_course_pmu(date_pmu)
+        if course and isinstance(course, dict) and course.get("chevaux"):
             return course, "pmu_live"
-
     except Exception as erreur:
-
-        print(
-            "PMU indisponible :",
-            erreur
-        )
-
-    # =================================
-    # 2. FALLBACK LOCAL
-    # Marque explicitement comme donnee
-    # de demonstration : ne doit jamais
-    # etre presentee comme la course du
-    # jour.
-    # =================================
-
+        print("PMU indisponible :", erreur)
     try:
-
         course = charger_course_locale()
-
-        if (
-            course
-            and isinstance(course, dict)
-            and course.get("chevaux")
-        ):
-
-            print(
-                "Source utilisÃ©e : donnÃ©es locales (dÃ©mo)"
-            )
-
+        if course and isinstance(course, dict) and course.get("chevaux"):
             course["donnees_demo"] = True
-
             return course, "demo"
-
     except Exception as erreur:
-
-        print(
-            "Erreur chargement local :",
-            erreur
-        )
-
+        print("Erreur chargement local :", erreur)
     return None, "none"
-
 
 # =====================================
 # ANALYSE AZ TURF
@@ -167,123 +67,45 @@ def charger_course():
 
 @router.get("/analyse")
 def analyse():
-
     try:
-
-        # =================================
-        # 1. CHARGEMENT DES DONNÃ‰ES
-        # =================================
-
         course, source = charger_course()
-
         if not course:
-
-            raise HTTPException(
-                status_code=503,
-                detail=(
-                    "Aucune donnÃ©e de course "
-                    "disponible actuellement."
-                )
-            )
-
-        # =================================
-        # 2. CHEVAUX
-        # =================================
-
-        chevaux = course.get(
-            "chevaux",
-            []
-        )
-
+            raise HTTPException(status_code=503, detail="Aucune donnÃ©e de course disponible actuellement.")
+        
+        chevaux = course.get("chevaux", [])
         if not chevaux:
-
-            raise HTTPException(
-                status_code=503,
-                detail=(
-                    "Aucun cheval trouvÃ© "
-                    "dans la course."
-                )
-            )
-
-        # =================================
-        # 3. MOTEUR AZ
-        # =================================
-
-        resultat = lancer_analyse(
-            chevaux
-        )
-
-        if not isinstance(
-            resultat,
-            dict
-        ):
-            raise Exception(
-                "RÃ©ponse invalide du moteur AZ"
-            )
-
-        classement = resultat.get(
-            "chevaux",
-            []
-        )
-
+            raise HTTPException(status_code=503, detail="Aucun cheval trouvÃ© dans la course.")
+        
+        resultat = lancer_analyse(chevaux)
+        if not isinstance(resultat, dict):
+            raise Exception("RÃ©ponse invalide du moteur AZ")
+        
+        classement = resultat.get("chevaux", [])
         if not classement:
-
-            raise Exception(
-                "Le moteur AZ n'a retournÃ© "
-                "aucun classement."
-            )
-
-        # =================================
-        # 4. INFORMATIONS COURSE
-        # =================================
+            raise Exception("Le moteur AZ n'a retournÃ© aucun classement.")
 
         aujourd_hui = datetime.now()
-
         est_demo = (source == "demo")
-
-        date_course = (
-            course.get("date")
-            or aujourd_hui.strftime(
-                "%Y-%m-%d"
-            )
-        )
-
-        reunion = (
-            course.get("reunion")
-            or "R1"
-        )
-
-        course_numero = (
-            course.get("course_numero")
-            or "C1"
-        )
+        date_course = course.get("date") or aujourd_hui.strftime("%Y-%m-%d")
+        reunion = course.get("reunion") or "R1"
+        course_numero = course.get("course_numero") or "C1"
 
         # =================================
-        # 5. RÃ‰PONSE API
+        # 5. RÃ‰PONSE API (CORRIGÃ‰E)
         # =================================
-        
-        # Récupération sécurisée des données LONAB
+        horaires = {"depart": ""}
         try:
             donnees_lonab = recuperer_journal_lonab(datetime.now())
-            horaires = donnees_lonab.get("horaires", {"depart": ""})
-        except:
-            horaires = {"depart": ""}
+            if donnees_lonab and "horaires" in donnees_lonab:
+                horaires = donnees_lonab["horaires"]
+        except Exception as e:
+            print("Note : Ã©chec rÃ©cupÃ©ration LONAB :", e)
 
         reponse = {
-
-            "message": (
-                "Analyse AZ Turf terminÃ©e"
-                if not est_demo else
-                "Analyse AZ Turf terminÃ©e "
-                "(donnÃ©es de dÃ©monstration)"
-            ),
-
+            "message": ("Analyse AZ Turf terminÃ©e" if not est_demo else "Analyse AZ Turf terminÃ©e (donnÃ©es de dÃ©monstration)"),
             "source": source,
             "donnees_demo": est_demo,
-            
-            # Passage des horaires au frontend pour le chronomètre
             "horaires": horaires,
-
             "course": course.get("course", "Course"),
             "date": date_course,
             "reunion": reunion,
@@ -303,287 +125,63 @@ def analyse():
         }
 
         if est_demo:
-
-            reponse["avertissement"] = (
-                "Ces donnÃ©es sont des donnÃ©es de "
-                "dÃ©monstration figÃ©es et ne "
-                "correspondent pas Ã  une course "
-                "rÃ©elle du jour."
-            )
-
+            reponse["avertissement"] = "Ces donnÃ©es sont des donnÃ©es de dÃ©monstration figÃ©es."
         return reponse
 
     except HTTPException:
         raise
-
     except Exception as erreur:
-
-        print(
-            "Erreur analyse AZ :",
-            erreur
-        )
-
-        raise HTTPException(
-
-            status_code=500,
-
-            detail=(
-                "Erreur AZ : "
-                f"{str(erreur)}"
-            )
-
-        )
-
+        print("Erreur analyse AZ :", erreur)
+        raise HTTPException(status_code=500, detail=f"Erreur AZ : {str(erreur)}")
 
 # =====================================
-# CREATION ABONNEMENT PREMIUM
+# ROUTES PREMIUM ET ADMIN (INCHANGÃ‰ES)
 # =====================================
 
 @router.post("/abonnement")
-def abonnement(
-    data: AbonnementRequest
-):
-
+def abonnement(data: AbonnementRequest):
     try:
-
-        resultat = creer_abonnement(
-            data.model_dump()
-        )
-
-        return {
-
-            "message":
-                "Abonnement enregistrÃ©",
-
-            "abonnement":
-                resultat
-
-        }
-
+        resultat = creer_abonnement(data.model_dump())
+        return {"message": "Abonnement enregistrÃ©", "abonnement": resultat}
     except Exception as erreur:
-
-        raise HTTPException(
-
-            status_code=500,
-
-            detail=str(erreur)
-
-        )
-
-
-# =====================================
-# ACTIVATION PREMIUM ADMIN
-# =====================================
+        raise HTTPException(status_code=500, detail=str(erreur))
 
 @router.post("/activation")
-def activation_premium(
-    activation: ActivationRequest
-):
-
-    abonnement = activer_abonnement(
-
-        activation.telephone,
-
-        activation.reference
-
-    )
-
+def activation_premium(activation: ActivationRequest):
+    abonnement = activer_abonnement(activation.telephone, activation.reference)
     if abonnement is None:
-
-        raise HTTPException(
-
-            status_code=404,
-
-            detail=
-                "Aucun abonnement trouvÃ©"
-
-        )
-
-    abonnement["date_fin"] = (
-
-        datetime.now()
-
-        +
-
-        timedelta(
-
-            days=int(
-
-                abonnement.get(
-                    "duree",
-                    30
-                )
-
-            )
-
-        )
-
-    ).isoformat()
-
-    return {
-
-        "message":
-            "Premium activÃ©",
-
-        "statut":
-            "ACTIF",
-
-        "date_fin":
-            abonnement["date_fin"]
-
-    }
-
-
-# =====================================
-# VERIFICATION PREMIUM
-# =====================================
+        raise HTTPException(status_code=404, detail="Aucun abonnement trouvÃ©")
+    abonnement["date_fin"] = (datetime.now() + timedelta(days=int(abonnement.get("duree", 30)))).isoformat()
+    return {"message": "Premium activÃ©", "statut": "ACTIF", "date_fin": abonnement["date_fin"]}
 
 @router.get("/premium/{telephone}")
-def premium(
-    telephone: str
-):
-
-    return verifier_premium(
-        telephone
-    )
-
-
-# =====================================
-# ADMIN - ABONNEMENTS
-# =====================================
+def premium(telephone: str):
+    return verifier_premium(telephone)
 
 @router.get("/admin/abonnements")
 def admin_abonnements():
-
-    return {
-
-        "abonnements":
-            lister_abonnements()
-
-    }
-
-
-# =====================================
-# ADMIN - STATISTIQUES
-# =====================================
+    return {"abonnements": lister_abonnements()}
 
 @router.get("/admin/statistiques")
 def admin_statistiques():
-
     return statistiques_abonnements()
-
-
-# =====================================
-# JOURNAL HIPPIQUE (LONAB)
-# =====================================
-#
-# Route additive : n'affecte aucune route existante ci-dessus.
 
 @router.get("/journal")
 def journal():
-
     try:
-
-        aujourd_hui = datetime.now()
-
-        resultat = recuperer_journal_lonab(
-            aujourd_hui
-        )
-
+        resultat = recuperer_journal_lonab(datetime.now())
         if not resultat:
-
-            raise HTTPException(
-                status_code=503,
-                detail=(
-                    "Journal hippique LONAB indisponible "
-                    "actuellement."
-                )
-            )
-
+            raise HTTPException(status_code=503, detail="Journal hippique LONAB indisponible.")
         return resultat
-
-    except HTTPException:
-        raise
-
     except Exception as erreur:
-
-        print(
-            "Erreur journal LONAB :",
-            erreur
-        )
-
-        raise HTTPException(
-
-            status_code=500,
-
-            detail=(
-                "Erreur journal : "
-                f"{str(erreur)}"
-            )
-
-        )
-
-
-# =====================================
-# DEBUG TEMPORAIRE - JSON BRUT PMU
-# =====================================
-#
-# Route temporaire, a retirer une fois le probleme d'hippodrome
-# resolu. Retourne le dict "course" brut tel que recu de l'API PMU,
-# AVANT toute transformation, pour identifier le vrai nom du champ
-# hippodrome dans le schema reel de l'API client/61.
+        raise HTTPException(status_code=500, detail=str(erreur))
 
 @router.get("/debug-pmu")
 def debug_pmu():
-
     from pmu_source import trouver_quinte_du_jour
-
-    aujourd_hui = datetime.now()
-    date_pmu = aujourd_hui.strftime("%d%m%Y")
-
-    try:
-
-        programme, reunion, course = trouver_quinte_du_jour(
-            date_pmu
-        )
-
-        return {
-            "reunion": reunion,
-            "programme_brut": programme,
-            "course_brute": course,
-        }
-
-    except Exception as erreur:
-
-        raise HTTPException(
-            status_code=500,
-            detail=f"Erreur debug PMU : {erreur}"
-        )
-
-
-# =====================================
-# DEBUG TEMPORAIRE - JOURNAL LONAB
-# =====================================
-#
-# Route temporaire, a retirer une fois le journal fonctionnel.
-# Montre precisement a quelle etape la recuperation LONAB echoue.
+    programme, reunion, course = trouver_quinte_du_jour(datetime.now().strftime("%d%m%Y"))
+    return {"reunion": reunion, "programme_brut": programme, "course_brute": course}
 
 @router.get("/debug-journal")
 def debug_journal():
-
-    aujourd_hui = datetime.now()
-
-    try:
-
-        diagnostic = diagnostiquer_journal_lonab(
-            aujourd_hui
-        )
-
-        return diagnostic
-
-    except Exception as erreur:
-
-        raise HTTPException(
-            status_code=500,
-            detail=f"Erreur debug journal : {erreur}"
-)
+    return diagnostiquer_journal_lonab(datetime.now())
