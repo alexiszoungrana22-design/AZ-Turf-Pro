@@ -42,7 +42,7 @@ async function chargerAnalyse(){
         if(tendance && classement.length){
             tendance.innerHTML = `
                 <p>Chevaux les plus joues : <strong>${(data.plus_joues || []).join(" - ")}</strong></p>
-                <p>Favori AZ : <strong>NÂ°${classement[0].numero}</strong> avec un indice AZ de <strong>${classement[0].indice_az || "-"}</strong></p>
+                <p>Favori AZ : <strong>NÂ°${classement[0].numero}</strong> avec un indice AZ de <strong>${classement[0].indice_az ? Math.round(classement[0].indice_az) : "-"}</strong></p>
                 <p>La tendance est basÃ©e sur la forme, la rÃ©gularitÃ© et le classement AZ.</p>
             `;
         }
@@ -51,36 +51,40 @@ async function chargerAnalyse(){
         if(favori){
             afficher("favori-numero", favori.numero);
             afficher("favori-nom", favori.nom);
-            afficher("favori-indice", favori.indice_az);
+            afficher("favori-indice", favori.indice_az ? Math.round(favori.indice_az) : "-");
             afficher("favori-confiance", (favori.confiance || "-") + " %");
             afficher("favori-raison", favori.raison || "Favori AZ");
         }
 
-        const outsider = classement[6];
+        const outsider = classement[6] || classement[3];
         if(outsider){
             afficher("outsider-numero", outsider.numero);
             afficher("outsider-nom", outsider.nom);
-            afficher("outsider-indice", outsider.indice_az);
+            afficher("outsider-indice", outsider.indice_az ? Math.round(outsider.indice_az) : "-");
             afficher("outsider-confiance", (outsider.confiance || "-") + " %");
             afficher("outsider-raison", outsider.raison || "Outsider AZ");
         }
 
+        // ===============================
+        // TABLEAU DES PARTANTS (Adapte API)
+        // ===============================
         const tableau = document.getElementById("all-horses") || document.getElementById("corps-tableau-partants");
         if(tableau){
             tableau.innerHTML = "";
-            chevaux.forEach(cheval => {
+            classement.forEach(cheval => {
+                const rang = cheval.rang ?? "-";
                 const numero = cheval.numero ?? "-";
-                const jockey = cheval.jockey || cheval.driver || cheval.pilote || "-";
-                const entraineur = cheval.entraineur || cheval.trainer || "-";
-                const cote = cheval.cote_brute ?? cheval.rapport ?? cheval.cote ?? "-";
+                const nom = cheval.nom || "-";
+                const indice = cheval.indice_az ? Math.round(cheval.indice_az) : "-";
+                const confiance = cheval.confiance ? cheval.confiance + " %" : "-";
 
                 tableau.innerHTML += `
                     <tr>
-                        <td><strong>${numero}</strong></td>
-                        <td>${cheval.nom || "-"}</td>
-                        <td>${jockey}</td>
-                        <td>${entraineur}</td>
-                        <td><span class="badge-cote">${cote}</span></td>
+                        <td><strong>${rang}</strong></td>
+                        <td><strong>NÂ°${numero}</strong></td>
+                        <td>${nom}</td>
+                        <td><span class="badge-cote">${indice}</span></td>
+                        <td>${confiance}</td>
                     </tr>
                 `;
             });
@@ -92,7 +96,7 @@ async function chargerAnalyse(){
 
         const couple = document.getElementById("couple-place-gratuit");
         if(couple){
-            couple.innerHTML = (tickets.couple_place || []).map(c => c.join(" - ")).join(" | ");
+            couple.innerHTML = (tickets.couple_place || []).join(" - ");
         }
 
         afficherConfianceCourse(data);
@@ -261,5 +265,3 @@ document.addEventListener("DOMContentLoaded", () => {
     chargerAnalyse();
     setInterval(changerPublicite, 4000);
 });
-
-
