@@ -394,121 +394,108 @@ error
 
 }
 
+const API = "https://az-turf-pro.onrender.com/api/analyse";
 
+async function chargerAnalyse() {
+    try {
+        const response = await fetch(API);
+        if (!response.ok) throw new Error("Erreur API");
+        const data = await response.json();
 
+        // 1. Afficher le chronomÃ¨tre (Correction incluse)
+        afficherChronometre(data);
+
+        // 2. Remplir les autres infos
+        const chevauxClassement = data.classement || data.chevaux || [];
+        const chevaux = [...chevauxClassement].sort((a, b) => Number(a.numero || 0) - Number(b.numero || 0));
+        const classement = [...chevauxClassement].sort((a, b) => Number(a.rang || 0) - Number(b.rang || 0));
+
+        function afficher(id, valeur) {
+            const element = document.getElementById(id);
+            if (element) element.textContent = valeur || "-";
+        }
+
+        afficher("meta-hippodrome", data.hippodrome);
+        afficher("meta-course", data.course);
+        afficher("meta-discipline", data.discipline);
+        afficher("meta-distance", data.distance ? data.distance + " m" : "-");
+        afficher("meta-partants", data.partants);
+
+        // ... (tes autres blocs d'affichage pour favoris, tendance, etc restent ici) ...
+        // Je te laisse coller tes fonctions d'affichage existantes ici pour ne pas perdre tes modifs
+        
+    } catch (error) {
+        console.log("Erreur analyse :", error);
+    }
+}
 
 /* =====================================
-   AZ TURF PRO
-   CHRONOMETRE REEL DE LA COURSE
+   CORRECTION CHRONOMETRE
 ===================================== */
-
 let chronoTimer = null;
 
-function normaliserHeureDepart(valeur){
-    if(!valeur) return null;
-
+function normaliserHeureDepart(valeur) {
+    if (!valeur) return null;
     let texte = String(valeur).trim().toLowerCase();
-
-    // HHhMM / HHhMMm / HH:MM / HH:MM:SS
-    texte = texte.replace(/h/g, ":").replace(/m/g, ":");
-    texte = texte.replace(/\s+/g, "");
-
+    texte = texte.replace(/h/g, ":").replace(/m/g, ":").replace(/\s+/g, "");
     const morceaux = texte.split(":").filter(Boolean);
-
-    if(morceaux.length < 2) return null;
+    if (morceaux.length < 2) return null;
 
     const heures = parseInt(morceaux[0], 10);
     const minutes = parseInt(morceaux[1], 10);
-    const secondes = morceaux.length >= 3
-        ? parseInt(morceaux[2], 10) || 0
-        : 0;
-
-    if(
-        Number.isNaN(heures) ||
-        Number.isNaN(minutes) ||
-        heures < 0 || heures > 23 ||
-        minutes < 0 || minutes > 59 ||
-        secondes < 0 || secondes > 59
-    ){
-        return null;
-    }
-
-    return {
-        heures,
-        minutes,
-        secondes
-    };
+    if (isNaN(heures) || isNaN(minutes) || heures > 23 || minutes > 59) return null;
+    return { heures, minutes, secondes: 0 };
 }
 
-function afficherChronometre(data){
+function afficherChronometre(data) {
     const zone = document.getElementById("mini-countdown");
+    if (!zone) return;
 
-    if(!zone) return;
+    // PrioritÃ© Ã  l'heure du journal LONAB, sinon heure de l'API
+    const heureBrute = (data.horaires && data.horaires.depart) ? data.horaires.depart : data.heure_depart;
+    const heure = normaliserHeureDepart(heureBrute);
 
-    if(chronoTimer){
-        clearInterval(chronoTimer);
-        chronoTimer = null;
-    }
-
-    const heure = normaliserHeureDepart(
-        data?.heure_depart
-    );
-
-    if(!heure){
-        zone.textContent = "⏱ Départ : heure indisponible";
+    if (!heure) {
+        zone.textContent = "â± DÃ©part : heure indisponible";
         return;
     }
 
-    function mettreAJour(){
+    if (chronoTimer) clearInterval(chronoTimer);
+
+    function mettreAJour() {
         const maintenant = new Date();
+        const depart = new Date();
+        depart.setHours(heure.heures, heure.minutes, 0, 0);
 
-        const depart = new Date(maintenant);
-        depart.setHours(
-            heure.heures,
-            heure.minutes,
-            heure.secondes,
-            0
-        );
-
-        let difference = depart.getTime() - maintenant.getTime();
-
-        if(difference <= 0){
-            zone.textContent = "🏁 Départ imminent / course en cours";
+        // BASCULE AUTO : Si 4h sont passÃ©es aprÃ¨s le dÃ©part
+        const quatreHeuresPlusTard = new Date(depart.getTime() + (4 * 60 * 60 * 1000));
+        
+        if (maintenant > quatreHeuresPlusTard) {
+            zone.textContent = "ðŸ Course terminÃ©e - En attente du QuintÃ© de demain";
             clearInterval(chronoTimer);
-            chronoTimer = null;
             return;
         }
 
-        const totalSecondes = Math.floor(difference / 1000);
+        let diff = depart.getTime() - maintenant.getTime();
+        if (diff <= 0) {
+            zone.textContent = "ðŸ DÃ©part imminent / course en cours";
+            return;
+        }
 
-        const heuresRestantes = Math.floor(
-            totalSecondes / 3600
-        );
-
-        const minutesRestantes = Math.floor(
-            (totalSecondes % 3600) / 60
-        );
-
-        const secondesRestantes =
-            totalSecondes % 60;
-
-        zone.textContent =
-            "⏱ Départ dans " +
-            String(heuresRestantes).padStart(2, "0") +
-            ":" +
-            String(minutesRestantes).padStart(2, "0") +
-            ":" +
-            String(secondesRestantes).padStart(2, "0");
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        zone.textContent = `â± DÃ©part dans ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
     }
 
     mettreAJour();
     chronoTimer = setInterval(mettreAJour, 1000);
 }
 
-document.addEventListener(
-"DOMContentLoaded",
-chargerAnalyse
-);
+document.addEventListener("DOMContentLoaded", chargerAnalyse);
+
+
+
 /* =====================================
    AZ TURF PRO
    SLIDER PUBLICITAIRE ACCUEIL V2
