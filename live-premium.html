@@ -2,39 +2,141 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>AZ Turf Pro - Live VIP</title>
-    <!-- Ton fichier de style pour le design -->
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AZ Turf Pro - Espace Live VIP</title>
+    <style>
+        /* ==========================
+           1. DESIGN & STYLE (CSS)
+           ========================== */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0f172a;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Animation du point lumineux */
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 8px rgba(16, 185, 129, 0.6); }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        .live-badge-point {
+            width: 12px; 
+            height: 12px; 
+            background: #10b981; 
+            border-radius: 50%; 
+            display: inline-block; 
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Style du bouton d'action */
+        #btn-toggle-tableau {
+            background: #10b981; 
+            color: white; 
+            border: none; 
+            padding: 12px 20px; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            font-size: 15px; 
+            margin: 20px 0;
+            transition: background 0.3s ease;
+            width: 100%;
+        }
+
+        #btn-toggle-tableau:hover {
+            opacity: 0.9;
+        }
+
+        /* Style du tableau */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        table {
+            width: 100%; 
+            border-collapse: collapse; 
+            background: #111827; 
+            color: #fff; 
+        }
+
+        th {
+            background: #1f2937; 
+            text-align: left; 
+            font-size: 14px; 
+            color: #9ca3af;
+            padding: 12px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #374151;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- 1. Le bloc Live qu'on a fait avant -->
-    <div id="zone-live-premium"></div>
+    <div class="container">
+        <!-- ==========================
+           2. STRUCTURE (HTML)
+           ========================== -->
+           
+        <!-- Encadré du Live -->
+        <div id="zone-live-premium" style="background: #111827; padding: 20px; border-radius: 12px; border: 1px solid #374151; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+                    <span class="live-badge-point"></span>
+                    Live VIP - AZ Turf Pro
+                </h3>
+                <span style="font-size: 12px; background: #1f2937; padding: 4px 8px; border-radius: 6px; color: #9ca3af;">Exclusif Abonnés</span>
+            </div>
+            <div style="background: #1f2937; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                <p style="margin: 0; font-size: 14px; color: #e5e7eb;">Statut actuel : <strong id="texte-statut">Suivi actif sur les pistes</strong></p>
+            </div>
+            <p style="margin: 0; font-size: 13px; color: #9ca3af; line-height: 1.4;">
+                💡 Cliquez sur le bouton ci-dessous pour afficher ou masquer le tableau des partants et les indices en direct.
+            </p>
+        </div>
 
-    <!-- 2. Le Bouton pour afficher/masquer le tableau -->
-    <button id="btn-toggle-tableau" style="background: #10b981; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; margin: 15px 0;">
-        📊 Afficher le Tableau des Partants (Live)
-    </button>
+        <!-- Bouton pour afficher/masquer le tableau -->
+        <button id="btn-toggle-tableau">
+            📊 Afficher le Tableau des Partants (Live)
+        </button>
 
-    <!-- 3. Le Tableau (masqué par défaut) -->
-    <div id="conteneur-tableau" style="display: none; margin-top: 15px; overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; background: #111827; color: #fff; border-radius: 8px; overflow: hidden;">
-            <thead>
-                <tr style="background: #1f2937; text-align: left; font-size: 14px; color: #9ca3af;">
-                    <th style="padding: 12px;">Rang</th>
-                    <th style="padding: 12px;">N°</th>
-                    <th style="padding: 12px;">Cheval</th>
-                    <th style="padding: 12px;">Indice AZ</th>
-                    <th style="padding: 12px;">Confiance</th>
-                </tr>
-            </thead>
-            <tbody id="all-horses">
-                <!-- Les données de l'API s'afficheront ici -->
-            </tbody>
-        </table>
+        <!-- Le Tableau (Masqué par défaut) -->
+        <div id="conteneur-tableau" style="display: none;">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rang</th>
+                            <th>N°</th>
+                            <th>Cheval</th>
+                            <th>Indice AZ</th>
+                            <th>Confiance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="all-horses">
+                        <!-- Les données de l'API s'injecteront ici -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
-    <!-- 4. LE SCRIPT JS À METTRE ICI (ou dans ton script.js lié) -->
+    <!-- ==========================
+       3. ACTIONS ET LOGIQUE (JS)
+       ========================== -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const btnToggle = document.getElementById("btn-toggle-tableau");
@@ -45,13 +147,14 @@
                     if (conteneurTableau.style.display === "none") {
                         conteneurTableau.style.display = "block";
                         btnToggle.innerHTML = "📊 Masquer le Tableau des Partants";
-                        btnToggle.style.background = "#ef4444"; // Rouge
+                        btnToggle.style.background = "#ef4444"; // Passe en rouge
 
+                        // Appel de l'API pour charger les données
                         chargerDonneesAPI();
                     } else {
                         conteneurTableau.style.display = "none";
                         btnToggle.innerHTML = "📊 Afficher le Tableau des Partants (Live)";
-                        btnToggle.style.background = "#10b981"; // Vert
+                        btnToggle.style.background = "#10b981"; // Repasse en vert
                     }
                 });
             }
@@ -61,9 +164,10 @@
             const tableau = document.getElementById("all-horses");
             if (!tableau) return;
 
-            tableau.innerHTML = `<tr><td colspan="5" style="padding: 15px; text-align: center; color: #9ca3af;">Chargement des partants en cours...</td></tr>`;
+            tableau.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #9ca3af;">Chargement des partants en cours...</td></tr>`;
 
             try {
+                // Requête vers ton API Render
                 const reponse = await fetch("https://az-turf-pro.onrender.com/api/analyse"); 
                 const data = await reponse.json();
                 const listeCheval = data.classement || data;
@@ -78,21 +182,21 @@
                         const confiance = cheval.confiance ? cheval.confiance + " %" : "-";
 
                         tableau.innerHTML += `
-                            <tr style="border-bottom: 1px solid #374151;">
-                                <td style="padding: 12px;"><strong>${rang}</strong></td>
-                                <td style="padding: 12px;"><strong>${numero}</strong></td>
-                                <td style="padding: 12px;">${nom}</td>
-                                <td style="padding: 12px;"><span style="background: #1f2937; padding: 4px 8px; border-radius: 4px; color: #10b981; font-weight: bold;">${indice}</span></td>
-                                <td style="padding: 12px;">${confiance}</td>
+                            <tr>
+                                <td><strong>${rang}</strong></td>
+                                <td><strong>${numero}</strong></td>
+                                <td>${nom}</td>
+                                <td><span style="background: #1f2937; padding: 4px 8px; border-radius: 4px; color: #10b981; font-weight: bold;">${indice}</span></td>
+                                <td>${confiance}</td>
                             </tr>
                         `;
                     });
                 } else {
-                    tableau.innerHTML = `<tr><td colspan="5" style="padding: 15px; text-align: center; color: #ef4444;">Aucun partant trouvé.</td></tr>`;
+                    tableau.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #ef4444;">Aucun partant trouvé pour le moment.</td></tr>`;
                 }
             } catch (erreur) {
                 console.error("Erreur :", erreur);
-                tableau.innerHTML = `<tr><td colspan="5" style="padding: 15px; text-align: center; color: #ef4444;">Erreur de connexion à l'API.</td></tr>`;
+                tableau.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #ef4444;">Erreur de connexion à l'API Render.</td></tr>`;
             }
         }
     </script>
