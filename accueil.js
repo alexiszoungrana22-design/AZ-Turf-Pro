@@ -261,3 +261,6 @@ document.addEventListener("DOMContentLoaded", () => {
     chargerAnalyse();
     setInterval(changerPublicite, 4000);
 });
+
+
+<script src="tri-partants.js"></script>
