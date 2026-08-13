@@ -13,7 +13,7 @@
         .btn-pdf-item span { display: block; font-size: 0.85rem; color: #718096; margin-top: 4px; }
         .btn-pdf-item:hover span { color: #e2e8f0; }
         
-        .avis-card { background: #fffaf0; border-left: 4px solid #d4af37; padding: 12px 15px; border-radius: 8px; margin-bottom: 12px; }
+        .avis-card { background: #fffaf0; border-left: 4px solid #d4af37; padding: 12px 15px; border-radius: 8px; margin-bottom: 12px; text-align: left; }
         .avis-card h4 { margin: 0 0 5px; color: #975a16; font-size: 1rem; }
         .avis-card p { margin: 0; color: #4a5568; font-size: 0.95rem; line-height: 1.4; }
     </style>
@@ -38,59 +38,57 @@
         <!-- En-tête -->
         <section class="card" style="text-align: center;">
             <h1 style="color: #08783f; margin-top: 0;">📰 Journal Hippique & Infos Pro</h1>
-            <p style="color: #4a5568; margin-bottom: 0;">Journaux officiels, arrivées PDF, programmes étrangers et bruits d'écurie.</p>
+            <p style="color: #4a5568; margin-bottom: 0;">Accès direct aux PDF du jour, arrivées, programmes et bruits d'écurie.</p>
         </section>
 
-        <!-- 1. Journal Hippique LONAB (Aujourd'hui, Demain, Archives) -->
+        <!-- 1. Journal Hippique LONAB (Liens directs PDF / API) -->
         <section class="card">
-            <h2 class="journal-section-title">📅 Journal Hippique LONAB (PDF)</h2>
-            <p style="color: #4a5568; font-size: 0.95rem;">Téléchargez les éditions officielles du journal des courses.</p>
+            <h2 class="journal-section-title">📅 Journal Hippique LONAB (PDF direct)</h2>
+            <p style="color: #4a5568; font-size: 0.95rem;">Téléchargez directement l'édition demandée sans passer par le portail.</p>
             
             <div class="pdf-grid">
-                <a href="https://www.lonab.bf" target="_blank" class="btn-pdf-item">
+                <a href="https://az-turf-pro.onrender.com/api/journal/aujourdhui" target="_blank" class="btn-pdf-item">
                     📥 Aujourd'hui
-                    <span>Édition du jour</span>
+                    <span>Édition du jour (PDF)</span>
                 </a>
-                <a href="https://www.lonab.bf" target="_blank" class="btn-pdf-item">
+                <a href="https://az-turf-pro.onrender.com/api/journal/demain" target="_blank" class="btn-pdf-item">
                     📥 Demain
-                    <span>Pré-programme</span>
+                    <span>Pré-programme (PDF)</span>
                 </a>
-                <a href="https://www.lonab.bf" target="_blank" class="btn-pdf-item">
+                <a href="https://az-turf-pro.onrender.com/api/journal/special-15-aout" target="_blank" class="btn-pdf-item">
                     📥 Spécial 15 Août
-                    <span>Édition spéciale</span>
+                    <span>Édition spéciale (PDF)</span>
                 </a>
             </div>
         </section>
 
-        <!-- 2. Arrivées Officielles LONAB (PDF) -->
+        <!-- 2. Arrivées Officielles LONAB (PDF direct) -->
         <section class="card">
             <h2 class="journal-section-title">🏁 Arrivées Officielles LONAB (PDF)</h2>
-            <p style="color: #4a5568; font-size: 0.95rem;">Bulletins officiels des arrivées validés par la LONAB.</p>
+            <p style="color: #4a5568; font-size: 0.95rem;">Consultez directement le bulletin officiel des arrivées.</p>
             
-            <div id="liste-arrivees-pdf">
-                <div class="pdf-item" style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px 16px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 10px;">
-                    <div>
-                        <strong style="color: #2d3748;">Bulletin Officiel Quinté+</strong>
-                        <br><small style="color: #718096;">Rapport et ordre d'arrivée officiel</small>
-                    </div>
-                    <a href="https://www.lonab.bf" target="_blank" style="background: #08783f; color: white; padding: 8px 14px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 0.9rem;">
-                        📥 Voir PDF
-                    </a>
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 14px 16px; border-radius: 12px; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <strong style="color: #2d3748;">Bulletin Officiel des Arrivées</strong>
+                    <br><small style="color: #718096;">Rapports et classements officiels</small>
                 </div>
+                <a href="https://az-turf-pro.onrender.com/api/arrivees/pdf" target="_blank" style="background: #08783f; color: white; padding: 10px 18px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 0.9rem;">
+                    📥 Ouvrir le PDF
+                </a>
             </div>
         </section>
 
         <!-- 3. Programmes Internationaux (Mali, Niger) -->
         <section class="card">
             <h2 class="journal-section-title">🌍 Programmes Étrangers (Mali & Niger)</h2>
-            <p style="color: #4a5568; font-size: 0.95rem;">Consultez les réunions hippiques de la sous-région.</p>
+            <p style="color: #4a5568; font-size: 0.95rem;">Programmes et partants des hippodromes de la sous-région.</p>
             
             <div class="pdf-grid">
-                <a href="#" target="_blank" class="btn-pdf-item">
+                <a href="https://az-turf-pro.onrender.com/api/programmes/mali" target="_blank" class="btn-pdf-item">
                     🇲🇱 Hippisme Mali
                     <span>Programme & Partants</span>
                 </a>
-                <a href="#" target="_blank" class="btn-pdf-item">
+                <a href="https://az-turf-pro.onrender.com/api/programmes/niger" target="_blank" class="btn-pdf-item">
                     🇳🇪 Hippisme Niger
                     <span>Programme & Partants</span>
                 </a>
@@ -100,16 +98,16 @@
         <!-- 4. Bruits d'écurie & Avis des Pros -->
         <section class="card">
             <h2 class="journal-section-title">🤫 Bruits d'Écurie & Avis des Pros</h2>
-            <p style="color: #4a5568; font-size: 0.95rem; margin-bottom: 15px;">Les confidences des entraîneurs, jockeys et bruits de couloirs des pistes.</p>
+            <p style="color: #4a5568; font-size: 0.95rem; margin-bottom: 15px;">Confidences des entraîneurs, jockeys et bruits de couloirs des pistes.</p>
             
             <div class="avis-card">
                 <h4>🎯 Le Tuyau des Pistes (Bruit d'écurie)</h4>
-                <p>Repéré ce matin lors des derniers heats d'entraînement : le numéro <strong>--</strong> montre une grande souplesse et un retard de gains évident. Coup de poker idéal pour une place de choix.</p>
+                <p>Repéré ce matin lors des heats d'entraînement : un concurrent montre une grande souplesse et un net retard de gains. Coup de poker idéal pour une place de choix dans le Quinté.</p>
             </div>
 
             <div class="avis-card" style="border-left-color: #3182ce; background: #ebf8ff;">
                 <h4 style="color: #2b6cb0;">🗣️ Avis des Entraîneurs & Jockeys</h4>
-                <p><em>« Il redescond de catégorie aujourd'hui et affectionne particulièrement ce parcours. S'il négocie bien le dernier tournant, il comptera parmi les tout premiers à l'arrivée. »</em> — Entraîneur confiant.</p>
+                <p><em>« Il redescend nettement de catégorie aujourd'hui et affectionne particulièrement ce profil de piste. S'il négocie bien le dernier tournant, il comptera parmi les tout premiers à l'arrivée. »</em> — Entraîneur confiant.</p>
             </div>
         </section>
 
