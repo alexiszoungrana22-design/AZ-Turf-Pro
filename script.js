@@ -3,303 +3,121 @@
 // Compatible ticket.html + API Premium
 // ===============================
 
+const API_URL = "https://az-turf-pro.onrender.com/api/analyse";
 
-const API_URL =
-"https://az-turf-pro.onrender.com/api/analyse";
+document.addEventListener("DOMContentLoaded", chargerTickets);
 
+async function chargerTickets() {
+    // 1. Indicateur visuel pendant le chargement
+    indiquerChargement();
 
+    try {
+        const response = await fetch(API_URL);
 
-document.addEventListener(
-"DOMContentLoaded",
-chargerTickets
-);
+        if (!response.ok) {
+            throw new Error(`Erreur API (${response.status})`);
+        }
 
+        const data = await response.json();
+        console.log("JSON AZ Turf :", data);
 
+        const tickets = data.tickets || {};
+        const gratuit = tickets.gratuit || {};
+        const premium = tickets.premium || {};
 
+        // ===============================
+        // TICKETS GRATUITS
+        // ===============================
+        afficherListe("quinte", gratuit.quinte);
+        afficherListe("couple-place", gratuit.couple_place);
 
-async function chargerTickets(){
+        // ===============================
+        // TICKETS PREMIUM
+        // ===============================
+        afficherListe("premium-quinte", premium.quinte);
+        afficherListe("premium-quarte", premium.quarte);
+        afficherListe("premium-trio", premium.trio);
 
+        // Couplé gagnant / placé Premium
+        const couple = document.getElementById("couple-gagnant-place");
+        if (couple) {
+            if (Array.isArray(premium.couple_gagnant_place) && premium.couple_gagnant_place.length > 0) {
+                couple.textContent = premium.couple_gagnant_place
+                    .map(c => (Array.isArray(c) ? c.join("-") : c))
+                    .join(" | ");
+            } else {
+                couple.textContent = "Non disponible";
+            }
+        }
 
-try{
+        // Champ réduit
+        const champ = document.getElementById("champ-reduit");
+        if (champ) {
+            if (premium.champ_reduit) {
+                const cr = premium.champ_reduit;
+                const format = cr.format || "Champ Réduit";
+                const bases = Array.isArray(cr.bases) ? cr.bases.join("-") : "-";
+                const complements = Array.isArray(cr.complements) ? cr.complements.join("-") : "-";
+                champ.textContent = `${format} | Bases : ${bases} | Compléments : ${complements}`;
+            } else {
+                champ.textContent = "Non disponible";
+            }
+        }
 
+        // Dernière minute
+        const derniere = document.getElementById("derniere-minute");
+        if (derniere) {
+            if (premium.ticket_derniere_minute) {
+                const dm = premium.ticket_derniere_minute;
+                derniere.textContent = typeof dm === "object" ? (dm.format || dm.selection?.join(" - ") || "-") : String(dm);
+            } else {
+                derniere.textContent = "Non disponible";
+            }
+        }
 
-const response = await fetch(API_URL);
+        // Message Premium / Fin
+        const message = document.getElementById("message-fin");
+        if (message) {
+            message.textContent = premium.message_fin || "";
+        }
 
-
-
-if(!response.ok){
-
-throw new Error("Erreur API");
-
+    } catch (error) {
+        console.error("Erreur affichage tickets :", error);
+        afficherErreur();
+    }
 }
 
+// Helper pour afficher une liste d'éléments (chiffres ou sous-tableaux)
+function afficherListe(id, liste) {
+    const element = document.getElementById(id);
+    if (!element) return;
 
+    if (!liste || !Array.isArray(liste) || liste.length === 0) {
+        element.textContent = "Non disponible";
+        return;
+    }
 
-const data = await response.json();
-
-
-
-console.log(
-"JSON AZ Turf :",
-data
-);
-
-
-
-const tickets =
-data.tickets || {};
-
-
-
-const gratuit =
-tickets.gratuit || {};
-
-
-
-const premium =
-tickets.premium || {};
-
-
-
-
-// ===============================
-// GRATUIT
-// ===============================
-
-
-afficherListe(
-"quinte",
-gratuit.quinte
-);
-
-
-
-afficherListe(
-"couple-place",
-gratuit.couple_place
-);
-
-
-
-
-// ===============================
-// PREMIUM
-// ===============================
-
-
-afficherListe(
-"premium-quinte",
-premium.quinte
-);
-
-
-
-afficherListe(
-"premium-quarte",
-premium.quarte
-);
-
-
-
-afficherListe(
-"premium-trio",
-premium.trio
-);
-
-
-
-
-// Couplé gagnant/placé Premium
-
-const couple =
-document.getElementById(
-"couple-gagnant-place"
-);
-
-
-
-if(
-couple
-&&
-premium.couple_gagnant_place
-){
-
-
-couple.innerHTML =
-
-premium.couple_gagnant_place
-.map(
-c => c.join("-")
-)
-.join(" | ");
-
-
+    if (Array.isArray(liste[0])) {
+        element.textContent = liste.map(c => (Array.isArray(c) ? c.join("-") : c)).join(" | ");
+    } else {
+        element.textContent = liste.join(" - ");
+    }
 }
 
-
-
-
-// Champ réduit
-
-const champ =
-document.getElementById(
-"champ-reduit"
-);
-
-
-
-if(
-champ
-&&
-premium.champ_reduit
-){
-
-
-champ.textContent =
-
-premium.champ_reduit.format
-+
-" | Bases : "
-+
-premium.champ_reduit.bases.join("-")
-+
-" | Compléments : "
-+
-premium.champ_reduit.complements.join("-");
-
-
+// Affiche un état "Chargement..." sur tous les champs concernés
+function indiquerChargement() {
+    const ids = ["quinte", "couple-place", "premium-quinte", "premium-quarte", "premium-trio", "couple-gagnant-place", "champ-reduit", "derniere-minute"];
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = "Chargement...";
+    });
 }
 
-
-
-
-// Dernière minute
-
-const derniere =
-document.getElementById(
-"derniere-minute"
-);
-
-
-
-if(
-derniere
-&&
-premium.ticket_derniere_minute
-){
-
-
-derniere.textContent =
-
-premium.ticket_derniere_minute.format;
-
-
-}
-
-
-
-
-// Message Premium
-
-const message =
-document.getElementById(
-"message-fin"
-);
-
-
-
-if(message){
-
-
-message.textContent =
-
-premium.message_fin || "";
-
-
-}
-
-
-
-}
-
-catch(error){
-
-
-console.error(
-"Erreur affichage tickets :",
-error
-);
-
-
-}
-
-
-
-}
-
-
-
-
-
-function afficherListe(id, liste){
-
-
-const element =
-document.getElementById(id);
-
-
-
-if(!element){
-
-return;
-
-}
-
-
-
-if(
-!liste
-||
-liste.length === 0
-){
-
-
-element.textContent =
-"Non disponible";
-
-
-return;
-
-}
-
-
-
-
-if(Array.isArray(liste[0])){
-
-
-element.textContent =
-
-liste
-.map(
-c => c.join("-")
-)
-.join(" | ");
-
-
-}
-
-else{
-
-
-element.textContent =
-
-liste.join(" - ");
-
-
-}
-
-
-
-
+// Affiche un message explicite en cas d'échec de la connexion
+function afficherErreur() {
+    const ids = ["quinte", "couple-place", "premium-quinte", "premium-quarte", "premium-trio", "couple-gagnant-place", "champ-reduit", "derniere-minute"];
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = "Indisponible (Erreur serveur)";
+    });
 }
