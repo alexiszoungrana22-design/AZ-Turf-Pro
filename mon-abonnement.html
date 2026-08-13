@@ -1,338 +1,162 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Mon abonnement - AZ Turf Pro</title>
-
-<link rel="stylesheet" href="style.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon abonnement - AZ Turf Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .info-row { margin: 15px 0; border-bottom: 1px solid #edf2f7; padding-bottom: 10px; }
+        .info-row h2 { font-size: 14px; color: #718096; margin-bottom: 5px; text-align: left; }
+        .info-row p { font-size: 18px; font-weight: bold; color: #2d3748; margin: 0; text-align: left; }
+        .btn-action { display: block; width: 100%; text-align: center; background: #08783f; color: white; padding: 15px; border-radius: 12px; font-weight: bold; text-decoration: none; border: none; margin-top: 15px; }
+    </style>
 </head>
-
-
 <body>
 
-
 <header class="top-header">
-
-<div class="logo">
-🏇 <span>AZ Turf Pro</span>
-</div>
-
-
-<nav class="top-menu">
-
-<a href="index.html">🏠 Accueil</a>
-
-<a href="analyse.html">📊 Analyse</a>
-
-<a href="espace-premium.html">⭐ Premium</a>
-
-</nav>
-
+    <div class="logo">
+        🏇 <span>AZ Turf Pro</span>
+    </div>
+    <nav class="top-menu">
+        <a href="index.html">🏠 Accueil</a>
+        <a href="analyse.html">📊 Analyse</a>
+        <a href="espace-premium.html">⭐ Premium</a>
+    </nav>
 </header>
 
-
-
-
-
 <main class="content">
+    <!-- AJOUT DU PAGE-CONTAINER POUR ÉVITER QUE LE TEXTE SOIT CACHÉ SOUS L'ENTÊTE -->
+    <div class="page-container">
+        
+        <section class="card">
+            <h1 style="text-align: center; color: #08783f; font-size: 22px;">⭐ Mon abonnement</h1>
+            <p style="text-align: center; color: #4a5568;">Consultez votre statut et vos informations.</p>
+        </section>
 
+        <section class="card">
+            <div id="infos-abonnement" style="text-align: center;">
+                <p style="font-weight: bold; color: #08783f;">⏳ Chargement de votre abonnement...</p>
+            </div>
+        </section>
 
-<section class="card">
+        <section class="card" id="renouvellement" style="display:none; background-color: #fffaf0; border: 2px solid #ed8936;">
+            <h2 style="color: #dd6b20;">🔄 Renouvellement</h2>
+            <p style="text-align: center; margin-bottom: 15px;">Votre abonnement est arrivé à expiration ou est inactif.</p>
+            <button onclick="renouveler()" class="btn-action" style="background: linear-gradient(45deg,#d4af37,#ffe680); color: #111;">
+                ⭐ Renouveler votre abonnement
+            </button>
+        </section>
 
-<h1>⭐ Mon abonnement Premium</h1>
-
-<p>
-Consultez votre statut et vos informations d'abonnement.
-</p>
-
-</section>
-
-
-
-
-
-<section class="card">
-
-
-<div id="infos-abonnement">
-
-Chargement de votre abonnement...
-
-</div>
-
-
-</section>
-
-
-
-
-
-<section class="card" id="renouvellement" style="display:none;">
-
-
-<h2>🔄 Renouvellement</h2>
-
-
-<p>
-Votre abonnement est arrivé à expiration.
-</p>
-
-
-<button onclick="renouveler()">
-
-⭐ Renouveler votre abonnement
-
-</button>
-
-
-</section>
-
-
-
-
-
-
+    </div>
 </main>
 
-
-
-
-
-
-
 <footer class="bottom-menu">
-
-
-<a href="index.html">🏠 Accueil</a>
-
-<a href="analyse.html">📊 Analyse</a>
-
-<a href="ticket-premium.html">🎟️ Ticket Premium</a>
-
-<a href="historique.html">🏆 Historique</a>
-
-<a href="espace-premium.html">⭐ Premium</a>
-
-
+    <a href="index.html">🏠 Accueil</a>
+    <a href="analyse.html">📊 Analyse</a>
+    <a href="ticket-premium.html">🎟️ Ticket Premium</a>
+    <a href="historique.html">🏆 Historique</a>
+    <a href="espace-premium.html">⭐ Premium</a>
 </footer>
 
-
-
-
-
-
-
-
 <script>
-
-
-const API =
-"https://az-turf-pro.onrender.com/api/premium/";
-
-
-
-
-
-async function chargerAbonnement(){
-
-
-
-const telephone =
-
-localStorage.getItem(
-"AZ_TURF_TELEPHONE"
-);
-
-
-
-
-const zone =
-
-document.getElementById(
-"infos-abonnement"
-);
-
-
-
-
-
-if(!telephone){
-
-
-zone.innerHTML =
-
-"❌ Aucun numéro d'abonnement trouvé.";
-
-
-return;
-
-
-}
-
-
-
-
-
-try{
-
-
-const reponse = await fetch(
-
-API +
-encodeURIComponent(telephone)
-
-);
-
-
-
-const data = await reponse.json();
-
-
-
-
-
-console.log(
-"Abonnement :",
-data
-);
-
-
-
-
-
-
-if(!reponse.ok){
-
-
-zone.innerHTML =
-
-"❌ Abonnement introuvable.";
-
-
-return;
-
-
-}
-
-
-
-
-
-
-zone.innerHTML = `
-
-
-<h2>📱 Téléphone</h2>
-
-<p>${data.telephone}</p>
-
-
-<h2>⭐ Offre</h2>
-
-<p>${data.offre}</p>
-
-
-<h2>💳 Paiement</h2>
-
-<p>${data.paiement}</p>
-
-
-<h2>💰 Prix</h2>
-
-<p>${data.prix} FCFA</p>
-
-
-<h2>📌 Statut</h2>
-
-<p>${data.statut}</p>
-
-
-<h2>📅 Début</h2>
-
-<p>${data.date_debut || "-"}</p>
-
-
-<h2>⏳ Expiration</h2>
-
-<p>${data.date_fin || "-"}</p>
-
-
-`;
-
-
-
-
-
-
-
-if(data.statut !== "ACTIF"){
-
-
-document.getElementById(
-"renouvellement"
-).style.display="block";
-
-
-}
-
-
-
-}
-
-catch(error){
-
-
-
-console.error(error);
-
-
-
-zone.innerHTML =
-
-"❌ Erreur de connexion au serveur.";
-
-
-
-}
-
-
-
-}
-
-
-
-
-
-function renouveler(){
-
-
-window.location.href =
-
-"espace-premium.html";
-
-
-}
-
-
-
-
-
-chargerAbonnement();
-
-
+    const API = "https://az-turf-pro.onrender.com/api/premium/";
+
+    async function chargerAbonnement() {
+        const telephone = localStorage.getItem("AZ_TURF_TELEPHONE");
+        const zone = document.getElementById("infos-abonnement");
+        const zoneRenouvellement = document.getElementById("renouvellement");
+
+        // Cas 1 : Aucun numéro enregistré sur le téléphone
+        if (!telephone) {
+            zone.innerHTML = `
+                <div style="padding: 20px 0;">
+                    <span style="font-size: 40px;">📱</span>
+                    <h3 style="color: #e53e3e;">Téléphone non identifié</h3>
+                    <p style="color: #4a5568;">Veuillez renseigner votre numéro pour voir votre abonnement.</p>
+                    <a href="espace-premium.html" class="btn-action">Aller à l'espace Premium</a>
+                </div>
+            `;
+            return;
+        }
+
+        // Cas 2 : Récupération des données
+        try {
+            // Nettoyage du numéro avant l'envoi pour éviter les erreurs d'espaces
+            const numeroNettoye = telephone.replace(/\s+/g, '').trim();
+            const reponse = await fetch(API + encodeURIComponent(numeroNettoye));
+            
+            if (!reponse.ok) {
+                zone.innerHTML = `
+                    <div style="padding: 20px 0;">
+                        <span style="font-size: 40px;">❌</span>
+                        <h3 style="color: #e53e3e;">Abonnement introuvable</h3>
+                        <p style="color: #4a5568;">Aucun abonnement actif trouvé pour le numéro ${numeroNettoye}.</p>
+                        <a href="espace-premium.html" class="btn-action">S'abonner maintenant</a>
+                    </div>
+                `;
+                return;
+            }
+
+            const data = await reponse.json();
+
+            // Formatage propre des données reçues
+            zone.innerHTML = `
+                <div class="info-row">
+                    <h2>📱 Téléphone</h2>
+                    <p>${data.telephone || numeroNettoye}</p>
+                </div>
+                <div class="info-row">
+                    <h2>⭐ Offre</h2>
+                    <p>${data.offre || "Standard"}</p>
+                </div>
+                <div class="info-row">
+                    <h2>💳 Paiement</h2>
+                    <p>${data.paiement || "-"}</p>
+                </div>
+                <div class="info-row">
+                    <h2>💰 Prix</h2>
+                    <p>${data.prix ? data.prix + " FCFA" : "-"}</p>
+                </div>
+                <div class="info-row">
+                    <h2>📌 Statut</h2>
+                    <p style="color: ${data.statut === 'ACTIF' ? '#08783f' : '#e53e3e'};">${data.statut || "INACTIF"}</p>
+                </div>
+                <div class="info-row">
+                    <h2>📅 Début</h2>
+                    <p>${data.date_debut || "-"}</p>
+                </div>
+                <div class="info-row" style="border-bottom: none;">
+                    <h2>⏳ Expiration</h2>
+                    <p>${data.date_fin || "-"}</p>
+                </div>
+            `;
+
+            // Affichage du bouton de renouvellement si le statut n'est pas actif
+            if (data.statut !== "ACTIF") {
+                zoneRenouvellement.style.display = "block";
+            }
+
+        } catch (error) {
+            console.error("Erreur API :", error);
+            zone.innerHTML = `
+                <div style="padding: 20px 0;">
+                    <span style="font-size: 40px;">📡</span>
+                    <h3 style="color: #e53e3e;">Erreur de connexion</h3>
+                    <p style="color: #4a5568;">Impossible de joindre le serveur. Veuillez vérifier votre connexion internet.</p>
+                    <button onclick="chargerAbonnement()" class="btn-action">Réessayer</button>
+                </div>
+            `;
+        }
+    }
+
+    function renouveler() {
+        window.location.href = "espace-premium.html";
+    }
+
+    // Lancement au chargement
+    document.addEventListener("DOMContentLoaded", chargerAbonnement);
 
 </script>
-
-
-
-
-
-
 </body>
-
 </html>
