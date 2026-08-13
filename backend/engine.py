@@ -4,7 +4,7 @@ from quinte import generer_tickets_az
 from learning import enregistrer_course
 
 
-def lancer_analyse(chevaux):
+def lancer_analyse(chevaux, info_course=None):
 
     if not chevaux:
         return {
@@ -56,7 +56,9 @@ def lancer_analyse(chevaux):
 
             "classement": classement,
 
-            "tickets": tickets
+            "tickets": tickets,
+
+            "course": info_course or {}
 
         })
 
@@ -68,7 +70,7 @@ def lancer_analyse(chevaux):
 
     return {
 
-        "message": "Analyse AZ Turf terminée",
+        "message": "Analyse AZ Turf terminÃ©e",
 
         "chevaux": classement,
 
