@@ -28,7 +28,7 @@ from pmu_source import charger_course_pmu
 
 from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
 
-from learning import lire_historique, mettre_a_jour_arrivee
+from learning import lire_historique, mettre_a_jour_arrivee, mettre_a_jour_publications
 
 import json
 import os
@@ -285,10 +285,7 @@ def analyse():
                 ),
 
             "non_partants":
-                course.get(
-                    "non_partants",
-                    []
-                ),
+                resultat.get("non_partants", course.get("non_partants", [])),
 
             "plus_joues":
                 course.get(
@@ -303,25 +300,13 @@ def analyse():
                 ),
 
             "partants":
-                len(classement),
-
-            "partants_declares":
                 len(course.get("chevaux", [])),
-
-            "chevaux_complets":
-                [
-                    {
-                        **cheval,
-                        "non_partant": (
-                            cheval.get("numero") in course.get("non_partants", [])
-                            or str(cheval.get("numero")) in {str(n) for n in course.get("non_partants", [])}
-                        )
-                    }
-                    for cheval in course.get("chevaux", [])
-                ],
 
             "chevaux":
                 classement,
+
+            "partants_complets":
+                resultat.get("partants_complets", course.get("chevaux", [])),
 
             "classement":
                 classement,
@@ -536,6 +521,33 @@ def journal():
                 )
             )
 
+        # Actualites AZ Turf Pro : visibles uniquement 2 heures
+        # apres la detection de l'arrivee officielle.
+        actualites_az = []
+        try:
+            mettre_a_jour_publications()
+            historiques = lire_historique()
+            for entree in reversed(historiques):
+                if entree.get("publication_statut") != "PUBLIE":
+                    continue
+                tickets = entree.get("tickets") or {}
+                course = entree.get("course") or {}
+                arrivee = entree.get("arrivee") or []
+                actualites_az.append({
+                    "date": entree.get("date_analyse", ""),
+                    "course": course,
+                    "selection_az": entree.get("selection_az") or (tickets.get("gratuit") or {}).get("quinte") or [],
+                    "arrivee_quinte": arrivee[:5] if isinstance(arrivee, list) else [],
+                    "tickets": tickets,
+                    "heure_arrivee": entree.get("heure_arrivee"),
+                    "date_publication": entree.get("date_publication"),
+                    "titre": "Résultat et analyse AZ Turf Pro",
+                    "statut": "PUBLIE",
+                })
+        except Exception as erreur:
+            print("Actualites AZ indisponibles :", erreur)
+
+        resultat["actualites_az"] = actualites_az
         return resultat
 
     except HTTPException:
@@ -657,8 +669,35 @@ def historique():
             except Exception:
                 pass
 
+        # Met a jour les publications dont le delai de 2 heures est ecoule.
+        try:
+            mettre_a_jour_publications()
+            entrees = lire_historique()
+        except Exception:
+            pass
+
+        historique_normalise = []
+        for entree in reversed(entrees):
+            tickets = entree.get("tickets") or {}
+            gratuit = tickets.get("gratuit") or {}
+            selection_az = (
+                entree.get("selection_az")
+                or gratuit.get("quinte")
+                or []
+            )
+            arrivee = entree.get("arrivee") or []
+            entree["selection_az"] = selection_az
+            entree["arrivee_quinte"] = (
+                arrivee[:5] if isinstance(arrivee, list) else []
+            )
+            entree["publication_statut"] = (
+                entree.get("publication_statut")
+                or ("PUBLIE" if entree.get("arrivee") else "EN ATTENTE")
+            )
+            historique_normalise.append(entree)
+
         return {
-            "historique": list(reversed(entrees))
+            "historique": historique_normalise
         }
 
     except Exception as erreur:
@@ -666,4 +705,5 @@ def historique():
         raise HTTPException(
             status_code=500,
             detail=f"Erreur historique : {erreur}"
-)
+    )
+    
