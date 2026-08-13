@@ -94,3 +94,4 @@ def calculer_score_az(cheval):
 
 
     return score
+    
