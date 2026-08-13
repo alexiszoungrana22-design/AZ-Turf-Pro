@@ -1,7 +1,6 @@
-"""
 AZ TURF PRO - API Backend Server (Corrigé sans import circulaire)
 Fichier complet à remplacer : api.py
-"""
+
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
