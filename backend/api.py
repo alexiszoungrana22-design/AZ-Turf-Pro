@@ -1,382 +1,99 @@
 # =====================================
-# AZ TURF PRO
-# API (api.py)
-# Analyse + Premium + Journal + Historique
+# AZ TURF PRO - GENERATION DES TICKETS
+# Fichier complet à remplacer : quinte.py
 # =====================================
 
-from fastapi import APIRouter, HTTPException
 
-from engine import lancer_analyse
-
-from database import (
-    creer_abonnement,
-    activer_abonnement,
-    verifier_premium,
-    lister_abonnements,
-    statistiques_abonnements
-)
-
-from models import (
-    AbonnementRequest,
-    ActivationRequest
-)
-
-from pmu_source import charger_course_pmu
-
-from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
-
-from learning import lire_historique, mettre_a_jour_arrivee
-
-import json
-import os
-from datetime import datetime, timedelta
+def extraire_numeros(classement):
+    """Extrait la liste propre des numéros de chevaux."""
+    if not isinstance(classement, list):
+        return []
+    return [
+        str(c.get("numero"))
+        for c in classement
+        if isinstance(c, dict) and c.get("numero") is not None
+    ]
 
 
-router = APIRouter(
-    prefix="/api",
-    tags=["AZ Turf"]
-)
+def generer_champ_reduit(classement):
+    """Génère une formule en Champ Réduit pour le ticket Premium."""
+    numeros = extraire_numeros(classement)
+    if len(numeros) < 3:
+        return {"format": "", "bases": [], "complements": [], "disponible": False}
 
+    bases = [numeros[0], numeros[1], "X", numeros[2], "X"]
+    complements = numeros[3:7] if len(numeros) >= 4 else []
 
-# =====================================
-# CHARGEMENT COURSE LOCALE
-# =====================================
-
-def charger_course_locale():
-    chemin = os.path.join(
-        os.path.dirname(__file__),
-        "data",
-        "courses.json"
-    )
-
-    with open(chemin, "r", encoding="utf-8") as fichier:
-        return json.load(fichier)
-
-
-# =====================================
-# CHARGEMENT COURSE
-# PMU PRIORITAIRE + FALLBACK LOCAL
-# =====================================
-
-def charger_course():
-    aujourd_hui = datetime.now()
-    date_pmu = aujourd_hui.strftime("%d%m%Y")
-
-    # 1. TENTATIVE PMU RÉEL
-    try:
-        course = charger_course_pmu(date_pmu)
-        if course and isinstance(course, dict) and course.get("chevaux"):
-            print("Source utilisée : PMU réel")
-            return course, "pmu_live"
-    except Exception as erreur:
-        print("PMU indisponible :", erreur)
-
-    # 2. FALLBACK DONNÉES LOCALES (DÉMO)
-    try:
-        course = charger_course_locale()
-        if course and isinstance(course, dict) and course.get("chevaux"):
-            print("Source utilisée : données locales (démo)")
-            course["donnees_demo"] = True
-            return course, "demo"
-    except Exception as erreur:
-        print("Erreur chargement local :", erreur)
-
-    return None, "none"
-
-
-# =====================================
-# ANALYSE AZ TURF
-# =====================================
-
-@router.get("/analyse")
-def analyse():
-    try:
-        # 1. Chargement de la course
-        course, source = charger_course()
-
-        if not course:
-            raise HTTPException(
-                status_code=503,
-                detail="Aucune donnée de course disponible actuellement."
-            )
-
-        # 2. Partants / Chevaux
-        chevaux = course.get("chevaux", [])
-        if not chevaux:
-            raise HTTPException(
-                status_code=503,
-                detail="Aucun cheval trouvé dans la course."
-            )
-
-        # 3. Moteur de calcul AZ
-        resultat = lancer_analyse(
-            chevaux,
-            info_course={
-                "date": course.get("date"),
-                "reunion": course.get("reunion"),
-                "course_numero": course.get("course_numero"),
-                "course": course.get("course", ""),
-                "hippodrome": course.get("hippodrome"),
-                "discipline": course.get("discipline", ""),
-                "distance": course.get("distance_course", ""),
-                "allocation": course.get("allocation", ""),
-                "heure_depart": course.get("heure_depart", ""),
-                "horaires": course.get("horaires", {}),
-            }
-        )
-
-        if not isinstance(resultat, dict):
-            raise Exception("Réponse invalide du moteur AZ")
-
-        classement = resultat.get("chevaux", [])
-        if not classement:
-            raise Exception("Le moteur AZ n'a retourné aucun classement.")
-
-        # 4. Formatage de la réponse
-        aujourd_hui = datetime.now()
-        est_demo = (source == "demo")
-
-        date_course = course.get("date") or aujourd_hui.strftime("%Y-%m-%d")
-        reunion = course.get("reunion") or "R1"
-        course_numero = course.get("course_numero") or "C1"
-
-        reponse = {
-            "message": (
-                "Analyse AZ Turf terminée"
-                if not est_demo else
-                "Analyse AZ Turf terminée (données de démonstration, aucune course réelle disponible actuellement)"
-            ),
-            "source": source,
-            "donnees_demo": est_demo,
-            "course": course.get("course", "Course"),
-            "date": date_course,
-            "reunion": reunion,
-            "course_numero": course_numero,
-            "heure_depart": course.get("heure_depart", ""),
-            "horaires": course.get("horaires", {"depart": course.get("heure_depart", ""), "arret_des_jeux": ""}),
-            "hippodrome": course.get("hippodrome", ""),
-            "discipline": course.get("discipline", ""),
-            "distance": course.get("distance_course", ""),
-            "allocation": course.get("allocation", ""),
-            "non_partants": course.get("non_partants", []),
-            "plus_joues": course.get("plus_joues", []),
-            "source_plus_joues": course.get("source_plus_joues", "Non disponible"),
-            "partants": len(chevaux),
-            "chevaux": classement,
-            "classement": classement,
-            "favori": classement[0] if classement else {},
-            "tickets": resultat.get("tickets", {})
-        }
-
-        if est_demo:
-            reponse["avertissement"] = (
-                "Ces données sont des données de démonstration figées et ne "
-                "correspondent pas à une course réelle du jour."
-            )
-
-        return reponse
-
-    except HTTPException:
-        raise
-    except Exception as erreur:
-        print("Erreur analyse AZ :", erreur)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Erreur AZ : {str(erreur)}"
-        )
-
-
-# =====================================
-# CREATION ABONNEMENT PREMIUM
-# =====================================
-
-@router.post("/abonnement")
-def abonnement(data: AbonnementRequest):
-    try:
-        resultat = creer_abonnement(data.model_dump())
-        return {
-            "message": "Abonnement enregistré",
-            "abonnement": resultat
-        }
-    except Exception as erreur:
-        raise HTTPException(
-            status_code=500,
-            detail=str(erreur)
-        )
-
-
-# =====================================
-# ACTIVATION PREMIUM ADMIN
-# =====================================
-
-@router.post("/activation")
-def activation_premium(activation: ActivationRequest):
-    abonnement_data = activer_abonnement(
-        activation.telephone,
-        activation.reference
-    )
-
-    if abonnement_data is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Aucun abonnement trouvé"
-        )
-
-    abonnement_data["date_fin"] = (
-        datetime.now() + timedelta(days=int(abonnement_data.get("duree", 30)))
-    ).isoformat()
+    format_str = "-".join(map(str, bases))
+    if complements:
+        format_str += " / " + "-".join(map(str, complements))
 
     return {
-        "message": "Premium activé",
-        "statut": "ACTIF",
-        "date_fin": abonnement_data["date_fin"]
+        "format": format_str,
+        "bases": bases,
+        "complements": complements,
+        "disponible": True,
     }
 
 
-# =====================================
-# VERIFICATION PREMIUM
-# =====================================
+def generer_tickets_az(classement):
+    """Génère la structure complète des tickets Gratuit et Premium avec garantie de différence."""
+    if not classement or not isinstance(classement, list):
+        return {"gratuit": {}, "premium": {}}
 
-@router.get("/premium/{telephone}")
-def premium(telephone: str):
-    return verifier_premium(telephone)
+    # 1. CLASSEMENT GRATUIT (Basé strictement sur indice_az / Favoris)
+    ordre_az = sorted(
+        [c for c in classement if isinstance(c, dict) and c.get("numero") is not None],
+        key=lambda c: float(c.get("indice_az", 0) or 0),
+        reverse=True
+    )
+    numeros_az = [str(c.get("numero")) for c in ordre_az]
 
+    # 2. CLASSEMENT PREMIUM (Basé sur indice_premium / Value & Spéculation)
+    ordre_premium = sorted(
+        [c for c in classement if isinstance(c, dict) and c.get("numero") is not None],
+        key=lambda c: float(c.get("indice_premium", c.get("indice_az", 0)) or 0),
+        reverse=True
+    )
+    numeros_premium = [str(c.get("numero")) for c in ordre_premium]
 
-# =====================================
-# ADMIN - ABONNEMENTS
-# =====================================
+    # --- FORCER LA DIFFÉRENCIATION SI LES LISTES SONT IDENTIQUES ---
+    if len(numeros_az) >= 4 and numeros_az[:4] == numeros_premium[:4]:
+        # On intervertit le 3ème ou 4ème cheval par un outsider (rang 5 à 8) dans le Premium
+        if len(numeros_premium) >= 5:
+            outsider = numeros_premium[4]
+            # On insère l'outsider en position 3 du ticket Premium
+            numeros_premium.pop(4)
+            numeros_premium.insert(2, outsider)
 
-@router.get("/admin/abonnements")
-def admin_abonnements():
-    return {
-        "abonnements": lister_abonnements()
+    # Construction des sélections
+    gratuit = {
+        "quinte": numeros_az[:7],
+        "deux_sur_quatre": numeros_az[:4],
+        "couple_place": numeros_az[:2],
     }
 
+    selection_quinte = numeros_premium[:8]
+    quinte = selection_quinte[:6]
+    quarte = selection_quinte[:5]
+    trio = selection_quinte[:3]
 
-# =====================================
-# ADMIN - STATISTIQUES
-# =====================================
+    couples = []
+    if len(selection_quinte) >= 3:
+        couples = [
+            [selection_quinte[0], selection_quinte[1]],
+            [selection_quinte[0], selection_quinte[2]],
+            [selection_quinte[1], selection_quinte[2]]
+        ]
 
-@router.get("/admin/statistiques")
-def admin_statistiques():
-    return statistiques_abonnements()
+    premium = {
+        "selection_quinte": selection_quinte,
+        "quinte": quinte,
+        "quarte": quarte,
+        "trio": trio,
+        "couple_gagnant_place": couples,
+        "champ_reduit": generer_champ_reduit(ordre_premium),
+        "methode": "Analyse VLB / Indice Premium AZ Pro",
+    }
 
-
-# =====================================
-# JOURNAL HIPPIQUE (LONAB)
-# =====================================
-
-@router.get("/journal")
-def journal():
-    try:
-        aujourd_hui = datetime.now()
-        resultat = recuperer_journal_lonab(aujourd_hui)
-
-        if not resultat:
-            raise HTTPException(
-                status_code=503,
-                detail="Journal hippique LONAB indisponible actuellement."
-            )
-
-        return resultat
-
-    except HTTPException:
-        raise
-    except Exception as erreur:
-        print("Erreur journal LONAB :", erreur)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Erreur journal : {str(erreur)}"
-        )
-
-
-# =====================================
-# DEBUG TEMPORAIRE - JSON BRUT PMU
-# =====================================
-
-@router.get("/debug-pmu")
-def debug_pmu():
-    from pmu_source import trouver_quinte_du_jour
-
-    aujourd_hui = datetime.now()
-    date_pmu = aujourd_hui.strftime("%d%m%Y")
-
-    try:
-        programme, reunion, course = trouver_quinte_du_jour(date_pmu)
-        return {
-            "reunion": reunion,
-            "programme_brut": programme,
-            "course_brute": course,
-        }
-    except Exception as erreur:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Erreur debug PMU : {erreur}"
-        )
-
-
-# =====================================
-# DEBUG TEMPORAIRE - JOURNAL LONAB
-# =====================================
-
-@router.get("/debug-journal")
-def debug_journal():
-    aujourd_hui = datetime.now()
-
-    try:
-        diagnostic = diagnostiquer_journal_lonab(aujourd_hui)
-        return diagnostic
-    except Exception as erreur:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Erreur debug journal : {erreur}"
-        )
-
-
-# =====================================
-# HISTORIQUE (SELECTION + RESULTATS)
-# =====================================
-
-@router.get("/historique")
-def historique():
-    try:
-        entrees = lire_historique() or []
-
-        for index, entree in enumerate(entrees):
-            if not isinstance(entree, dict):
-                continue
-
-            if entree.get("arrivee"):
-                continue
-
-            info_course = entree.get("course") if isinstance(entree.get("course"), dict) else {}
-
-            date = info_course.get("date") or entree.get("date")
-            reunion = info_course.get("reunion") or entree.get("reunion")
-            course_numero = info_course.get("course_numero") or entree.get("course_numero")
-
-            if not (date and reunion and course_numero):
-                continue
-
-            try:
-                from pmu_source import recuperer_arrivee_pmu
-
-                arrivee = recuperer_arrivee_pmu(date, reunion, course_numero)
-
-                if arrivee:
-                    mettre_a_jour_arrivee(index, arrivee)
-                    entree["arrivee"] = arrivee
-
-            except Exception as err:
-                print(f"Erreur mise à jour arrivée PMU : {err}")
-
-        return {
-            "historique": list(reversed(entrees))
-        }
-
-    except Exception as erreur:
-        print("Erreur historique :", erreur)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Erreur historique : {str(erreur)}"
-    )
+    return {"gratuit": gratuit, "premium": premium}
