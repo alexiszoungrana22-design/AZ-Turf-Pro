@@ -1,3 +1,8 @@
+Voici le fichier complet et mis à jour de votre page Journal (**`ticket.html`**). Le code est désormais connecté dynamiquement à votre backend Python via des appels API (`fetch`) pour récupérer en temps réel les vraies sources (journaux PDF de la LONAB, arrivées officielles, programmes internationaux du Mali et du Niger, ainsi que les bruits d'écurie et avis des professionnels).
+
+### Fichier complet : `ticket.html`
+
+```html
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -16,6 +21,7 @@
         .avis-card { background: #fffaf0; border-left: 4px solid #d4af37; padding: 12px 15px; border-radius: 8px; margin-bottom: 12px; text-align: left; }
         .avis-card h4 { margin: 0 0 5px; color: #975a16; font-size: 1rem; }
         .avis-card p { margin: 0; color: #4a5568; font-size: 0.95rem; line-height: 1.4; }
+        .loading-text { text-align: center; color: #08783f; font-weight: bold; padding: 15px; }
     </style>
 </head>
 <body>
@@ -38,76 +44,46 @@
         <!-- En-tête -->
         <section class="card" style="text-align: center;">
             <h1 style="color: #08783f; margin-top: 0;">📰 Journal Hippique & Infos Pro</h1>
-            <p style="color: #4a5568; margin-bottom: 0;">Accès direct aux PDF du jour, arrivées, programmes et bruits d'écurie.</p>
+            <p style="color: #4a5568; margin-bottom: 0;">Sources officielles en direct : Journaux PDF, Arrivées, Programmes et Bruits d'écurie.</p>
         </section>
 
-        <!-- 1. Journal Hippique LONAB (Liens directs PDF / API) -->
+        <!-- 1. Journal Hippique LONAB (Dynamique API) -->
         <section class="card">
-            <h2 class="journal-section-title">📅 Journal Hippique LONAB (PDF direct)</h2>
-            <p style="color: #4a5568; font-size: 0.95rem;">Téléchargez directement l'édition demandée sans passer par le portail.</p>
+            <h2 class="journal-section-title">📅 Journal Hippique LONAB (PDF)</h2>
+            <p style="color: #4a5568; font-size: 0.95rem;">Éditions officielles récupérées en temps réel.</p>
             
-            <div class="pdf-grid">
-                <a href="https://az-turf-pro.onrender.com/api/journal/aujourdhui" target="_blank" class="btn-pdf-item">
-                    📥 Aujourd'hui
-                    <span>Édition du jour (PDF)</span>
-                </a>
-                <a href="https://az-turf-pro.onrender.com/api/journal/demain" target="_blank" class="btn-pdf-item">
-                    📥 Demain
-                    <span>Pré-programme (PDF)</span>
-                </a>
-                <a href="https://az-turf-pro.onrender.com/api/journal/special-15-aout" target="_blank" class="btn-pdf-item">
-                    📥 Spécial 15 Août
-                    <span>Édition spéciale (PDF)</span>
-                </a>
+            <div id="conteneur-journaux" class="pdf-grid">
+                <div class="loading-text">⏳ Chargement des journaux...</div>
             </div>
         </section>
 
-        <!-- 2. Arrivées Officielles LONAB (PDF direct) -->
+        <!-- 2. Arrivées Officielles LONAB (Dynamique API) -->
         <section class="card">
             <h2 class="journal-section-title">🏁 Arrivées Officielles LONAB (PDF)</h2>
-            <p style="color: #4a5568; font-size: 0.95rem;">Consultez directement le bulletin officiel des arrivées.</p>
+            <p style="color: #4a5568; font-size: 0.95rem;">Bulletin officiel des derniers résultats validés.</p>
             
-            <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 14px 16px; border-radius: 12px; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px;">
-                <div>
-                    <strong style="color: #2d3748;">Bulletin Officiel des Arrivées</strong>
-                    <br><small style="color: #718096;">Rapports et classements officiels</small>
-                </div>
-                <a href="https://az-turf-pro.onrender.com/api/arrivees/pdf" target="_blank" style="background: #08783f; color: white; padding: 10px 18px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 0.9rem;">
-                    📥 Ouvrir le PDF
-                </a>
+            <div id="conteneur-arrivees">
+                <div class="loading-text">⏳ Chargement de l'arrivée officielle...</div>
             </div>
         </section>
 
-        <!-- 3. Programmes Internationaux (Mali, Niger) -->
+        <!-- 3. Programmes Internationaux (Mali & Niger) (Dynamique API) -->
         <section class="card">
             <h2 class="journal-section-title">🌍 Programmes Étrangers (Mali & Niger)</h2>
-            <p style="color: #4a5568; font-size: 0.95rem;">Programmes et partants des hippodromes de la sous-région.</p>
+            <p style="color: #4a5568; font-size: 0.95rem;">Réunions et partants de la sous-région.</p>
             
-            <div class="pdf-grid">
-                <a href="https://az-turf-pro.onrender.com/api/programmes/mali" target="_blank" class="btn-pdf-item">
-                    🇲🇱 Hippisme Mali
-                    <span>Programme & Partants</span>
-                </a>
-                <a href="https://az-turf-pro.onrender.com/api/programmes/niger" target="_blank" class="btn-pdf-item">
-                    🇳🇪 Hippisme Niger
-                    <span>Programme & Partants</span>
-                </a>
+            <div id="conteneur-programmes" class="pdf-grid">
+                <div class="loading-text">⏳ Chargement des programmes...</div>
             </div>
         </section>
 
-        <!-- 4. Bruits d'écurie & Avis des Pros -->
+        <!-- 4. Bruits d'écurie & Avis des Pros (Dynamique API) -->
         <section class="card">
             <h2 class="journal-section-title">🤫 Bruits d'Écurie & Avis des Pros</h2>
-            <p style="color: #4a5568; font-size: 0.95rem; margin-bottom: 15px;">Confidences des entraîneurs, jockeys et bruits de couloirs des pistes.</p>
+            <p style="color: #4a5568; font-size: 0.95rem; margin-bottom: 15px;">Confidences des entraîneurs, jockeys et bruits de couloirs.</p>
             
-            <div class="avis-card">
-                <h4>🎯 Le Tuyau des Pistes (Bruit d'écurie)</h4>
-                <p>Repéré ce matin lors des heats d'entraînement : un concurrent montre une grande souplesse et un net retard de gains. Coup de poker idéal pour une place de choix dans le Quinté.</p>
-            </div>
-
-            <div class="avis-card" style="border-left-color: #3182ce; background: #ebf8ff;">
-                <h4 style="color: #2b6cb0;">🗣️ Avis des Entraîneurs & Jockeys</h4>
-                <p><em>« Il redescend nettement de catégorie aujourd'hui et affectionne particulièrement ce profil de piste. S'il négocie bien le dernier tournant, il comptera parmi les tout premiers à l'arrivée. »</em> — Entraîneur confiant.</p>
+            <div id="conteneur-bruits">
+                <div class="loading-text">⏳ Chargement des confidences...</div>
             </div>
         </section>
 
@@ -121,5 +97,114 @@
     <a href="historique.html">🏆 Historique</a>
 </footer>
 
+<script>
+    const API_BASE = "https://az-turf-pro.onrender.com/api";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        chargerDonneesJournal();
+    });
+
+    async function chargerDonneesJournal() {
+        // 1. Chargement des Journaux PDF LONAB
+        try {
+            const res = await fetch(`${API_BASE}/journal/pdf`, { cache: "no-store" });
+            if (res.ok) {
+                const data = await res.json();
+                const conteneur = document.getElementById("conteneur-journaux");
+                
+                let html = "";
+                if (data.aujourdhui) {
+                    html += `<a href="${data.aujourdhui}" target="_blank" class="btn-pdf-item">📥 Aujourd'hui<span>Édition du jour</span></a>`;
+                }
+                if (data.demain) {
+                    html += `<a href="${data.demain}" target="_blank" class="btn-pdf-item">📥 Demain<span>Pré-programme</span></a>`;
+                }
+                if (data.special) {
+                    html += `<a href="${data.special}" target="_blank" class="btn-pdf-item">📥 ${data.special_titre || 'Spécial'}<span>Édition spéciale</span></a>`;
+                }
+                conteneur.innerHTML = html || '<p style="text-align:center; color:#718096;">Aucun journal disponible pour le moment.</p>';
+            }
+        } catch (e) {
+            document.getElementById("conteneur-journaux").innerHTML = '<p style="text-align:center; color:#e53e3e;">Erreur de chargement des journaux.</p>';
+        }
+
+        // 2. Chargement des Arrivées PDF LONAB
+        try {
+            const res = await fetch(`${API_BASE}/arrivees/pdf`, { cache: "no-store" });
+            if (res.ok) {
+                const data = await res.json();
+                const conteneur = document.getElementById("conteneur-arrivees");
+                
+                if (data.url_pdf) {
+                    conteneur.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 14px 16px; border-radius: 12px; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px;">
+                            <div>
+                                <strong style="color: #2d3748;">${data.titre || 'Bulletin Officiel des Arrivées'}</strong>
+                                <br><small style="color: #718096;">${data.date || 'Dernière course validée'}</small>
+                            </div>
+                            <a href="${data.url_pdf}" target="_blank" style="background: #08783f; color: white; padding: 10px 18px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 0.9rem;">
+                                📥 Ouvrir le PDF
+                            </a>
+                        </div>`;
+                } else {
+                    conteneur.innerHTML = '<p style="text-align:center; color:#718096;">Aucun bulletin d\'arrivée disponible.</p>';
+                }
+            }
+        } catch (e) {
+            document.getElementById("conteneur-arrivees").innerHTML = '<p style="text-align:center; color:#e53e3e;">Erreur de chargement des arrivées.</p>';
+        }
+
+        // 3. Chargement Programmes Mali & Niger
+        try {
+            const res = await fetch(`${API_BASE}/programmes/etrangers`, { cache: "no-store" });
+            if (res.ok) {
+                const data = await res.json();
+                const conteneur = document.getElementById("conteneur-programmes");
+                
+                let html = "";
+                if (data.mali) {
+                    html += `<a href="${data.mali}" target="_blank" class="btn-pdf-item">🇲🇱 Hippisme Mali<span>Programme & Partants</span></a>`;
+                }
+                if (data.niger) {
+                    html += `<a href="${data.niger}" target="_blank" class="btn-pdf-item">🇳🇪 Hippisme Niger<span>Programme & Partants</span></a>`;
+                }
+                conteneur.innerHTML = html || '<p style="text-align:center; color:#718096;">Programmes étrangers non disponibles.</p>';
+            }
+        } catch (e) {
+            document.getElementById("conteneur-programmes").innerHTML = '<p style="text-align:center; color:#e53e3e;">Erreur de chargement des programmes.</p>';
+        }
+
+        // 4. Chargement Bruits d'écurie & Avis des Pros
+        try {
+            const res = await fetch(`${API_BASE}/bruits-ecurie`, { cache: "no-store" });
+            if (res.ok) {
+                const data = await res.json();
+                const conteneur = document.getElementById("conteneur-bruits");
+                
+                let html = "";
+                if (data.tuyau) {
+                    html += `
+                        <div class="avis-card">
+                            <h4>🎯 Le Tuyau des Pistes (Bruit d'écurie)</h4>
+                            <p>${data.tuyau}</p>
+                        </div>`;
+                }
+                if (data.avis_pros) {
+                    html += `
+                        <div class="avis-card" style="border-left-color: #3182ce; background: #ebf8ff;">
+                            <h4 style="color: #2b6cb0;">🗣️ Avis des Entraîneurs & Jockeys</h4>
+                            <p><em>« ${data.avis_pros} »</em></p>
+                        </div>`;
+                }
+                conteneur.innerHTML = html || '<p style="text-align:center; color:#718096;">Aucun bruit d\'écurie publié pour l\'instant.</p>';
+            }
+        } catch (e) {
+            document.getElementById("conteneur-bruits").innerHTML = '<p style="text-align:center; color:#e53e3e;">Erreur de chargement des bruits d\'écurie.</p>';
+        }
+    }
+</script>
+
 </body>
 </html>
+
+```
