@@ -36,6 +36,7 @@ async function chargerJournal(){
     afficherRapports(donneesJournal);
 
     afficherActualitesHippiques(donneesJournal);
+    afficherActualitesAZ(donneesJournal);
 
     afficherJournalLonab(donneesJournal);
 
@@ -135,4 +136,45 @@ function afficherActualitesHippiques(donneesJournal){
 
     "</ul>";
 
+}
+
+
+function afficherActualitesAZ(donneesJournal){
+    const zone = document.getElementById("actualites-hippiques");
+    if(!zone || !donneesJournal) return;
+
+    const actualites = Array.isArray(donneesJournal.actualites_az)
+        ? donneesJournal.actualites_az
+        : [];
+
+    if(!actualites.length){
+        return;
+    }
+
+    const html = actualites.map(a => {
+        const course = a.course || {};
+        const selection = Array.isArray(a.selection_az) ? a.selection_az.join(" - ") : "-";
+        const arrivee = Array.isArray(a.arrivee_quinte) ? a.arrivee_quinte.join(" - ") : "-";
+        const tickets = a.tickets || {};
+        const premium = tickets.premium || {};
+        const quintePremium = Array.isArray(premium.quinte) ? premium.quinte.join(" - ") : "-";
+        const pdf = course.pdf_url || "";
+
+        return `
+        <article class="actualite-az-turf" style="margin-top:15px;padding:15px;border:1px solid #ddd;border-radius:12px;background:#fff;">
+            <h3>📰 ${a.titre || "Résultat et analyse AZ Turf Pro"}</h3>
+            <p>
+                🏇 <strong>${course.course || "Course"}</strong>
+                ${course.hippodrome ? `<br>📍 ${course.hippodrome}` : ""}
+                ${course.date ? `<br>📅 ${course.date}` : ""}
+            </p>
+            <p>🎯 <strong>Sélection AZ Turf Pro :</strong> ${selection}</p>
+            <p>🏁 <strong>Arrivée Quinté :</strong> ${arrivee}</p>
+            <p>🎟️ <strong>Quinté Premium :</strong> ${quintePremium}</p>
+            ${a.date_publication ? `<small>Publié le ${new Date(a.date_publication).toLocaleString("fr-FR")}</small>` : ""}
+            ${pdf ? `<p><a href="${pdf}" target="_blank">📄 Documents de la course</a></p>` : ""}
+        </article>`;
+    }).join("");
+
+    zone.insertAdjacentHTML("afterbegin", html);
 }
