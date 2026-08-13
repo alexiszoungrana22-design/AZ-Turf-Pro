@@ -20,12 +20,17 @@ function normaliserEntree(c){
     const selection=c.selection_az || gratuit.quinte || c.selection || [];
     const arrivee=Array.isArray(c.arrivee_quinte) ? c.arrivee_quinte : (Array.isArray(c.arrivee) ? c.arrivee.slice(0,5) : []);
     const courseInfo=(c.course && typeof c.course === "object") ? c.course : {};
+    
+    // Déduction ou récupération du favori
+    const favori = c.favori || (selection.length > 0 ? selection[0] : "-");
+
     return {
         date:c.date || courseInfo.date || c.date_analyse || "-",
         reunion:c.reunion || courseInfo.reunion || "",
         numero:c.course_numero || courseInfo.course_numero || "",
         course:courseInfo.course || c.nom || c.course || "Course",
         hippodrome:courseInfo.hippodrome || c.hippodrome || "",
+        favori: favori,
         selection:Array.isArray(selection) ? selection : [],
         arrivee,
         statut:arrivee.length >= 5 ? "ARRIVÉE OFFICIELLE" : "EN ATTENTE"
@@ -60,22 +65,27 @@ function afficherPageHistorique(){
             liste.forEach(c=>{
                 const selection=c.selection.length ? c.selection.join(" - ") : "-";
                 const arrivee=c.arrivee.length ? c.arrivee.join(" - ") : "En attente";
+                
+                // Formatage propre du numéro de course (N°)
+                const affichageReunion = c.numero ? `${c.reunion} N°${c.numero}` : c.reunion;
+
                 const tr=document.createElement("tr");
                 tr.innerHTML=`
                     <td>${c.date}</td>
-                    <td><strong>${c.reunion} ${c.numero}</strong><br>${c.course}${c.hippodrome ? `<br><small>${c.hippodrome}</small>` : ""}</td>
-                    <td><strong>${selection}</strong></td>
-                    <td><strong class="badge-arrivee">${arrivee}</strong></td>
-                    <td>${c.statut}</td>`;
+                    <td><strong>${affichageReunion}</strong><br>${c.course}${c.hippodrome ? `<br><small>${c.hippodrome}</small>` : ""}</td>
+                    <td><strong style="color: #08783f;">${c.favori}</strong></td>
+                    <td><strong style="color: #b8860b; letter-spacing: 1px;">${selection}</strong></td>
+                    <td><strong class="badge-arrivee">${arrivee}</strong></td>`;
                 tbody.appendChild(tr);
             });
         }else if(container){
             container.innerHTML=liste.map(c=>`
                 <article class="historique-card">
-                    <h3>${c.reunion} ${c.numero} - ${c.course}</h3>
+                    <h3>${c.reunion} N°${c.numero} - ${c.course}</h3>
                     <p>${c.hippodrome || "Hippodrome non disponible"}</p>
-                    <p><strong>Sélection AZ Turf Pro :</strong> ${c.selection.join(" - ") || "-"}</p>
-                    <p><strong>Arrivée Quinté :</strong> ${c.arrivee.join(" - ") || "En attente"}</p>
+                    <p><strong>Favori :</strong> ${c.favori}</p>
+                    <p><strong>Sélection Premium AZ :</strong> ${c.selection.join(" - ") || "-"}</p>
+                    <p><strong>Arrivée officielle :</strong> ${c.arrivee.join(" - ") || "En attente"}</p>
                 </article>`).join("");
         }
     });
