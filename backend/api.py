@@ -1,28 +1,21 @@
-AZ TURF PRO - API Backend Server (Corrigé sans import circulaire)
+"""
+AZ TURF PRO - API Router
 Fichier complet à remplacer : api.py
+"""
 
-
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import APIRouter, HTTPException
 from typing import Dict, Any
 
 from engine import lancer_analyse
 
-app = FastAPI(title="AZ Turf Pro API")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# On définit un routeur au lieu d'une application FastAPI globale
+router = APIRouter()
 
 
-@app.get("/api/live-courses")
-def get_live_courses() -> Dict[str, Any]:
+@router.get("/live-courses")
+def get_live-courses() -> Dict[str, Any]:
     try:
-        # IMPORT LOCAL : Évite l'import circulaire au démarrage de l'application
+        # Import local pour éviter l'import circulaire avec main.py
         from main import obtenir_donnees_courses_pmu
         
         courses = obtenir_donnees_courses_pmu()
