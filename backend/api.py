@@ -33,7 +33,7 @@ import json
 import os
 from datetime import datetime, timedelta
 
-# Nouveaux imports pour le téléchargement direct des PDF
+# Imports pour le téléchargement direct des PDF
 import httpx
 from bs4 import BeautifulSoup
 
@@ -335,12 +335,9 @@ def historique():
 
 
 # =========================================================
-# =========================================================
-# NOUVELLES ROUTES : TÉLÉCHARGEMENT DIRECT PDF & BRUITS
-# =========================================================
+# ROUTES OFFICIELLES : TÉLÉCHARGEMENT DIRECT PDF & BRUITS
 # =========================================================
 
-# Fonction de scraping
 async def chercher_lien_pdf_lonab(url_page: str, mots_cles: list) -> str:
     try:
         async with httpx.AsyncClient(verify=False) as client:
@@ -360,31 +357,30 @@ async def chercher_lien_pdf_lonab(url_page: str, mots_cles: list) -> str:
     except Exception as e:
         print(f"Erreur de scraping LONAB : {e}")
         
-    return "https://www.lonab.bf"
+    return url_page
 
-# Routes de redirection
 @router.get("/pdf/journal/aujourdhui")
 async def get_pdf_journal_aujourdhui():
-    url_lonab = "https://www.lonab.bf/journal-hippique"
+    url_lonab = "https://www.lonab.bf/programme-pmub"
     lien_direct = await chercher_lien_pdf_lonab(url_lonab, ["aujourd", "jour"])
     return RedirectResponse(url=lien_direct)
 
 @router.get("/pdf/journal/demain")
 async def get_pdf_journal_demain():
-    url_lonab = "https://www.lonab.bf/journal-hippique"
+    url_lonab = "https://www.lonab.bf/programme-pmub"
     lien_direct = await chercher_lien_pdf_lonab(url_lonab, ["demain"])
     return RedirectResponse(url=lien_direct)
 
 @router.get("/pdf/journal/special-15-aout")
 async def get_pdf_journal_special():
-    url_lonab = "https://www.lonab.bf/journal-hippique"
+    url_lonab = "https://www.lonab.bf/programme-pmub"
     lien_direct = await chercher_lien_pdf_lonab(url_lonab, ["15", "aout", "août"])
     return RedirectResponse(url=lien_direct)
 
 @router.get("/pdf/arrivees/dernieres")
 async def get_pdf_arrivees():
-    url_lonab = "https://www.lonab.bf/resultats-et-rapports"
-    lien_direct = await chercher_lien_pdf_lonab(url_lonab, ["arrivee", "rapport", "resultat"])
+    url_lonab = "https://www.lonab.bf/resultats-gains-pmub"
+    lien_direct = await chercher_lien_pdf_lonab(url_lonab, ["arrivee", "rapport", "resultat", "gains", "pdf"])
     return RedirectResponse(url=lien_direct)
 
 @router.get("/pdf/programmes/mali")
