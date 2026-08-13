@@ -257,7 +257,7 @@ def extraire_entete(texte):
         resultat["type_pari"] = type_pari.group(1)
 
     hippodrome = re.search(
-        r"\n([A-ZÀ-Ãœ'\- ]{4,})\s*-\s*(PRIX[^\n]+)", texte
+        r"\n([A-ZÀ-Ü'\- ]{4,})\s*-\s*(PRIX[^\n]+)", texte
     )
     if hippodrome:
         resultat["hippodrome"] = hippodrome.group(1).strip()
@@ -295,8 +295,8 @@ def extraire_commentaires_chevaux(texte, nombre_concurrents):
     commentaires = []
 
     motif = re.compile(
-        r"^(\d{1,2})\s*-\s*([A-ZÀ-Ãœ' ]{2,}?)\s*:\s*(.+?)"
-        r"(?=\n\d{1,2}\s*-\s*[A-ZÀ-Ãœ' ]{2,}?\s*:|\Z)",
+        r"^(\d{1,2})\s*-\s*([A-ZÀ-Ü' ]{2,}?)\s*:\s*(.+?)"
+        r"(?=\n\d{1,2}\s*-\s*[A-ZÀ-Ü' ]{2,}?\s*:|\Z)",
         re.DOTALL | re.MULTILINE,
     )
 
@@ -491,6 +491,95 @@ def extraire_masses_a_partager(texte):
     return [m.strip() + " F" for m in montants]
 
 
+
+
+# =====================================
+# RESULTATS / GAINS LONAB
+# =====================================
+
+def trouver_url_resultats_du_jour(date_obj):
+    """Trouve le PDF officiel des résultats/gains LONAB du jour."""
+    url_page = f"{LONAB_BASE_URL}/resultats-gains-pmub"
+    libelle = _normaliser_accents(
+        f"{date_obj.day:02d} {MOIS_FR[date_obj.month]} {date_obj.year}"
+    ).upper()
+    try:
+        reponse = requests.get(url_page, timeout=TIMEOUT, headers={"User-Agent": "AZ-Turf-Pro/1.0"})
+        reponse.raise_for_status()
+        html = reponse.text
+    except Exception as erreur:
+        print("Erreur page resultats LONAB :", erreur)
+        return None
+
+    html_n = _normaliser_accents(html).upper()
+    # Les libellés LONAB sont du type : Télécharger les résultats PMU'B du 12 Aout 2026.
+    motif = re.compile(
+        r"TELECHARGER\s+LES\s+RESULTATS\s+PMU['’]B\s+DU\s+"
+        + re.escape(f"{date_obj.day:02d}") + r"\s+"
+        + re.escape(MOIS_FR[date_obj.month]) + r"\s+"
+        + re.escape(str(date_obj.year)),
+        re.IGNORECASE,
+    )
+    m = motif.search(html_n)
+    if not m:
+        return None
+
+    zone = html[m.start():m.start()+1500]
+    lien = re.search(r'href=["\']([^"\']+\.pdf(?:\?[^"\']*)?)["\']', zone, re.IGNORECASE)
+    if not lien:
+        return None
+    url = lien.group(1)
+    if url.startswith("/"):
+        url = LONAB_BASE_URL + url
+    elif url.startswith("./"):
+        url = LONAB_BASE_URL + "/" + url[2:]
+    return url
+
+
+def extraire_resultats_et_rapports(texte):
+    """Extrait les arrivées et les lignes de rapports présentes dans le PDF LONAB."""
+    resultats = []
+    rapports = []
+
+    # Arrivées officielles sous plusieurs formulations.
+    motifs_arrivee = [
+        r"ARRIV[ÉE|EE]+\s*(?:DU\s+)?(?:QUINTE\+?|QUARTE|TIERCE)?[^:]*:\s*((?:\d{1,2}\s*[-–—]\s*)+\d{1,2})",
+        r"ARRIV[ÉE|EE]+[^:]*\s((?:\d{1,2}\s*[-–—]\s*)+\d{1,2})",
+    ]
+    deja=set()
+    for motif in motifs_arrivee:
+        for m in re.finditer(motif, texte, re.IGNORECASE):
+            nums=[int(x) for x in re.split(r"[-–—]",m.group(1)) if x.strip().isdigit()]
+            if nums:
+                cle=tuple(nums)
+                if cle not in deja:
+                    deja.add(cle)
+                    resultats.append({"arrivee": nums, "texte": m.group(0).strip()})
+
+    # Lignes contenant explicitement un rapport/gain/montant.
+    for ligne in texte.splitlines():
+        propre=" ".join(ligne.split())
+        if re.search(r"\bRAPPORT(?:S)?\b|\bGAIN(?:S)?\b|MASSE\s+À\s+PARTAGER|MASSE\s+A\s+PARTAGER", propre, re.IGNORECASE):
+            if len(propre) >= 5:
+                rapports.append(propre)
+
+    return resultats, rapports
+
+
+def extraire_plus_joues_lonab(texte):
+    """Extrait un classement explicitement marqué plus joué/tendance."""
+    motifs = [
+        r"PLUS\s+JOU[ÉE]S?\s*:?\s*((?:\d{1,2}\s*[-–—]\s*)+\d{1,2})",
+        r"PLUS\s+JOUE[S]?\s*:?\s*((?:\d{1,2}\s*[-–—]\s*)+\d{1,2})",
+        r"TENDANCE\s*:?\s*((?:\d{1,2}\s*[-–—]\s*)+\d{1,2})",
+    ]
+    for motif in motifs:
+        m=re.search(motif,texte,re.IGNORECASE)
+        if m:
+            return [int(x) for x in re.split(r"[-–—]",m.group(1)) if x.strip().isdigit()]
+    return []
+
+
 # =====================================
 # FONCTION PRINCIPALE
 # =====================================
@@ -528,17 +617,35 @@ def recuperer_journal_lonab(date_obj):
         horaires = extraire_horaires(texte)
         actualites = extraire_actualites(texte)
         masses_a_partager = extraire_masses_a_partager(texte)
+        plus_joues = extraire_plus_joues_lonab(texte)
+
+        resultats = []
+        rapports = []
+        url_resultats = trouver_url_resultats_du_jour(date_obj)
+        if url_resultats:
+            texte_resultats = extraire_texte_pdf(url_resultats)
+            if texte_resultats:
+                resultats, rapports = extraire_resultats_et_rapports(texte_resultats)
+
+        # Le PDF du journal peut aussi contenir des arrivées récentes.
+        if not resultats:
+            resultats = [{"type_pari": a["type_pari"], "date": a["date"], "arrivee": a["arrivee"]} for a in actualites]
 
         return {
             "source": "lonab",
             "pdf_url": url_pdf,
+            "pdf_resultats_url": url_resultats,
             "entete": entete,
             "commentaires_chevaux": commentaires,
             "consensus_medias": consensus,
             "synthese": synthese,
             "horaires": horaires,
             "actualites": actualites,
+            "resultats": resultats,
+            "rapports": rapports,
             "masses_a_partager": masses_a_partager,
+            "plus_joues": plus_joues,
+            "source_plus_joues": "LONAB" if plus_joues else "non disponible dans le journal LONAB",
         }
 
     except Exception as erreur:
@@ -631,3 +738,5 @@ if __name__ == "__main__":
         print("Chevaux commentes :", len(resultat["commentaires_chevaux"]))
     else:
         print("Journal LONAB indisponible aujourd'hui.")
+        
+        
