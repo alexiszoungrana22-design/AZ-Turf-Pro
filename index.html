@@ -2,377 +2,159 @@
 <html lang="fr">
 
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>AZ Turf Pro</title>
-
-<link rel="stylesheet" href="style.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AZ Turf Pro - Pronostics hippiques et analyses professionnelles du Quinté+">
+    <title>AZ Turf Pro - Accueil</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
 <header class="top-header">
+    <div class="brand-zone">
+        <div class="logo">
+            🏇 <span>AZ Turf Pro</span>
+        </div>
+        <div id="mini-countdown" class="mini-countdown">
+            ⏱️ Départ dans --:--:--
+        </div>
+    </div>
 
-<div class="brand-zone">
+    <nav class="top-menu">
+        <a href="index.html" class="active">🏠 Accueil</a>
+        <a href="analyse.html">📊 Analyse</a>
+        <a href="ticket.html">📰 Journal</a>
+        <a href="historique.html">🏆 Historique</a>
+    </nav>
 
-<div class="logo">
-🏇 <span>AZ Turf Pro</span>
-</div>
-
-<div id="mini-countdown" class="mini-countdown">
-⏱ Départ : --:--:--
-</div>
-
-</div>
-
-
-<nav class="top-menu">
-
-<a href="index.html">
-🏠 Accueil
-</a>
-
-<a href="analyse.html">
-📊 Analyse
-</a>
-
-<a href="ticket.html">
-📰 Journal
-</a>
-
-<a href="historique.html">
-🏆 Historique
-</a>
-
-</nav>
-  
-<a href="abonnement.html" class="btn-vip">
-💎 Premium
-</a>
-  
+    <a href="abonnement.html" class="btn-vip">💎 Premium</a>
 </header>
-
-
 
 <main class="content">
 
-
-<section class="card course-card">
-
-<h2>🏆 Course du jour</h2>
-
-<p>📍 Hippodrome :
-<strong id="meta-hippodrome">-</strong>
-</p>
-
-<p>🏇 Course :
-<strong id="meta-course">-</strong>
-</p>
-
-<p>🏁 Discipline :
-<strong id="meta-discipline">-</strong>
-</p>
-
-<p>📏 Distance :
-<strong id="meta-distance">-</strong>
-</p>
-
-<p>🐎 Partants :
-<strong id="meta-partants">-</strong>
-</p>
-
-</section>
-
-
-
-
-<section class="card pub-box">
-
-<h2>📢 Publicité</h2>
-
-<div class="slider-pub">
-
-<img id="pub-image"
-src="images/pub1.jpg"
-alt="Publicité AZ Turf Pro">
-
-
-<div class="pub-overlay">
-
-<h3 id="pub-title">
-⭐ AZ Turf Pro Premium
-</h3>
-
-<p id="pub-text">
-Analyse professionnelle et pronostics hippiques
-</p>
-
-</div>
-
-
-</div>
-
-
-<div class="slider-dots">
-
-<span class="dot active"></span>
-<span class="dot"></span>
-<span class="dot"></span>
-<span class="dot"></span>
-<span class="dot"></span>
-
-</div>
-
-
-</section>
-
-
-
-
-
-<section class="card">
-
-<h2>🐎 Tous les partants</h2>
-
-<div class="table-container">
-
-<table>
-
-  <thead>
-    <tr>
-        <th>N°</th>
-        <th>Cheval</th>
-        <th>Jockey / Driver</th>
-        <th>Entraîneur</th>
-        <th>Cote</th>
-        <th>Indice AZ</th>
-        <th>Confiance</th>
-    </tr>
-  </thead>
-
-<tbody id="all-horses">
-
-</tbody>
-
-</table>
-
-</div>
-
-</section>
-
-
-
-
-
-
-<section class="card analyse-az">
-
-<h2>⭐ Analyse AZ du jour</h2>
-
-<div class="analyse-az-container">
-
-
-<div class="az-box favori-az">
-
-<h3>🟢 Favori AZ</h3>
-
-<div class="az-numero" id="favori-numero">
--
-</div>
-
-<h4 id="favori-nom">
-Chargement...
-</h4>
-
-<p>
-📊 Indice AZ :
-<strong id="favori-indice">-</strong>
-</p>
-
-<p>
-🎯 Confiance :
-<strong id="favori-confiance">-</strong>
-</p>
-
-<p id="favori-raison">
-Analyse en cours...
-</p>
-
-</div>
-
-
-
-
-<div class="az-box outsider-az">
-
-<h3>🟠 Outsider AZ</h3>
-
-<div class="az-numero outsider-numero" id="outsider-numero">
--
-</div>
-
-<h4 id="outsider-nom">
-Chargement...
-</h4>
-
-<p>
-📊 Indice AZ :
-<strong id="outsider-indice">-</strong>
-</p>
-
-<p>
-🎯 Confiance :
-<strong id="outsider-confiance">-</strong>
-</p>
-
-<p id="outsider-raison">
-Analyse en cours...
-</p>
-
-</div>
-
-
-</div>
-
-</section>
-
-
-<!-- =====================================
-     INDICE DE CONFIANCE COURSE
-===================================== -->
-
-<section class="card confiance-box">
-
-<h2>
-📊 Indice de confiance de la course
-</h2>
-
-
-<div class="confiance-score">
-
-<span id="indice-confiance">
--
-</span>
-
-</div>
-
-
-<p id="message-confiance">
-Analyse en cours...
-</p>
-
-
-</section>
-
-
-
-
-
-
-
-<!-- =====================================
-     CHEVAUX A SURVEILLER
-===================================== -->
-
-<section class="card surveillance-box">
-
-<h2>
-👀 Chevaux à surveiller
-</h2>
-
-
-<div id="chevaux-surveiller">
-
-Analyse en cours...
-
-</div>
-
-
-</section>
-
-
-
-
-<section class="card">
-
-<h2>🔥 Chevaux les plus joués</h2>
-
-<div id="popular-horses"
-class="popular-horizontal">
-
-</div>
-
-</section>
-
-
-
-
-
-
-
-<section class="card tendance-box">
-
-<h2>📈 Tendance de la course</h2>
-
-<div id="course-tendance">
-
-Analyse en cours...
-
-</div>
-
-</section>
-
-
-
-
-
-
-
-<section class="news-bar">
-
-📢 AZ Turf Pro : une analyse professionnelle et approfondie au service des pronostics hippiques
-
-</section>
-
+    <!-- INFOS COURSE DU JOUR -->
+    <section class="card course-card">
+        <h2>🏆 Course du jour</h2>
+        <p>📍 Hippodrome : <strong id="meta-hippodrome">-</strong></p>
+        <p>🏇 Course : <strong id="meta-course">-</strong></p>
+        <p>🏁 Discipline : <strong id="meta-discipline">-</strong></p>
+        <p>📏 Distance : <strong id="meta-distance">-</strong></p>
+        <p>🐎 Partants : <strong id="meta-partants">-</strong></p>
+    </section>
+
+    <!-- BANNIÈRE PUBLICITÉ -->
+    <section class="card pub-box">
+        <h2>📢 Publicité</h2>
+        <div class="slider-pub">
+            <img id="pub-image" src="images/pub1.jpg" alt="Publicité AZ Turf Pro">
+            <div class="pub-overlay">
+                <h3 id="pub-title">⭐ AZ Turf Pro Premium</h3>
+                <p id="pub-text">Analyse professionnelle et pronostics hippiques</p>
+            </div>
+        </div>
+        <div class="slider-dots">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+    </section>
+
+    <!-- ANALYSE AZ (FAVORI & OUTSIDER) -->
+    <section class="card analyse-az">
+        <h2>⭐ Analyse AZ du jour</h2>
+        <div class="analyse-az-container">
+
+            <div class="az-box favori-az">
+                <h3>🟢 Favori AZ</h3>
+                <div class="az-numero" id="favori-numero">-</div>
+                <h4 id="favori-nom">Chargement...</h4>
+                <p>📊 Indice AZ : <strong id="favori-indice">-</strong></p>
+                <p>🎯 Confiance : <strong id="favori-confiance">-</strong></p>
+                <p id="favori-raison">Analyse en cours...</p>
+            </div>
+
+            <div class="az-box outsider-az">
+                <h3>🟠 Outsider AZ</h3>
+                <div class="az-numero outsider-numero" id="outsider-numero">-</div>
+                <h4 id="outsider-nom">Chargement...</h4>
+                <p>📊 Indice AZ : <strong id="outsider-indice">-</strong></p>
+                <p>🎯 Confiance : <strong id="outsider-confiance">-</strong></p>
+                <p id="outsider-raison">Analyse en cours...</p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- INDICE DE CONFIANCE COURSE -->
+    <section class="card confiance-box">
+        <h2>📊 Indice de confiance de la course</h2>
+        <div class="confiance-score">
+            <span id="indice-confiance">-</span>
+        </div>
+        <p id="message-confiance">Analyse en cours...</p>
+    </section>
+
+    <!-- CHEVAUX À SURVEILLER -->
+    <section class="card surveillance-box">
+        <h2>👀 Chevaux à surveiller</h2>
+        <div id="chevaux-surveiller">Analyse en cours...</div>
+    </section>
+
+    <!-- TABLEAU DE TOUS LES PARTANTS -->
+    <section class="card">
+        <h2>🐎 Tous les partants</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>N°</th>
+                        <th>Cheval</th>
+                        <th>Jockey / Driver</th>
+                        <th>Entraîneur</th>
+                        <th>Cote</th>
+                        <th>Indice AZ</th>
+                        <th>Confiance</th>
+                    </tr>
+                </thead>
+                <tbody id="all-horses">
+                    <!-- Rempli dynamiquement par accueil.js -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- CHEVAUX LES PLUS JOUÉS -->
+    <section class="card">
+        <h2>🔥 Chevaux les plus joués</h2>
+        <div id="popular-horses" class="popular-horizontal"></div>
+    </section>
+
+    <!-- TENDANCE DE LA COURSE -->
+    <section class="card tendance-box">
+        <h2>📈 Tendance de la course</h2>
+        <div id="course-tendance">Analyse en cours...</div>
+    </section>
+
+    <section class="news-bar">
+        📢 AZ Turf Pro : une analyse professionnelle et approfondie au service des pronostics hippiques
+    </section>
 
 </main>
 
-
-
-
-
-
 <footer class="bottom-menu">
-
-<a href="index.html">
-🏠 Accueil
-</a>
-
-<a href="analyse.html">
-📊 Analyse
-</a>
-
-<a href="ticket.html">
-📰 Journal
-</a>
-
-<a href="historique.html">
-🏆 Historique
-</a>
-
+    <a href="index.html" class="active">🏠 Accueil</a>
+    <a href="analyse.html">📊 Analyse</a>
+    <a href="ticket.html">📰 Journal</a>
+    <a href="historique.html">🏆 Historique</a>
 </footer>
 
-
-
-
-
+<!-- SCRIPTS JS -->
 <script src="historique.js?v=4"></script>
-<script src="accueil.js?v=15"></script>
+<script src="accueil.js?v=16"></script>
 <script src="tri-partants.js"></script>
-  
-</body>
 
-</html>
+</body>
+  </html>
