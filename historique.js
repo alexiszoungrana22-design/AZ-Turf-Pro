@@ -1,119 +1,156 @@
-const API = "https://az-turf-pro.onrender.com/api/analyse";
-const HISTORIQUE_STORAGE = "az_turf_pro_historique_v1";
+/**
+ * AZ TURF PRO - Gestionnaire d'Historique Durable
+ * Fichier complet à remplacer : historique.js
+ */
 
-function chargerHistoriqueLocal(){
-    try{
-        const contenu = localStorage.getItem(
-            HISTORIQUE_STORAGE
-        );
+const HISTORIQUE_STORAGE_KEY = 'AZ_TURF_HISTORIQUE_COURSES_V1';
 
-        if(!contenu){
-            return [];
+document.addEventListener('DOMContentLoaded', () => {
+    // Si nous sommes sur la page d'historique, afficher le tableau
+    if (document.getElementById('historique-table-body') || document.getElementById('historique-container')) {
+        afficherPageHistorique();
+    }
+});
+
+/**
+ * Sauvegarde les courses terminées dans le LocalStorage (accessible par tous les scripts)
+ * @param {Array} courses - Liste des courses venant de l'API
+ */
+function sauvegarderDansHistorique(courses) {
+    if (!courses || !Array.isArray(courses)) return;
+
+    try {
+        const historiqueActuel = JSON.parse(localStorage.getItem(HISTORIQUE_STORAGE_KEY)) || [];
+        let modifie = false;
+
+        courses.forEach(course => {
+            // Identifier les courses vraiment finies
+            const estFinie = course.statut === 'ARRIVE' || 
+                             course.statut === 'FINI' || 
+                             (Array.isArray(course.arrivee) && course.arrivee.length > 0);
+
+            if (estFinie) {
+                // Recherche si la course est déjà stockée (par ID ou Réunion/Course/Date)
+                const idUnique = course.id || `${course.date || 'D'}_${course.reunion}_${course.course}`;
+                const index = historiqueActuel.findIndex(h => (h.id || `${h.date || 'D'}_${h.reunion}_${h.course}`) === idUnique);
+
+                if (index === -1) {
+                    // Nouvelle course passée à ajouter
+                    historiqueActuel.push({
+                        id: idUnique,
+                        date: course.date || new Date().toLocaleDateString('fr-FR'),
+                        reunion: course.reunion,
+                        course: course.course,
+                        nom: course.nom,
+                        arrivee: course.arrivee || [],
+                        partants: course.partants || [],
+                        statut: 'FINI'
+                    });
+                    modifie = true;
+                } else {
+                    // Mettre à jour l'arrivée si elle s'est affinée
+                    if (JSON.stringify(historiqueActuel[index].arrivee) !== JSON.stringify(course.arrivee)) {
+                        historiqueActuel[index].arrivee = course.arrivee;
+                        modifie = true;
+                    }
+                }
+            }
+        });
+
+        if (modifie) {
+            localStorage.setItem(HISTORIQUE_STORAGE_KEY, JSON.stringify(historiqueActuel));
         }
+    } catch (e) {
+        console.error("Erreur lors de l'enregistrement de l'historique :", e);
+    }
+}
 
-        const donnees = JSON.parse(contenu);
-
-        return Array.isArray(donnees)
-            ? donnees
-            : [];
-    }catch(error){
-        console.log(
-            "Erreur lecture historique local :",
-            error
-        );
+/**
+ * Récupère l'intégralité de l'historique sauvegardé
+ * @returns {Array} Liste des courses passées
+ */
+function obtenirHistoriqueComplet() {
+    try {
+        return JSON.parse(localStorage.getItem(HISTORIQUE_STORAGE_KEY)) || [];
+    } catch (e) {
+        console.error("Erreur lors de la lecture de l'historique :", e);
         return [];
     }
 }
 
-function sauvegarderHistoriqueLocal(donnees){
-    try{
-        localStorage.setItem(
-            HISTORIQUE_STORAGE,
-            JSON.stringify(donnees)
-        );
-    }catch(error){
-        console.log(
-            "Erreur sauvegarde historique local :",
-            error
-        );
-    }
-}
+/**
+ * Affiche l'historique des courses passées dans le tableau HTML
+ */
+function afficherPageHistorique() {
+    const tableBody = document.getElementById('historique-table-body');
+    const containerDiv = document.getElementById('historique-container');
+    const listeHistorique = obtenirHistoriqueComplet();
 
-function cleCourse(data){
-    return [
-        data?.date || "",
-        data?.reunion || "",
-        data?.course_numero || "",
-        data?.course || ""
-    ].join("|");
-}
+    // Tri du plus récent au plus ancien
+    listeHistorique.reverse();
 
-function ajouterCourseHistorique(data){if(!data||data.donnees_demo)return chargerHistoriqueLocal();const h=chargerHistoriqueLocal(),cle=cleCourse(data),i=h.findIndex(x=>x.cle===cle),old=i>=0?h[i]:{};const e={...old,cle,date:data.date||old.date||"",reunion:data.reunion||old.reunion||"",course_numero:data.course_numero||old.course_numero||"",course:data.course||old.course||"Course",hippodrome:data.hippodrome||old.hippodrome||"",discipline:data.discipline||old.discipline||"",distance:data.distance||old.distance||"",source:data.source||old.source||"",date_enregistrement:old.date_enregistrement||new Date().toISOString(),favori:data.favori||old.favori||{},selection:data.tickets?.gratuit?.quinte||old.selection||[],premium:data.tickets?.premium||old.premium||{},classement:data.classement||old.classement||[],arrivee:old.arrivee||[],rapports:old.rapports||[]};if(i>=0)h[i]=e;else h.unshift(e);const out=h.slice(0,100);sauvegarderHistoriqueLocal(out);return out;}
-function fusionnerHistoriqueBackend(entrees){if(!Array.isArray(entrees))return chargerHistoriqueLocal();let h=chargerHistoriqueLocal();for(const item of entrees){const c=item.course||{},d={date:c.date||"",reunion:c.reunion||"",course_numero:c.course_numero||"",course:c.course||"Course",hippodrome:c.hippodrome||"",source:c.source||"",favori:(item.classement||[])[0]||{},classement:item.classement||[],tickets:item.tickets||{},donnees_demo:false};h=ajouterCourseHistorique(d);const i=h.findIndex(x=>x.cle===cleCourse(d));if(i>=0&&Array.isArray(item.arrivee)&&item.arrivee.length)h[i].arrivee=item.arrivee;}sauvegarderHistoriqueLocal(h);return h;}
+    if (tableBody) {
+        tableBody.innerHTML = '';
 
-function afficherHistorique(donnees){
-    const body =
-        document.getElementById(
-            "historique-body"
-        );
-
-    if(!body) return;
-
-    body.innerHTML = "";
-
-    if(!donnees.length){
-        body.innerHTML = `
-            <tr>
-                <td colspan="5" style="text-align: center; padding: 15px; color: #9ca3af;">
-                    Aucune course passée enregistrée.
-                </td>
-            </tr>
-        `;
-        return;
-    }
-
-    donnees.forEach(item => {
-        const favori =
-            item.favori?.numero
-            ? "N°" + item.favori.numero +
-              " " + (item.favori.nom || "")
-            : "-";
-
-        const selection =
-            Array.isArray(item.selection)
-            ? item.selection.join(" - ")
-            : "-";
-
-        let resultat = "En attente";
-
-        if(
-            Array.isArray(item.arrivee) &&
-            item.arrivee.length
-        ){
-            resultat =
-                item.arrivee.join(" - ");
+        if (listeHistorique.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="4" class="text-center">Aucune course enregistrée dans l'historique pour le moment.</td></tr>`;
+            return;
         }
 
-        body.innerHTML += `
-            <tr style="border-bottom: 1px solid #374151;">
-                <td style="padding: 12px; color: #fff;">${item.date || "-"}</td>
-                <td style="padding: 12px; color: #fff;">
-                    ${item.course || "-"}
-                    ${
-                        item.hippodrome
-                        ? "<br><span style='font-size: 12px; color: #9ca3af;'>📍 " + item.hippodrome + "</span>"
-                        : ""
-                    }
-                </td>
-                <td style="padding: 12px; color: #10b981; font-weight: bold;">${favori}</td>
-                <td style="padding: 12px; color: #fff;">${selection}</td>
-                <td style="padding: 12px; color: #e5e7eb;">${resultat}</td>
-            </tr>
-        `;
-    });
+        listeHistorique.forEach(c => {
+            const tr = document.createElement('tr');
+            
+            // Formatage propre de l'arrivée sous forme "N° X - N° Y - N° Z"
+            const arriveeTexte = (c.arrivee && c.arrivee.length > 0)
+                ? c.arrivee.map(num => `N° ${num}`).join(' - ')
+                : 'Non communiquée';
+
+            tr.innerHTML = `
+                <td>${c.date || '-'}</td>
+                <td><strong>${c.reunion || ''} ${c.course || ''}</strong> - ${c.nom || 'Course'}</td>
+                <td><span class="badge-arrivee">${arriveeTexte}</span></td>
+                <td><span class="badge badge-fini">🏁 Terminée</span></td>
+            `;
+            tableBody.appendChild(tr);
+        });
+    } else if (containerDiv) {
+        // En cas d'affichage par cartes
+        containerDiv.innerHTML = '';
+
+        if (listeHistorique.length === 0) {
+            containerDiv.innerHTML = `<div class="message-vide">Aucun historique disponible.</div>`;
+            return;
+        }
+
+        listeHistorique.forEach(c => {
+            const card = document.createElement('div');
+            card.className = 'historique-card';
+            
+            const arriveeTexte = (c.arrivee && c.arrivee.length > 0)
+                ? c.arrivee.map(num => `N° ${num}`).join(' - ')
+                : 'Arrivée indisponible';
+
+            card.innerHTML = `
+                <div class="historique-card-header">
+                    <span>${c.date || ''}</span>
+                    <strong>${c.reunion || ''} ${c.course || ''}</strong>
+                </div>
+                <div class="historique-card-body">
+                    <h4>${c.nom || 'Course'}</h4>
+                    <p class="arrivee-resultat"><strong>Arrivée :</strong> ${arriveeTexte}</p>
+                </div>
+            `;
+            containerDiv.appendChild(card);
+        });
+    }
 }
 
-async function chargerHistorique(){try{const r=await fetch("https://az-turf-pro.onrender.com/api/historique");if(!r.ok)throw new Error("Erreur API historique");const d=await r.json(),h=fusionnerHistoriqueBackend(d.historique||[]);afficherHistorique(h);const total=document.getElementById("total-courses");if(total)total.textContent=h.length;const fav=document.getElementById("favoris-gagnants");if(fav)fav.textContent=h.filter(x=>Array.isArray(x.arrivee)&&x.arrivee.length&&x.favori?.numero&&Number(x.arrivee[0])===Number(x.favori.numero)).length;}catch(e){const h=chargerHistoriqueLocal();afficherHistorique(h);const total=document.getElementById("total-courses");if(total)total.textContent=h.length;console.log("Erreur historique :",e);}}
-
-document.addEventListener("DOMContentLoaded",()=>{if(document.getElementById("historique-body"))chargerHistorique();});
-            
+/**
+ * Efface complètement l'historique local (pour la réinitialisation si besoin)
+ */
+function reinitialiserHistorique() {
+    if (confirm("Voulez-vous vraiment effacer tout l'historique des courses passées ?")) {
+        localStorage.removeItem(HISTORIQUE_STORAGE_KEY);
+        afficherPageHistorique();
+    }
+}
