@@ -3,7 +3,7 @@
 # SOURCE PMU
 # Connexion aux donnees PMU reelles
 # =====================================
-# VERSION COMPLETE - detection QuintÃ©+ fiabilisee
+# VERSION COMPLETE - detection Quinté+ fiabilisee
 # Compatible avec api.py : charger_course_pmu(date, reunion=None, course_numero=None)
 
 import math
@@ -139,7 +139,7 @@ def normaliser(valeur, minimum, maximum):
 def _extraire_nom_personne(valeur):
     """
     Normalise les champs jockey/entraineur PMU.
-    L'API peut retourner une chaÃ®ne ou un objet.
+    L'API peut retourner une chaîne ou un objet.
     """
     if isinstance(valeur, str):
         return valeur.strip()
@@ -194,7 +194,7 @@ def _extraire_valeur_numerique(valeur):
 def obtenir_cote(participant):
     """
     Extrait la cote/rapport brut quel que soit le format courant
-    rencontrÃ© dans la rÃ©ponse PMU.
+    rencontré dans la réponse PMU.
     """
     for cle in (
         "dernierRapportDirect",
@@ -529,6 +529,14 @@ def transformer_course(course, participants):
         or ""
     )
 
+    heure_depart = (
+        course.get("heureDepart")
+        or course.get("heureDepartCourse")
+        or course.get("heure")
+        or course.get("heureDepartPrevue")
+        or ""
+    )
+
     return {
         "course": course.get(
             "libelle",
@@ -537,6 +545,8 @@ def transformer_course(course, participants):
         "date": date_course,
         "reunion": reunion,
         "course_numero": course_numero,
+        "heure_depart": heure_depart,
+        "horaires": {"depart": heure_depart, "arret_des_jeux": ""},
         "hippodrome": obtenir_hippodrome(course),
         "discipline": obtenir_discipline(course),
         "distance_course": (
@@ -809,7 +819,7 @@ def _contient_quinte(course):
     """
     Detection securisee :
     1. Si l'API expose explicitement les types de paris, recherche
-       ciblee du QuintÃ©+ dans ces champs.
+       ciblee du Quinté+ dans ces champs.
     2. Sinon, recherche dans les champs d'identification de la course
        avec un minimum de 10 partants.
     Une course a 6 partants ne peut donc pas etre retenue.
@@ -826,6 +836,7 @@ def _contient_quinte(course):
 
         return False
 
+    
     nombre_partants = _nombre_partants(course)
 
     if nombre_partants < PARTANTS_MINIMUM_QUINTE:
@@ -858,7 +869,7 @@ def trouver_quinte_du_jour(date):
     """
     Parcourt les reunions disponibles et retourne :
         (programme, reunion, course)
-    pour le vrai QuintÃ©+ detecte.
+    pour le vrai Quinté+ detecte.
 
     Aucun R1/C1 n'est impose pour la recherche automatique.
     """
@@ -912,7 +923,7 @@ def charger_course_pmu(
     """
     Charge une course PMU.
 
-    - Sans reunion/course : recherche automatique du vrai QuintÃ©+.
+    - Sans reunion/course : recherche automatique du vrai Quinté+.
     - Avec reunion/course : charge explicitement la course demandee.
     """
     try:
@@ -926,7 +937,7 @@ def charger_course_pmu(
 
             if not course:
                 print(
-                    "Aucun QuintÃ©+ PMU trouve pour",
+                    "Aucun Quinté+ PMU trouve pour",
                     date,
                 )
                 return None
@@ -1094,4 +1105,3 @@ def recuperer_arrivee_pmu(date, reunion, course_numero):
             arrivee.append(groupe)
 
     return arrivee
-    
