@@ -1779,37 +1779,52 @@ td{
         height:42px;
         font-size:24px;
     }
-
-/* =====================================
-   AZ TURF PRO - Ajustement Entête & Heure
-   ===================================== */
-
-/* 1. Élargissement complet de l'entête */
-header, .header, .entete-app, .top-bar {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 15px 20px !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
 }
 
-/* 2. Élargissement et espacement du bloc "Heure de départ" / Infos course */
-.heure-depart, .course-header-info, .info-course-box {
+/* =====================================
+   AZ TURF PRO - CORRECTIF LARGEUR ENTÊTE 
+   ET HEURE DE DÉPART (MOBILE & DESKTOP)
+   ===================================== */
+
+/* 1. Élargissement absolu de l'entête sur toute la largeur */
+header, 
+.top-header, 
+.header, 
+.entete-app {
+    width: 100% !important;
+    max-width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    box-sizing: border-box !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+}
+
+/* 2. Mise en valeur et espacement de l'heure de départ / bloc d'infos course */
+.heure-depart, 
+.course-header-info, 
+.info-course-box,
+.details-course-header {
     width: 100% !important;
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
     flex-wrap: wrap !important;
-    padding: 14px 18px !important;
+    gap: 10px !important;
+    padding: 12px 16px !important;
+    margin: 10px 0 15px 0 !important;
     box-sizing: border-box !important;
-    background-color: var(--card-bg, #1e293b);
-    border-radius: 10px;
-    margin-bottom: 15px;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
 }
 
-/* Style du texte de l'heure de départ pour une visibilité maximale sur mobile */
-.valeur-heure-depart, .heure-texte {
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: var(--accent-color, #38bdf8);
+/* 3. Style du texte de l'heure de départ pour une lisibilité parfaite */
+.valeur-heure-depart, 
+.heure-texte,
+.horaire-depart {
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    color: #08783f !important;
    }
