@@ -1782,25 +1782,34 @@ td{
 }
 
 /* =====================================
-   AZ TURF PRO - CORRECTIF LARGEUR ENTÊTE 
-   ET HEURE DE DÉPART (MOBILE & DESKTOP)
+   AZ TURF PRO - CORRECTIF FORCÉ LARGEUR ENTÊTE & MOBILE
    ===================================== */
-
-/* 1. Élargissement absolu de l'entête sur toute la largeur */
-header, 
-.top-header, 
-.header, 
-.entete-app {
+body {
     width: 100% !important;
-    max-width: 100% !important;
-    left: 0 !important;
-    right: 0 !important;
-    box-sizing: border-box !important;
-    padding-left: 15px !important;
-    padding-right: 15px !important;
+    overflow-x: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-/* 2. Mise en valeur et espacement de l'heure de départ / bloc d'infos course */
+.top-header, header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 15px !important;
+    box-sizing: border-box !important;
+    z-index: 9999 !important;
+}
+
+.content, .page-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Bloc d'infos course et heure de départ */
 .heure-depart, 
 .course-header-info, 
 .info-course-box,
@@ -1820,11 +1829,10 @@ header,
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
 }
 
-/* 3. Style du texte de l'heure de départ pour une lisibilité parfaite */
 .valeur-heure-depart, 
 .heure-texte,
 .horaire-depart {
     font-size: 1.15rem !important;
     font-weight: 800 !important;
     color: #08783f !important;
-   }
+       }
