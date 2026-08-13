@@ -1,15 +1,36 @@
 const API = "https://az-turf-pro.onrender.com/api/analyse";
+
 function enregistrerAnalyseDansHistorique(data){
     if(!data || data.donnees_demo) return;
     try{
-        const key="az_turf_pro_historique_v1"; const h=JSON.parse(localStorage.getItem(key)||"[]");
+        const key="az_turf_pro_historique_v1"; 
+        const h=JSON.parse(localStorage.getItem(key)||"[]");
         const cle=[data.date||"",data.reunion||"",data.course_numero||"",data.course||""].join("|");
-        const i=h.findIndex(x=>x.cle===cle); const old=i>=0?h[i]:{};
-        const e={...old,cle,date:data.date||"",reunion:data.reunion||"",course_numero:data.course_numero||"",course:data.course||"Course",hippodrome:data.hippodrome||"",discipline:data.discipline||"",distance:data.distance||"",source:data.source||"",date_enregistrement:old.date_enregistrement||new Date().toISOString(),favori:data.favori||old.favori||{},selection:data.tickets?.gratuit?.quinte||old.selection||[],premium:data.tickets?.premium||old.premium||{},classement:data.classement||old.classement||[],arrivee:old.arrivee||[],rapports:old.rapports||[]};
-        if(i>=0) h[i]=e; else h.unshift(e); localStorage.setItem(key,JSON.stringify(h.slice(0,100)));
+        const i=h.findIndex(x=>x.cle===cle); 
+        const old=i>=0?h[i]:{};
+        const e={
+            ...old,
+            cle,
+            date:data.date||"",
+            reunion:data.reunion||"",
+            course_numero:data.course_numero||"",
+            course:data.course||"Course",
+            hippodrome:data.hippodrome||"",
+            discipline:data.discipline||"",
+            distance:data.distance||"",
+            source:data.source||"",
+            date_enregistrement:old.date_enregistrement||new Date().toISOString(),
+            favori:data.favori||old.favori||{},
+            selection:data.tickets?.gratuit?.quinte||old.selection||[],
+            premium:data.tickets?.premium||old.premium||{},
+            classement:data.classement||old.classement||[],
+            arrivee:old.arrivee||[],
+            rapports:old.rapports||[]
+        };
+        if(i>=0) h[i]=e; else h.unshift(e); 
+        localStorage.setItem(key,JSON.stringify(h.slice(0,100)));
     }catch(e){console.log("Historique local indisponible",e);}
 }
-
 
 async function chargerAnalyse(){
     try {
@@ -45,14 +66,14 @@ async function chargerAnalyse(){
             if(plusJoues.length){
                 popular.innerHTML = plusJoues.map(numero => `<div class="popular-number">${numero}</div>`).join("");
             } else {
-                popular.innerHTML = "Plus joue indisponible";
+                popular.innerHTML = "Plus joué indisponible";
             }
         }
 
         const tendance = document.getElementById("course-tendance");
         if(tendance && classement.length){
             tendance.innerHTML = `
-                <p>Chevaux les plus joues : <strong>${(data.plus_joues || []).join(" - ")}</strong></p>
+                <p>Chevaux les plus joués : <strong>${(data.plus_joues || []).join(" - ")}</strong></p>
                 <p>Favori AZ : <strong>N°${classement[0].numero}</strong> avec un indice AZ de <strong>${classement[0].indice_az ? Math.round(classement[0].indice_az) : "-"}</strong></p>
                 <p>La tendance est basée sur la forme, la régularité et le classement AZ.</p>
             `;
@@ -75,23 +96,23 @@ async function chargerAnalyse(){
             afficher("outsider-confiance", (outsider.confiance || "-") + " %");
             afficher("outsider-raison", outsider.raison || "Outsider AZ");
         }
-// ===============================
-// TABLEAU DES PARTANTS
-const tableau = document.getElementById("all-horses") || document.getElementById("corps-tableau-partants");
-if(tableau){
-    tableau.innerHTML="";
-    chevaux.forEach(cheval=>{
-        const numero=cheval.numero??"-", nom=cheval.nom||"-";
-        const jockey=cheval.jockey||cheval.driver||"-";
-        const entraineur=cheval.entraineur||cheval.trainer||"-";
-        const cote=cheval.cote_brute??cheval.rapport??"-";
-        const indice=cheval.indice_az!=null?Math.round(cheval.indice_az):"-";
-        const confiance=cheval.confiance!=null?cheval.confiance+" %":"-";
-        tableau.innerHTML+=`<tr><td><strong>${numero}</strong></td><td>${nom}</td><td>${jockey}</td><td>${entraineur}</td><td>${cote}</td><td><span class="badge-indice">${indice}</span></td><td>${confiance}</td></tr>`;
-    });
-}
 
-const tickets = data.tickets?.gratuit || {};
+        // TABLEAU DES PARTANTS
+        const tableau = document.getElementById("all-horses") || document.getElementById("corps-tableau-partants");
+        if(tableau){
+            tableau.innerHTML="";
+            chevaux.forEach(cheval=>{
+                const numero=cheval.numero??"-", nom=cheval.nom||"-";
+                const jockey=cheval.jockey||cheval.driver||"-";
+                const entraineur=cheval.entraineur||cheval.trainer||"-";
+                const cote=cheval.cote_brute??cheval.rapport??"-";
+                const indice=cheval.indice_az!=null?Math.round(cheval.indice_az):"-";
+                const confiance=cheval.confiance!=null?cheval.confiance+" %":"-";
+                tableau.innerHTML+=`<tr><td><strong>${numero}</strong></td><td>${nom}</td><td>${jockey}</td><td>${entraineur}</td><td>${cote}</td><td><span class="badge-indice">${indice}</span></td><td>${confiance}</td></tr>`;
+            });
+        }
+
+        const tickets = data.tickets?.gratuit || {};
         afficher("quinte-gratuit", (tickets.quinte || []).join(" - "));
         afficher("deux-sur-quatre", (tickets.deux_sur_quatre || []).join(" - "));
 
@@ -108,27 +129,66 @@ const tickets = data.tickets?.gratuit || {};
     }
 }
 
+// =====================================
+// FONCTION CORRIGÉE POUR L'HEURE DE DÉPART
+// =====================================
 function normaliserHeureDepart(valeur){
-    if(!valeur) return null;
-    let texte = String(valeur).trim().toLowerCase();
-    texte = texte.replace(/h/g, ":").replace(/m/g, ":").replace(/\s+/g, "");
+    if(valeur === null || valeur === undefined || valeur === "") return null;
+
+    // 1. Si c'est un Timestamp (millisecondes ou secondes) ou nombre
+    if (typeof valeur === "number" || (!isNaN(valeur) && String(valeur).trim().length >= 10 && !String(valeur).includes(":"))) {
+        let ts = Number(valeur);
+        if (ts < 10000000000) ts *= 1000; // Conversion secondes -> millisecondes
+        const d = new Date(ts);
+        if (!isNaN(d.getTime())) {
+            return { heures: d.getHours(), minutes: d.getMinutes(), secondes: d.getSeconds(), dateComplete: d };
+        }
+    }
+
+    let texte = String(valeur).trim();
+
+    // 2. Si c'est un format Date ISO / Horodatage complet (ex: "2026-08-13T13:50:00")
+    if (texte.includes("-") || texte.includes("T")) {
+        const d = new Date(texte);
+        if (!isNaN(d.getTime())) {
+            return { heures: d.getHours(), minutes: d.getMinutes(), secondes: d.getSeconds(), dateComplete: d };
+        }
+    }
+
+    // 3. Si format 4 chiffres (ex: 1350 ou "1350" pour 13h50)
+    if (/^\d{4}$/.test(texte)) {
+        const h = parseInt(texte.substring(0, 2), 10);
+        const m = parseInt(texte.substring(2, 4), 10);
+        if (h <= 23 && m <= 59) return { heures: h, minutes: m, secondes: 0 };
+    }
+
+    // 4. Formats textes classiques ("13h50", "13:50", "13h 50m")
+    texte = texte.toLowerCase().replace(/h/g, ":").replace(/m/g, "").replace(/\s+/g, "");
     const morceaux = texte.split(":").filter(Boolean);
-    if(morceaux.length < 2) return null;
-    const heures = parseInt(morceaux[0], 10);
-    const minutes = parseInt(morceaux[1], 10);
-    if(isNaN(heures) || isNaN(minutes) || heures > 23 || minutes > 59) return null;
-    return { heures, minutes, secondes: 0 };
+    if(morceaux.length >= 2){
+        const h = parseInt(morceaux[0], 10);
+        const m = parseInt(morceaux[1], 10);
+        if(!isNaN(h) && !isNaN(m) && h <= 23 && m <= 59){
+            return { heures: h, minutes: m, secondes: 0 };
+        }
+    }
+
+    return null;
 }
 
+// =====================================
+// FONCTION CORRIGÉE DU CHRONOMÈTRE
+// =====================================
 function afficherChronometre(data){
     const zone = document.getElementById("mini-countdown");
     if(!zone) return;
 
-    const heureBrute = (data.horaires && data.horaires.depart) ? data.horaires.depart : data.heure_depart;
+    // Récupération sécurisée du champ d'heure
+    const heureBrute = (data.horaires && data.horaires.depart) || data.heure_depart || data.heure || (data.horaires && data.horaires.heure);
     const heure = normaliserHeureDepart(heureBrute);
 
     if(!heure){
-        zone.textContent = "Depart : heure indisponible";
+        zone.textContent = "Départ : heure indisponible";
         return;
     }
 
@@ -136,26 +196,32 @@ function afficherChronometre(data){
 
     function mettreAJour() {
         const maintenant = new Date();
-        const depart = new Date();
-        depart.setHours(heure.heures, heure.minutes, 0, 0);
+        let depart;
+
+        if (heure.dateComplete) {
+            depart = heure.dateComplete;
+        } else {
+            depart = new Date();
+            depart.setHours(heure.heures, heure.minutes, heure.secondes || 0, 0);
+        }
 
         const quatreHeuresPlusTard = new Date(depart.getTime() + (4 * 60 * 60 * 1000));
         
         if (maintenant > quatreHeuresPlusTard) {
-            zone.textContent = "Course terminee";
+            zone.textContent = "Course terminée";
             return;
         }
 
         let diff = depart.getTime() - maintenant.getTime();
         if (diff <= 0) {
-            zone.textContent = "Depart imminent";
+            zone.textContent = "Départ imminent";
             return;
         }
 
         const h = Math.floor(diff / 3600000);
         const m = Math.floor((diff % 3600000) / 60000);
         const s = Math.floor((diff % 60000) / 1000);
-        zone.textContent = `Depart dans ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        zone.textContent = `Départ dans ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
     }
 
     mettreAJour();
@@ -163,10 +229,10 @@ function afficherChronometre(data){
 }
 
 const publicites = [
-    { image: "images/pub1.jpg", titre: "AZ Turf Pro Premium", texte: "Analyses specialisees et tickets exclusifs" },
-    { image: "images/pub2.jpg", titre: "Analyse du Quinte", texte: "Des pronostics bases sur les performances" },
-    { image: "images/pub3.jpg", titre: "Abonnement Premium", texte: "Accedez aux selections avancees" },
-    { image: "images/pub4.jpg", titre: "Votre publicite ici", texte: "Un espace dedie aux partenaires" },
+    { image: "images/pub1.jpg", titre: "AZ Turf Pro Premium", texte: "Analyses spécialisées et tickets exclusifs" },
+    { image: "images/pub2.jpg", titre: "Analyse du Quinté", texte: "Des pronostics basés sur les performances" },
+    { image: "images/pub3.jpg", titre: "Abonnement Premium", texte: "Accédez aux sélections avancées" },
+    { image: "images/pub4.jpg", titre: "Votre publicité ici", texte: "Un espace dédié aux partenaires" },
     { image: "images/pub5.jpg", titre: "AZ Turf Pro", texte: "Une analyse professionnelle au service des pronostics" }
 ];
 
@@ -211,11 +277,11 @@ function afficherConfianceCourse(data){
 
     if(message){
         if(confiance >= 80){
-            message.innerHTML = "Course avec un niveau de confiance eleve";
+            message.innerHTML = "Course avec un niveau de confiance élevé";
         } else if(confiance >= 60){
             message.innerHTML = "Course avec quelques incertitudes";
         } else {
-            message.innerHTML = "Course ouverte, prudence recommandee";
+            message.innerHTML = "Course ouverte, prudence recommandée";
         }
     }
 }
@@ -254,9 +320,9 @@ function afficherChevauxSurveiller(data){
             <p>
                 N°${c.numero} ${c.nom || ""}
                 <br>
-                ${c.raison || "Cheval a surveiller"}
+                ${c.raison || "Cheval à surveiller"}
                 <br>
-                ${ecart}% de l'indice du leader - capable de creer la surprise
+                ${ecart}% de l'indice du leader - capable de créer la surprise
             </p>
         `;
     }).join("");
@@ -266,4 +332,3 @@ document.addEventListener("DOMContentLoaded", () => {
     chargerAnalyse();
     setInterval(changerPublicite, 4000);
 });
-                                          
