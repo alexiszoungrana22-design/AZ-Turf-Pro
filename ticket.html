@@ -3,37 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Journal & Résultats - AZ Turf Pro</title>
+    <title>Journal & Actualités - AZ Turf Pro</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .pdf-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #f8fafc;
-            padding: 14px 18px;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-        .btn-pdf {
-            background: #08783f;
-            color: white;
-            padding: 10px 18px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 14px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: background 0.2s;
-        }
-        .btn-pdf:hover {
-            background: #065c30;
-        }
+        .journal-section-title { color: #08783f; font-size: 1.2rem; margin-top: 0; display: flex; align-items: center; gap: 8px; }
+        .pdf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 12px; }
+        .btn-pdf-item { background: #f8fafc; border: 1px solid #cbd5e0; padding: 12px; border-radius: 12px; text-align: center; text-decoration: none; color: #2d3748; font-weight: bold; display: block; transition: all 0.2s; }
+        .btn-pdf-item:hover { background: #08783f; color: white; border-color: #08783f; }
+        .btn-pdf-item span { display: block; font-size: 0.85rem; color: #718096; margin-top: 4px; }
+        .btn-pdf-item:hover span { color: #e2e8f0; }
+        
+        .avis-card { background: #fffaf0; border-left: 4px solid #d4af37; padding: 12px 15px; border-radius: 8px; margin-bottom: 12px; }
+        .avis-card h4 { margin: 0 0 5px; color: #975a16; font-size: 1rem; }
+        .avis-card p { margin: 0; color: #4a5568; font-size: 0.95rem; line-height: 1.4; }
     </style>
 </head>
 <body>
@@ -53,22 +35,81 @@
 <main class="content">
     <div class="page-container">
 
+        <!-- En-tête -->
         <section class="card" style="text-align: center;">
-            <h1 style="color: #08783f; margin-top: 0;">📰 Journal & Actualités</h1>
-            <p style="color: #4a5568;">Retrouvez l'actualité des courses et les bulletins officiels.</p>
+            <h1 style="color: #08783f; margin-top: 0;">📰 Journal Hippique & Infos Pro</h1>
+            <p style="color: #4a5568; margin-bottom: 0;">Journaux officiels, arrivées PDF, programmes étrangers et bruits d'écurie.</p>
         </section>
 
-        <!-- Carte Dernières Arrivées & Résultats PDF LONAB -->
+        <!-- 1. Journal Hippique LONAB (Aujourd'hui, Demain, Archives) -->
         <section class="card">
-            <h2>📄 Dernières Arrivées & Résultats PDF LONAB</h2>
-            <p style="text-align: center; color: #4a5568; margin-bottom: 20px;">
-                Consultez et téléchargez les bulletins officiels des arrivées publiés par la LONAB.
-            </p>
+            <h2 class="journal-section-title">📅 Journal Hippique LONAB (PDF)</h2>
+            <p style="color: #4a5568; font-size: 0.95rem;">Téléchargez les éditions officielles du journal des courses.</p>
             
-            <div id="liste-pdf-lonab">
-                <div style="text-align: center; padding: 20px; color: #08783f; font-weight: bold;">
-                    ⏳ Chargement des bulletins officiels...
+            <div class="pdf-grid">
+                <a href="https://www.lonab.bf" target="_blank" class="btn-pdf-item">
+                    📥 Aujourd'hui
+                    <span>Édition du jour</span>
+                </a>
+                <a href="https://www.lonab.bf" target="_blank" class="btn-pdf-item">
+                    📥 Demain
+                    <span>Pré-programme</span>
+                </a>
+                <a href="https://www.lonab.bf" target="_blank" class="btn-pdf-item">
+                    📥 Spécial 15 Août
+                    <span>Édition spéciale</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- 2. Arrivées Officielles LONAB (PDF) -->
+        <section class="card">
+            <h2 class="journal-section-title">🏁 Arrivées Officielles LONAB (PDF)</h2>
+            <p style="color: #4a5568; font-size: 0.95rem;">Bulletins officiels des arrivées validés par la LONAB.</p>
+            
+            <div id="liste-arrivees-pdf">
+                <div class="pdf-item" style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px 16px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 10px;">
+                    <div>
+                        <strong style="color: #2d3748;">Bulletin Officiel Quinté+</strong>
+                        <br><small style="color: #718096;">Rapport et ordre d'arrivée officiel</small>
+                    </div>
+                    <a href="https://www.lonab.bf" target="_blank" style="background: #08783f; color: white; padding: 8px 14px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 0.9rem;">
+                        📥 Voir PDF
+                    </a>
                 </div>
+            </div>
+        </section>
+
+        <!-- 3. Programmes Internationaux (Mali, Niger) -->
+        <section class="card">
+            <h2 class="journal-section-title">🌍 Programmes Étrangers (Mali & Niger)</h2>
+            <p style="color: #4a5568; font-size: 0.95rem;">Consultez les réunions hippiques de la sous-région.</p>
+            
+            <div class="pdf-grid">
+                <a href="#" target="_blank" class="btn-pdf-item">
+                    🇲🇱 Hippisme Mali
+                    <span>Programme & Partants</span>
+                </a>
+                <a href="#" target="_blank" class="btn-pdf-item">
+                    🇳🇪 Hippisme Niger
+                    <span>Programme & Partants</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- 4. Bruits d'écurie & Avis des Pros -->
+        <section class="card">
+            <h2 class="journal-section-title">🤫 Bruits d'Écurie & Avis des Pros</h2>
+            <p style="color: #4a5568; font-size: 0.95rem; margin-bottom: 15px;">Les confidences des entraîneurs, jockeys et bruits de couloirs des pistes.</p>
+            
+            <div class="avis-card">
+                <h4>🎯 Le Tuyau des Pistes (Bruit d'écurie)</h4>
+                <p>Repéré ce matin lors des derniers heats d'entraînement : le numéro <strong>--</strong> montre une grande souplesse et un retard de gains évident. Coup de poker idéal pour une place de choix.</p>
+            </div>
+
+            <div class="avis-card" style="border-left-color: #3182ce; background: #ebf8ff;">
+                <h4 style="color: #2b6cb0;">🗣️ Avis des Entraîneurs & Jockeys</h4>
+                <p><em>« Il redescond de catégorie aujourd'hui et affectionne particulièrement ce parcours. S'il négocie bien le dernier tournant, il comptera parmi les tout premiers à l'arrivée. »</em> — Entraîneur confiant.</p>
             </div>
         </section>
 
@@ -81,59 +122,6 @@
     <a href="ticket.html">📰 Journal</a>
     <a href="historique.html">🏆 Historique</a>
 </footer>
-
-<script>
-    async function chargerResultatsPDFLonab() {
-        const container = document.getElementById("liste-pdf-lonab");
-        if (!container) return;
-
-        try {
-            const reponse = await fetch("https://az-turf-pro.onrender.com/api/resultats-pdf", { cache: "no-store" });
-            
-            if (reponse.ok) {
-                const data = await reponse.json();
-                const bulletins = Array.isArray(data.bulletins) ? data.bulletins : [];
-
-                if (bulletins.length > 0) {
-                    container.innerHTML = bulletins.map(b => `
-                        <div class="pdf-item">
-                            <div>
-                                <strong style="color: #2d3748; font-size: 16px;">📅 ${b.date || 'Aujourd\'hui'} - ${b.titre || 'Arrivée Officielle'}</strong>
-                                <br><small style="color: #718096;">Bulletin officiel LONAB</small>
-                            </div>
-                            <a href="${b.url_pdf}" target="_blank" class="btn-pdf">
-                                📥 Télécharger le PDF
-                            </a>
-                        </div>
-                    `).join("");
-                    return;
-                }
-            }
-            
-            // Fallback si l'API ne renvoie pas de liste spécifique
-            container.innerHTML = `
-                <div style="background: #f8fafc; padding: 25px; border-radius: 14px; text-align: center; border: 1px solid #e2e8f0;">
-                    <p style="margin: 0 0 15px; color: #4a5568; font-weight: bold; font-size: 16px;">Accédez au portail officiel des résultats LONAB</p>
-                    <a href="https://www.lonab.bf" target="_blank" class="btn-pdf" style="display: inline-block; padding: 12px 24px;">
-                        📥 Consulter les bulletins PDF sur la LONAB
-                    </a>
-                </div>
-            `;
-        } catch (e) {
-            console.warn("Erreur de chargement des PDF LONAB :", e);
-            container.innerHTML = `
-                <div style="background: #f8fafc; padding: 25px; border-radius: 14px; text-align: center; border: 1px solid #e2e8f0;">
-                    <p style="margin: 0 0 15px; color: #4a5568; font-weight: bold; font-size: 16px;">Accédez au portail officiel des résultats LONAB</p>
-                    <a href="https://www.lonab.bf" target="_blank" class="btn-pdf" style="display: inline-block; padding: 12px 24px;">
-                        📥 Consulter les bulletins PDF sur la LONAB
-                    </a>
-                </div>
-            `;
-        }
-    }
-
-    document.addEventListener("DOMContentLoaded", chargerResultatsPDFLonab);
-</script>
 
 </body>
 </html>
