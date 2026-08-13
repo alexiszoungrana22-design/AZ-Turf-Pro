@@ -447,12 +447,52 @@ def obtenir_discipline(course):
 # TRANSFORMATION COURSE
 # =====================================
 
+def extraire_non_partants(course, participants):
+    """
+    Identifie les chevaux declares non-partants, a partir des deux
+    sources possibles de l'API PMU (observees dans les vraies
+    reponses) :
+    1. Le statut individuel de chaque participant
+       (participant["statut"] == "NON_PARTANT")
+    2. La liste d'incidents au niveau course
+       (course["incidents"] avec type == "NON_PARTANT")
+    Combine les deux sans doublon. Retourne une liste triee de
+    numeros.
+    """
+
+    non_partants = set()
+
+    for participant in participants:
+        if not isinstance(participant, dict):
+            continue
+
+        statut = str(participant.get("statut", "")).upper()
+
+        if "NON_PARTANT" in statut or statut == "NP":
+            numero = participant.get("numPmu")
+
+            if numero is not None:
+                non_partants.add(numero)
+
+    for incident in course.get("incidents", []) or []:
+        if (
+            isinstance(incident, dict)
+            and incident.get("type") == "NON_PARTANT"
+        ):
+            for numero in incident.get("numeroParticipants", []) or []:
+                non_partants.add(numero)
+
+    return sorted(non_partants)
+
+
 def transformer_course(course, participants):
     if not participants:
         return None
 
     scores_cotes = calculer_scores_cotes(participants)
     scores_gains = calculer_scores_gains(participants)
+
+    non_partants = extraire_non_partants(course, participants)
 
     chevaux = []
 
@@ -510,6 +550,7 @@ def transformer_course(course, participants):
             course.get("allocation", ""),
         ),
         "chevaux": chevaux,
+        "non_partants": non_partants,
         "plus_joues": [],
         "source_plus_joues": "non disponible via API PMU",
         "source": "pmu_live",
@@ -808,6 +849,7 @@ def _contient_quinte(course):
     return False
 
 
+
 # =====================================
 # RECHERCHE QUINTE+ DU JOUR
 # =====================================
@@ -1007,4 +1049,49 @@ if __name__ == "__main__":
             "PMU indisponible ou aucun Quinte+ trouve "
             "aujourd'hui (voir messages ci-dessus)."
         )
-        
+
+
+# =====================================
+# ARRIVEE REELLE D'UNE COURSE PASSEE
+# (additif - utilise pour l'historique)
+# =====================================
+
+def recuperer_arrivee_pmu(date, reunion, course_numero):
+    """
+    Recupere l'ordre d'arrivee reel d'une course PMU deja courue
+    (champ "ordreArrivee" de l'API, present une fois la course
+    terminee). Retourne une liste de numeros dans l'ordre
+    d'arrivee, ou None si la course n'est pas encore courue ou
+    introuvable.
+    """
+
+    programme = recuperer_programme(date, reunion)
+
+    if not programme:
+        return None
+
+    reunion_data = trouver_reunion(programme, reunion)
+
+    if not reunion_data:
+        return None
+
+    course = trouver_course(reunion_data, course_numero)
+
+    if not course:
+        return None
+
+    ordre_brut = course.get("ordreArrivee")
+
+    if not ordre_brut:
+        return None
+
+    arrivee = []
+
+    for groupe in ordre_brut:
+        if isinstance(groupe, list):
+            arrivee.extend(groupe)
+        else:
+            arrivee.append(groupe)
+
+    return arrivee
+                
