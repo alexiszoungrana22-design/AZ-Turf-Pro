@@ -3,7 +3,7 @@ const API = "https://az-turf-pro.onrender.com/api/analyse";
 function enregistrerAnalyseDansHistorique(data){
     if(!data || data.donnees_demo) return;
     try{
-        const key="az_turf_pro_historique_v1"; 
+        const key="AZ_TURF_HISTORIQUE_COURSES_V1"; 
         const h=JSON.parse(localStorage.getItem(key)||"[]");
         const cle=[data.date||"",data.reunion||"",data.course_numero||"",data.course||""].join("|");
         const i=h.findIndex(x=>x.cle===cle); 
@@ -24,6 +24,7 @@ function enregistrerAnalyseDansHistorique(data){
             selection:data.tickets?.gratuit?.quinte||old.selection||[],
             premium:data.tickets?.premium||old.premium||{},
             classement:data.classement||old.classement||[],
+            statut:old.statut||"ANALYSEE",
             arrivee:old.arrivee||[],
             rapports:old.rapports||[]
         };
@@ -43,8 +44,29 @@ async function chargerAnalyse(){
         enregistrerAnalyseDansHistorique(data);
         afficherChronometre(data);
 
+        // Synchronise l'arrivée officielle dès qu'elle devient disponible.
+        try {
+            const histResponse = await fetch("https://az-turf-pro.onrender.com/api/historique", {cache:"no-store"});
+            if(histResponse.ok){
+                const histData = await histResponse.json();
+                const liste = histData.historique || [];
+                const cle = [data.date||"",data.reunion||"",data.course_numero||"",data.course||""].join("|");
+                const match = liste.find(x => {
+                    const c = x.course || {};
+                    return [c.date||"",c.reunion||"",c.course_numero||"",c.course||""].join("|") === cle;
+                });
+                if(match && Array.isArray(match.arrivee) && match.arrivee.length){
+                    const key="AZ_TURF_HISTORIQUE_COURSES_V1";
+                    const local=JSON.parse(localStorage.getItem(key)||"[]");
+                    const i=local.findIndex(x=>x.cle===cle);
+                    if(i>=0){ local[i].arrivee=match.arrivee; local[i].rapports=match.rapports||local[i].rapports||[]; local[i].statut="FINI"; localStorage.setItem(key,JSON.stringify(local)); }
+                }
+            }
+        } catch(e) { console.log("Synchronisation arrivée ignorée",e); }
+
         const chevauxClassement = data.classement || data.chevaux || [];
-        const chevaux = [...chevauxClassement].sort((a, b) => Number(a.numero || 0) - Number(b.numero || 0));
+        const chevauxComplets = data.chevaux_complets || data.chevaux || chevauxClassement;
+        const chevaux = [...chevauxComplets].sort((a, b) => Number(a.numero || 0) - Number(b.numero || 0));
         const classement = [...chevauxClassement].sort((a, b) => Number(a.rang || 0) - Number(b.rang || 0));
 
         function afficher(id, valeur){
@@ -58,7 +80,7 @@ async function chargerAnalyse(){
         afficher("meta-course", data.course);
         afficher("meta-discipline", data.discipline);
         afficher("meta-distance", data.distance ? data.distance + " m" : "-");
-        afficher("meta-partants", data.partants);
+        afficher("meta-partants", data.partants_declares || data.partants);
 
         const popular = document.getElementById("popular-horses");
         if(popular){
@@ -108,7 +130,9 @@ async function chargerAnalyse(){
                 const cote=cheval.cote_brute??cheval.rapport??"-";
                 const indice=cheval.indice_az!=null?Math.round(cheval.indice_az):"-";
                 const confiance=cheval.confiance!=null?cheval.confiance+" %":"-";
-                tableau.innerHTML+=`<tr><td><strong>${numero}</strong></td><td>${nom}</td><td>${jockey}</td><td>${entraineur}</td><td>${cote}</td><td><span class="badge-indice">${indice}</span></td><td>${confiance}</td></tr>`;
+                const nonPartant=cheval.non_partant===true;
+                const statut=nonPartant ? " <span class=\"badge-non-partant\">NON PARTANT</span>" : "";
+                tableau.innerHTML+=`<tr class="${nonPartant ? "ligne-non-partant" : ""}"><td><strong>${numero}</strong></td><td>${nom}${statut}</td><td>${jockey}</td><td>${entraineur}</td><td>${cote}</td><td><span class="badge-indice">${indice}</span></td><td>${confiance}</td></tr>`;
             });
         }
 
@@ -183,8 +207,7 @@ function afficherChronometre(data){
     const zone = document.getElementById("mini-countdown");
     if(!zone) return;
 
-    // Récupération sécurisée du champ d'heure
-    const heureBrute = (data.horaires && data.horaires.depart) || data.heure_depart || data.heure || (data.horaires && data.horaires.heure);
+    const heureBrute = (data.horaires && data.horaires.depart) || data.heure_depart || data.heure || "";
     const heure = normaliserHeureDepart(heureBrute);
 
     if(!heure){
@@ -194,34 +217,45 @@ function afficherChronometre(data){
 
     if(window.chronoTimer) clearInterval(window.chronoTimer);
 
-    function mettreAJour() {
+    function dateCourseLocale(){
+        const texte = String(data.date || "").replace(/\D/g, "");
         const maintenant = new Date();
-        let depart;
+        let d = new Date(maintenant);
+        if(/^\d{8}$/.test(texte)){
+            const jj = parseInt(texte.slice(0,2),10);
+            const mm = parseInt(texte.slice(2,4),10) - 1;
+            const aa = parseInt(texte.slice(4,8),10);
+            d = new Date(aa, mm, jj);
+        }
+        d.setHours(heure.heures, heure.minutes, heure.secondes || 0, 0);
+        return d;
+    }
 
-        if (heure.dateComplete) {
-            depart = heure.dateComplete;
-        } else {
-            depart = new Date();
-            depart.setHours(heure.heures, heure.minutes, heure.secondes || 0, 0);
+    function mettreAJour(){
+        const maintenant = new Date();
+        let depart = heure.dateComplete || dateCourseLocale();
+        if(!heure.dateComplete && depart.getFullYear() < 2000){
+            depart = dateCourseLocale();
         }
 
-        const quatreHeuresPlusTard = new Date(depart.getTime() + (4 * 60 * 60 * 1000));
-        
-        if (maintenant > quatreHeuresPlusTard) {
-            zone.textContent = "Course terminée";
+        const finEstimee = new Date(depart.getTime() + (2 * 60 * 60 * 1000));
+        const diff = depart.getTime() - maintenant.getTime();
+
+        if(maintenant.getTime() > finEstimee.getTime()){
+            zone.textContent = "🏁 Course terminée";
+            if(window.chronoTimer) clearInterval(window.chronoTimer);
             return;
         }
 
-        let diff = depart.getTime() - maintenant.getTime();
-        if (diff <= 0) {
-            zone.textContent = "Départ imminent";
+        if(diff <= 0){
+            zone.textContent = "🏇 Course en cours";
             return;
         }
 
         const h = Math.floor(diff / 3600000);
         const m = Math.floor((diff % 3600000) / 60000);
         const s = Math.floor((diff % 60000) / 1000);
-        zone.textContent = `Départ dans ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        zone.textContent = `Départ dans ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     }
 
     mettreAJour();
@@ -332,3 +366,4 @@ document.addEventListener("DOMContentLoaded", () => {
     chargerAnalyse();
     setInterval(changerPublicite, 4000);
 });
+                    
