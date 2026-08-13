@@ -5,7 +5,7 @@
 
 
 def extraire_numeros(classement):
-    """Extrait la liste propre des numéros de chevaux[cite: 3]."""
+    """Extrait la liste propre des numéros de chevaux."""
     if not isinstance(classement, list):
         return []
     return [
@@ -16,7 +16,7 @@ def extraire_numeros(classement):
 
 
 def generer_champ_reduit(classement):
-    """Génère une formule en Champ Réduit pour le ticket Premium[cite: 3]."""
+    """Génère une formule en Champ Réduit pour le ticket Premium."""
     numeros = extraire_numeros(classement)
     if len(numeros) < 3:
         return {"format": "", "bases": [], "complements": [], "disponible": False}
@@ -36,12 +36,40 @@ def generer_champ_reduit(classement):
     }
 
 
+def generer_ticket_derniere_minute(classement):
+    """Ticket indépendant : marché + forme + régularité."""
+    if not isinstance(classement, list):
+        return {"selection": [], "joker": None, "format": ""}
+
+    valides = [
+        c
+        for c in classement
+        if isinstance(c, dict) and c.get("numero") is not None
+    ]
+
+    def score_marche(c):
+        cote = float(c.get("cote", 0) or 0)
+        forme = float(c.get("forme", 5) or 5)
+        regularite = float(c.get("regularite", 5) or 5)
+        return cote * 2.0 + forme * 1.2 + regularite * 0.8
+
+    ordre = sorted(valides, key=score_marche, reverse=True)
+    selection = [str(c.get("numero")) for c in ordre[:6]]
+    joker = str(ordre[6].get("numero")) if len(ordre) > 6 else None
+
+    return {
+        "selection": selection,
+        "joker": joker,
+        "format": "-".join(map(str, selection)),
+    }
+
+
 def generer_tickets_az(classement):
-    """Génère les tickets Gratuit (Favoris) et Premium (Spéculatif diversifié)[cite: 3]."""
+    """Génère l'ensemble des tickets Gratuit et Premium avec Champ Réduit et Dernière Minute."""
     if not classement or not isinstance(classement, list):
         return {"gratuit": {}, "premium": {}}
 
-    # 1. CLASSEMENT GRATUIT (Favoris purs basés sur l'indice AZ)[cite: 3]
+    # 1. CLASSEMENT GRATUIT (Favoris purs basés sur l'indice AZ)
     ordre_az = sorted(
         [c for c in classement if isinstance(c, dict) and c.get("numero") is not None],
         key=lambda c: float(c.get("indice_az", 0) or 0),
@@ -49,7 +77,7 @@ def generer_tickets_az(classement):
     )
     numeros_az = [str(c.get("numero")) for c in ordre_az]
 
-    # 2. CLASSEMENT PREMIUM (Basé sur l'indice Premium)[cite: 2, 3]
+    # 2. CLASSEMENT PREMIUM (Basé sur l'indice Premium)
     ordre_premium = sorted(
         [c for c in classement if isinstance(c, dict) and c.get("numero") is not None],
         key=lambda c: float(c.get("indice_premium", c.get("indice_az", 0)) or 0),
@@ -57,7 +85,7 @@ def generer_tickets_az(classement):
     )
     numeros_premium = [str(c.get("numero")) for c in ordre_premium]
 
-    # --- STRATÉGIE PREMIUM DIVERSIFIÉE (Garantie de vraie différence) ---
+    # --- STRATÉGIE PREMIUM DIVERSIFIÉE ---
     selection_premium = []
     if len(numeros_premium) >= 6:
         base_favori = numeros_premium[0]       # Le Top favori
@@ -73,13 +101,18 @@ def generer_tickets_az(classement):
     else:
         selection_premium = numeros_premium
 
-    # Formats des tickets
+    # Formats des tickets Gratuit
     gratuit = {
         "quinte": numeros_az[:7],
         "deux_sur_quatre": numeros_az[:4],
         "couple_place": numeros_az[:2],
     }
 
+    # Génération du Champ Réduit et de la Dernière Minute
+    champ_reduit = generer_champ_reduit(ordre_premium)
+    derniere_minute = generer_ticket_derniere_minute(classement)
+
+    # Formats des tickets Premium complets
     premium = {
         "selection_quinte": selection_premium[:8],
         "quinte": selection_premium[:6],
@@ -89,9 +122,10 @@ def generer_tickets_az(classement):
             [selection_premium[0], selection_premium[1]],
             [selection_premium[0], selection_premium[2]]
         ] if len(selection_premium) >= 3 else [],
-        "champ_reduit": generer_champ_reduit(ordre_premium),
+        "champ_reduit": champ_reduit,
+        "ticket_derniere_minute": derniere_minute,
         "methode": "Combinaison Optimisée AZ Pro (Base + Outsiders)",
-        "message_fin": "🍀 Bonne chance ! Les tickets Premium utilisent une lecture alternative de l'indice de performance.",
+        "message_fin": "🍀 Bonne chance ! Les tickets Premium incluent le champ réduit et l'analyse de dernière minute.",
     }
 
     return {"gratuit": gratuit, "premium": premium}
