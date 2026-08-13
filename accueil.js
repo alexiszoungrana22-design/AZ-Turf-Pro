@@ -1,4 +1,15 @@
 const API = "https://az-turf-pro.onrender.com/api/analyse";
+function enregistrerAnalyseDansHistorique(data){
+    if(!data || data.donnees_demo) return;
+    try{
+        const key="az_turf_pro_historique_v1"; const h=JSON.parse(localStorage.getItem(key)||"[]");
+        const cle=[data.date||"",data.reunion||"",data.course_numero||"",data.course||""].join("|");
+        const i=h.findIndex(x=>x.cle===cle); const old=i>=0?h[i]:{};
+        const e={...old,cle,date:data.date||"",reunion:data.reunion||"",course_numero:data.course_numero||"",course:data.course||"Course",hippodrome:data.hippodrome||"",discipline:data.discipline||"",distance:data.distance||"",source:data.source||"",date_enregistrement:old.date_enregistrement||new Date().toISOString(),favori:data.favori||old.favori||{},selection:data.tickets?.gratuit?.quinte||old.selection||[],premium:data.tickets?.premium||old.premium||{},classement:data.classement||old.classement||[],arrivee:old.arrivee||[],rapports:old.rapports||[]};
+        if(i>=0) h[i]=e; else h.unshift(e); localStorage.setItem(key,JSON.stringify(h.slice(0,100)));
+    }catch(e){console.log("Historique local indisponible",e);}
+}
+
 
 async function chargerAnalyse(){
     try {
@@ -8,7 +19,7 @@ async function chargerAnalyse(){
         }
 
         const data = await response.json();
-
+        enregistrerAnalyseDansHistorique(data);
         afficherChronometre(data);
 
         const chevauxClassement = data.classement || data.chevaux || [];
@@ -42,8 +53,8 @@ async function chargerAnalyse(){
         if(tendance && classement.length){
             tendance.innerHTML = `
                 <p>Chevaux les plus joues : <strong>${(data.plus_joues || []).join(" - ")}</strong></p>
-                <p>Favori AZ : <strong>NÂ°${classement[0].numero}</strong> avec un indice AZ de <strong>${classement[0].indice_az ? Math.round(classement[0].indice_az) : "-"}</strong></p>
-                <p>La tendance est basÃ©e sur la forme, la rÃ©gularitÃ© et le classement AZ.</p>
+                <p>Favori AZ : <strong>N°${classement[0].numero}</strong> avec un indice AZ de <strong>${classement[0].indice_az ? Math.round(classement[0].indice_az) : "-"}</strong></p>
+                <p>La tendance est basée sur la forme, la régularité et le classement AZ.</p>
             `;
         }
 
@@ -65,33 +76,22 @@ async function chargerAnalyse(){
             afficher("outsider-raison", outsider.raison || "Outsider AZ");
         }
 // ===============================
-// TABLEAU DES PARTANTS (Sans aucun préfixe)
-// ===============================
+// TABLEAU DES PARTANTS
 const tableau = document.getElementById("all-horses") || document.getElementById("corps-tableau-partants");
 if(tableau){
-    tableau.innerHTML = "";
-    classement.forEach(cheval => {
-        const rang = cheval.rang ?? "-";
-        const numero = cheval.numero ?? "-"; // Uniquement le chiffre (ex: 1, 12...)
-        const nom = cheval.nom || "-";
-        const indice = cheval.indice_az ? Math.round(cheval.indice_az) : "-";
-        const confiance = cheval.confiance ? cheval.confiance + " %" : "-";
-
-        tableau.innerHTML += `
-            <tr>
-                <td><strong>${rang}</strong></td>
-                <td><strong>${numero}</strong></td>
-                <td>${nom}</td>
-                <td><span class="badge-indice">${indice}</span></td>
-                <td>${confiance}</td>
-            </tr>
-        `;
+    tableau.innerHTML="";
+    chevaux.forEach(cheval=>{
+        const numero=cheval.numero??"-", nom=cheval.nom||"-";
+        const jockey=cheval.jockey||cheval.driver||"-";
+        const entraineur=cheval.entraineur||cheval.trainer||"-";
+        const cote=cheval.cote_brute??cheval.rapport??"-";
+        const indice=cheval.indice_az!=null?Math.round(cheval.indice_az):"-";
+        const confiance=cheval.confiance!=null?cheval.confiance+" %":"-";
+        tableau.innerHTML+=`<tr><td><strong>${numero}</strong></td><td>${nom}</td><td>${jockey}</td><td>${entraineur}</td><td>${cote}</td><td><span class="badge-indice">${indice}</span></td><td>${confiance}</td></tr>`;
     });
 }
-            
-        
 
-        const tickets = data.tickets?.gratuit || {};
+const tickets = data.tickets?.gratuit || {};
         afficher("quinte-gratuit", (tickets.quinte || []).join(" - "));
         afficher("deux-sur-quatre", (tickets.deux_sur_quatre || []).join(" - "));
 
@@ -252,7 +252,7 @@ function afficherChevauxSurveiller(data){
         const ecart = meilleurIndice > 0 ? Math.round((c.indice_az || 0) / meilleurIndice * 100) : 0;
         return `
             <p>
-                NÂ°${c.numero} ${c.nom || ""}
+                N°${c.numero} ${c.nom || ""}
                 <br>
                 ${c.raison || "Cheval a surveiller"}
                 <br>
@@ -266,3 +266,4 @@ document.addEventListener("DOMContentLoaded", () => {
     chargerAnalyse();
     setInterval(changerPublicite, 4000);
 });
+                                          
