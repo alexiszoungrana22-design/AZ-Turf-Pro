@@ -177,6 +177,7 @@ def analyse():
                 "allocation": course.get("allocation", ""),
                 "heure_depart": course.get("heure_depart", ""),
                 "horaires": course.get("horaires", {}),
+                "non_partants": course.get("non_partants", []),
             }
         )
 
@@ -302,7 +303,22 @@ def analyse():
                 ),
 
             "partants":
-                len(chevaux),
+                len(classement),
+
+            "partants_declares":
+                len(course.get("chevaux", [])),
+
+            "chevaux_complets":
+                [
+                    {
+                        **cheval,
+                        "non_partant": (
+                            cheval.get("numero") in course.get("non_partants", [])
+                            or str(cheval.get("numero")) in {str(n) for n in course.get("non_partants", [])}
+                        )
+                    }
+                    for cheval in course.get("chevaux", [])
+                ],
 
             "chevaux":
                 classement,
@@ -650,4 +666,4 @@ def historique():
         raise HTTPException(
             status_code=500,
             detail=f"Erreur historique : {erreur}"
-    )
+)
