@@ -706,4 +706,3 @@ def historique():
             status_code=500,
             detail=f"Erreur historique : {erreur}"
     )
-    

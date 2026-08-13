@@ -466,17 +466,30 @@ def extraire_non_partants(course, participants):
         if not isinstance(participant, dict):
             continue
 
-        statut = str(participant.get("statut", "")).upper()
+        statut = str(
+            participant.get("statut")
+            or participant.get("statutParticipant")
+            or participant.get("status")
+            or participant.get("statutPmu")
+            or ""
+        ).upper().replace("-", "_").replace(" ", "_")
 
-        if "NON_PARTANT" in statut or statut == "NP":
-            numero = participant.get("numPmu")
+        indicateur_np = (
+            participant.get("nonPartant") is True
+            or participant.get("non_partant") is True
+            or participant.get("nonPartant") == 1
+            or participant.get("non_partant") == 1
+        )
+
+        if indicateur_np or "NON_PARTANT" in statut or statut in {"NP", "N_P", "NONPARTANT"}:
+            numero = participant.get("numPmu") or participant.get("numero")
             if numero is not None:
                 non_partants.add(numero)
 
     for incident in course.get("incidents", []) or []:
         if (
             isinstance(incident, dict)
-            and incident.get("type") == "NON_PARTANT"
+            and str(incident.get("type", "")).upper().replace("-", "_") in {"NON_PARTANT", "NONPARTANT", "NP"}
         ):
             for numero in incident.get("numeroParticipants", []) or []:
                 non_partants.add(numero)

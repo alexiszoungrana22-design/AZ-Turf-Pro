@@ -104,6 +104,7 @@ def lancer_analyse(chevaux, info_course=None):
             "chevaux": chevaux_valides,
             "classement": classement,
             "tickets": tickets,
+            "selection_az": (tickets.get("gratuit") or {}).get("quinte", []),
             "course": info_course or {},
         })
     except Exception:
@@ -113,6 +114,8 @@ def lancer_analyse(chevaux, info_course=None):
         "message": "Analyse AZ Turf Pro (Mode Avancé) terminée",
         "chevaux": classement,
         "classement": classement,
+        "partants_complets": chevaux,
+        "non_partants": sorted(np_nums, key=lambda x: int(x) if str(x).isdigit() else 9999),
         "favori": classement[0] if classement else {},
         "tickets": tickets,
         }
