@@ -1,312 +1,139 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Journal Hippique - AZ Turf Pro</title>
-
-<link rel="stylesheet" href="style.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journal & Résultats - AZ Turf Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .pdf-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .btn-pdf {
+            background: #08783f;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        .btn-pdf:hover {
+            background: #065c30;
+        }
+    </style>
 </head>
-
-
 <body>
 
-
 <header class="top-header">
-
-
-<div class="brand-zone">
-
-
-<div class="logo">
-🏇 <span>AZ Turf Pro</span>
-</div>
-
-
-<div class="mini-countdown">
-📰 Journal Hippique
-</div>
-
-
-</div>
-
-
-
-
-<nav class="top-menu">
-
-
-<a href="index.html">
-🏠 Accueil
-</a>
-
-
-<a href="analyse.html">
-📊 Analyse
-</a>
-
-
-<a href="ticket.html">
-📰 Journal
-</a>
-
-
-<a href="historique.html">
-🏆 Historique
-</a>
-
-
-</nav>
-
-
+    <div class="logo">
+        🏇 <span>AZ Turf Pro</span>
+    </div>
+    <nav class="top-menu">
+        <a href="index.html">🏠 Accueil</a>
+        <a href="analyse.html">📊 Analyse</a>
+        <a href="ticket.html">📰 Journal</a>
+        <a href="historique.html">🏆 Historique</a>
+    </nav>
 </header>
 
-
-
-
-
-
-
 <main class="content">
-
-
-
-
-<section class="card">
-
-
-<h1>
-📰 Journal Hippique AZ Turf Pro
-</h1>
-
-
-<p>
-Toutes les informations utiles pour suivre les courses hippiques.
-</p>
-
-
-</section>
-
-
-
-
-
-
-
-
-<section class="card">
-
-
-<h2>
-🇧🇫 Journal PMU'B LONAB
-</h2>
-
-
-<p>
-Dernières informations officielles disponibles.
-</p>
-
-
-
-
-<div class="journal-box">
-
-
-<div id="journal-lonab">
-
-
-📄 Journal hippique bientôt disponible.
-
-</div>
-
-
-
-</div>
-
-
-
-</section>
-
-
-
-
-
-
-
-
-
-<section class="card">
-
-
-<h2>
-🏁 Dernières arrivées
-</h2>
-
-
-<div id="dernieres-arrivees">
-
-
-📄 Résultats bientôt disponibles.
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-
-
-<section class="card">
-
-
-<h2>
-💰 Résultats et rapports
-</h2>
-
-
-<div id="rapports-courses">
-
-
-📄 Rapports bientôt disponibles.
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-
-<section class="card">
-
-
-<h2>
-🌍 Actualités hippiques
-</h2>
-
-
-<div id="actualites-hippiques">
-
-
-<ul>
-
-
-<li>
-🏇 Préparation des grandes courses
-</li>
-
-
-<li>
-📊 Analyse des performances des chevaux
-</li>
-
-
-<li>
-⭐ Suivi des favoris et outsiders
-</li>
-
-
-</ul>
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-
-<section class="card premium-access">
-
-
-<h2>
-💎 Espace Premium
-</h2>
-
-
-<p>
-Les tickets Premium et combinaisons avancées sont réservés aux membres abonnés.
-</p>
-
-
-
-<a href="abonnement.html">
-
-Accéder à Premium
-
-</a>
-
-
-</section>
-
-
-
-
-
-
-
+    <div class="page-container">
+
+        <section class="card" style="text-align: center;">
+            <h1 style="color: #08783f; margin-top: 0;">📰 Journal & Actualités</h1>
+            <p style="color: #4a5568;">Retrouvez l'actualité des courses et les bulletins officiels.</p>
+        </section>
+
+        <!-- Carte Dernières Arrivées & Résultats PDF LONAB -->
+        <section class="card">
+            <h2>📄 Dernières Arrivées & Résultats PDF LONAB</h2>
+            <p style="text-align: center; color: #4a5568; margin-bottom: 20px;">
+                Consultez et téléchargez les bulletins officiels des arrivées publiés par la LONAB.
+            </p>
+            
+            <div id="liste-pdf-lonab">
+                <div style="text-align: center; padding: 20px; color: #08783f; font-weight: bold;">
+                    ⏳ Chargement des bulletins officiels...
+                </div>
+            </div>
+        </section>
+
+    </div>
 </main>
 
-
-
-
-
-
-
-
 <footer class="bottom-menu">
-
-
-<a href="index.html">
-🏠 Accueil
-</a>
-
-
-<a href="analyse.html">
-📊 Analyse
-</a>
-
-
-<a href="ticket.html">
-📰 Journal
-</a>
-
-
-<a href="historique.html">
-🏆 Historique
-</a>
-
-
+    <a href="index.html">🏠 Accueil</a>
+    <a href="analyse.html">📊 Analyse</a>
+    <a href="ticket.html">📰 Journal</a>
+    <a href="historique.html">🏆 Historique</a>
 </footer>
 
+<script>
+    async function chargerResultatsPDFLonab() {
+        const container = document.getElementById("liste-pdf-lonab");
+        if (!container) return;
 
+        try {
+            const reponse = await fetch("https://az-turf-pro.onrender.com/api/resultats-pdf", { cache: "no-store" });
+            
+            if (reponse.ok) {
+                const data = await reponse.json();
+                const bulletins = Array.isArray(data.bulletins) ? data.bulletins : [];
 
+                if (bulletins.length > 0) {
+                    container.innerHTML = bulletins.map(b => `
+                        <div class="pdf-item">
+                            <div>
+                                <strong style="color: #2d3748; font-size: 16px;">📅 ${b.date || 'Aujourd\'hui'} - ${b.titre || 'Arrivée Officielle'}</strong>
+                                <br><small style="color: #718096;">Bulletin officiel LONAB</small>
+                            </div>
+                            <a href="${b.url_pdf}" target="_blank" class="btn-pdf">
+                                📥 Télécharger le PDF
+                            </a>
+                        </div>
+                    `).join("");
+                    return;
+                }
+            }
+            
+            // Fallback si l'API ne renvoie pas de liste spécifique
+            container.innerHTML = `
+                <div style="background: #f8fafc; padding: 25px; border-radius: 14px; text-align: center; border: 1px solid #e2e8f0;">
+                    <p style="margin: 0 0 15px; color: #4a5568; font-weight: bold; font-size: 16px;">Accédez au portail officiel des résultats LONAB</p>
+                    <a href="https://www.lonab.bf" target="_blank" class="btn-pdf" style="display: inline-block; padding: 12px 24px;">
+                        📥 Consulter les bulletins PDF sur la LONAB
+                    </a>
+                </div>
+            `;
+        } catch (e) {
+            console.warn("Erreur de chargement des PDF LONAB :", e);
+            container.innerHTML = `
+                <div style="background: #f8fafc; padding: 25px; border-radius: 14px; text-align: center; border: 1px solid #e2e8f0;">
+                    <p style="margin: 0 0 15px; color: #4a5568; font-weight: bold; font-size: 16px;">Accédez au portail officiel des résultats LONAB</p>
+                    <a href="https://www.lonab.bf" target="_blank" class="btn-pdf" style="display: inline-block; padding: 12px 24px;">
+                        📥 Consulter les bulletins PDF sur la LONAB
+                    </a>
+                </div>
+            `;
+        }
+    }
 
+    document.addEventListener("DOMContentLoaded", chargerResultatsPDFLonab);
+</script>
 
-
-
-
-<script src="journal.js?v=5"></script>
 </body>
-
 </html>
