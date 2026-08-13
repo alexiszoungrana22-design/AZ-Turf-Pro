@@ -1,5 +1,5 @@
 /**
- * AZ Turf Pro - Historique des analyses et arrivées
+ * AZ Turf Pro - Historique des analyses et arrivées (AVEC ANTI-DOUBLON)
  */
 
 const HISTORIQUE_STORAGE_KEY = "AZ_TURF_HISTORIQUE_COURSES_V1";
@@ -50,12 +50,33 @@ async function chargerHistorique(){
     return lireLocal().map(normaliserEntree);
 }
 
+// NOUVELLE FONCTION : Filtre les doublons stricts
+function eliminerDoublons(liste) {
+    const coursesVues = new Set();
+    
+    return liste.filter(c => {
+        // Crée un identifiant unique (ex: "13/08/2026-R1-3")
+        const identifiant = `${c.date}-${c.reunion}-${c.numero}`;
+        
+        if (coursesVues.has(identifiant)) {
+            return false; // C'est un doublon, on l'ignore
+        }
+        
+        coursesVues.add(identifiant);
+        return true; // Première fois qu'on voit cette course, on la garde
+    });
+}
+
 function afficherPageHistorique(){
     const tbody=document.getElementById("historique-body") || document.getElementById("historique-table-body");
     const container=document.getElementById("historique-container");
     if(!tbody && !container) return;
 
-    chargerHistorique().then(liste=>{
+    chargerHistorique().then(listeBrute=>{
+        
+        // Application du filtre anti-doublon avant l'affichage
+        const liste = eliminerDoublons(listeBrute);
+
         if(tbody){
             tbody.innerHTML="";
             if(!liste.length){
