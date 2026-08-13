@@ -75,3 +75,4 @@ class ActivationRequest(BaseModel):
     telephone: str
 
     reference: str
+    
