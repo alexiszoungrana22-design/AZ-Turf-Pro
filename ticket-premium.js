@@ -133,16 +133,9 @@ async function chargerPremium(){
 
 
         // =====================================
-        // SELECTION PREMIUM
-        // EXACTEMENT 7 CHEVAUX
-        // =====================================
-
-        afficherListe(
-            "selection-premium",
-            classement
-                .slice(0,7)
-                .map(c => c.numero)
-        );
+        // SELECTION PREMIUM - 8 chevaux issus de l'indice Premium
+        const selectionPremium = Array.isArray(premium.selection_quinte) ? premium.selection_quinte.slice(0,8) : classement.slice(0,8).map(c=>c.numero);
+        afficherListe("selection-premium", selectionPremium);
 
 
         // =====================================
@@ -153,7 +146,8 @@ async function chargerPremium(){
             "explication-premium",
 
             classement
-                .slice(0,7)
+                .filter(c => selectionPremium.includes(c.numero))
+                .sort((a,b)=>selectionPremium.indexOf(a.numero)-selectionPremium.indexOf(b.numero))
                 .map(c => `
                     <p>
                         🏇 N°${c.numero}
@@ -331,10 +325,8 @@ async function chargerPremium(){
         }
 
 
-        afficherTicket(
-            "derniere-minute-premium",
-            derniere
-        );
+        afficherTicket("derniere-minute-premium", derniere);
+        if(premium.ticket_derniere_minute?.joker) afficherTexte("joker-derniere-minute", "Joker : " + premium.ticket_derniere_minute.joker);
 
 
         // =====================================
@@ -358,6 +350,7 @@ async function chargerPremium(){
             <p>
             Évaluation des risques liés à la course.
             </p>
+            <p><strong>🔎 Méthode Premium :</strong> ${premium.methode || "lecture complémentaire de l'indice AZ"}</p>
             `
 
         );
@@ -946,3 +939,4 @@ window.addEventListener(
     }
 );
 
+            
