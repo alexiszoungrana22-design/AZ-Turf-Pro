@@ -1,297 +1,141 @@
 # =====================================
-# AZ TURF PRO
-# GENERATION DES TICKETS
+# AZ TURF PRO - GENERATION DES TICKETS
+# Fichier complet à remplacer : quinte.py
 # =====================================
 
-
-# =====================================
-# EXTRACTION DES NUMEROS
-# =====================================
 
 def extraire_numeros(classement):
-
+    """Extrait la liste propre des numéros de chevaux à partir du classement."""
     if not isinstance(classement, list):
         return []
-
     return [
-        cheval.get("numero")
-        for cheval in classement
-        if isinstance(cheval, dict)
-        and cheval.get("numero") is not None
+        c.get("numero")
+        for c in classement
+        if isinstance(c, dict) and c.get("numero") is not None
     ]
 
-
-# =====================================
-# CHAMP REDUIT
-# =====================================
 
 def generer_champ_reduit(classement):
-
+    """Génère une formule en Champ Réduit pour le ticket Premium."""
     numeros = extraire_numeros(classement)
-
-    # Il faut au minimum 3 chevaux
     if len(numeros) < 3:
-        return {
-            "format": "",
-            "bases": [],
-            "complements": [],
-            "disponible": False
-        }
+        return {"format": "", "bases": [], "complements": [], "disponible": False}
 
-    # =================================
-    # STRUCTURE DU CHAMP REDUIT
-    #
-    # Exemple souhaitÃ© :
-    # 5-3-X-2-X / 1-4-8-7
-    # =================================
+    bases = [numeros[0], numeros[1], "X", numeros[2], "X"]
+    complements = numeros[3:7] if len(numeros) >= 4 else []
 
-    base_1 = numeros[0]
-    base_2 = numeros[1]
-    base_3 = numeros[2]
-
-    bases = [
-        base_1,
-        base_2,
-        "X",
-        base_3,
-        "X"
-    ]
-
-    # Le champ rÃ©duit AZ utilise exactement
-    # 4 complÃ©ments aprÃ¨s le "/".
-    # Les complÃ©ments sont les 4 chevaux suivants
-    # du classement AZ.
-    complements = numeros[3:7]
-
-    format_bases = "-".join(
-        str(numero)
-        for numero in bases
-    )
-
-    format_complements = "-".join(
-        str(numero)
-        for numero in complements
-    )
-
-    if format_complements:
-        format_champ = (
-            format_bases
-            + " / "
-            + format_complements
-        )
-    else:
-        format_champ = format_bases
+    format_str = "-".join(map(str, bases))
+    if complements:
+        format_str += " / " + "-".join(map(str, complements))
 
     return {
-        "format": format_champ,
+        "format": format_str,
         "bases": bases,
         "complements": complements,
-        "disponible": True
+        "disponible": True,
     }
 
 
-# =====================================
-# TICKET DERNIERE MINUTE
-# =====================================
-
 def generer_ticket_derniere_minute(classement):
-
-    # Le ticket "derniÃ¨re minute" reflÃ¨te la tendance du marchÃ©
-    # (cote), pas le classement AZ pur : il peut donc lÃ©gitimement
-    # diffÃ©rer de la SÃ©lection/QuintÃ© Premium (basÃ©s sur l'indice
-    # AZ). C'est cohÃ©rent avec l'idÃ©e rÃ©elle d'un ticket "derniÃ¨re
-    # minute", gÃ©nÃ©ralement liÃ© aux derniers mouvements de cotes
-    # avant le dÃ©part.
-
+    """Ticket indépendant basique : marché + forme (pas le simple top AZ)."""
     if not isinstance(classement, list):
-        return {
-            "selection": [],
-            "joker": None,
-            "format": ""
-        }
+        return {"selection": [], "joker": None, "format": ""}
 
-    chevaux_valides = [
-        cheval
-        for cheval in classement
-        if isinstance(cheval, dict)
-        and cheval.get("numero") is not None
+    valides = [
+        c
+        for c in classement
+        if isinstance(c, dict) and c.get("numero") is not None
     ]
 
-    # Tri par cote (score de favori marchÃ©, 0-10, plus haut =
-    # plus favori) plutÃ´t que par ordre du classement AZ.
-    classement_par_cote = sorted(
-        chevaux_valides,
-        key=lambda c: c.get("cote", 0),
-        reverse=True
-    )
+    def score_marche(c):
+        cote = float(c.get("cote", 0) or 0)
+        forme = float(c.get("forme", 5) or 5)
+        regularite = float(c.get("regularite", 5) or 5)
+        return cote * 2.0 + forme * 1.2 + regularite * 0.8
 
-    selection = [
-        cheval.get("numero")
-        for cheval in classement_par_cote[:6]
-    ]
+    ordre = sorted(valides, key=score_marche, reverse=True)
+    selection = [c.get("numero") for c in ordre[:6]]
+    joker = ordre[6].get("numero") if len(ordre) > 6 else None
 
     return {
         "selection": selection,
-        "joker": None,
-        "format": "-".join(
-            map(str, selection)
-        )
+        "joker": joker,
+        "format": "-".join(map(str, selection)),
     }
 
-
-# =====================================
-# GENERATION DES TICKETS AZ
-# =====================================
 
 def generer_tickets_az(classement):
+    """Génère la structure complète des tickets Gratuit et Premium."""
+    numeros_az = extraire_numeros(classement)
+    if not numeros_az:
+        return {"gratuit": {}, "premium": {}}
 
-    numeros = extraire_numeros(classement)
-
-    # =================================
-    # Aucun cheval
-    # =================================
-
-    if not numeros:
-        return {
-            "gratuit": {},
-            "premium": {}
-        }
-
-    # =================================
-    # GRATUIT
-    # =================================
-
+    # =========================================================
+    # 1. TICKET GRATUIT (Basé strictement sur l'indice AZ)
+    # =========================================================
     gratuit = {
-        # QuintÃ© gratuit : 7 chevaux maximum
-        "quinte": numeros[:7],
-
-        # 2 sur 4 : 4 chevaux
-        "deux_sur_quatre": numeros[:4],
-
-        # CouplÃ© placÃ© : 2 chevaux
-        "couple_place": numeros[:2]
+        "quinte": numeros_az[:7],
+        "deux_sur_quatre": numeros_az[:4],
+        "couple_place": numeros_az[:2],
     }
 
-    # =================================
-    # PREMIUM
-    # =================================
+    # =========================================================
+    # 2. TICKET PREMIUM (Basé sur l'indice Premium indépendant)
+    # =========================================================
+    premium_ordre = sorted(
+        [
+            c
+            for c in classement
+            if isinstance(c, dict) and c.get("numero") is not None
+        ],
+        key=lambda c: float(
+            c.get("indice_premium", c.get("indice_az", 0)) or 0
+        ),
+        reverse=True,
+    )
+    premium_numeros = [c.get("numero") for c in premium_ordre]
 
-    # SÃ©lection Premium :
-    # 8 chevaux (le dÃ©tail complet de l'analyse AZ,
-    # cohÃ©rent avec la "SÃ©lection du jour" affichÃ©e
-    # sur la page Analyse). Volontairement diffÃ©rente
-    # du QuintÃ© Gratuit (7 chevaux) pour ne pas offrir
-    # exactement le mÃªme contenu aux deux niveaux.
-    selection_quinte = numeros[:8]
+    # Définition de la sélection Premium (jusqu'à 8 chevaux)
+    selection_quinte = premium_numeros[:8]
 
-    # QuintÃ© Premium :
-    # 6 chevaux
-    quinte = numeros[:6]
+    # Force la différenciation : si les 7 premiers Premium sont identiquement les 7 premiers AZ,
+    # on remplace le 8e par le 8e du classement AZ.
+    if (
+        len(numeros_az) > 7
+        and len(selection_quinte) >= 8
+        and not any(n not in numeros_az[:7] for n in selection_quinte[:7])
+    ):
+        selection_quinte = selection_quinte[:7] + [numeros_az[7]]
 
-    # QuartÃ© Premium :
-    # 5 chevaux
-    quarte = numeros[:5]
+    quinte = selection_quinte[:6]
+    quarte = selection_quinte[:5]
+    trio = selection_quinte[:3]
 
-    # Trio Premium :
-    # 3 chevaux
-    trio = numeros[:3]
-
-    # =================================
-    # COUPLES GAGNANT / PLACE
-    #
-    # Exemple :
-    # 5-3 / 5-2 / 3-2
-    # =================================
-
+    # Génération sécurisée des couples (évite IndexError si < 3 partants)
     couples = []
+    if len(selection_quinte) >= 3:
+        for a, b in (
+            (selection_quinte[0], selection_quinte[1]),
+            (selection_quinte[0], selection_quinte[2]),
+            (selection_quinte[1], selection_quinte[2]),
+        ):
+            couples.append([a, b])
+    elif len(selection_quinte) == 2:
+        couples.append([selection_quinte[0], selection_quinte[1]])
 
-    if len(numeros) >= 2:
-        couples.append([
-            numeros[0],
-            numeros[1]
-        ])
-
-    if len(numeros) >= 3:
-        couples.append([
-            numeros[0],
-            numeros[2]
-        ])
-
-        couples.append([
-            numeros[1],
-            numeros[2]
-        ])
-
-    # =================================
-    # CHAMP REDUIT
-    # =================================
-
-    champ_reduit = generer_champ_reduit(
-        classement
-    )
-
-    # =================================
-    # DERNIERE MINUTE
-    # =================================
-
-    ticket_derniere_minute = (
-        generer_ticket_derniere_minute(
-            classement
-        )
-    )
-
-    # =================================
-    # PREMIUM COMPLET
-    # =================================
+    champ_reduit = generer_champ_reduit(premium_ordre)
+    derniere = generer_ticket_derniere_minute(classement)
 
     premium = {
-
-        # SÃ©lection Premium : 7 chevaux
-        "selection_quinte":
-            selection_quinte,
-
-        # QuintÃ© Premium : 6 chevaux
-        "quinte":
-            quinte,
-
-        # QuartÃ© Premium : 5 chevaux
-        "quarte":
-            quarte,
-
-        # Trio Premium : 3 chevaux
-        "trio":
-            trio,
-
-        # CouplÃ© gagnant / placÃ©
-        "couple_gagnant_place":
-            couples,
-
-        # Champ rÃ©duit
-        "champ_reduit":
-            champ_reduit,
-
-        # Ticket derniÃ¨re minute : 6 chevaux
-        "ticket_derniere_minute":
-            ticket_derniere_minute,
-
-        # Message
-        "message_fin":
-            "ðŸ€ Bonne chance ! Les tickets Premium sont issus "
-            "d'une analyse approfondie. Jouez toujours avec "
-            "discipline et responsabilitÃ©."
+        "selection_quinte": selection_quinte,
+        "quinte": quinte,
+        "quarte": quarte,
+        "trio": trio,
+        "couple_gagnant_place": couples,
+        "champ_reduit": champ_reduit,
+        "ticket_derniere_minute": derniere,
+        "methode": "Indice Premium : AZ + forme + régularité + marché + expérience + performances",
+        "message_fin": "🍀 Bonne chance ! Les tickets Premium utilisent une lecture complémentaire de l'analyse AZ. Jouez avec discipline et responsabilité.",
     }
 
-    # =================================
-    # RESULTAT FINAL
-    # =================================
-
-    return {
-
-        "gratuit":
-            gratuit,
-
-        "premium":
-            premium
-
-            }
-    
+    return {"gratuit": gratuit, "premium": premium}
