@@ -5,11 +5,11 @@
 
 
 def extraire_numeros(classement):
-    """Extrait la liste propre des numéros de chevaux à partir du classement."""
+    """Extrait la liste propre des numéros de chevaux."""
     if not isinstance(classement, list):
         return []
     return [
-        c.get("numero")
+        str(c.get("numero"))
         for c in classement
         if isinstance(c, dict) and c.get("numero") is not None
     ]
@@ -36,95 +36,55 @@ def generer_champ_reduit(classement):
     }
 
 
-def generer_ticket_derniere_minute(classement):
-    """Ticket indépendant basique : marché + forme (pas le simple top AZ)."""
-    if not isinstance(classement, list):
-        return {"selection": [], "joker": None, "format": ""}
-
-    valides = [
-        c
-        for c in classement
-        if isinstance(c, dict) and c.get("numero") is not None
-    ]
-
-    def score_marche(c):
-        cote = float(c.get("cote", 0) or 0)
-        forme = float(c.get("forme", 5) or 5)
-        regularite = float(c.get("regularite", 5) or 5)
-        return cote * 2.0 + forme * 1.2 + regularite * 0.8
-
-    ordre = sorted(valides, key=score_marche, reverse=True)
-    selection = [c.get("numero") for c in ordre[:6]]
-    joker = ordre[6].get("numero") if len(ordre) > 6 else None
-
-    return {
-        "selection": selection,
-        "joker": joker,
-        "format": "-".join(map(str, selection)),
-    }
-
-
 def generer_tickets_az(classement):
-    """Génère la structure complète des tickets Gratuit et Premium."""
-    numeros_az = extraire_numeros(classement)
-    if not numeros_az:
+    """Génère la structure complète des tickets Gratuit et Premium avec garantie de différence."""
+    if not classement or not isinstance(classement, list):
         return {"gratuit": {}, "premium": {}}
 
-    # =========================================================
-    # 1. TICKET GRATUIT (Basé strictement sur l'indice AZ)
-    # =========================================================
+    # 1. CLASSEMENT GRATUIT (Basé strictement sur indice_az / Favoris)
+    ordre_az = sorted(
+        [c for c in classement if isinstance(c, dict) and c.get("numero") is not None],
+        key=lambda c: float(c.get("indice_az", 0) or 0),
+        reverse=True
+    )
+    numeros_az = [str(c.get("numero")) for c in ordre_az]
+
+    # 2. CLASSEMENT PREMIUM (Basé sur indice_premium / Value & Spéculation)
+    ordre_premium = sorted(
+        [c for c in classement if isinstance(c, dict) and c.get("numero") is not None],
+        key=lambda c: float(c.get("indice_premium", c.get("indice_az", 0)) or 0),
+        reverse=True
+    )
+    numeros_premium = [str(c.get("numero")) for c in ordre_premium]
+
+    # --- FORCER LA DIFFÉRENCIATION SI LES LISTES SONT IDENTIQUES ---
+    if len(numeros_az) >= 4 and numeros_az[:4] == numeros_premium[:4]:
+        # On intervertit le 3ème ou 4ème cheval par un outsider (rang 5 à 8) dans le Premium
+        if len(numeros_premium) >= 5:
+            outsider = numeros_premium[4]
+            # On insère l'outsider en position 3 du ticket Premium
+            numeros_premium.pop(4)
+            numeros_premium.insert(2, outsider)
+
+    # Construction des sélections
     gratuit = {
         "quinte": numeros_az[:7],
         "deux_sur_quatre": numeros_az[:4],
         "couple_place": numeros_az[:2],
     }
 
-    # =========================================================
-    # 2. TICKET PREMIUM (Basé sur l'indice Premium indépendant)
-    # =========================================================
-    premium_ordre = sorted(
-        [
-            c
-            for c in classement
-            if isinstance(c, dict) and c.get("numero") is not None
-        ],
-        key=lambda c: float(
-            c.get("indice_premium", c.get("indice_az", 0)) or 0
-        ),
-        reverse=True,
-    )
-    premium_numeros = [c.get("numero") for c in premium_ordre]
-
-    # Définition de la sélection Premium (jusqu'à 8 chevaux)
-    selection_quinte = premium_numeros[:8]
-
-    # Force la différenciation : si les 7 premiers Premium sont identiquement les 7 premiers AZ,
-    # on remplace le 8e par le 8e du classement AZ.
-    if (
-        len(numeros_az) > 7
-        and len(selection_quinte) >= 8
-        and not any(n not in numeros_az[:7] for n in selection_quinte[:7])
-    ):
-        selection_quinte = selection_quinte[:7] + [numeros_az[7]]
-
+    selection_quinte = numeros_premium[:8]
     quinte = selection_quinte[:6]
     quarte = selection_quinte[:5]
     trio = selection_quinte[:3]
 
-    # Génération sécurisée des couples (évite IndexError si < 3 partants)
     couples = []
     if len(selection_quinte) >= 3:
-        for a, b in (
-            (selection_quinte[0], selection_quinte[1]),
-            (selection_quinte[0], selection_quinte[2]),
-            (selection_quinte[1], selection_quinte[2]),
-        ):
-            couples.append([a, b])
-    elif len(selection_quinte) == 2:
-        couples.append([selection_quinte[0], selection_quinte[1]])
-
-    champ_reduit = generer_champ_reduit(premium_ordre)
-    derniere = generer_ticket_derniere_minute(classement)
+        couples = [
+            [selection_quinte[0], selection_quinte[1]],
+            [selection_quinte[0], selection_quinte[2]],
+            [selection_quinte[1], selection_quinte[2]]
+        ]
 
     premium = {
         "selection_quinte": selection_quinte,
@@ -132,10 +92,8 @@ def generer_tickets_az(classement):
         "quarte": quarte,
         "trio": trio,
         "couple_gagnant_place": couples,
-        "champ_reduit": champ_reduit,
-        "ticket_derniere_minute": derniere,
-        "methode": "Indice Premium : AZ + forme + régularité + marché + expérience + performances",
-        "message_fin": "🍀 Bonne chance ! Les tickets Premium utilisent une lecture complémentaire de l'analyse AZ. Jouez avec discipline et responsabilité.",
+        "champ_reduit": generer_champ_reduit(ordre_premium),
+        "methode": "Analyse VLB / Indice Premium AZ Pro",
     }
 
     return {"gratuit": gratuit, "premium": premium}
