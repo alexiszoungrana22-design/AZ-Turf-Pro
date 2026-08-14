@@ -1,561 +1,153 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Abonnement Premium - AZ Turf Pro</title>
-
-<link rel="stylesheet" href="style.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon abonnement - AZ Turf Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Importation de FontAwesome pour les icônes professionnelles -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-
-
 <body>
 
-
-<header class="top-header">
-
-
-<div class="logo">
-🏇 <span>AZ Turf Pro</span>
-</div>
-
-
-
-<nav class="top-menu">
-
-<a href="index.html">
-🏠 Accueil
-</a>
-
-
-<a href="analyse.html">
-📊 Analyse
-</a>
-
-
-<a href="ticket.html">
-📰 Journal
-</a>
-
-
-<a href="historique.html">
-🏆 Historique
-</a>
-
-
-</nav>
-
-
-
-<a href="abonnement.html" class="btn-vip">
-
-💎 Premium
-
-</a>
-
-
-</header>
-
-
-
-
-
-
-<main class="content">
-
-
-
-
-
-<section class="card">
-
-
-<h1>
-⭐ AZ Turf Pro Premium
-</h1>
-
-
-<p>
-Accédez aux tickets Premium après validation de votre abonnement.
-</p>
-
-
-</section>
-
-
-
-
-
-
-
-
-<section class="card vip-banner">
-
-
-<h2>
-🎉 Offre promotionnelle
-</h2>
-
-
-<p>
-Choisissez votre formule Premium.
-</p>
-
-
-</section>
-
-
-
-
-
-
-
-
-<section class="card">
-
-
-<h2>
-📱 Numéro de paiement
-</h2>
-
-
-
-<input
-
-id="telephone"
-
-type="tel"
-
-placeholder="+226XXXXXXXX"
-
-class="input-premium"
-
->
-
-
-
-<p>
-Utilisez le numéro qui servira au paiement.
-</p>
-
-
-</section>
-
-
-
-
-
-
-
-
-<section class="card">
-
-
-<h2>
-⭐ Choisir votre formule
-</h2>
-
-
-
-<button onclick="choisirOffre('Premium Semaine',25000,7)">
-
-
-⭐ Premium Semaine<br>
-25 000 FCFA<br>
-7 jours
-
-
-</button>
-
-
-
-<br><br>
-
-
-
-<button onclick="choisirOffre('Premium Mensuel',75000,30)">
-
-
-💎 Premium Mensuel<br>
-75 000 FCFA<br>
-30 jours
-
-
-</button>
-
-
-
-
-<br><br>
-
-
-
-
-<button onclick="choisirOffre('Premium 3 mois',150000,90)">
-
-
-👑 Premium 3 mois<br>
-150 000 FCFA<br>
-90 jours
-
-
-</button>
-
-
-
-</section>
-
-
-
-
-
-
-
-
-<section class="card">
-
-
-<h2>
-💳 Moyen de paiement
-</h2>
-
-
-
-<button onclick="envoyerDemande('Orange Money')">
-
-🟠 Orange Money
-
-</button>
-
-
-
-<br><br>
-
-
-
-<button onclick="envoyerDemande('Moov Money')">
-
-🟢 Moov Money
-
-</button>
-
-
-
-<br><br>
-
-
-
-<button onclick="envoyerDemande('Wave')">
-
-🔵 Wave
-
-</button>
-
-
-
-</section>
-
-
-
-
-
-
-
-<section class="card">
-
-<p id="message"></p>
-
-</section>
-
-
-
-
-
-</main>
-
-
-
-
-
-
-
-<footer class="bottom-menu">
-
-
-<a href="index.html">
-
-🏠 Accueil
-
-</a>
-
-
-
-<a href="analyse.html">
-
-📊 Analyse
-
-</a>
-
-
-
-<a href="ticket.html">
-
-📰 Journal
-
-</a>
-
-
-
-<a href="historique.html">
-
-🏆 Historique
-
-</a>
-
-
-
-</footer>
-
-
-
-
-
-
-
-
-<script>
-
-
-const API_URL =
-"https://az-turf-pro.onrender.com/api/abonnement";
-
-
-
-let offreChoisie = null;
-
-
-
-
-
-function choisirOffre(
-nom,
-prix,
-duree
-){
-
-
-offreChoisie = {
-
-nom: nom,
-
-prix: prix,
-
-duree: duree
-
-};
-
-
-
-document.getElementById("message").innerHTML =
-
-"✅ Offre sélectionnée : " + nom;
-
-
-}
-
-
-
-
-
-
-
-
-async function envoyerDemande(
-paiement
-){
-
-
-
-const telephone =
-
-document.getElementById("telephone")
-.value
-.trim();
-
-
-
-
-
-if(!telephone){
-
-
-alert(
-"Veuillez saisir votre numéro de paiement."
-);
-
-
-return;
-
-
-}
-
-
-
-
-
-
-if(!offreChoisie){
-
-
-alert(
-"Veuillez choisir une formule Premium."
-);
-
-
-return;
-
-
-}
-
-
-
-
-
-
-try{
-
-
-const reponse = await fetch(
-
-API_URL,
-
-{
-
-method:"POST",
-
-headers:{
-
-"Content-Type":"application/json"
-
-},
-
-
-body:JSON.stringify({
-
-telephone:telephone,
-
-offre:offreChoisie.nom,
-
-prix:offreChoisie.prix,
-
-duree:offreChoisie.duree,
-
-paiement:paiement
-
-})
-
-
-}
-
-);
-
-
-
-
-
-
-const data = await reponse.json();
-
-
-
-
-
-
-if(!reponse.ok){
-
-throw new Error(
-typeof data.detail === "string"
-? data.detail
-: JSON.stringify(data.detail)
-);
-
-}
-
-
-
-
-
-
-
-localStorage.setItem(
-
-"AZ_TURF_TELEPHONE",
-
-telephone
-
-);
-
-
-
-
-
-
-document.getElementById("message").innerHTML =
-
-
-"✅ Demande enregistrée.<br>Votre abonnement est en attente de validation.";
-
-
-
-
-
-
-
-setTimeout(()=>{
-
-
-window.location.href =
-
-"activation.html";
-
-
-},2000);
-
-
-
-
-
-
-}
-
-catch(error){
-
-console.error(
-"Erreur abonnement :",
-error
-);
-
-document.getElementById("message").innerHTML =
-
-"❌ Une erreur est survenue. Vérifiez les informations ou réessayez.";
-
-  }
-
-
-
-
-}
-
-
-
-</script>
-
-
-
+    <header class="top-header">
+        <div class="logo">
+            <i class="fas fa-horse-head"></i> <span>AZ Turf Pro</span>
+        </div>
+        <a href="abonnement.html" class="btn-vip"><i class="fas fa-crown"></i> Premium</a>
+    </header>
+
+    <main class="content">
+        <section class="card">
+            <h1><i class="fas fa-user-shield"></i> Mon Espace Premium</h1>
+            <p style="color: var(--text-muted);">Gérez votre abonnement et consultez votre statut d'accès aux tickets exclusifs.</p>
+        </section>
+
+        <section class="card">
+            <div id="infos-abonnement">
+                <p><i class="fas fa-spinner fa-spin"></i> Chargement sécurisé de vos données...</p>
+            </div>
+        </section>
+
+        <section class="card" id="renouvellement" style="display:none; text-align: center;">
+            <h2><i class="fas fa-sync-alt"></i> Action requise</h2>
+            <p style="margin-bottom: 15px; color: var(--text-muted);">Votre accès Premium n'est pas actif ou a expiré.</p>
+            <button onclick="renouveler()" style="background: linear-gradient(135deg, #D4AF37, #AA8000); color: #000; border: none;">
+                <i class="fas fa-gem"></i> Activer mon accès Premium
+            </button>
+        </section>
+    </main>
+
+    <footer class="bottom-menu">
+        <a href="index.html"><i class="fas fa-home"></i> Accueil</a>
+        <a href="analyse.html"><i class="fas fa-chart-bar"></i> Analyse</a>
+        <a href="abonnement.html"><i class="fas fa-gem"></i> Premium</a>
+        <a href="mon-abonnement.html" class="active"><i class="fas fa-user"></i> Compte</a>
+    </footer>
+
+    <script>
+        const API = "https://az-turf-pro.onrender.com/api/premium/";
+
+        function formaterDate(dateString) {
+            if (!dateString || dateString === "-") return "-";
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return dateString;
+                return date.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" });
+            } catch (e) { return dateString; }
+        }
+
+        // Calcule le pourcentage de temps restant pour la jauge
+        function calculerProgression(dateDebutStr, dateFinStr) {
+            if (!dateDebutStr || !dateFinStr || dateDebutStr === "-" || dateFinStr === "-") return 0;
+            const debut = new Date(dateDebutStr).getTime();
+            const fin = new Date(dateFinStr).getTime();
+            const aujourdHui = new Date().getTime();
+            
+            if (aujourdHui >= fin) return 0;
+            if (aujourdHui <= debut) return 100;
+            
+            const total = fin - debut;
+            const restant = fin - aujourdHui;
+            return Math.max(0, Math.min(100, (restant / total) * 100));
+        }
+
+        async function chargerAbonnement() {
+            const telephone = localStorage.getItem("AZ_TURF_TELEPHONE");
+            const zone = document.getElementById("infos-abonnement");
+
+            if (!telephone) {
+                zone.innerHTML = "<p style='color: var(--danger-color);'><i class='fas fa-exclamation-triangle'></i> Aucun numéro mémorisé.</p>";
+                document.getElementById("renouvellement").style.display = "block";
+                return;
+            }
+
+            try {
+                const reponse = await fetch(API + encodeURIComponent(telephone));
+                const data = await reponse.json();
+
+                if (!reponse.ok) {
+                    zone.innerHTML = "<p style='color: var(--danger-color);'><i class='fas fa-times-circle'></i> Abonnement introuvable pour ce numéro.</p>";
+                    document.getElementById("renouvellement").style.display = "block";
+                    return;
+                }
+
+                const telAffiche = data.telephone || telephone;
+                const offreAffiche = data.offre || "Pack Premium";
+                const paiementAffiche = data.paiement || "Mobile Money";
+                const prixAffiche = data.prix ? `${data.prix} FCFA` : "-";
+                const dateDebut = formaterDate(data.date_debut);
+                const dateFin = formaterDate(data.date_fin);
+                const statut = data.statut || "INACTIF";
+                
+                const couleurStatut = statut === "ACTIF" ? "var(--accent-color)" : "var(--danger-color)";
+                const iconeStatut = statut === "ACTIF" ? "fa-check-circle" : "fa-lock";
+                
+                // Calcul pour la jauge
+                const pourcentage = statut === "ACTIF" ? calculerProgression(data.date_debut, data.date_fin) : 0;
+
+                zone.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <h2 style="font-size: 1rem; color: var(--text-muted);"><i class="fas fa-mobile-alt"></i> Téléphone</h2>
+                        <p style="font-size: 1.1rem; font-weight: bold;">${telAffiche}</p>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 15px;">
+                        <div>
+                            <h2 style="font-size: 1rem; color: var(--text-muted);"><i class="fas fa-star"></i> Offre</h2>
+                            <p>${offreAffiche}</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <h2 style="font-size: 1rem; color: var(--text-muted);"><i class="fas fa-coins"></i> Prix</h2>
+                            <p>${prixAffiche}</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <h2 style="font-size: 1.1rem;"><i class="fas ${iconeStatut}"></i> Statut : <span style="color: ${couleurStatut};">${statut}</span></h2>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 5px;">Valide jusqu'au ${dateFin}</p>
+                        
+                        <!-- Jauge visuelle -->
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: ${pourcentage}%;"></div>
+                        </div>
+                    </div>
+                `;
+
+                if (statut !== "ACTIF") {
+                    document.getElementById("renouvellement").style.display = "block";
+                }
+
+            } catch (error) {
+                zone.innerHTML = "<p style='color: var(--danger-color);'><i class='fas fa-wifi'></i> Erreur de connexion au serveur.</p>";
+            }
+        }
+
+        function renouveler() {
+            window.location.href = "abonnement.html";
+        }
+
+        chargerAbonnement();
+    </script>
 </body>
-
 </html>
