@@ -1,6 +1,6 @@
 /* ===============================
    AZ TURF PRO - THEME CARTES "BLANC NEIGE"
-   Fond éclairci, Carte Unique par page & Séparateurs fins
+   Page Analyse & Cartes Unifiées à 95% avec Séparateurs Fins
 ================================ */
 
 :root {
@@ -116,30 +116,32 @@ body{
 }
 
 /* ===============================
-   3. CONTENU GENERAL & CARTE UNIQUE PAR PAGE
+   3. CONTENU GENERAL & CARTES UNIFIEES (95%)
 ================================ */
 .content{
     padding-top: 100px;
     padding-bottom: 90px;
     max-width: 1200px;
     margin: auto;
+    width: 100%;
 }
 
 .page-container{
-    width: 100%;
-    max-width: 1400px;
-    margin: auto;
+    width: 95%;
+    max-width: 1200px;
+    margin: 20px auto;
     padding: 20px;
     padding-bottom: 90px;
 }
 
-/* Structure de la carte unique avec séparation fine entre chaque fonction */
+/* Cartes et sections de la page analyse unifiées à 95% avec séparateurs fins */
 .card, 
 .analyse-detail, 
 .analyse-section, 
 .detail-analyse, 
 .synthese-zone,
-.selection-jour-container{
+.selection-jour-container,
+.analyse-container{
     background: var(--bg-card);
     width: 95%;
     margin: 20px auto;
@@ -149,13 +151,14 @@ body{
     border: 1px solid var(--border-color);
 }
 
-/* Lignes de séparation fines automatiques entre les sections/fonctions d'une même carte */
+/* Lignes de séparation fines entre chaque fonction / section à l'intérieur des cartes */
 .card > *:not(:last-child),
 .analyse-detail > *:not(:last-child),
 .analyse-section > *:not(:last-child),
 .detail-analyse > *:not(:last-child),
 .synthese-zone > *:not(:last-child),
-.selection-jour-container > *:not(:last-child) {
+.selection-jour-container > *:not(:last-child),
+.analyse-container > *:not(:last-child) {
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 18px;
     margin-bottom: 18px;
@@ -380,7 +383,7 @@ td{
 }
 
 /* ===============================
-   6. SELECTIONS & CHEVAUX
+   6. SELECTIONS & CHEVAUX (Sélection du jour)
 ================================ */
 .popular-horizontal{
     display: flex;
@@ -851,11 +854,12 @@ td{
     .page-container{
         padding-top: 90px !important;
         padding-bottom: 90px;
+        width: 95%;
     }
     .content{
         padding-top: 80px;
     }
-    .card, .analyse-detail, .analyse-section, .detail-analyse, .synthese-zone, .selection-jour-container{
+    .card, .analyse-detail, .analyse-section, .detail-analyse, .synthese-zone, .selection-jour-container, .analyse-container{
         width: 95%;
         padding: 15px;
     }
