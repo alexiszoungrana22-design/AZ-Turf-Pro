@@ -1,19 +1,20 @@
 /* ===============================
-   AZ TURF PRO - THEME COULEURS "PUB1"
-   Structure d'origine conservée[cite: 4]
+   AZ TURF PRO - THEME HAUTE TECHNOLOGIE "PUB2"
+   Palette : Bleu Slate / Cyan / Or & Vert Pro
 ================================ */
 
 :root {
-    --bg-dark: #070e0a;
-    --bg-card: #111d17;
-    --bg-light-box: #182b21;
-    --turf-green: #00df53;
-    --turf-green-dark: #08783f;
-    --gold-badge: #ffd700;
-    --gold-dark: #d4af37;
-    --orange-outsider: #ff9800;
+    --bg-dark: #0a1118;
+    --bg-card: #132238;
+    --bg-light-box: #1c3250;
+    --tech-cyan: #00d4ff;
+    --primary-blue: #1d4ed8;
+    --turf-green: #10b981;
+    --turf-green-dark: #047857;
+    --gold-badge: #fbbf24;
+    --gold-dark: #d97706;
     --text-main: #ffffff;
-    --text-muted: #d0d0d0;
+    --text-muted: #94a3b8;
 }
 
 /* ===============================
@@ -43,14 +44,14 @@ body{
     top: 0;
     left: 0;
     width: 100%;
-    height: 75px; /* Dimension d'origine[cite: 4] */
+    height: 75px;
     background: var(--bg-card);
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 20px;
     box-shadow: 0 4px 20px rgba(0,0,0,.6);
-    border-bottom: 2px solid var(--turf-green-dark);
+    border-bottom: 2px solid var(--tech-cyan);
     z-index: 1000;
 }
 
@@ -62,7 +63,7 @@ body{
 .logo{
     font-size: 23px;
     font-weight: bold;
-    color: var(--turf-green);
+    color: var(--tech-cyan);
 }
 
 .mini-countdown{
@@ -72,7 +73,7 @@ body{
 }
 
 .mini-countdown.urgent{
-    color: #ff4d4d;
+    color: #ef4444;
 }
 
 .top-menu{
@@ -81,7 +82,7 @@ body{
 }
 
 .top-menu a{
-    background: var(--turf-green-dark);
+    background: var(--primary-blue);
     color: white;
     text-decoration: none;
     padding: 8px 14px;
@@ -92,12 +93,12 @@ body{
 
 .btn-vip{
     background: linear-gradient(45deg, var(--gold-dark), var(--gold-badge));
-    color: #111;
+    color: #0f172a;
     padding: 10px 18px;
     border-radius: 25px;
     font-weight: bold;
     text-decoration: none;
-    box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
+    box-shadow: 0 0 12px rgba(251, 191, 36, 0.3);
 }
 
 .bottom-menu{
@@ -108,7 +109,7 @@ body{
    3. CONTENU GENERAL & BOITES
 ================================ */
 .content{
-    padding-top: 130px; /* Conservé pour éviter le passage sous le header[cite: 4] */
+    padding-top: 130px;
     padding-bottom: 90px;
     max-width: 1200px;
     margin: auto;
@@ -128,12 +129,12 @@ body{
     padding: 22px;
     border-radius: 20px;
     box-shadow: 0 6px 18px rgba(0,0,0,.4);
-    border: 1px solid rgba(0, 223, 83, 0.15);
+    border: 1px solid rgba(0, 212, 255, 0.15);
 }
 
 .card h2{
     text-align: center;
-    color: var(--turf-green);
+    color: var(--tech-cyan);
     margin-top: 0;
     line-height: 1.4;
 }
@@ -141,13 +142,13 @@ body{
 .news-bar{
     width: 95%;
     margin: 20px auto;
-    background: var(--turf-green-dark);
+    background: var(--primary-blue);
     color: white;
     padding: 15px;
     border-radius: 20px;
     text-align: center;
     font-weight: bold;
-    border: 1px solid var(--turf-green);
+    border: 1px solid var(--tech-cyan);
 }
 
 /* ===============================
@@ -165,16 +166,16 @@ table{
 }
 
 th{
-    background: var(--turf-green-dark);
+    background: var(--primary-blue);
     color: white;
     padding: 12px;
-    border-bottom: 2px solid var(--turf-green);
+    border-bottom: 2px solid var(--tech-cyan);
 }
 
 td{
     padding: 12px;
     text-align: center;
-    border-bottom: 1px solid #1c3325;
+    border-bottom: 1px solid #1e293b;
     color: var(--text-main);
 }
 
@@ -192,11 +193,11 @@ td{
     border-radius: 20px;
     padding: 20px;
     text-align: center;
-    border-top: 6px solid var(--turf-green);
+    border-top: 6px solid var(--tech-cyan);
 }
 
 .analyse-cheval.outsider{
-    border-top-color: var(--orange-outsider);
+    border-top-color: var(--gold-badge);
 }
 
 .analyse-cheval p{
@@ -225,7 +226,7 @@ td{
 
 .analyse-detail h3{
     text-align: center;
-    color: var(--turf-green);
+    color: var(--tech-cyan);
 }
 
 .couple-box,
@@ -259,7 +260,7 @@ td{
 }
 
 .synthese-box{
-    border-top: 5px solid var(--turf-green);
+    border-top: 5px solid var(--tech-cyan);
 }
 
 /* Indice de Confiance & Surveillance */
@@ -277,7 +278,7 @@ td{
     align-items: center;
     font-size: 55px;
     font-weight: 900;
-    color: var(--turf-green);
+    color: var(--tech-cyan);
 }
 
 #message-confiance{
@@ -292,12 +293,12 @@ td{
     font-weight: 900;
     line-height: 1.8;
     padding: 20px;
-    color: var(--turf-green);
+    color: var(--tech-cyan);
 }
 
 /* Tendance */
 .tendance-box{
-    border-top: 5px solid var(--turf-green);
+    border-top: 5px solid var(--tech-cyan);
 }
 
 #course-tendance{
@@ -311,7 +312,7 @@ td{
 
 /* Analyse Premium Container */
 .analyse-az{
-    border-top: 5px solid var(--turf-green);
+    border-top: 5px solid var(--tech-cyan);
 }
 
 .analyse-az-container{
@@ -333,11 +334,11 @@ td{
 }
 
 .favori-az{
-    border-top: 6px solid var(--turf-green);
+    border-top: 6px solid var(--tech-cyan);
 }
 
 .outsider-az{
-    border-top: 6px solid var(--orange-outsider);
+    border-top: 6px solid var(--gold-badge);
 }
 
 /* ===============================
@@ -359,11 +360,11 @@ td{
     justify-content: center;
     background: var(--bg-light-box);
     border-radius: 50%;
-    border-top: 6px solid var(--turf-green);
+    border-top: 6px solid var(--tech-cyan);
     box-shadow: 0 4px 15px rgba(0,0,0,.5);
     font-size: 42px;
     font-weight: 900;
-    color: var(--turf-green);
+    color: var(--tech-cyan);
 }
 
 #selection-jour{
@@ -386,8 +387,8 @@ td{
     font-weight: 900;
     line-height: 1;
     background: var(--bg-light-box);
-    border: 2px solid var(--turf-green);
-    color: var(--turf-green);
+    border: 2px solid var(--tech-cyan);
+    color: var(--tech-cyan);
 }
 
 /* Numéros Grand Format */
@@ -406,12 +407,12 @@ td{
     justify-content: center;
     align-items: center;
     min-width: 65px;
-    color: var(--turf-green);
+    color: var(--tech-cyan);
 }
 
 .outsider .analyse-numero, 
 .outsider-numero {
-    color: var(--orange-outsider) !important;
+    color: var(--gold-badge) !important;
 }
 
 .plus-joue .numero-cheval {
@@ -428,7 +429,7 @@ td{
     letter-spacing: 8px;
     text-align: center;
     padding: 30px;
-    color: var(--turf-green);
+    color: var(--tech-cyan);
 }
 
 /* ===============================
@@ -458,7 +459,7 @@ td{
 }
 
 .premium-banner{
-    background: linear-gradient(135deg, #0b2214, #1a3c25, var(--gold-dark));
+    background: linear-gradient(135deg, #0f172a, #1e3a8a, var(--gold-dark));
     color: white;
     padding: 30px;
     border-radius: 25px;
@@ -472,7 +473,7 @@ td{
     padding: 20px;
     margin: 20px 0;
     box-shadow: 0 5px 15px rgba(0,0,0,.4);
-    border: 1px solid rgba(255, 215, 0, 0.2);
+    border: 1px solid rgba(251, 191, 36, 0.2);
 }
 
 .premium-card h2{
@@ -571,7 +572,7 @@ td{
 .paiement-card{
     background: var(--bg-light-box);
     color: var(--text-main);
-    border: 2px solid var(--turf-green);
+    border: 2px solid var(--tech-cyan);
     padding: 15px;
     border-radius: 20px;
     font-weight: bold;
@@ -587,13 +588,13 @@ td{
     display: block;
     margin: 20px auto;
     background: linear-gradient(45deg, var(--gold-dark), var(--gold-badge));
-    color: #111;
+    color: #0f172a;
     border: none;
     padding: 14px 35px;
     border-radius: 30px;
     font-weight: bold;
     cursor: pointer;
-    box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+    box-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
 }
 
 .vip-box{
@@ -603,12 +604,12 @@ td{
     padding: 20px;
     width: 260px;
     text-align: center;
-    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.15);
+    box-shadow: 0 4px 15px rgba(251, 191, 36, 0.15);
 }
 
 .vip-box button{
     background: linear-gradient(45deg, var(--gold-dark), var(--gold-badge));
-    color: #111;
+    color: #0f172a;
     border: none;
     padding: 12px 25px;
     border-radius: 25px;
@@ -674,14 +675,14 @@ td{
     width: 100%;
     padding: 25px 15px;
     text-align: center;
-    background: linear-gradient(transparent, rgba(0,0,0,.85));
+    background: linear-gradient(transparent, rgba(10, 17, 24, .85));
     color: white;
 }
 
 .pub-overlay h3{
     margin: 0 0 8px;
     font-size: 26px;
-    color: var(--turf-green);
+    color: var(--tech-cyan);
 }
 
 .pub-overlay p{
@@ -701,12 +702,12 @@ td{
     height: 12px;
     border-radius: 50%;
     margin: 0 5px;
-    background: #444;
+    background: #475569;
 }
 
 .slider-dots .dot.active{
     transform: scale(1.2);
-    background: var(--turf-green);
+    background: var(--tech-cyan);
 }
 
 .espace-visiteurs{
@@ -721,7 +722,7 @@ td{
     padding: 15px;
     background: var(--bg-light-box);
     color: var(--text-main);
-    border: 1px solid #284435;
+    border: 1px solid #334155;
     border-radius: 12px;
     font-size: 17px;
     resize: vertical;
@@ -731,7 +732,7 @@ td{
 .espace-visiteurs button{
     width: 100%;
     padding: 16px;
-    background: var(--turf-green-dark);
+    background: var(--primary-blue);
     color: white;
     font-size: 18px;
     font-weight: bold;
@@ -752,16 +753,16 @@ td{
     margin: 20px auto;
     max-width: 1000px;
     box-shadow: 0 5px 15px rgba(0,0,0,.5);
-    border: 1px solid rgba(0, 223, 83, 0.2);
+    border: 1px solid rgba(0, 212, 255, 0.2);
 }
 
 .admin-card h2{
     text-align: center;
-    color: var(--turf-green);
+    color: var(--tech-cyan);
 }
 
 .admin-button{
-    background: var(--turf-green-dark);
+    background: var(--primary-blue);
     color: white;
     padding: 12px 25px;
     border-radius: 25px;
@@ -826,7 +827,7 @@ td{
         width: 100%;
         height: 65px;
         background: var(--bg-card);
-        border-top: 1px solid #1c3325;
+        border-top: 1px solid #1e293b;
         justify-content: space-around;
         align-items: center;
         box-shadow: 0 -3px 15px rgba(0,0,0,.6);
@@ -834,7 +835,7 @@ td{
     }
     .bottom-menu a{
         text-decoration: none;
-        color: var(--turf-green);
+        color: var(--tech-cyan);
         font-size: 12px;
         font-weight: bold;
     }
