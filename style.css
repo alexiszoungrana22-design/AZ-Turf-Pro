@@ -1,942 +1,1005 @@
-/* ===============================
-   AZ TURF PRO - THEME CARTES "BLANC NEIGE"
-   Fond général sombre & Conteneurs Blanc Neige
-================================ */
+/* =========================================================
+   AZ TURF PRO â€” STYLE.CSS
+   Design professionnel â€¢ clair â€¢ responsive â€¢ mobile-first
+   ========================================================= */
 
-:root {
-    --bg-dark: #070e14;
-    --bg-card: #ffffff;
-    --bg-light-box: #f8fafc;
-    --tech-cyan: #0099ff;
-    --primary-blue: #1d4ed8;
-    --turf-green: #059669;
-    --turf-green-dark: #047857;
-    --gold-badge: #d97706;
-    --gold-bright: #b45309;
-    --text-main: #0f172a;
-    --text-muted: #475569;
-    --border-color: #e2e8f0;
+:root{
+  --az-blue:#075da8;
+  --az-blue-dark:#06477f;
+  --az-blue-soft:#edf6ff;
+  --az-gold:#c99a24;
+  --az-gold-dark:#a97912;
+  --az-gold-soft:#fff8e5;
+  --az-green:#16824c;
+  --az-green-soft:#eaf7f0;
+  --az-red:#c62828;
+  --az-red-soft:#fff0f0;
+  --az-orange:#d97720;
+  --az-orange-soft:#fff4e8;
+  --az-bg:#f4f7fa;
+  --az-white:#fff;
+  --az-text:#182532;
+  --az-muted:#6c7884;
+  --az-border:#dce4eb;
+  --az-shadow:0 7px 22px rgba(25,55,85,.08);
+  --az-shadow-hover:0 12px 30px rgba(25,55,85,.13);
+  --az-radius:16px;
+  --az-radius-sm:10px;
+  --az-max:1180px;
 }
 
-/* ===============================
-   1. RESET GENERAL
-================================ */
 *{
-    box-sizing: border-box;
+  box-sizing:border-box;
 }
 
 html{
-    scroll-behavior: smooth;
+  scroll-behavior:smooth;
 }
 
 body{
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    background: var(--bg-dark);
-    color: var(--text-main);
+  margin:0;
+  background:var(--az-bg);
+  color:var(--az-text);
+  font-family:Inter,Roboto,Arial,sans-serif;
+  font-size:15px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
 }
 
-/* ===============================
-   2. HEADER PRINCIPAL & MENUS
-================================ */
-.top-header{
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 75px;
-    background: #0f172a;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    box-shadow: 0 4px 20px rgba(0,0,0,.6);
-    border-bottom: 2px solid var(--tech-cyan);
-    z-index: 1000;
+img{
+  display:block;
+  max-width:100%;
 }
 
-.brand-zone{
-    display: flex;
-    flex-direction: column;
+a{
+  color:var(--az-blue);
+  text-decoration:none;
+}
+
+button,
+input,
+select,
+textarea{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+/* =========================================================
+   CONTENEURS
+   ========================================================= */
+
+main{
+  width:min(100%,var(--az-max));
+  margin:0 auto;
+  padding:20px 16px 90px;
+}
+
+.container,
+.conteneur,
+.page-container,
+.content{
+  width:min(100%,var(--az-max));
+  margin:0 auto;
+  padding-left:16px;
+  padding-right:16px;
+}
+
+section{
+  margin-bottom:20px;
+}
+
+/* =========================================================
+   EN-TÃŠTE
+   ========================================================= */
+
+header{
+  position:relative;
+  z-index:100;
+  background:var(--az-white);
+  border-bottom:1px solid var(--az-border);
+  box-shadow:0 2px 12px rgba(20,45,70,.06);
+}
+
+.header-inner,
+.header-container{
+  width:min(100%,var(--az-max));
+  min-height:70px;
+  margin:auto;
+  padding:10px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
 }
 
 .logo{
-    font-size: 23px;
-    font-weight: bold;
-    color: #ffffff;
+  color:var(--az-blue);
+  font-size:1.35rem;
+  font-weight:900;
+  white-space:nowrap;
 }
 
-.mini-countdown{
-    font-size: 12px;
-    font-weight: bold;
-    color: #fbbf24;
+.logo img{
+  max-height:52px;
+  width:auto;
 }
 
-.mini-countdown.urgent{
-    color: #ef4444;
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+nav{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  flex-wrap:wrap;
 }
 
-.top-menu{
-    display: flex;
-    gap: 10px;
+nav a,
+.nav-link{
+  min-height:40px;
+  padding:8px 13px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:10px;
+  color:#3d4d5d;
+  font-size:.9rem;
+  font-weight:750;
+  transition:.18s ease;
 }
 
-.top-menu a{
-    background: var(--primary-blue);
-    color: white;
-    text-decoration: none;
-    padding: 8px 14px;
-    border-radius: 25px;
-    font-size: 13px;
-    font-weight: bold;
+nav a:hover,
+nav a.active,
+.nav-link:hover,
+.nav-link.active{
+  color:var(--az-blue);
+  background:var(--az-blue-soft);
 }
 
-.btn-vip{
-    background: linear-gradient(45deg, var(--gold-badge), #f59e0b);
-    color: #ffffff;
-    padding: 10px 18px;
-    border-radius: 25px;
-    font-weight: bold;
-    text-decoration: none;
-    box-shadow: 0 0 12px rgba(217, 119, 6, 0.3);
+/* =========================================================
+   TITRES
+   ========================================================= */
+
+h1,
+h2,
+h3,
+h4{
+  margin:0 0 10px;
+  line-height:1.2;
 }
 
-.bottom-menu{
-    display: none;
+h1{
+  font-size:clamp(1.55rem,4vw,2.25rem);
+  font-weight:900;
 }
 
-/* ===============================
-   3. CONTENU GENERAL & BOITES BLANCHES
-================================ */
-.content{
-    padding-top: 130px;
-    padding-bottom: 90px;
-    max-width: 1200px;
-    margin: auto;
+h2{
+  font-size:clamp(1.25rem,3vw,1.7rem);
+  font-weight:850;
 }
 
-.page-container{
-    width: 100%;
-    max-width: 1400px;
-    margin: auto;
-    padding: 20px;
+h3{
+  font-size:1.1rem;
+  font-weight:850;
 }
 
-.card{
-    background: var(--bg-card);
-    width: 95%;
-    margin: 20px auto;
-    padding: 22px;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,.25);
-    border: 1px solid var(--border-color);
+.page-title{
+  margin:8px 0 18px;
 }
 
-.card h2{
-    text-align: center;
-    color: var(--primary-blue);
-    margin-top: 0;
-    line-height: 1.4;
+.subtitle,
+.description,
+.text-muted{
+  color:var(--az-muted);
 }
 
-.news-bar{
-    width: 95%;
-    margin: 20px auto;
-    background: var(--primary-blue);
-    color: white;
-    padding: 15px;
-    border-radius: 20px;
-    text-align: center;
-    font-weight: bold;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+/* =========================================================
+   CARTES
+   ========================================================= */
+
+.card,
+.course-card,
+.info-card,
+.analysis-card,
+.ticket-card,
+.journal-card,
+.history-card,
+.premium-card,
+.stat-card,
+.admin-panel{
+  background:var(--az-white);
+  border:1px solid var(--az-border);
+  border-radius:var(--az-radius);
+  box-shadow:var(--az-shadow);
 }
 
-/* ===============================
-   4. TABLEAUX
-================================ */
-.table-container{
-    width: 100%;
-    overflow-x: auto;
+.card,
+.course-card,
+.info-card,
+.analysis-card,
+.journal-card,
+.history-card,
+.admin-panel{
+  padding:18px;
+}
+
+.card:hover,
+.course-card:hover,
+.info-card:hover,
+.analysis-card:hover,
+.journal-card:hover,
+.history-card:hover{
+  box-shadow:var(--az-shadow-hover);
+}
+
+/* =========================================================
+   GRILLES
+   ========================================================= */
+
+.cards-grid,
+.card-grid,
+.dashboard-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:16px;
+}
+
+/* =========================================================
+   COURSE
+   ========================================================= */
+
+.course-header,
+.course-info,
+.course-banner{
+  position:relative;
+  overflow:hidden;
+  padding:20px;
+  background:linear-gradient(135deg,#fff,#f4f9ff);
+  border:1px solid #d5e5f4;
+  border-radius:var(--az-radius);
+  box-shadow:var(--az-shadow);
+}
+
+.course-header::before,
+.course-banner::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:5px;
+  background:var(--az-blue);
+}
+
+.course-meta,
+.course-details,
+.course-infos{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:12px;
+}
+
+.meta-item,
+.course-meta span{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:7px 10px;
+  background:#fff;
+  border:1px solid var(--az-border);
+  border-radius:9px;
+  color:#4d5d6b;
+  font-size:.84rem;
+  font-weight:700;
+}
+
+/* =========================================================
+   CHRONOMÃˆTRE
+   ========================================================= */
+
+#countdown,
+.countdown,
+.chrono,
+.timer{
+  min-height:56px;
+  margin:12px 0;
+  padding:10px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:14px;
+  background:var(--az-blue);
+  color:#fff;
+  font-size:clamp(1rem,3vw,1.3rem);
+  font-weight:900;
+  box-shadow:0 6px 18px rgba(7,93,168,.2);
+}
+
+/* =========================================================
+   TABLEAUX
+   ========================================================= */
+
+.table-wrapper,
+.table-responsive{
+  width:100%;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  background:#fff;
+  border:1px solid var(--az-border);
+  border-radius:var(--az-radius);
+  box-shadow:var(--az-shadow);
 }
 
 table{
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 850px;
-    background: var(--bg-card);
+  width:100%;
+  min-width:680px;
+  border-collapse:collapse;
+  background:#fff;
 }
 
-th{
-    background: var(--primary-blue);
-    color: white;
-    padding: 12px;
-    border-bottom: 2px solid var(--tech-cyan);
+thead th{
+  padding:12px 10px;
+  background:#edf4fa;
+  color:#29445c;
+  border-bottom:2px solid #d4e0ea;
+  font-size:.8rem;
+  font-weight:900;
+  text-transform:uppercase;
+  white-space:nowrap;
 }
 
-td{
-    padding: 12px;
-    text-align: center;
-    border-bottom: 1px solid var(--border-color);
-    color: var(--text-main);
+tbody td{
+  padding:11px 10px;
+  border-bottom:1px solid #edf1f4;
+  font-size:.9rem;
+  vertical-align:middle;
 }
 
-/* ===============================
-   5. ANALYSE AZ & TENDANCES
-================================ */
-.analyse-horizontal{
-    display: flex;
-    gap: 20px;
+tbody tr:nth-child(even){
+  background:#fafcfe;
 }
 
-.analyse-cheval{
-    flex: 1;
-    background: var(--bg-light-box);
-    border-radius: 20px;
-    padding: 20px;
-    text-align: center;
-    border: 1px solid var(--border-color);
-    border-top: 6px solid var(--primary-blue);
+tbody tr:hover{
+  background:#f1f7fd;
 }
 
-.analyse-cheval.outsider{
-    border-top-color: var(--gold-badge);
+tbody tr:last-child td{
+  border-bottom:0;
 }
 
-.analyse-cheval p{
-    line-height: 1.6;
-    color: var(--text-muted);
+/* =========================================================
+   NUMÃ‰ROS DES CHEVAUX
+   ========================================================= */
+
+.numero,
+.horse-number,
+.numero-cheval{
+  min-width:36px;
+  height:36px;
+  padding:0 8px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:9px;
+  background:var(--az-blue);
+  color:#fff;
+  font-weight:950;
 }
 
-.analyse-section,
-.detail-analyse,
-.synthese-zone{
-    display: block;
-    background: var(--bg-card);
-    padding: 20px;
-    margin: 15px auto;
-    border-radius: 20px;
+/* =========================================================
+   NON-PARTANTS
+   ========================================================= */
+
+.non-partant,
+tr.non-partant,
+.horse-non-partant{
+  color:var(--az-red) !important;
+  background:var(--az-red-soft) !important;
+  font-weight:850;
 }
 
-.analyse-detail{
-    background: var(--bg-card);
-    border-radius: 18px;
-    padding: 20px;
-    margin: 15px auto;
-    box-shadow: 0 8px 20px rgba(0,0,0,.15);
-    border: 1px solid var(--border-color);
+.non-partant td,
+tr.non-partant td{
+  color:var(--az-red) !important;
+  background:var(--az-red-soft) !important;
 }
 
-.analyse-detail h3{
-    text-align: center;
-    color: var(--primary-blue);
+.non-partant .numero,
+tr.non-partant .numero{
+  background:var(--az-red) !important;
+  color:#fff !important;
 }
 
-.couple-box,
-.jockey-box,
-.entraineur-box,
-.synthese-box,
-#couple-place,
-#couple-gagnant,
-#avis-jockey,
-#avis-entraineur,
-#avis-course,
-#actualites-course,
-#synthese-az,
-#syntheseAZ{
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    height: auto !important;
-    overflow: visible !important;
+/* =========================================================
+   PROFILS AZ
+   ========================================================= */
+
+.favori,
+.favorite,
+.favori-card{
+  background:linear-gradient(135deg,#fffdf5,#fff8e5);
+  border:1px solid #ecd58b;
 }
 
-#avis-jockey,
-#avis-entraineur,
-#couple-place,
-#synthese-az{
-    line-height: 1.6;
-    padding: 15px;
-    background: var(--bg-light-box);
-    border-radius: 15px;
-    color: var(--text-muted);
-    border: 1px solid var(--border-color);
+.base,
+.base-solide,
+.base-card{
+  background:var(--az-green-soft);
+  border:1px solid #b9dfca;
 }
 
-.synthese-box{
-    border-top: 5px solid var(--primary-blue);
+.chance-az,
+.chance-card{
+  background:var(--az-blue-soft);
+  border:1px solid #c6dff4;
 }
 
-/* Indice de Confiance & Surveillance (Design Repensé) */
-.confiance-box, .surveillance-box{
-    text-align: center;
+.outsider,
+.outsider-card{
+  background:var(--az-orange-soft);
+  border:1px solid #f0d0ae;
 }
 
-.surveillance-box{
-    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-    border: 2px solid var(--border-color);
-    border-radius: 18px;
-    padding: 20px;
-    margin-top: 15px;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+/* =========================================================
+   BADGES
+   ========================================================= */
+
+.badge,
+.tag,
+.label,
+.status{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:5px 9px;
+  border-radius:999px;
+  font-size:.75rem;
+  font-weight:850;
 }
 
-.confiance-score{
-    margin: 25px auto;
+.badge-primary,
+.status-primary{
+  color:var(--az-blue);
+  background:var(--az-blue-soft);
 }
 
-#indice-confiance{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 55px;
-    font-weight: 900;
-    color: var(--primary-blue);
+.badge-success,
+.status-success{
+  color:var(--az-green);
+  background:var(--az-green-soft);
 }
 
-#message-confiance{
-    font-size: 18px;
-    font-weight: bold;
-    text-align: center;
-    color: var(--gold-badge);
+.badge-danger,
+.status-danger{
+  color:var(--az-red);
+  background:var(--az-red-soft);
 }
 
-/* Chevaux à surveiller - Nouveau style épuré, texte en noir */
-#chevaux-surveiller{
-    font-size: 32px;
-    font-weight: 900;
-    letter-spacing: 4px;
-    line-height: 1.6;
-    padding: 18px 25px;
-    color: #000000 !important;
-    background: #ffffff;
-    border-radius: 14px;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-    display: inline-block;
-    width: 90%;
-    max-width: 600px;
-    border-left: 6px solid var(--gold-badge);
-    border-right: 1px solid var(--border-color);
-    border-top: 1px solid var(--border-color);
-    border-bottom: 1px solid var(--border-color);
-    margin: 10px 0;
+.badge-warning,
+.status-warning{
+  color:#805d09;
+  background:#fff6d8;
 }
 
-/* Tendance */
-.tendance-box{
-    border-top: 5px solid var(--primary-blue);
+/* =========================================================
+   INDICE AZ / CONFIANCE
+   ========================================================= */
+
+.indice-az,
+.az-index{
+  color:var(--az-blue);
+  font-size:1.2rem;
+  font-weight:950;
 }
 
-#course-tendance{
-    background: var(--bg-light-box);
-    padding: 20px;
-    border-radius: 18px;
-    text-align: center;
-    font-weight: bold;
-    color: var(--text-main);
-    border: 1px solid var(--border-color);
+.confiance{
+  color:var(--az-green);
+  font-weight:900;
 }
 
-/* Analyse Premium Container */
-.analyse-az{
-    border-top: 5px solid var(--primary-blue);
+/* =========================================================
+   TICKETS
+   ========================================================= */
+
+.ticket-card{
+  padding:18px;
+  overflow:hidden;
 }
 
-.analyse-az-container{
-    display: flex;
-    gap: 20px;
+.ticket-premium-box,
+.ticket-premium,
+.premium-ticket{
+  position:relative;
+  overflow:hidden;
+  padding:20px;
+  background:linear-gradient(145deg,#fffdf5,#fff8e5);
+  border:2px solid var(--az-gold);
+  border-radius:20px;
+  box-shadow:0 10px 30px rgba(166,123,20,.12);
 }
 
-.az-box{
-    flex: 1;
-    background: var(--bg-light-box);
-    padding: 22px;
-    border-radius: 22px;
-    text-align: center;
-    border: 1px solid var(--border-color);
+.ticket-free,
+.ticket-gratuit{
+  background:#fff;
+  border:1px solid var(--az-border);
 }
 
-.az-box h4{
-    font-size: 22px;
-    color: var(--text-main);
+.ticket-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:14px;
+  font-weight:900;
 }
 
-.favori-az{
-    border-top: 6px solid var(--primary-blue);
+.ticket-numbers,
+.ticket-selection,
+.selection-numbers{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
 }
 
-.outsider-az{
-    border-top: 6px solid var(--gold-badge);
+.ticket-numbers span,
+.ticket-number,
+.selection-number{
+  min-width:42px;
+  height:42px;
+  padding:0 7px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:10px;
+  background:var(--az-blue);
+  color:#fff;
+  font-size:1rem;
+  font-weight:950;
 }
 
-/* ===============================
-   6. SELECTIONS & CHEVAUX
-================================ */
-.popular-horizontal{
-    display: flex;
-    gap: 18px;
-    justify-content: center;
-    overflow-x: auto;
-    padding: 15px;
-}
-
-.popular-card{
-    min-width: 85px;
-    height: 85px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-light-box);
-    border-radius: 50%;
-    border-top: 6px solid var(--primary-blue);
-    box-shadow: 0 4px 15px rgba(0,0,0,.15);
-    font-size: 42px;
-    font-weight: 900;
-    color: var(--primary-blue);
-    border: 1px solid var(--border-color);
-}
-
-#selection-jour{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-}
-
-.numero-selection-jour{
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 48px;
-    height: 48px;
-    padding: 0 8px;
-    border-radius: 12px;
-    font-size: 28px;
-    font-weight: 900;
-    line-height: 1;
-    background: var(--bg-light-box);
-    border: 2px solid var(--primary-blue);
-    color: var(--primary-blue);
-}
-
-/* Numéros Grand Format */
-.numero-cheval,
-.numero-ticket,
-.cheval-numero,
-.ticket-numero,
-.numero-selection,
-.analyse-numero,
-.az-numero {
-    font-size: 55px !important;
-    font-weight: 900 !important;
-    line-height: 1 !important;
-    text-align: center !important;
-    display: inline-flex !important;
-    justify-content: center;
-    align-items: center;
-    min-width: 65px;
-    color: var(--primary-blue);
-}
-
-.outsider .analyse-numero, 
-.outsider-numero {
-    color: var(--gold-badge) !important;
-}
-
-.plus-joue .numero-cheval {
-    font-size: 50px !important;
-}
-
-.selection-jour .numero-cheval {
-    font-size: 55px !important;
-}
-
-.numero-ticket-grand{
-    font-size: 60px;
-    font-weight: 900;
-    letter-spacing: 8px;
-    text-align: center;
-    padding: 30px;
-    color: var(--primary-blue);
-}
-
-/* ===============================
-   7. PREMIUM & TICKETS
-================================ */
-.premium-container{
-    max-width: 900px;
-    margin: auto;
-    padding: 15px;
-}
-
-.premium-header{
-    text-align: center;
-    padding: 25px;
-    border-radius: 25px;
-}
-
-.premium-logo{
-    font-size: 30px;
-    font-weight: bold;
-    color: var(--gold-badge);
-}
-
-.premium-title h1{
-    font-size: 28px;
-    color: var(--gold-badge);
-}
-
-.premium-banner{
-    background: linear-gradient(135deg, #0f172a, #1e3a8a, #92400e);
-    color: white;
-    padding: 30px;
-    border-radius: 25px;
-    text-align: center;
-    border: 1px solid var(--gold-badge);
-}
-
-.premium-card{
-    background: var(--bg-card);
-    border-radius: 20px;
-    padding: 20px;
-    margin: 20px 0;
-    box-shadow: 0 8px 20px rgba(0,0,0,.15);
-    border: 1px solid rgba(217, 119, 6, 0.3);
-}
-
-.premium-card h2{
-    text-align: center;
-    color: var(--gold-badge);
-}
-
-.chevaux-premium,
-#selection-premium{
-    text-align: center;
-    font-size: 32px;
-    font-weight: bold;
-    letter-spacing: 6px;
-    padding: 20px;
-    color: var(--gold-badge);
-}
-
-.ticket-premium-box{
-    background: var(--bg-light-box);
-    border: 2px solid var(--gold-badge);
-    border-radius: 20px;
-    padding: 20px 10px;
-    margin: 20px 0;
-    text-align: center;
-    overflow: hidden;
-}
-
-.ticket-premium-box h3{
-    font-size: 24px;
-    font-weight: 900;
-    color: var(--text-main);
-}
-
-.ticket-gratuit-box{
-    text-align: center;
-}
-
-.ticket-gratuit-item{
-    margin: 25px 0;
-    padding: 20px;
-    border-radius: 20px;
-}
-
-.ticket-grand{
-    text-align: center;
-    font-size: 42px;
-    font-weight: 900;
-    letter-spacing: 3px;
-    padding: 20px 5px;
-    color: var(--gold-badge);
-}
-
-.couple-ligne{
-    text-align: center;
-    font-size: 36px;
-    font-weight: 900;
-    margin: 15px 0;
-    white-space: nowrap;
-    color: var(--gold-badge);
+.ticket-premium .ticket-numbers span,
+.ticket-premium .ticket-number,
+.premium-ticket .ticket-number{
+  background:var(--az-gold);
 }
 
 .champ-reduit{
-    text-align: center;
-    font-size: 38px;
-    font-weight: 900;
-    overflow-wrap: anywhere;
-    color: var(--gold-badge);
+  padding:14px;
+  background:#fffdf5;
+  border:1px dashed var(--az-gold);
+  border-radius:12px;
+  text-align:center;
+  font-weight:900;
+  overflow-wrap:anywhere;
 }
 
-.premium-message,
-.message-fin{
-    text-align: center;
-    padding: 25px;
-    border-radius: 20px;
-    background: var(--bg-light-box);
-    font-weight: bold;
-    font-size: 18px;
-    color: var(--gold-badge);
-    border: 1px solid var(--border-color);
+/* =========================================================
+   JOURNAL
+   ========================================================= */
+
+.journal-list,
+.actualites-list,
+.history-list{
+  display:grid;
+  gap:16px;
 }
 
-/* ===============================
-   8. PAIEMENT & ABONNEMENT
-================================ */
-.payment-choice,
-.paiement-options,
-.vip-offres{
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-top: 20px;
+.journal-card{
+  position:relative;
+  overflow:hidden;
 }
 
-.payment-choice button,
-.paiement-card{
-    background: var(--bg-light-box);
-    color: var(--text-main);
-    border: 2px solid var(--border-color);
-    padding: 15px;
-    border-radius: 20px;
-    font-weight: bold;
+.journal-card::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:4px;
+  background:var(--az-blue);
 }
 
-.paiement-card{
-    width: 280px;
-    text-align: center;
+.journal-date,
+.journal-card .date{
+  color:var(--az-muted);
+  font-size:.82rem;
+  font-weight:750;
 }
 
-.btn-payment,
-#confirmer-paiement{
-    display: block;
-    margin: 20px auto;
-    background: linear-gradient(45deg, var(--gold-badge), #f59e0b);
-    color: #ffffff;
-    border: none;
-    padding: 14px 35px;
-    border-radius: 30px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 0 12px rgba(217, 119, 6, 0.4);
+.arrivee,
+.arrivee-officielle{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:7px;
 }
 
-.vip-box{
-    background: var(--bg-card);
-    border: 1px solid var(--gold-badge);
-    border-radius: 15px;
-    padding: 20px;
-    width: 260px;
-    text-align: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+.arrivee span,
+.arrivee-officielle span{
+  min-width:38px;
+  height:38px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:9px;
+  background:var(--az-green);
+  color:#fff;
+  font-weight:950;
 }
 
-.vip-box button{
-    background: linear-gradient(45deg, var(--gold-badge), #f59e0b);
-    color: #ffffff;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 25px;
-    font-weight: bold;
-    cursor: pointer;
+/* =========================================================
+   HISTORIQUE
+   ========================================================= */
+
+.history-table th,
+.history-table td{
+  text-align:center;
 }
 
-/* ===============================
-   9. MODULES ANNEXES (Pubs, Visiteurs, Admin)
-================================ */
-.pub-box{
-    padding: 10px;
-    overflow: hidden;
+.history-selection{
+  color:var(--az-blue);
+  font-weight:900;
 }
 
-.pub-content img,
-.pub-content video{
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
-    border-radius: 18px;
-    display: block;
+.history-arrivee{
+  color:var(--az-green);
+  font-weight:950;
 }
 
-.pub-banner {
-    width: 100%;
-    height: auto;
-    min-height: 120px;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* =========================================================
+   BOUTONS
+   ========================================================= */
+
+.btn,
+.button{
+  min-height:42px;
+  padding:9px 16px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  border:0;
+  border-radius:10px;
+  font-weight:850;
+  transition:.18s ease;
 }
 
-.pub-banner img {
-    width: 100%;
-    height: auto;
-    max-height: 220px;
-    object-fit: contain;
-    display: block;
+.btn:hover,
+.button:hover{
+  transform:translateY(-1px);
 }
 
-.slider-pub{
-    position: relative;
-    width: 100%;
-    height: 280px;
-    overflow: hidden;
-    border-radius: 25px;
+.btn-primary{
+  color:#fff;
+  background:var(--az-blue);
+  box-shadow:0 5px 14px rgba(7,93,168,.18);
 }
 
-.slider-pub img{
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: opacity .8s ease;
+.btn-primary:hover{
+  background:var(--az-blue-dark);
 }
 
-.pub-overlay{
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    padding: 25px 15px;
-    text-align: center;
-    background: linear-gradient(transparent, rgba(15, 23, 42, .9));
-    color: white;
+.btn-gold{
+  color:#fff;
+  background:var(--az-gold);
 }
 
-.pub-overlay h3{
-    margin: 0 0 8px;
-    font-size: 26px;
-    color: var(--tech-cyan);
+.btn-success{
+  color:#fff;
+  background:var(--az-green);
 }
 
-.pub-overlay p{
-    margin: 0;
-    font-size: 17px;
-    color: #e2e8f0;
+.btn-danger{
+  color:#fff;
+  background:var(--az-red);
 }
 
-.slider-dots{
-    text-align: center;
-    margin-top: 15px;
+.btn-outline{
+  color:var(--az-blue);
+  background:#fff;
+  border:1px solid #bdd3e7;
 }
 
-.slider-dots .dot{
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin: 0 5px;
-    background: #cbd5e1;
+/* =========================================================
+   FORMULAIRES
+   ========================================================= */
+
+input,
+select,
+textarea{
+  width:100%;
+  min-height:42px;
+  padding:9px 11px;
+  color:var(--az-text);
+  background:#fff;
+  border:1px solid #ccd7e2;
+  border-radius:10px;
+  outline:none;
 }
 
-.slider-dots .dot.active{
-    transform: scale(1.2);
-    background: var(--primary-blue);
+input:focus,
+select:focus,
+textarea:focus{
+  border-color:var(--az-blue);
+  box-shadow:0 0 0 3px rgba(7,93,168,.1);
 }
 
-.espace-visiteurs{
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
+/* =========================================================
+   ALERTES
+   ========================================================= */
+
+.alert{
+  padding:13px 15px;
+  border:1px solid transparent;
+  border-radius:12px;
+  font-weight:700;
 }
 
-.espace-visiteurs textarea{
-    width: 100%;
-    min-height: 220px;
-    padding: 15px;
-    background: var(--bg-light-box);
-    color: var(--text-main);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    font-size: 17px;
-    resize: vertical;
-    box-sizing: border-box;
+.alert-info{
+  color:#245477;
+  background:#edf7ff;
+  border-color:#c8e2f5;
 }
 
-.espace-visiteurs button{
-    width: 100%;
-    padding: 16px;
-    background: var(--primary-blue);
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
+.alert-success{
+  color:#17633f;
+  background:var(--az-green-soft);
+  border-color:#b9e2cc;
 }
 
-#messages-visiteurs{
-    margin-top: 20px;
-    width: 100%;
+.alert-warning{
+  color:#795a0b;
+  background:#fff8df;
+  border-color:#ecd58b;
 }
 
-.admin-card{
-    background: var(--bg-card);
-    border-radius: 20px;
-    padding: 25px;
-    margin: 20px auto;
-    max-width: 1000px;
-    box-shadow: 0 8px 20px rgba(0,0,0,.15);
-    border: 1px solid var(--border-color);
+.alert-danger{
+  color:#8e2222;
+  background:var(--az-red-soft);
+  border-color:#efbbbb;
 }
 
-.admin-card h2{
-    text-align: center;
-    color: var(--primary-blue);
+/* =========================================================
+   PUBLICITÃ‰
+   ========================================================= */
+
+.publicite,
+.ad-banner,
+.pub{
+  overflow:hidden;
+  background:#fff;
+  border:1px solid var(--az-border);
+  border-radius:var(--az-radius);
+  box-shadow:var(--az-shadow);
 }
 
-.admin-button{
-    background: var(--primary-blue);
-    color: white;
-    padding: 12px 25px;
-    border-radius: 25px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
+.publicite img,
+.ad-banner img,
+.pub img{
+  width:100%;
 }
 
-.admin-table{
-    width: 100%;
-    overflow-x: auto;
+/* =========================================================
+   ADMINISTRATION
+   ========================================================= */
+
+.admin-dashboard,
+.admin-panel{
+  padding:20px;
 }
 
-/* ===============================
-   10. RESPONSIVE MOBILE
-================================ */
-
-@media(max-width: 700px){
-    .top-header{
-        height: 70px;
-        padding: 0 10px;
-    }
-    .logo{
-        font-size: 18px;
-    }
-    .top-menu{
-        display: none;
-    }
-    .btn-vip{
-        padding: 8px 12px;
-        font-size: 12px;
-    }
-    
-    .page-container{
-        padding-top: 130px !important;
-        padding-bottom: 90px;
-    }
-    .content{
-        padding-top: 90px;
-    }
-    .card, .analyse-detail{
-        width: 95%;
-        padding: 15px;
-    }
-    .analyse-horizontal,
-    .analyse-az-container{
-        flex-direction: column;
-    }
-    .analyse-cheval,
-    .az-box{
-        width: 100%;
-    }
-    .popular-horizontal{
-        justify-content: flex-start;
-    }
-    
-    .bottom-menu{
-        display: flex;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 65px;
-        background: #0f172a;
-        border-top: 1px solid #1e293b;
-        justify-content: space-around;
-        align-items: center;
-        box-shadow: 0 -3px 15px rgba(0,0,0,.6);
-        z-index: 1000;
-    }
-    .bottom-menu a{
-        text-decoration: none;
-        color: #38bdf8;
-        font-size: 12px;
-        font-weight: bold;
-    }
-
-    .premium-title h1{
-        font-size: 22px;
-    }
-    
-    .numero-ticket,
-    .ticket-grand{
-        font-size: 24px !important;
-        letter-spacing: 2px;
-    }
-    
-    .chevaux-premium,
-    #selection-premium{
-        font-size: 24px;
-        letter-spacing: 3px;
-    }
-    
-    .vip-box,
-    .paiement-card{
-        width: 90%;
-    }
-    
-    #chevaux-surveiller{
-        font-size: 26px;
-        width: 100%;
-        padding: 14px;
-        letter-spacing: 2px;
-    }
+.admin-stat{
+  padding:18px;
+  background:#f7faff;
+  border:1px solid #dce8f3;
+  border-radius:14px;
 }
 
-@media(max-width: 600px){
-    .numero-ticket,
-    .ticket-grand{
-        font-size: 32px !important;
-        letter-spacing: 2px;
-        padding: 15px 0;
-    }
-    .couple-ligne{
-        font-size: 26px;
-    }
-    .champ-reduit{
-        font-size: 30px;
-    }
-    .slider-pub{
-        height: 230px;
-    }
-    .pub-overlay h3{
-        font-size: 20px;
-    }
-    .pub-overlay p{
-        font-size: 14px;
-    }
-    #indice-confiance{
-        font-size: 42px;
-    }
-    #message-confiance{
-        font-size: 16px;
-    }
-    #chevaux-surveiller{
-        font-size: 22px;
-        letter-spacing: 2px;
-    }
-    .numero-ticket-grand{
-        font-size: 48px;
-        letter-spacing: 5px;
-    }
-    .numero-selection-jour{
-        min-width: 42px;
-        height: 42px;
-        font-size: 24px;
-    }
+.admin-stat strong{
+  display:block;
+  color:var(--az-blue);
+  font-size:1.6rem;
+}
+
+/* =========================================================
+   CHARGEMENT / VIDE
+   ========================================================= */
+
+.loading,
+.empty-state{
+  padding:30px 18px;
+  color:var(--az-muted);
+  text-align:center;
+}
+
+.spinner{
+  width:32px;
+  height:32px;
+  margin:0 auto 10px;
+  border:3px solid #dbe5ef;
+  border-top-color:var(--az-blue);
+  border-radius:50%;
+  animation:az-spin .8s linear infinite;
+}
+
+@keyframes az-spin{
+  to{transform:rotate(360deg)}
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+footer{
+  margin-top:20px;
+  padding:28px 16px;
+  color:var(--az-muted);
+  background:#fff;
+  border-top:1px solid var(--az-border);
+  text-align:center;
+}
+
+/* =========================================================
+   TABLETTE
+   ========================================================= */
+
+@media (max-width:900px){
+  .cards-grid,
+  .card-grid,
+  .dashboard-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .header-inner,
+  .header-container{
+    flex-direction:column;
+  }
+
+  nav{
+    width:100%;
+  }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width:640px){
+  body{
+    font-size:14px;
+  }
+
+  main{
+    padding:14px 10px 80px;
+  }
+
+  .container,
+  .conteneur,
+  .page-container,
+  .content{
+    padding-left:10px;
+    padding-right:10px;
+  }
+
+  .cards-grid,
+  .card-grid,
+  .dashboard-grid{
+    grid-template-columns:1fr;
+  }
+
+  .header-inner,
+  .header-container{
+    padding:9px 10px;
+  }
+
+  nav{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    width:100%;
+  }
+
+  nav a,
+  .nav-link{
+    min-width:0;
+    padding:8px 5px;
+    font-size:.77rem;
+  }
+
+  .card,
+  .course-card,
+  .info-card,
+  .analysis-card,
+  .journal-card,
+  .history-card,
+  .admin-panel{
+    padding:14px;
+    border-radius:14px;
+  }
+
+  .course-header,
+  .course-info,
+  .course-banner{
+    padding:15px;
+  }
+
+  .course-meta,
+  .course-details,
+  .course-infos{
+    gap:6px;
+  }
+
+  .meta-item,
+  .course-meta span{
+    padding:6px 8px;
+    font-size:.76rem;
+  }
+
+  .ticket-premium-box,
+  .ticket-premium,
+  .premium-ticket{
+    padding:15px;
+    border-radius:16px;
+  }
+
+  .ticket-numbers,
+  .ticket-selection,
+  .selection-numbers{
+    gap:5px;
+  }
+
+  .ticket-numbers span,
+  .ticket-number,
+  .selection-number{
+    min-width:35px;
+    height:35px;
+    padding:0 5px;
+    font-size:.86rem;
+  }
+
+  .btn,
+  .button{
+    width:100%;
+  }
+
+  .button-group,
+  .actions{
+    display:grid;
+    gap:8px;
+  }
+
+  #countdown,
+  .countdown,
+  .chrono,
+  .timer{
+    min-height:52px;
+    font-size:1rem;
+  }
+}
+
+/* =========================================================
+   ACCESSIBILITÃ‰
+   ========================================================= */
+
+:focus-visible{
+  outline:3px solid rgba(7,93,168,.35);
+  outline-offset:2px;
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,
+  *::before,
+  *::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    scroll-behavior:auto !important;
+    transition:none !important;
+  }
    }
