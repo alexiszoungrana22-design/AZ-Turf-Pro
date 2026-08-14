@@ -1,338 +1,157 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Mon abonnement - AZ Turf Pro</title>
-
-<link rel="stylesheet" href="style.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Abonnement - AZ Turf Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .card { background-color: #ffffff; color: #1e293b; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .progress-container { width: 100%; background-color: #e2e8f0; border-radius: 10px; height: 12px; margin-top: 8px; overflow: hidden; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #16a34a, #22c55e); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
+        .btn-action { width: 100%; padding: 14px; background: linear-gradient(135deg, #d97706, #b45309); color: #ffffff; border: none; font-weight: bold; border-radius: 10px; cursor: pointer; font-size: 15px; }
+    </style>
 </head>
-
-
 <body>
 
-
-<header class="top-header">
-
-<div class="logo">
-🏇 <span>AZ Turf Pro</span>
-</div>
-
-
-<nav class="top-menu">
-
-<a href="index.html">🏠 Accueil</a>
-
-<a href="analyse.html">📊 Analyse</a>
-
-<a href="espace-premium.html">⭐ Premium</a>
-
-</nav>
-
-</header>
-
-
-
-
-
-<main class="content">
-
-
-<section class="card">
-
-<h1>⭐ Mon abonnement Premium</h1>
-
-<p>
-Consultez votre statut et vos informations d'abonnement.
-</p>
-
-</section>
-
-
-
-
-
-<section class="card">
-
-
-<div id="infos-abonnement">
-
-Chargement de votre abonnement...
-
-</div>
-
-
-</section>
-
-
-
-
-
-<section class="card" id="renouvellement" style="display:none;">
-
-
-<h2>🔄 Renouvellement</h2>
-
-
-<p>
-Votre abonnement est arrivé à expiration.
-</p>
-
-
-<button onclick="renouveler()">
-
-⭐ Renouveler votre abonnement
-
-</button>
-
-
-</section>
-
-
-
-
-
-
-</main>
-
-
-
-
-
-
-
-<footer class="bottom-menu">
-
-
-<a href="index.html">🏠 Accueil</a>
-
-<a href="analyse.html">📊 Analyse</a>
-
-<a href="ticket-premium.html">🎟️ Ticket Premium</a>
-
-<a href="historique.html">🏆 Historique</a>
-
-<a href="espace-premium.html">⭐ Premium</a>
-
-
-</footer>
-
-
-
-
-
-
-
-
-<script>
-
-
-const API =
-"https://az-turf-pro.onrender.com/api/premium/";
-
-
-
-
-
-async function chargerAbonnement(){
-
-
-
-const telephone =
-
-localStorage.getItem(
-"AZ_TURF_TELEPHONE"
-);
-
-
-
-
-const zone =
-
-document.getElementById(
-"infos-abonnement"
-);
-
-
-
-
-
-if(!telephone){
-
-
-zone.innerHTML =
-
-"❌ Aucun numéro d'abonnement trouvé.";
-
-
-return;
-
-
-}
-
-
-
-
-
-try{
-
-
-const reponse = await fetch(
-
-API +
-encodeURIComponent(telephone)
-
-);
-
-
-
-const data = await reponse.json();
-
-
-
-
-
-console.log(
-"Abonnement :",
-data
-);
-
-
-
-
-
-
-if(!reponse.ok){
-
-
-zone.innerHTML =
-
-"❌ Abonnement introuvable.";
-
-
-return;
-
-
-}
-
-
-
-
-
-
-zone.innerHTML = `
-
-
-<h2>📱 Téléphone</h2>
-
-<p>${data.telephone}</p>
-
-
-<h2>⭐ Offre</h2>
-
-<p>${data.offre}</p>
-
-
-<h2>💳 Paiement</h2>
-
-<p>${data.paiement}</p>
-
-
-<h2>💰 Prix</h2>
-
-<p>${data.prix} FCFA</p>
-
-
-<h2>📌 Statut</h2>
-
-<p>${data.statut}</p>
-
-
-<h2>📅 Début</h2>
-
-<p>${data.date_debut || "-"}</p>
-
-
-<h2>⏳ Expiration</h2>
-
-<p>${data.date_fin || "-"}</p>
-
-
-`;
-
-
-
-
-
-
-
-if(data.statut !== "ACTIF"){
-
-
-document.getElementById(
-"renouvellement"
-).style.display="block";
-
-
-}
-
-
-
-}
-
-catch(error){
-
-
-
-console.error(error);
-
-
-
-zone.innerHTML =
-
-"❌ Erreur de connexion au serveur.";
-
-
-
-}
-
-
-
-}
-
-
-
-
-
-function renouveler(){
-
-
-window.location.href =
-
-"espace-premium.html";
-
-
-}
-
-
-
-
-
-chargerAbonnement();
-
-
-
-</script>
-
-
-
-
-
-
+    <header class="top-header">
+        <div class="logo">
+            <i class="fas fa-horse-head"></i> <span>AZ Turf Pro</span>
+        </div>
+        <nav class="top-menu">
+            <a href="index.html">🏠 Accueil</a>
+            <a href="analyse.html">📊 Analyse</a>
+            <a href="ticket-premium.html">🎟️ Ticket VIP</a>
+            <a href="mon-abonnement.html" class="active">🔑 Compte</a>
+        </nav>
+    </header>
+
+    <main class="content">
+        <section class="card">
+            <h1 style="color: #0f172a; font-size: 22px;"><i class="fas fa-user-shield"></i> Mon Espace Premium</h1>
+            <p style="color: #64748b; font-size: 14px; margin-top: 5px;">Gérez votre abonnement et consultez votre statut d'accès.</p>
+        </section>
+
+        <section class="card">
+            <div id="infos-abonnement">
+                <p style="color: #4b5563;"><i class="fas fa-spinner fa-spin"></i> Chargement sécurisé de vos données...</p>
+            </div>
+        </section>
+
+        <section class="card" id="renouvellement" style="display:none; text-align: center;">
+            <h2 style="color: #dc2626; font-size: 18px;"><i class="fas fa-exclamation-circle"></i> Activation requise</h2>
+            <p style="margin: 10px 0 15px 0; color: #4b5563; font-size: 14px;">Votre accès Premium n'est pas encore actif.</p>
+            <button onclick="renouveler()" class="btn-action">
+                <i class="fas fa-key"></i> Activer mon accès avec ma référence
+            </button>
+        </section>
+    </main>
+
+    <footer class="bottom-menu">
+        <a href="index.html">🏠 Accueil</a>
+        <a href="analyse.html">📊 Analyse</a>
+        <a href="ticket-premium.html">🎟️ Ticket VIP</a>
+        <a href="mon-abonnement.html" class="active">🔑 Compte</a>
+    </footer>
+
+    <script>
+        const API = "https://az-turf-pro.onrender.com/api/premium/";
+
+        function formaterDate(dateString) {
+            if (!dateString || dateString === "-") return "-";
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return dateString;
+                return date.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" });
+            } catch (e) { return dateString; }
+        }
+
+        function calculerProgression(dateDebutStr, dateFinStr) {
+            if (!dateDebutStr || !dateFinStr || dateDebutStr === "-" || dateFinStr === "-") return 0;
+            const debut = new Date(dateDebutStr).getTime();
+            const fin = new Date(dateFinStr).getTime();
+            const aujourdHui = new Date().getTime();
+            
+            if (aujourdHui >= fin) return 0;
+            if (aujourdHui <= debut) return 100;
+            
+            const total = fin - debut;
+            const restant = fin - aujourdHui;
+            return Math.max(0, Math.min(100, (restant / total) * 100));
+        }
+
+        async function chargerAbonnement() {
+            const telephone = localStorage.getItem("AZ_TURF_TELEPHONE");
+            const zone = document.getElementById("infos-abonnement");
+
+            if (!telephone) {
+                zone.innerHTML = "<p style='color: #dc2626; font-weight: bold;'><i class='fas fa-exclamation-triangle'></i> Aucun numéro enregistré sur ce téléphone.</p>";
+                document.getElementById("renouvellement").style.display = "block";
+                return;
+            }
+
+            try {
+                const reponse = await fetch(API + encodeURIComponent(telephone));
+                const data = await reponse.json();
+
+                if (!reponse.ok) {
+                    zone.innerHTML = "<p style='color: #dc2626; font-weight: bold;'><i class='fas fa-times-circle'></i> Abonnement introuvable pour le numéro " + telephone + ".</p>";
+                    document.getElementById("renouvellement").style.display = "block";
+                    return;
+                }
+
+                const telAffiche = data.telephone || telephone;
+                const offreAffiche = data.offre || "Pack Premium VIP";
+                const prixAffiche = data.prix ? `${data.prix} FCFA` : "Payé";
+                const dateFin = formaterDate(data.date_fin);
+                const statut = data.statut || "INACTIF";
+                
+                const couleurStatut = statut === "ACTIF" ? "#16a34a" : "#dc2626";
+                const iconeStatut = statut === "ACTIF" ? "fa-check-circle" : "fa-lock";
+                const pourcentage = statut === "ACTIF" ? calculerProgression(data.date_debut, data.date_fin) : 0;
+
+                zone.innerHTML = `
+                    <div style="margin-bottom: 15px;">
+                        <h2 style="font-size: 13px; color: #64748b; text-transform: uppercase;"><i class="fas fa-mobile-alt"></i> Numéro Téléphone</h2>
+                        <p style="font-size: 18px; font-weight: bold; color: #0f172a;">${telAffiche}</p>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 12px 0; margin-bottom: 15px;">
+                        <div>
+                            <h2 style="font-size: 13px; color: #64748b; text-transform: uppercase;"><i class="fas fa-star"></i> Formule</h2>
+                            <p style="font-weight: bold; color: #0f172a;">${offreAffiche}</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <h2 style="font-size: 13px; color: #64748b; text-transform: uppercase;"><i class="fas fa-coins"></i> Tarification</h2>
+                            <p style="font-weight: bold; color: #0f172a;">${prixAffiche}</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 10px;">
+                        <h2 style="font-size: 16px; color: #0f172a;"><i class="fas ${iconeStatut}" style="color: ${couleurStatut};"></i> Statut : <span style="color: ${couleurStatut}; font-weight: bold;">${statut}</span></h2>
+                        <p style="font-size: 13px; color: #64748b; margin-top: 4px;">Valide jusqu'au : <strong>${dateFin}</strong></p>
+                        
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: ${pourcentage}%;"></div>
+                        </div>
+                    </div>
+                `;
+
+                if (statut !== "ACTIF") {
+                    document.getElementById("renouvellement").style.display = "block";
+                }
+
+            } catch (error) {
+                zone.innerHTML = "<p style='color: #dc2626;'><i class='fas fa-wifi'></i> Impossible de joindre le serveur d'abonnement.</p>";
+            }
+        }
+
+        function renouveler() {
+            window.location.href = "activation.html";
+        }
+
+        chargerAbonnement();
+    </script>
 </body>
-
 </html>
