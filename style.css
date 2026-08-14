@@ -1,1729 +1,396 @@
-==========================
-   AZ TURF PRO DESIGN V10 - THEME PREMIUM SOMBRE
-   PARTIE 1/3
-   Structure d'origine conservée, couleurs Premium
-================================ */
+/* =====================================================
+   AZ TURF PRO â€” STYLE PROPOSÃ‰
+   Direction : "ticket de course / tableau du totalisateur"
+   ===================================================== */
 
-:root {
-    --bg-main: #121212;
-    --bg-card: #1E1E1E;
-    --bg-light-box: #2A2A2A;
-    --text-main: #F5F5F5;
-    --gold-premium: #D4AF37;
-    --gold-hover: #F3E5AB;
-    --orange-outsider: #ff9800;
-    --border-color: #333333;
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;700&display=swap');
+
+:root{
+    --vert-piste: #12352A;
+    --vert-nuit: #0A211A;
+    --vert-signal: #2F6B4F;
+    --papier: #F3ECDA;
+    --papier-ombre: #E4D9BE;
+    --encre: #1E2A24;
+    --encre-douce: #4A5A52;
+    --or-selle: #B8863B;
+    --or-clair: #D9B876;
+    --brique: #A13D2D;
+
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-corps: 'IBM Plex Sans', system-ui, sans-serif;
+    --font-chiffres: 'IBM Plex Mono', monospace;
+
+    --rayon: 4px;
+    --ombre: 0 2px 8px rgba(10,33,26,0.18);
 }
 
-/* ===============================
-   RESET GENERAL
-================================ */
-*{
-    box-sizing:border-box;
-}
-
-html{
-    scroll-behavior:smooth;
-}
+*{ box-sizing: border-box; margin: 0; padding: 0; }
 
 body{
-    margin:0;
-    padding:0;
-    font-family:Arial, sans-serif;
-    background:var(--bg-main);
-    color:var(--text-main);
-}
-
-/* ===============================
-   HEADER PRINCIPAL
-================================ */
-.top-header{
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:75px;
-    background:var(--bg-card);
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 20px;
-    box-shadow:0 4px 15px rgba(0,0,0,.5);
-    border-bottom: 2px solid var(--gold-premium);
-    z-index:1000;
-}
-
-.brand-zone{
-    display:flex;
-    flex-direction:column;
-}
-
-.logo{
-    font-size:23px;
-    font-weight:bold;
-    color:var(--gold-premium);
-}
-
-.mini-countdown{
-    font-size:12px;
-    font-weight:bold;
-    color:var(--gold-premium);
-}
-
-.mini-countdown.urgent{
-    color:red;
-}
-
-/* ===============================
-   MENU HAUT
-================================ */
-.top-menu{
-    display:flex;
-    gap:10px;
-}
-
-.top-menu a{
-    background:var(--bg-light-box);
-    color:var(--text-main);
-    border: 1px solid var(--border-color);
-    text-decoration:none;
-    padding:8px 14px;
-    border-radius:25px;
-    font-size:13px;
-    font-weight:bold;
-    transition: all 0.3s ease;
-}
-
-.top-menu a:hover {
-    border-color: var(--gold-premium);
-    color: var(--gold-premium);
-}
-
-.btn-vip{
-    background:linear-gradient(45deg,#d4af37,#ffe680);
-    color:#111;
-    padding:10px 18px;
-    border-radius:25px;
-    font-weight:bold;
-    text-decoration:none;
-    box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
-}
-
-/* ===============================
-   CONTENU GENERAL
-================================ */
-.content{
-    padding-top:130px;
-    padding-bottom:90px;
-    max-width:1200px;
-    margin:auto;
-}
-
-.page-container{
-    width:100%;
-    max-width:1400px;
-    margin:auto;
-    padding:20px;
-}
-
-.card{
-    background:var(--bg-card);
-    width:95%;
-    margin:20px auto;
-    padding:22px;
-    border-radius:20px;
-    box-shadow:0 5px 15px rgba(0,0,0,.3);
-    border: 1px solid var(--border-color);
-}
-
-.card h2{
-    text-align:center;
-    color:var(--gold-premium);
-    margin-top:0;
-    line-height:1.4;
-}
-
-/* ===============================
-   PUBLICITE
-================================ */
-.pub-box{
-    padding:10px;
-}
-
-.pub-content img,
-.pub-content video{
-    width:100%;
-    height:160px;
-    object-fit:cover;
-    border-radius:18px;
-    display:block;
-}
-
-.pub-banner {
-    width: 100%;
-    height: auto;
-    min-height: 120px;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.pub-banner img {
-    width: 100%;
-    height: auto;
-    max-height: 220px;
-    object-fit: contain;
-    display: block;
-}
-
-/* ===============================
-   TABLEAUX
-================================ */
-.table-container{
-    width:100%;
-    overflow-x:auto;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    min-width:850px;
-}
-
-th{
-    background:var(--gold-premium);
-    color:#111;
-    padding:12px;
-}
-
-td{
-    padding:12px;
-    text-align:center;
-    border-bottom:1px solid var(--border-color);
-    color: var(--text-main);
-}
-
-/* ===============================
-   MENU MOBILE BAS
-================================ */
-.bottom-menu{
-    display:none;
-}
-
-/* ===============================
-   AZ TURF PRO DESIGN V10
-   PARTIE 2/3
-================================ */
-
-/* ===============================
-   ANALYSE AZ
-================================ */
-.analyse-horizontal{
-    display:flex;
-    gap:20px;
-}
-
-.analyse-cheval{
-    flex:1;
-    background:var(--bg-light-box);
-    border-radius:20px;
-    padding:20px;
-    text-align:center;
-    border-top:6px solid var(--gold-premium);
-}
-
-.analyse-cheval.outsider{
-    border-top-color:var(--orange-outsider);
-}
-
-.analyse-numero{
-    font-size:55px;
-    font-weight:bold;
-    color:var(--gold-premium);
-}
-
-.outsider .analyse-numero{
-    color:var(--orange-outsider);
-}
-
-.analyse-cheval p{
-    line-height:1.6;
-}
-
-/* ===============================
-   BLOC ANALYSE PREMIUM
-================================ */
-.analyse-az{
-    border-top:5px solid var(--gold-premium);
-}
-
-.analyse-az-container{
-    display:flex;
-    gap:20px;
-}
-
-.az-box{
-    flex:1;
-    background:var(--bg-light-box);
-    padding:22px;
-    border-radius:22px;
-    text-align:center;
-}
-
-.favori-az{
-    border-top:6px solid var(--gold-premium);
-}
-
-.outsider-az{
-    border-top:6px solid var(--orange-outsider);
-}
-
-.az-numero{
-    font-size:60px;
-    font-weight:bold;
-    color:var(--gold-premium);
-}
-
-.outsider-numero{
-    color:var(--orange-outsider);
-}
-
-.az-box h4{
-    font-size:22px;
-}
-
-/* ===============================
-   CHEVAUX LES PLUS JOUES
-================================ */
-.popular-horizontal{
-    display:flex;
-    gap:18px;
-    justify-content:center;
-    overflow-x:auto;
-    padding:15px;
-}
-
-.popular-card{
-    min-width:85px;
-    height:85px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:var(--bg-light-box);
-    border-radius:50%;
-    border-top:6px solid var(--gold-premium);
-    box-shadow:0 4px 12px rgba(0,0,0,.3);
-    font-size:42px;
-    font-weight:900;
-    color:var(--gold-premium);
-}
-
-/* ===============================
-   TENDANCE
-================================ */
-.tendance-box{
-    border-top:5px solid var(--gold-premium);
-}
-
-#course-tendance{
-    background:var(--bg-light-box);
-    padding:20px;
-    border-radius:18px;
-    text-align:center;
-    font-weight:bold;
-    color: var(--gold-premium);
-}
-
-/* ===============================
-   BANDEAU INFORMATION
-================================ */
-.news-bar{
-    width:95%;
-    margin:20px auto;
-    background:var(--gold-premium);
-    color:#111;
-    padding:15px;
-    border-radius:20px;
-    text-align:center;
-    font-weight:bold;
-}
-
-/* ===============================
-   PAIEMENT PREMIUM
-================================ */
-.payment-choice,
-.paiement-options{
-    display:flex;
-    gap:20px;
-    justify-content:center;
-    flex-wrap:wrap;
-    margin-top:20px;
-}
-
-.payment-choice button,
-.paiement-card{
-    background:var(--bg-light-box);
-    color:var(--text-main);
-    border:2px solid var(--gold-premium);
-    padding:15px;
-    border-radius:20px;
-    font-weight:bold;
-    cursor: pointer;
-}
-
-.paiement-card{
-    width:280px;
-    text-align:center;
-}
-
-.btn-payment,
-#confirmer-paiement{
-    display:block;
-    margin:20px auto;
-    background:linear-gradient(45deg,#d4af37,#ffe680);
-    color:#111;
-    border:none;
-    padding:14px 35px;
-    border-radius:30px;
-    font-weight:bold;
-    cursor: pointer;
-}
-
-/* ===============================
-   ABONNEMENT PREMIUM
-================================ */
-.vip-offres{
-    display:flex;
-    gap:20px;
-    justify-content:center;
-    flex-wrap:wrap;
-}
-
-.vip-box{
-    background:var(--bg-card);
-    border: 1px solid var(--gold-premium);
-    border-radius:15px;
-    padding:20px;
-    width:260px;
-    text-align:center;
-    box-shadow:0 4px 15px rgba(212,175,55,.15);
-}
-
-.vip-box button{
-    background:linear-gradient(45deg,#d4af37,#ffe680);
-    color:#111;
-    border:none;
-    padding:12px 25px;
-    border-radius:25px;
-    font-weight:bold;
-    cursor: pointer;
-}
-
-/* ===============================
-   FOOTER MOBILE
-================================ */
-.bottom-menu a{
-    text-decoration:none;
-    color:var(--gold-premium);
-    font-size:12px;
-    font-weight:bold;
-}
-
-/* ===============================
-   AZ TURF PRO DESIGN V10
-   PARTIE 3/3
-================================ */
-
-/* ===============================
-   ESPACE TICKET PREMIUM
-================================ */
-.premium-container{
-    max-width:900px;
-    margin:auto;
-    padding:15px;
-}
-
-.premium-header{
-    text-align:center;
-    padding:25px;
-    border-radius:25px;
-}
-
-.premium-logo{
-    font-size:30px;
-    font-weight:bold;
-}
-
-.premium-title h1{
-    font-size:28px;
-    color: var(--gold-premium);
-}
-
-.premium-banner{
-    background:linear-gradient(135deg,#111111,#332200, #d4af37);
-    color:white;
-    padding:30px;
-    border-radius:25px;
-    text-align:center;
-}
-
-.premium-card{
-    background:var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius:20px;
-    padding:20px;
-    margin:20px 0;
-    box-shadow:0 5px 15px rgba(0,0,0,.3);
-}
-
-.premium-card h2{
-    text-align:center;
-    color:var(--gold-premium);
-}
-
-/* ===============================
-   SELECTION PREMIUM
-================================ */
-.chevaux-premium,
-#selection-premium{
-    text-align:center;
-    font-size:32px;
-    font-weight:bold;
-    letter-spacing:6px;
-    padding:20px;
-    color:var(--gold-premium);
-}
-
-/* ===============================
-   TICKETS PREMIUM
-================================ */
-.ticket-premium-box{
-    background:var(--bg-light-box);
-    border:2px solid var(--gold-premium);
-    border-radius:20px;
-    padding:20px 10px;
-    margin:20px 0;
-    text-align:center;
-    overflow:hidden;
-}
-
-.ticket-premium-box h3{
-    font-size:24px;
-    font-weight:900;
-    color: var(--text-main);
-}
-
-.numero-ticket,
-.ticket-grand{
-    text-align:center;
-    font-size:42px;
-    font-weight:900;
-    letter-spacing:3px;
-    padding:20px 5px;
-    color: var(--gold-premium);
-}
-
-.couple-ligne{
-    text-align:center;
-    font-size:36px;
-    font-weight:900;
-    margin:15px 0;
-    white-space:nowrap;
-    color: var(--gold-premium);
-}
-
-.champ-reduit{
-    text-align:center;
-    font-size:38px;
-    font-weight:900;
-    overflow-wrap:anywhere;
-    color: var(--gold-premium);
-}
-
-/* MOBILE TICKETS */
-@media(max-width:600px){
-    .numero-ticket,
-    .ticket-grand{
-        font-size:32px;
-        letter-spacing:2px;
-        padding:15px 0;
-    }
-    .couple-ligne{
-        font-size:26px;
-    }
-    .champ-reduit{
-        font-size:30px;
-    }
-}
-
-/* ===============================
-   MESSAGE PREMIUM
-================================ */
-.premium-message,
-.message-fin{
-    text-align:center;
-    padding:25px;
-    border-radius:20px;
-    background:var(--bg-light-box);
-    color: var(--gold-premium);
-    border: 1px solid var(--gold-premium);
-    font-weight:bold;
-    font-size:18px;
-}
-
-/* ===============================
-   ADMINISTRATION
-================================ */
-.admin-card{
-    background:var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius:20px;
-    padding:25px;
-    margin:20px auto;
-    max-width:1000px;
-    box-shadow:0 5px 15px rgba(0,0,0,.3);
-}
-
-.admin-card h2{
-    text-align:center;
-    color:var(--gold-premium);
-}
-
-.admin-button{
-    background:linear-gradient(45deg,#d4af37,#ffe680);
-    color:#111;
-    padding:12px 25px;
-    border-radius:25px;
-    border:none;
-    font-weight:bold;
-    cursor: pointer;
-}
-
-.admin-table{
-    width:100%;
-    overflow-x:auto;
-}
-
-/* ===============================
-   RESPONSIVE MOBILE
-================================ */
-@media(max-width:700px){
-
-    .top-header{
-        height:70px;
-        padding:0 10px;
-    }
-
-    .logo{
-        font-size:18px;
-    }
-
-    .top-menu{
-        display:none;
-    }
-
-    .btn-vip{
-        padding:8px 12px;
-        font-size:12px;
-    }
-
-    /* Correction page Analyse sous header fixe */
-    .page-container{
-        padding-top:130px !important;
-        padding-bottom:90px;
-    }
-
-    .content{
-        padding-top:90px;
-    }
-
-    .card{
-        width:95%;
-        padding:15px;
-    }
-
-    .analyse-horizontal,
-    .analyse-az-container{
-        flex-direction:column;
-    }
-
-    .analyse-cheval,
-    .az-box{
-        width:100%;
-    }
-
-    .popular-horizontal{
-        justify-content:flex-start;
-    }
-
-    .bottom-menu{
-        display:flex;
-        position:fixed;
-        bottom:0;
-        left:0;
-        width:100%;
-        height:65px;
-        background:var(--bg-card);
-        border-top: 1px solid var(--border-color);
-        justify-content:space-around;
-        align-items:center;
-        box-shadow:0 -3px 12px rgba(0,0,0,.5);
-        z-index:1000;
-    }
-
-    .premium-title h1{
-        font-size:22px;
-    }
-
-    .numero-ticket,
-    .ticket-grand{
-        font-size:24px;
-        letter-spacing:2px;
-    }
-
-    .chevaux-premium,
-    #selection-premium{
-        font-size:24px;
-        letter-spacing:3px;
-    }
-
-    .vip-box,
-    .paiement-card{
-        width:90%;
-    }
-
-}
-
-/* ===============================
-   CORRECTION PAGE ANALYSE AZ
-   Couplé - Avis jockey - Entraîneur
-   Synthèse AZ
-================================ */
-.couple-box,
-.jockey-box,
-.entraineur-box,
-.synthese-box,
-#couple-place,
-#avis-jockey,
-#avis-entraineur,
-#synthese-az{
-    display:block;
-    visibility:visible;
-    opacity:1;
-}
-
-.analyse-detail{
-    background:var(--bg-card);
-    border-radius:18px;
-    padding:20px;
-    margin:15px auto;
-    box-shadow:0 4px 12px rgba(0,0,0,.3);
-    border: 1px solid var(--border-color);
-}
-
-.analyse-detail h3{
-    text-align:center;
-    color:var(--gold-premium);
-}
-
-#avis-jockey,
-#avis-entraineur,
-#couple-place,
-#synthese-az{
-    line-height:1.6;
-    padding:15px;
-    background:var(--bg-light-box);
-    border-radius:15px;
-}
-
-.synthese-box{
-    border-top:5px solid var(--gold-premium);
-}
-
-@media(max-width:700px){
-    .analyse-detail{
-        width:95%;
-    }
-}
-
-/* ===============================
-   RESTAURATION ZONES ANALYSE
-================================ */
-#couple-place,
-#couple-gagnant,
-#avis-jockey,
-#avis-entraineur,
-#avis-course,
-#actualites-course,
-#synthese-az,
-#syntheseAZ{
-    display:block !important;
-    visibility:visible !important;
-    opacity:1 !important;
-    height:auto !important;
-    overflow:visible !important;
-}
-
-.analyse-section,
-.detail-analyse,
-.synthese-zone{
-    display:block;
-    background:var(--bg-card);
-    padding:20px;
-    margin:15px auto;
-    border-radius:20px;
-    border: 1px solid var(--border-color);
+    font-family: var(--font-corps);
+    background: var(--vert-piste);
+    color: var(--papier);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
 }
 
 /* =====================================
-   AZ TURF PRO
-   SLIDER PUBLICITAIRE ACCUEIL V2
-===================================== */
-.pub-box{
-    overflow:hidden;
-}
+   EN-TÃŠTE
+   ===================================== */
 
-.slider-pub{
-    position:relative;
-    width:100%;
-    height:280px;
-    overflow:hidden;
-    border-radius:25px;
-}
-
-.slider-pub img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    display:block;
-    transition:opacity .8s ease;
-}
-
-.pub-overlay{
-    position:absolute;
-    bottom:0;
-    left:0;
-    width:100%;
-    padding:25px 15px;
-    text-align:center;
-    background:linear-gradient(transparent,rgba(0,0,0,.9));
-    color:var(--gold-premium);
-}
-
-.pub-overlay h3{
-    margin:0 0 8px;
-    font-size:26px;
-}
-
-.pub-overlay p{
-    margin:0;
-    font-size:17px;
-    color: var(--text-main);
-}
-
-.slider-dots{
-    text-align:center;
-    margin-top:15px;
-}
-
-.slider-dots .dot{
-    display:inline-block;
-    width:12px;
-    height:12px;
-    border-radius:50%;
-    margin:0 5px;
-    background:#555;
-}
-
-.slider-dots .dot.active{
-    transform:scale(1.2);
-    background:var(--gold-premium);
-}
-
-@media(max-width:600px){
-    .slider-pub{
-        height:230px;
-    }
-    .pub-overlay h3{
-        font-size:20px;
-    }
-    .pub-overlay p{
-        font-size:14px;
-    }
-}
-
-/* =====================================
-   AZ TURF PRO
-   NOUVEAUX BLOCS ACCUEIL
-   INDICE CONFIANCE + SURVEILLANCE
-===================================== */
-
-/* ==============================
-   INDICE DE CONFIANCE
-============================== */
-.confiance-box{
-    text-align:centerC'est parfaitement clair. Voici le fichier `style.css` complet et corrigé. Il a été conçu pour être facilement copié en une seule fois depuis ton téléphone[cite: 1], afin de restaurer de manière fiable le design de l'application AZ Turf Pro[cite: 1].
-
-J'ai scrupuleusement conservé **toutes tes dimensions** (les marges, les `padding-top: 130px`, la taille du header, etc.) ainsi que **l'intégralité de la structure** que tu as mise en place. 
-
-Pour éviter que le design ne se casse, j'ai nettoyé et regroupé intelligemment ton code. Les correctifs qui s'empilaient à la fin de ton ancien fichier (comme les tailles `!important` des grands numéros, la restauration des zones d'analyse, et les correctifs mobiles) ont été fusionnés avec leurs éléments d'origine ou rassemblés proprement à la fin dans les requêtes `@media`.
-
-Voici la version finale, propre et respectueuse de ta structure :
-
-```css
-/* ===============================
-   AZ TURF PRO DESIGN V10 - FINAL
-   Structure et Dimensions Préservées
-================================ */
-
-/* ===============================
-   1. RESET GENERAL
-================================ */
-*{
-    box-sizing: border-box;
-}
-
-html{
-    scroll-behavior: smooth;
-}
-
-body{
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    background: #f4f7f8;
-    color: #222;
-}
-
-/* ===============================
-   2. HEADER PRINCIPAL & MENUS
-================================ */
 .top-header{
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 75px;
-    background: white;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    box-shadow: 0 4px 15px rgba(0,0,0,.15);
-    z-index: 1000;
-}
-
-.brand-zone{
-    display: flex;
-    flex-direction: column;
-}
-
-.logo{
-    font-size: 23px;
-    font-weight: bold;
-    color: #08783f;
-}
-
-.mini-countdown{
-    font-size: 12px;
-    font-weight: bold;
-    color: #08783f;
-}
-
-.mini-countdown.urgent{
-    color: red;
-}
-
-.top-menu{
-    display: flex;
-    gap: 10px;
-}
-
-.top-menu a{
-    background: #08783f;
-    color: white;
-    text-decoration: none;
-    padding: 8px 14px;
-    border-radius: 25px;
-    font-size: 13px;
-    font-weight: bold;
-}
-
-.btn-vip{
-    background: linear-gradient(45deg, #d4af37, #ffe680);
-    color: #111;
-    padding: 10px 18px;
-    border-radius: 25px;
-    font-weight: bold;
-    text-decoration: none;
-}
-
-.bottom-menu{
-    display: none; /* Affiché uniquement sur mobile */
-}
-
-/* ===============================
-   3. CONTENU GENERAL & BOITES
-================================ */
-.content{
-    padding-top: 130px;
-    padding-bottom: 90px;
-    max-width: 1200px;
-    margin: auto;
-}
-
-.page-container{
-    width: 100%;
-    max-width: 1400px;
-    margin: auto;
-    padding: 20px;
-}
-
-.card{
-    background: white;
-    width: 95%;
-    margin: 20px auto;
-    padding: 22px;
-    border-radius: 20px;
-    box-shadow: 0 5px 15px rgba(0,0,0,.08);
-}
-
-.card h2{
-    text-align: center;
-    color: #08783f;
-    margin-top: 0;
-    line-height: 1.4;
-}
-
-.news-bar{
-    width: 95%;
-    margin: 20px auto;
-    background: #08783f;
-    color: white;
-    padding: 15px;
-    border-radius: 20px;
-    text-align: center;
-    font-weight: bold;
-}
-
-/* ===============================
-   4. TABLEAUX
-================================ */
-.table-container{
-    width: 100%;
-    overflow-x: auto;
-}
-
-table{
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 850px;
-}
-
-th{
-    background: #08783f;
-    color: white;
-    padding: 12px;
-}
-
-td{
-    padding: 12px;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
-}
-
-/* ===============================
-   5. ANALYSE AZ & TENDANCES
-================================ */
-.analyse-horizontal{
-    display: flex;
-    gap: 20px;
-}
-
-.analyse-cheval{
-    flex: 1;
-    background: #f4f7f8;
-    border-radius: 20px;
-    padding: 20px;
-    text-align: center;
-    border-top: 6px solid #08783f;
-}
-
-.analyse-cheval.outsider{
-    border-top-color: #ff9800;
-}
-
-.analyse-cheval p{
-    line-height: 1.6;
-}
-
-/* Blocs Analyse détaillés (Avis, Couplé, Synthèse) */
-.analyse-section,
-.detail-analyse,
-.synthese-zone{
-    display: block;
-    background: white;
-    padding: 20px;
-    margin: 15px auto;
-    border-radius: 20px;
-}
-
-.analyse-detail{
-    background: #ffffff;
-    border-radius: 18px;
-    padding: 20px;
-    margin: 15px auto;
-    box-shadow: 0 4px 12px rgba(0,0,0,.08);
-}
-
-.analyse-detail h3{
-    text-align: center;
-    color: #08783f;
-}
-
-.couple-box,
-.jockey-box,
-.entraineur-box,
-.synthese-box,
-#couple-place,
-#couple-gagnant,
-#avis-jockey,
-#avis-entraineur,
-#avis-course,
-#actualites-course,
-#synthese-az,
-#syntheseAZ{
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    height: auto !important;
-    overflow: visible !important;
-}
-
-#avis-jockey,
-#avis-entraineur,
-#couple-place,
-#synthese-az{
-    line-height: 1.6;
-    padding: 15px;
-    background: #f4f7f8;
-    border-radius: 15px;
-}
-
-.synthese-box{
-    border-top: 5px solid #08783f;
-}
-
-/* Indice de Confiance & Surveillance */
-.confiance-box, .surveillance-box{
-    text-align: center;
-}
-
-.confiance-score{
-    margin: 25px auto;
-}
-
-#indice-confiance{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 55px;
-    font-weight: 900;
-}
-
-#message-confiance{
-    font-size: 18px;
-    font-weight: bold;
-    text-align: center;
-}
-
-#chevaux-surveiller{
-    font-size: 30px;
-    font-weight: 900;
-    line-height: 1.8;
-    padding: 20px;
-}
-
-/* Tendance */
-.tendance-box{
-    border-top: 5px solid #08783f;
-}
-
-#course-tendance{
-    background: #f4f7f8;
-    padding: 20px;
-    border-radius: 18px;
-    text-align: center;
-    font-weight: bold;
-}
-
-/* Analyse Premium Container */
-.analyse-az{
-    border-top: 5px solid #08783f;
-}
-
-.analyse-az-container{
-    display: flex;
-    gap: 20px;
-}
-
-.az-box{
-    flex: 1;
-    background: #f4f7f8;
-    padding: 22px;
-    border-radius: 22px;
-    text-align: center;
-}
-
-.az-box h4{
-    font-size: 22px;
-}
-
-.favori-az{
-    border-top: 6px solid #08783f;
-}
-
-.outsider-az{
-    border-top: 6px solid #ff9800;
-}
-
-/* ===============================
-   6. SELECTIONS & CHEVAUX
-================================ */
-.popular-horizontal{
-    display: flex;
-    gap: 18px;
-    justify-content: center;
-    overflow-x: auto;
-    padding: 15px;
-}
-
-.popular-card{
-    min-width: 85px;
-    height: 85px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: white;
-    border-radius: 50%;
-    border-top: 6px solid #08783f;
-    box-shadow: 0 4px 12px rgba(0,0,0,.15);
-    font-size: 42px;
-    font-weight: 900;
-    color: #08783f;
-}
-
-#selection-jour{
+    background: var(--vert-nuit);
+    padding: 14px 16px;
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
     align-items: center;
+    justify-content: space-between;
     gap: 10px;
+    border-bottom: 1px solid rgba(217,184,118,0.25);
 }
 
-.numero-selection-jour{
+.brand-zone{ display:flex; align-items:center; gap:14px; }
+
+.logo{
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--papier);
+    letter-spacing: 0.2px;
+}
+
+.mini-countdown{
+    font-family: var(--font-chiffres);
+    font-size: 12px;
+    color: var(--or-clair);
+    background: rgba(184,134,59,0.14);
+    border: 1px solid rgba(184,134,59,0.4);
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+
+.top-menu{ display:flex; gap: 4px; flex-wrap: wrap; }
+
+.top-menu a{
+    color: rgba(243,236,218,0.72);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: var(--rayon);
+    transition: background .15s, color .15s;
+}
+
+.top-menu a:hover,
+.top-menu a.active{
+    background: rgba(217,184,118,0.14);
+    color: var(--or-clair);
+}
+
+.btn-vip{
+    display: inline-block;
+    background: linear-gradient(135deg, var(--or-selle), var(--or-clair));
+    color: var(--vert-nuit);
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: var(--rayon);
+    font-size: 14px;
+    box-shadow: 0 2px 0 rgba(10,33,26,0.3);
+}
+
+.btn-vip:active{ transform: translateY(1px); box-shadow: none; }
+
+/* =====================================
+   CONTENU / CARTES "TICKET"
+   ===================================== */
+
+.content{
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+.card{
+    background: var(--papier);
+    color: var(--encre);
+    border-radius: var(--rayon);
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    box-shadow: var(--ombre);
+    position: relative;
+
+    /* Bord perforÃ© faÃ§on ticket dÃ©tachable */
+    border-top: 2px dashed var(--papier-ombre);
+}
+
+.card::before,
+.card::after{
+    content: "";
+    position: absolute;
+    top: -8px;
+    width: 16px; height: 16px;
+    background: var(--vert-piste);
+    border-radius: 50%;
+}
+.card::before{ left: -8px; }
+.card::after{ right: -8px; }
+
+.card h2{
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--vert-signal);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--papier-ombre);
+}
+
+.card h3{
+    font-family: var(--font-display);
+    font-size: 15px;
+    color: var(--encre);
+    margin-bottom: 6px;
+}
+
+.card p{ font-size: 14px; color: var(--encre-douce); margin-bottom: 4px; }
+.card strong{ color: var(--encre); font-weight: 600; }
+
+/* =====================================
+   NOMBRES / INDICES â€” effet totalisateur
+   ===================================== */
+
+.az-numero,
+.numero-ticket,
+.badge-indice{
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 48px;
-    height: 48px;
-    padding: 0 8px;
-    border-radius: 12px;
-    font-size: 28px;
-    font-weight: 900;
-    line-height: 1;
-    background: #f5f5f5;
-    border: 2px solid #08783f;
+    font-family: var(--font-chiffres);
+    font-weight: 700;
+    background: var(--vert-nuit);
+    color: var(--or-clair);
+    border-radius: var(--rayon);
+    padding: 6px 12px;
+    letter-spacing: 1px;
 }
 
-/* Numéros Grand Format */
-.numero-cheval,
-.numero-ticket,
-.cheval-numero,
-.ticket-numero,
-.numero-selection,
-.analyse-numero,
-.az-numero {
-    font-size: 55px !important;
-    font-weight: 900 !important;
-    line-height: 1 !important;
-    text-align: center !important;
-    display: inline-flex !important;
-    justify-content: center;
-    align-items: center;
-    min-width: 65px;
-    color: #08783f;
+.az-numero{ font-size: 28px; padding: 10px 18px; margin: 6px 0; }
+
+/* =====================================
+   FAVORI / OUTSIDER
+   ===================================== */
+
+.analyse-az-container{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
 }
 
-/* Dérogations couleurs Grand Format */
-.outsider .analyse-numero, 
-.outsider-numero {
-    color: #ff9800 !important;
+@media (max-width: 480px){
+    .analyse-az-container{ grid-template-columns: 1fr; }
 }
 
-.plus-joue .numero-cheval {
-    font-size: 50px !important;
-}
-
-.selection-jour .numero-cheval {
-    font-size: 55px !important;
-}
-
-.numero-ticket-grand{
-    font-size: 60px;
-    font-weight: 900;
-    letter-spacing: 8px;
+.az-box{
+    background: var(--papier-ombre);
+    border-radius: var(--rayon);
+    padding: 14px;
     text-align: center;
-    padding: 30px;
 }
 
-/* ===============================
-   7. PREMIUM & TICKETS
-================================ */
-.premium-container{
-    max-width: 900px;
-    margin: auto;
-    padding: 15px;
+.favori-az h3{ color: var(--vert-signal); }
+.outsider-az h3{ color: var(--brique); }
+
+/* =====================================
+   TABLEAU DES PARTANTS
+   ===================================== */
+
+.table-container{ overflow-x: auto; }
+
+table{ width: 100%; border-collapse: collapse; font-size: 13px; }
+
+th{
+    font-family: var(--font-chiffres);
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    color: var(--encre-douce);
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 2px solid var(--papier-ombre);
 }
+
+td{
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--papier-ombre);
+    color: var(--encre);
+}
+
+tr:hover td{ background: rgba(184,134,59,0.08); }
+
+/* =====================================
+   TICKETS PREMIUM
+   ===================================== */
+
+.premium-container{ max-width: 720px; margin: 0 auto; padding: 16px; }
 
 .premium-header{
     text-align: center;
-    padding: 25px;
-    border-radius: 25px;
+    padding: 24px 16px;
+    background: var(--vert-nuit);
+    border-radius: var(--rayon);
+    margin-bottom: 16px;
 }
 
-.premium-logo{
-    font-size: 30px;
-    font-weight: bold;
-}
+.premium-logo{ font-size: 26px; }
 
 .premium-title h1{
-    font-size: 28px;
+    font-family: var(--font-display);
+    color: var(--or-clair);
+    font-size: 22px;
+    margin-top: 8px;
 }
 
-.premium-banner{
-    background: linear-gradient(135deg, #1e3c72, #d4af37);
-    color: white;
-    padding: 30px;
-    border-radius: 25px;
-    text-align: center;
-}
-
-.premium-card{
-    background: white;
-    border-radius: 20px;
-    padding: 20px;
-    margin: 20px 0;
-    box-shadow: 0 5px 15px rgba(0,0,0,.08);
-}
-
-.premium-card h2{
-    text-align: center;
-    color: #08783f;
-}
-
-.chevaux-premium,
-#selection-premium{
-    text-align: center;
-    font-size: 32px;
-    font-weight: bold;
-    letter-spacing: 6px;
-    padding: 20px;
-    color: #08783f;
-}
-
+.premium-card,
+.premium-message,
 .ticket-premium-box{
-    background: white;
-    border: 2px solid #d4af37;
-    border-radius: 20px;
-    padding: 20px 10px;
-    margin: 20px 0;
-    text-align: center;
-    overflow: hidden;
+    background: var(--papier);
+    color: var(--encre);
+    border-radius: var(--rayon);
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--ombre);
+    position: relative;
+    border-top: 2px dashed var(--papier-ombre);
+}
+
+.ticket-premium-box::before{
+    content: "PREMIUM";
+    position: absolute;
+    top: 10px; right: -28px;
+    background: var(--or-selle);
+    color: var(--vert-nuit);
+    font-family: var(--font-chiffres);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 30px;
+    transform: rotate(35deg);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
 .ticket-premium-box h3{
-    font-size: 24px;
-    font-weight: 900;
-}
-
-.ticket-gratuit-box{
+    font-family: var(--font-display);
+    color: var(--vert-signal);
     text-align: center;
+    margin-bottom: 14px;
 }
 
-.ticket-gratuit-item{
-    margin: 25px 0;
-    padding: 20px;
-    border-radius: 20px;
-}
-
-.ticket-grand{
+.chevaux-premium,
+.numero-ticket{
     text-align: center;
-    font-size: 42px;
-    font-weight: 900;
-    letter-spacing: 3px;
-    padding: 20px 5px;
-}
-
-.couple-ligne{
-    text-align: center;
-    font-size: 36px;
-    font-weight: 900;
-    margin: 15px 0;
+    font-size: 26px;
+    font-family: var(--font-chiffres);
+    font-weight: 700;
+    color: var(--vert-nuit);
     white-space: nowrap;
+    letter-spacing: 1px;
 }
 
-.champ-reduit{
-    text-align: center;
-    font-size: 38px;
-    font-weight: 900;
-    overflow-wrap: anywhere;
+.premium-back a{
+    color: var(--or-clair);
+    text-decoration: none;
+    font-size: 14px;
 }
 
-.premium-message,
-.message-fin{
-    text-align: center;
-    padding: 25px;
-    border-radius: 20px;
-    background: #fff8dc;
-    font-weight: bold;
-    font-size: 18px;
-}
+/* =====================================
+   PUBLICITÃ‰ / SLIDER
+   ===================================== */
 
-/* ===============================
-   8. PAIEMENT & ABONNEMENT
-================================ */
-.payment-choice,
-.paiement-options,
-.vip-offres{
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-top: 20px;
-}
-
-.payment-choice button,
-.paiement-card{
-    background: white;
-    border: 2px solid #08783f;
-    padding: 15px;
-    border-radius: 20px;
-    font-weight: bold;
-}
-
-.paiement-card{
-    width: 280px;
-    text-align: center;
-}
-
-.btn-payment,
-#confirmer-paiement{
-    display: block;
-    margin: 20px auto;
-    background: #d4af37;
-    color: #111;
-    border: none;
-    padding: 14px 35px;
-    border-radius: 30px;
-    font-weight: bold;
-}
-
-.vip-box{
-    background: white;
-    border-radius: 15px;
-    padding: 20px;
-    width: 260px;
-    text-align: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,.15);
-}
-
-.vip-box button{
-    background: #d4af37;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 25px;
-    font-weight: bold;
-}
-
-/* ===============================
-   9. MODULES ANNEXES (Pubs, Visiteurs, Admin)
-================================ */
-
-/* Publicités & Slider */
-.pub-box{
-    padding: 10px;
-    overflow: hidden;
-}
-
-.pub-content img,
-.pub-content video{
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
-    border-radius: 18px;
-    display: block;
-}
-
-.pub-banner {
-    width: 100%;
-    height: auto;
-    min-height: 120px;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.pub-banner img {
-    width: 100%;
-    height: auto;
-    max-height: 220px;
-    object-fit: contain;
-    display: block;
-}
-
-.slider-pub{
-    position: relative;
-    width: 100%;
-    height: 280px;
-    overflow: hidden;
-    border-radius: 25px;
-}
-
-.slider-pub img{
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: opacity .8s ease;
-}
+.pub-box .slider-pub{ position: relative; border-radius: var(--rayon); overflow: hidden; }
+.pub-box img{ width: 100%; display: block; transition: opacity .4s; }
 
 .pub-overlay{
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    padding: 25px 15px;
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(10,33,26,0.85));
+    color: var(--papier);
+    padding: 16px 12px 10px;
+}
+
+.slider-dots{ display:flex; justify-content:center; gap:6px; margin-top:10px; }
+.dot{ width:6px; height:6px; border-radius:50%; background: var(--papier-ombre); }
+.dot.active{ background: var(--or-selle); }
+
+/* =====================================
+   CHEVAUX LES PLUS JOUÃ‰S
+   ===================================== */
+
+.popular-horizontal{ display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; }
+
+.popular-number{
+    flex-shrink:0;
+    font-family: var(--font-chiffres);
+    font-weight:700;
+    background: var(--vert-nuit);
+    color: var(--or-clair);
+    border-radius: var(--rayon);
+    padding: 8px 14px;
+}
+
+/* =====================================
+   NEWS BAR
+   ===================================== */
+
+.news-bar{
+    background: var(--vert-nuit);
+    color: var(--or-clair);
+    font-size: 13px;
     text-align: center;
-    background: linear-gradient(transparent, rgba(0,0,0,.75));
-    color: white;
+    padding: 10px;
+    border-radius: var(--rayon);
 }
 
-.pub-overlay h3{
-    margin: 0 0 8px;
-    font-size: 26px;
+/* =====================================
+   MENU BAS (mobile)
+   ===================================== */
+
+.bottom-menu{
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--vert-nuit);
+    border-top: 1px solid rgba(217,184,118,0.25);
+    padding: 8px 0;
+    justify-content: space-around;
+    z-index: 50;
 }
 
-.pub-overlay p{
-    margin: 0;
-    font-size: 17px;
-}
-
-.slider-dots{
+.bottom-menu a{
+    color: rgba(243,236,218,0.65);
+    text-decoration: none;
+    font-size: 11px;
     text-align: center;
-    margin-top: 15px;
 }
 
-.slider-dots .dot{
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin: 0 5px;
-    background: #ccc;
+.bottom-menu a.active{ color: var(--or-clair); }
+
+@media (max-width: 700px){
+    .bottom-menu{ display: flex; }
+    .content{ padding-bottom: 70px; }
 }
 
-.slider-dots .dot.active{
-    transform: scale(1.2);
-}
+/* =====================================
+   CHAMPS / FORMULAIRES
+   ===================================== */
 
-/* Espace Visiteurs */
-.espace-visiteurs{
+.input-premium{
     width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-}
-
-.espace-visiteurs textarea{
-    width: 100%;
-    min-height: 220px;
-    padding: 15px;
-    border-radius: 12px;
-    font-size: 17px;
-    resize: vertical;
-    box-sizing: border-box;
-}
-
-.espace-visiteurs button{
-    width: 100%;
-    padding: 16px;
-    font-size: 18px;
-    font-weight: bold;
-    border-radius: 12px;
-    cursor: pointer;
-}
-
-#messages-visiteurs{
-    margin-top: 20px;
-    width: 100%;
-}
-
-/* Administration */
-.admin-card{
-    background: white;
-    border-radius: 20px;
-    padding: 25px;
-    margin: 20px auto;
-    max-width: 1000px;
-    box-shadow: 0 5px 15px rgba(0,0,0,.1);
-}
-
-.admin-card h2{
-    text-align: center;
-    color: #08783f;
-}
-
-.admin-button{
-    background: #08783f;
-    color: white;
-    padding: 12px 25px;
-    border-radius: 25px;
-    border: none;
-    font-weight: bold;
-}
-
-.admin-table{
-    width: 100%;
-    overflow-x: auto;
-}
-
-/* ===============================
-   10. RESPONSIVE MOBILE (Regroupé)
-================================ */
-
-@media(max-width: 700px){
-    .top-header{
-        height: 70px;
-        padding: 0 10px;
-    }
-    .logo{
-        font-size: 18px;
-    }
-    .top-menu{
-        display: none;
-    }
-    .btn-vip{
-        padding: 8px 12px;
-        font-size: 12px;
-    }
-    
-    /* Correction page Analyse sous header fixe */
-    .page-container{
-        padding-top: 130px !important;
-        padding-bottom: 90px;
-    }
-    .content{
-        padding-top: 90px;
-    }
-    .card, .analyse-detail{
-        width: 95%;
-        padding: 15px;
-    }
-    .analyse-horizontal,
-    .analyse-az-container{
-        flex-direction: column;
-    }
-    .analyse-cheval,
-    .az-box{
-        width: 100%;
-    }
-    .popular-horizontal{
-        justify-content: flex-start;
-    }
-    
-    /* Menu mobile bas */
-    .bottom-menu{
-        display: flex;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 65px;
-        background: white;
-        justify-content: space-around;
-        align-items: center;
-        box-shadow: 0 -3px 12px rgba(0,0,0,.15);
-        z-index: 1000;
-    }
-    .bottom-menu a{
-        text-decoration: none;
-        color: #08783f;
-        font-size: 12px;
-        font-weight: bold;
-    }
-
-    .premium-title h1{
-        font-size: 22px;
-    }
-    
-    .numero-ticket,
-    .ticket-grand{
-        font-size: 24px !important;
-        letter-spacing: 2px;
-    }
-    
-    .chevaux-premium,
-    #selection-premium{
-        font-size: 24px;
-        letter-spacing: 3px;
-    }
-    
-    .vip-box,
-    .paiement-card{
-        width: 90%;
-    }
-}
-
-@media(max-width: 600px){
-    .numero-ticket,
-    .ticket-grand{
-        font-size: 32px !important;
-        letter-spacing: 2px;
-        padding: 15px 0;
-    }
-    .couple-ligne{
-        font-size: 26px;
-    }
-    .champ-reduit{
-        font-size: 30px;
-    }
-    .slider-pub{
-        height: 230px;
-    }
-    .pub-overlay h3{
-        font-size: 20px;
-    }
-    .pub-overlay p{
-        font-size: 14px;
-    }
-    #indice-confiance{
-        font-size: 42px;
-    }
-    #message-confiance{
-        font-size: 16px;
-    }
-    #chevaux-surveiller{
-        font-size: 26px;
-    }
-    .numero-ticket-grand{
-        font-size: 48px;
-        letter-spacing: 5px;
-    }
-    .numero-selection-jour{
-        min-width: 42px;
-        height: 42px;
-        font-size: 24px;
-    }
-}
+    padding: 10px 12px;
+    border: 1px solid var(--papier-ombre);
+    border-radius: var(--rayon);
+    font-family: var(--font-corps);
+    font-size: 14px;
+    background: #fff;
+    color: var(--encre);
+   }
