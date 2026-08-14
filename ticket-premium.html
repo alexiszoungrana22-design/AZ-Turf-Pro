@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0f172a">
     <title>Ticket Premium - AZ Turf Pro</title>
     <link rel="stylesheet" href="style.css">
@@ -18,51 +17,45 @@
             🏇 <span>AZ Turf Pro</span>
         </div>
         <div class="mini-countdown">
-            💎 Ticket Premium
+            💎 Espace VIP
         </div>
     </div>
 
     <nav class="top-menu">
         <a href="index.html">🏠 Accueil</a>
         <a href="analyse.html">📊 Analyse</a>
-        <a href="ticket-premium.html" class="active">🎟️ Ticket</a>
-        <a href="mon-abonnement.html">🔑 Compte</a>
+        <a href="ticket-premium.html" class="active">🎟️ Ticket VIP</a>
+        <a href="espace-premium.html">⭐ Premium</a>
     </nav>
 </header>
 
 <main class="content">
 
-    <!-- ZONE VERIFICATION ACCES -->
-    <section class="card" id="zone-verification">
-        <h2>🔒 Vérification de l'accès...</h2>
-        <p>Veuillez patienter pendant la vérification de votre abonnement.</p>
-    </section>
-
-    <!-- CONTENU TICKET PREMIUM (Masqué par défaut) -->
+    <!-- CONTENU SI L'UTILISATEUR A ACTIVÉ SON CODE -->
     <div id="zone-ticket-premium" style="display: none;">
 
         <section class="card">
-            <h2>💎 Votre Ticket Premium du Jour</h2>
-            <p>Combinaisons réservées aux membres VIP abonnés.</p>
-            
-            <div id="statut-utilisateur" style="margin-top: 10px; font-weight: bold; color: #16a34a;"></div>
+            <h2>💎 Votre Ticket Premium VIP</h2>
+            <p style="color: #4b5563; font-size: 13px;">Pronostics officiels réservés aux membres abonnés.</p>
+            <div id="statut-utilisateur" style="margin-top: 8px; font-weight: bold; color: #16a34a; font-size: 13px;"></div>
         </section>
 
-        <!-- Ticket VIP -->
-        <section class="card">
-            <h2>🎯 Sélection Confiance Premium</h2>
-            <div id="contenu-ticket" style="font-size: 18px; font-weight: bold; text-align: center; padding: 15px; background: #f8fafc; border-radius: 8px; border: 2px dashed #f59e0b; color: #0f172a;">
-                Chargement des pronostics Premium...
+        <!-- Sélection VIP -->
+        <section class="card" style="text-align: center;">
+            <h2 style="color: #d97706;">🎯 Sélection Confiance VIP</h2>
+            <div id="contenu-ticket" style="font-size: 22px; font-weight: 900; letter-spacing: 2px; padding: 20px; background: #f8fafc; border-radius: 12px; border: 2px dashed #f59e0b; color: #0f172a; margin: 12px 0;">
+                1 - 4 - 7 - 9 - 12 - 14
             </div>
+            <p style="font-size: 12px; color: #64748b;">Mis à jour quotidiennement selon les cotes des partants.</p>
         </section>
 
     </div>
 
-    <!-- BLOC ACCÈS REFUSÉ -->
-    <section class="card" id="zone-refuse" style="display: none; text-align: center;">
-        <h2>⚠️ Accès Réserver aux Abonnés</h2>
-        <p style="margin-bottom: 15px;">Aucun abonnement actif trouvé pour votre appareil.</p>
-        <a href="abonnement.html" class="btn-vip" style="display: inline-block; padding: 10px 20px;">S'abonner maintenant</a>
+    <!-- CONTENU SI L'ACCÈS EST BLOQUÉ -->
+    <section class="card" id="zone-refuse" style="display: none; text-align: center; padding: 30px 15px;">
+        <h2 style="color: #dc2626;">🔒 Zone VIP Vérifiée</h2>
+        <p style="margin: 15px 0; color: #4b5563; font-size: 14px;">Vous devez obtenir un Code VIP pour accéder aux tickets réservés.</p>
+        <a href="espace-premium.html" class="btn-vip" style="display: inline-block; padding: 12px 24px; text-decoration: none; font-size: 15px;">Obtenir ou Activer mon Code</a>
     </section>
 
 </main>
@@ -71,58 +64,27 @@
     <a href="index.html">🏠 Accueil</a>
     <a href="analyse.html">📊 Analyse</a>
     <a href="ticket-premium.html" class="active">🎟️ Ticket</a>
-    <a href="mon-abonnement.html">🔑 Compte</a>
+    <a href="espace-premium.html">⭐ Premium</a>
 </footer>
 
 <script>
-    const API = "https://az-turf-pro.onrender.com/api/premium/";
-
-    async function verifierAccesPremium() {
+    document.addEventListener("DOMContentLoaded", () => {
         const telephone = localStorage.getItem("AZ_TURF_TELEPHONE");
-        const zoneVerif = document.getElementById("zone-verification");
+        const actif = localStorage.getItem("AZ_TURF_PREMIUM_ACTIF");
+
         const zoneTicket = document.getElementById("zone-ticket-premium");
         const zoneRefuse = document.getElementById("zone-refuse");
         const statutUser = document.getElementById("statut-utilisateur");
-        const contenuTicket = document.getElementById("contenu-ticket");
 
-        // 1. Si aucun numéro n'est mémorisé
-        if (!telephone) {
-            zoneVerif.style.display = "none";
-            zoneRefuse.style.display = "block";
-            return;
-        }
-
-        try {
-            // 2. Interrogation de l'API
-            const reponse = await fetch(API + encodeURIComponent(telephone));
-            const data = await reponse.json();
-
-            zoneVerif.style.display = "none";
-
-            // Permet l'accès si le statut est ACTIF ou si un numéro valide existe
-            if (reponse.ok && data.statut === "ACTIF") {
-                zoneTicket.style.display = "block";
-                statutUser.textContent = "✅ Membre Premium Actif (" + telephone + ")";
-                
-                // Exemple de chargement des pronostics
-                contenuTicket.innerHTML = "PRONOSTIC VIP : " + (data.ticket || "1 - 4 - 7 - 9 - 12 - 14");
-            } else {
-                // Si enregistrer localement mais pas encore validé par l'admin
-                zoneTicket.style.display = "block";
-                statutUser.textContent = "⌛ Compte en attente de confirmation (" + telephone + ")";
-                contenuTicket.innerHTML = "Vos tickets seront visibles dès confirmation du paiement.";
-            }
-
-        } catch (error) {
-            // En cas d'erreur réseau / serveur
-            zoneVerif.style.display = "none";
+        if (telephone && actif === "true") {
             zoneTicket.style.display = "block";
-            statutUser.textContent = "📱 Mode Hors-Ligne (" + telephone + ")";
-            contenuTicket.innerHTML = "1 - 5 - 8 - 10 - 12 (Ticket de secours)";
+            zoneRefuse.style.display = "none";
+            statutUser.textContent = "✓ VIP Actif (" + telephone + ")";
+        } else {
+            zoneTicket.style.display = "none";
+            zoneRefuse.style.display = "block";
         }
-    }
-
-    document.addEventListener("DOMContentLoaded", verifierAccesPremium);
+    });
 </script>
 
 </body>
