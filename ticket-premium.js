@@ -1,9 +1,8 @@
 // ==========================================================
-// AZ TURF PRO - SCRIPT PREMIUM DYNAMIQUE VIP
+// AZ TURF PRO - SCRIPT PREMIUM DYNAMIQUE VIP (V4)
 // ==========================================================
 
-// URL de ton serveur Render backend
-const API_URL = "https://az-turf-pro-backend.onrender.com"; // Remplace par ton URL exacte Render si différente
+const API_URL = "https://az-turf-pro-backend.onrender.com"; // Remplace par ton URL exacte Render
 
 document.addEventListener("DOMContentLoaded", function () {
     initialiserPagePremium();
@@ -16,37 +15,35 @@ async function initialiserPagePremium() {
     const blocage = document.getElementById("message-blocage");
     const contenu = document.getElementById("contenu-premium");
 
-    // 1. VÉRIFICATION ACCÈS (LOCAL + ADMIN)
-    if (!isPremium && tel !== "ADMINISTRATEUR" && tel !== "COMPTE ADMINISTRATEUR") {
-        if (blocage) blocage.style.display = "block";
-        if (contenu) contenu.style.display = "none";
-        return; // Stoppe l'exécution si pas VIP
+    // GESTION DU DÉVERROUILLAGE SANS CONFLIT
+    if (isPremium || tel === "ADMINISTRATEUR" || tel === "COMPTE ADMINISTRATEUR") {
+        if (blocage) blocage.classList.add("zone-masquee");
+        if (contenu) contenu.classList.remove("zone-masquee");
+    } else {
+        if (blocage) blocage.classList.remove("zone-masquee");
+        if (contenu) contenu.classList.add("zone-masquee");
+        return; // Stoppe l'exécution si non VIP
     }
 
-    // Débloque immédiatement l'interface VIP
-    if (blocage) blocage.style.display = "none";
-    if (contenu) contenu.style.display = "block";
-
-    // 2. GESTION DU BOUTON TABLEAU LIVE
+    // BOUTON TABLEAU LIVE
     const btnTableau = document.getElementById("btn-toggle-tableau");
     const conteneurTableau = document.getElementById("conteneur-tableau");
     if (btnTableau && conteneurTableau) {
         btnTableau.addEventListener("click", function () {
-            if (conteneurTableau.style.display === "none" || !conteneurTableau.style.display) {
-                conteneurTableau.style.display = "block";
+            if (conteneurTableau.classList.contains("zone-masquee")) {
+                conteneurTableau.classList.remove("zone-masquee");
                 btnTableau.innerText = "❌ Masquer le Tableau Live";
             } else {
-                conteneurTableau.style.display = "none";
+                conteneurTableau.classList.add("zone-masquee");
                 btnTableau.innerText = "📊 Afficher le Tableau des Partants (Live)";
             }
         });
     }
 
-    // 3. CHARGEMENT DES TICKETS (AVEC SECOURS AUTOMATIQUE SI RENDER EST LENT)
+    // CHARGEMENT DES DONNÉES DEPUIS RENDER OU SECOURS
     try {
-        // Tente de récupérer les données officielles du serveur Render
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4000); // Max 4 secondes d'attente
+        const timeoutId = setTimeout(() => controller.abort(), 3500); // 3.5 sec max
 
         const response = await fetch(`${API_URL}/api/premium-tickets`, { signal: controller.signal });
         clearTimeout(timeoutId);
@@ -57,47 +54,41 @@ async function initialiserPagePremium() {
             return;
         }
     } catch (err) {
-        console.warn("Serveur Render en veille ou lent. Chargement immédiat des pronostics locaux...");
+        console.warn("Réseau lent ou Render en veille. Activation des données VIP locales...");
     }
 
-    // DONNÉES DE SECOURS PAR DÉFAUT (Si Render s'endort)
+    // DONNÉES PAR DÉFAUT SI LE SERVEUR EST LENT
     afficherDonneesVIP({
         selection: "04 - 09 - 12 - 01 - 07 - 11",
-        explication: "Sélection établie sur la forme récente des jockeys et l'indice de performance AZ Turf Pro.",
+        explication: "Sélection basée sur l'indice de forme des chevaux et des jockeys du jour.",
         quinte: "04 - 09 - 12 - 01 - 07",
         quarte: "04 - 09 - 12 - 01",
         trio: "04 - 09 - 12",
         couple: "04 - 09",
         champReduit: "04 - 09 - X / 12, 01, 07, 11",
-        derniereMinute: "09 - Excellente impression lors du dernier entraînement.",
-        analyse: "Épreuve très ouverte. Priorité aux chevaux bien placés en première ligne.",
-        message: "Bonne chance à tous nos abonnés VIP ! 🎯"
+        derniereMinute: "09 - Très belles impressions le matin à l'entraînement.",
+        analyse: "Épreuve ouverte. Avantage aux numéros du premier poteau.",
+        message: "Bonne chance pour vos jeux du jour ! 🎯"
     });
 }
 
-// FUNCTION POUR PARSER LES NUMÉROS ET CREER LES PASTILLES
+// MISE EN FORME DES PASTILLES NUMÉROTÉES
 function formaterPastilles(texte) {
     if (!texte) return "";
-    
-    // Si la chaîne contient déjà des balises HTML, on ne la retravaille pas
     if (texte.includes("numero-cheval")) return texte;
 
-    // Découpe le texte par les tirets, espaces ou virgules
     const elements = texte.split(/[-,\/]+/).map(item => item.trim()).filter(Boolean);
 
-    // Reconstruit avec la classe des pastilles rondes
     return elements.map(num => {
-        // Si c'est un numéro simple (ex: 4 ou 04)
         if (!isNaN(num)) {
             const formattedNum = num.padStart(2, '0');
             return `<span class="numero-cheval">${formattedNum}</span>`;
         }
-        // Pour les lettres comme X (champ réduit)
         return `<span class="numero-cheval" style="background-color: #d97706;">${num}</span>`;
     }).join(" ");
 }
 
-// INJECTION DES DONNÉES DANS LE HTML
+// INJECTION DANS LE DOM
 function afficherDonneesVIP(data) {
     function injecter(id, contenu, estCombine = false) {
         const el = document.getElementById(id);
@@ -105,7 +96,7 @@ function afficherDonneesVIP(data) {
             if (estCombine) {
                 el.innerHTML = formaterPastilles(contenu);
             } else {
-                el.innerText = contenu || "Aucune donnée disponible";
+                el.innerText = contenu || "Donnée non disponible";
             }
         }
     }
