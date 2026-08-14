@@ -801,152 +801,159 @@ J'ai inclus des icônes SVG dessinées en code pour que le cheval et l'horloge s
 Ces lignes vont générer la police Serif exacte, l'inclinaison très spécifique des badges de jeu et les couleurs conformes au visuel de référence.
 
 ```css
+
+
 /* ===============================
-   CLONE EXACT IMAGE PMU (BANDEAU COURSE)
+   BANDEAU PMU COMPACT (ESPACEMENT CORRIGÉ)
 ================================ */
 
 .pmu-clone-header {
     width: 100%;
     background: #ffffff;
     border-bottom: 1px solid #e5e7eb;
-    margin: 0;
+    margin-0 0 15px 0;
 }
 
-/* 1. Onglets - Couleurs exactes image */
+/* Onglets compacts */
 .clone-tabs {
     display: flex;
-    background-color: #888888; /* Gris clair inactif */
+    background-color: #888888;
     width: 100%;
 }
 
 .clone-tab {
     flex: 1;
     text-align: center;
-    padding: 18px 5px;
+    padding: 10px 4px; /* Marges internes réduites */
     font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     color: #ffffff;
     text-transform: uppercase;
     cursor: pointer;
-    border-bottom: 4px solid transparent;
+    border-bottom: 3px solid transparent;
 }
 
 .clone-tab.active {
-    background-color: #555555; /* Gris foncé actif */
-    border-bottom: 4px solid #d91c3d; /* Rouge vif PMU */
+    background-color: #555555;
+    border-bottom: 3px solid #d91c3d;
 }
 
-/* 2. Typographie - Police Serif comme sur l'image */
+/* Corps resserré avec gap */
 .clone-body {
-    padding: 30px 20px 20px 20px;
+    padding: 12px 10px; /* Passage de 30px à 12px */
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px; /* Contrôle strict de l'écartement entre chaque ligne */
 }
 
 .clone-title {
     font-family: Georgia, 'Times New Roman', serif;
-    font-size: 32px;
+    font-size: 20px;
     font-weight: bold;
     color: #000000;
-    margin-bottom: 8px;
+    margin: 0;
+    line-height: 1.2;
 }
 
 .clone-subtitle {
     font-family: Georgia, 'Times New Roman', serif;
-    font-size: 34px;
+    font-size: 22px;
     font-weight: 900;
     color: #000000;
     text-transform: uppercase;
-    margin-bottom: 15px;
+    margin: 0;
+    line-height: 1.2;
 }
 
 .clone-date {
     font-family: Georgia, 'Times New Roman', serif;
-    font-size: 26px;
+    font-size: 16px;
     font-weight: bold;
     font-style: italic;
-    color: #000000;
-    margin-bottom: 25px;
+    color: #333333;
+    margin: 0;
+    line-height: 1.2;
 }
 
-/* 3. Infos techniques avec cheval */
+/* Masque automatiquement le sous-titre ou la date s'ils sont vides */
+.clone-subtitle:empty, 
+.clone-date:empty {
+    display: none;
+}
+
+/* Infos techniques compactes */
 .clone-infos {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    margin-bottom: 25px;
+    gap: 8px;
+    margin: 6px 0;
 }
 
 .clone-info-text {
     font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 17px;
-    color: #666666; /* Gris doux identique */
+    font-size: 13px;
+    color: #555555;
+    font-weight: 600;
 }
 
-.icon-cheval {
-    flex-shrink: 0;
-}
-
-/* 4. Ligne du bas : Timer + Badges Inclinés */
+/* Ligne du bas : Timer + Badges */
 .clone-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    width: 100%;
     flex-wrap: wrap;
-    gap: 15px;
-    padding-top: 10px;
+    gap: 10px;
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px solid #f1f5f9;
 }
 
-/* Compte à rebours vert exact */
 .clone-timer {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 6px;
     font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 20px;
-    font-weight: 600;
-    color: #008f63; /* Vert sapin PMU */
+    font-size: 16px;
+    font-weight: 800;
+    color: #008f63;
 }
 
-.icon-clock {
-    border-radius: 50%;
-}
-
-/* 5. La liste des badges inclinés (Parallélogrammes) */
 .clone-badges {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .pmu-badge {
-    /* C'est ici que l'inclinaison se fait */
-    transform: skewX(-18deg); 
-    padding: 3px 10px;
-    border-radius: 4px;
-    box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    transform: skewX(-15deg);
+    padding: 3px 6px;
+    border-radius: 3px;
 }
 
 .pmu-badge span {
-    /* On redresse le texte pour qu'il soit lisible, mais on le garde en italique */
-    display: block;
-    transform: skewX(18deg);
+    transform: skewX(15deg);
     font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 800;
     font-style: italic;
     color: #ffffff;
+    display: block;
 }
 
-/* Couleurs officielles de l'image pour chaque pari */
-.badge-simple { background: #008dd2; } /* Bleu clair */
-.badge-couple { background: #ea6418; } /* Orange */
-.badge-2sur4  { background: #5f2879; } /* Violet foncé */
-.badge-multi  { background: #da0076; } /* Rose / Magenta */
-.badge-tierce { background: #00985f; } /* Vert */
-.badge-quarte { background: #0076cf; } /* Bleu foncé */
-.badge-quinte { background: #df0024; } /* Rouge */
+.badge-simple { background: #008dd2; }
+.badge-couple { background: #ea6418; }
+.badge-2sur4  { background: #5f2879; }
+.badge-multi  { background: #da0076; }
+.badge-tierce { background: #00985f; }
+.badge-quarte { background: #0076cf; }
+.badge-quinte { background: #df0024; }
 
 /* Responsive Mobile */
 @media(max-width: 768px) {
