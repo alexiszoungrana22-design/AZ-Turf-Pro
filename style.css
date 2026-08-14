@@ -1,6 +1,6 @@
 /* ===============================
    AZ TURF PRO - THEME CARTES "BLANC NEIGE"
-   Fond général éclairci & Navigation Basse Unifiée
+   Fond éclairci, Carte Unique par page & Séparateurs fins
 ================================ */
 
 :root {
@@ -116,7 +116,7 @@ body{
 }
 
 /* ===============================
-   3. CONTENU GENERAL & BOITES BLANCHES
+   3. CONTENU GENERAL & CARTE UNIQUE PAR PAGE
 ================================ */
 .content{
     padding-top: 100px;
@@ -133,17 +133,33 @@ body{
     padding-bottom: 90px;
 }
 
-.card{
+/* Structure de la carte unique avec séparation fine entre chaque fonction */
+.card, 
+.analyse-detail, 
+.analyse-section, 
+.detail-analyse, 
+.synthese-zone{
     background: var(--bg-card);
     width: 95%;
     margin: 20px auto;
-    padding: 22px;
+    padding: 25px;
     border-radius: 20px;
     box-shadow: 0 10px 25px rgba(0,0,0,.25);
     border: 1px solid var(--border-color);
 }
 
-.card h2{
+/* Lignes de séparation fines automatiques entre les sections/fonctions d'une même carte */
+.card > *:not(:last-child),
+.analyse-detail > *:not(:last-child),
+.analyse-section > *:not(:last-child),
+.detail-analyse > *:not(:last-child),
+.synthese-zone > *:not(:last-child) {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 18px;
+    margin-bottom: 18px;
+}
+
+.card h2, .analyse-detail h3{
     text-align: center;
     color: var(--primary-blue);
     margin-top: 0;
@@ -192,7 +208,7 @@ td{
 }
 
 /* ===============================
-   5. ANALYSE AZ & TENDANCES (Largeur 95% unifiée)
+   5. ANALYSE AZ & TENDANCES
 ================================ */
 .analyse-horizontal{
     display: flex;
@@ -216,34 +232,6 @@ td{
 .analyse-cheval p{
     line-height: 1.6;
     color: var(--text-muted);
-}
-
-.analyse-section,
-.detail-analyse,
-.synthese-zone{
-    display: block;
-    background: var(--bg-card);
-    width: 95%;
-    padding: 22px;
-    margin: 20px auto;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,.25);
-    border: 1px solid var(--border-color);
-}
-
-.analyse-detail{
-    background: var(--bg-card);
-    width: 95%;
-    border-radius: 20px;
-    padding: 22px;
-    margin: 20px auto;
-    box-shadow: 0 10px 25px rgba(0,0,0,.25);
-    border: 1px solid var(--border-color);
-}
-
-.analyse-detail h3{
-    text-align: center;
-    color: var(--primary-blue);
 }
 
 .couple-box,
@@ -929,4 +917,4 @@ td{
         height: 42px;
         font-size: 24px;
     }
-   }
+}
