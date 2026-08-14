@@ -2,442 +2,133 @@
 <html lang="fr">
 
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Administration - AZ Turf Pro</title>
-
-<link rel="stylesheet" href="style.css">
-
-<link rel="stylesheet" href="admin.css">    
-    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - AZ Turf Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="admin.css">
 </head>
-
 
 <body>
 
-
 <header class="header-az">
-
-<div class="logo-area">
-
-<h1>⚙️ AZ Turf Pro Admin</h1>
-
-<p>
-Tableau de bord professionnel
-</p>
-
-</div>
-
+    <div class="logo-area">
+        <h1>⚙️ AZ Turf Pro Admin</h1>
+        <p>Tableau de bord professionnel</p>
+    </div>
 </header>
 
-
-
-
-
 <nav class="menu">
-
-<a href="index.html">
-🏠 Accueil
-</a>
-
-<a href="analyse.html">
-📊 Analyse
-</a>
-
-<a href="ticket.html">
-🎟️ Premium
-</a>
-
-<a href="historique.html">
-🏆 Historique
-</a>
-
+    <a href="index.html">🏠 Accueil</a>
+    <a href="analyse.html">📊 Analyse</a>
+    <a href="ticket-premium.html">🎟️ Premium VIP</a>
+    <a href="mon-abonnement.html">🔑 Compte</a>
 </nav>
-
-
-
-
-
-
 
 <main class="home-content">
 
-
-<section class="course-card">
-
-<h2>
-📊 Tableau de bord administrateur
-</h2>
-
-<p>
-Gestion et suivi de la plateforme AZ Turf Pro
-</p>
-
-
-<button
-class="btn-vip"
-onclick="actualiserAdmin()">
-
-🔄 Actualiser les données
-
-</button>
-
-
-</section>
-
-
-
-
-
-
-
-<section class="ticket-container">
-
-
-
-
-
-<!-- STATISTIQUES -->
-
-
-<div class="box premium">
-
-<h2>
-📈 Total abonnements
-</h2>
-
-<p id="total-abonnements">
-0
-</p>
-
-</div>
-
-
-
-
-
-<div class="box premium">
-
-<h2>
-⭐ Premium actifs
-</h2>
-
-<p id="nombre-premium">
-0
-</p>
-
-</div>
-
-
-
-
-
-<div class="box premium">
-
-<h2>
-💳 Paiements en attente
-</h2>
-
-<p id="paiements-attente">
-0
-</p>
-
-</div>
-
-
-
-
-
-<div class="box premium">
-
-<h2>
-❌ Abonnements expirés
-</h2>
-
-<p id="abonnements-expire">
-0
-</p>
-
-</div>
-
-
-
-
-
-
-
-<!-- VERIFICATION PREMIUM -->
-
-
-<div class="box premium">
-
-
-<h2>
-👥 Vérification Premium
-</h2>
-
-
-<p>
-Téléphone utilisateur :
-</p>
-
-
-<input
-type="text"
-id="telephone-premium"
-placeholder="Numéro téléphone"
->
-
-
-<button
-class="btn-vip"
-onclick="verifierUtilisateurPremium()">
-
-🔍 Vérifier
-
-</button>
-
-
-
-<p id="resultat-premium">
-
-Aucune vérification
-
-</p>
-
-
-</div>
-
-
-
-
-
-
-
-<!-- ACTIVATION PREMIUM -->
-
-
-<div class="box premium">
-
-
-<h2>
-⚡ Activation Premium
-</h2>
-
-
-
-<p>
-Téléphone utilisateur :
-</p>
-
-
-<input
-type="text"
-id="activation-telephone"
-placeholder="Numéro téléphone"
->
-
-
-
-
-<p>
-Référence paiement :
-</p>
-
-
-<input
-type="text"
-id="activation-reference"
-placeholder="Référence paiement"
->
-
-
-
-
-<button
-class="btn-vip"
-onclick="activerPremium()">
-
-✅ Activer Premium
-
-</button>
-
-
-
-<p id="resultat-activation">
-
-Aucune activation
-
-</p>
-
-
-</div>
-
-
-
-
-
-
-
-<!-- ANALYSE -->
-
-
-<div class="box premium">
-
-
-<h2>
-🏇 Analyse du jour
-</h2>
-
-
-<p>
-
-API d'analyse :
-
-<span id="etat-api">
-Vérification...
-</span>
-
-
-</p>
-
-
-</div>
-
-
-
-
-
-
-
-<!-- LISTE ABONNEMENTS -->
-
-
-<div class="box premium">
-
-
-<h2>
-📋 Liste des abonnements
-</h2>
-
-
-<div id="liste-abonnements">
-
-Aucun abonnement affiché
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-<!-- PUBLICITES -->
-
-
-<div class="box premium">
-
-
-<h2>
-📢 Publicités
-</h2>
-
-
-<p>
-
-Gestion des bannières publicitaires AZ Turf Pro.
-
-</p>
-
-
-<button class="btn-vip">
-
-Gérer les bannières
-
-</button>
-
-
-</div>
-
-
-
-
-
-
-
-<!-- PARAMETRES -->
-
-
-<div class="box premium">
-
-
-<h2>
-⚙️ Paramètres
-</h2>
-
-
-<p>
-
-Configuration générale de la plateforme.
-
-</p>
-
-
-</div>
-
-
-
-
-
-
-</section>
-
+    <section class="course-card">
+        <h2>📊 Tableau de bord administrateur</h2>
+        <p>Gestion et suivi de la plateforme AZ Turf Pro</p>
+
+        <button class="btn-vip" onclick="actualiserAdmin()">
+            🔄 Actualiser les données
+        </button>
+    </section>
+
+    <section class="ticket-container">
+
+        <!-- STATISTIQUES -->
+        <div class="box premium">
+            <h2>📈 Total abonnements</h2>
+            <p id="total-abonnements">0</p>
+        </div>
+
+        <div class="box premium">
+            <h2>⭐ Premium actifs</h2>
+            <p id="nombre-premium">0</p>
+        </div>
+
+        <div class="box premium">
+            <h2>💳 Paiements en attente</h2>
+            <p id="paiements-attente">0</p>
+        </div>
+
+        <div class="box premium">
+            <h2>❌ Abonnements expirés</h2>
+            <p id="abonnements-expire">0</p>
+        </div>
+
+        <!-- VERIFICATION PREMIUM -->
+        <div class="box premium">
+            <h2>👥 Vérification Premium</h2>
+            <p style="margin-top: 10px;">Téléphone utilisateur :</p>
+            <input type="text" id="telephone-premium" placeholder="Numéro téléphone">
+
+            <button class="btn-vip" onclick="verifierUtilisateurPremium()">
+                🔍 Vérifier
+            </button>
+
+            <p id="resultat-premium">Aucune vérification</p>
+        </div>
+
+        <!-- ACTIVATION PREMIUM -->
+        <div class="box premium">
+            <h2>⚡ Activation Premium</h2>
+            <p style="margin-top: 10px;">Téléphone utilisateur :</p>
+            <input type="text" id="activation-telephone" placeholder="Numéro téléphone">
+
+            <p style="margin-top: 10px;">Référence paiement :</p>
+            <input type="text" id="activation-reference" placeholder="Référence paiement">
+
+            <button class="btn-vip" onclick="activerPremium()">
+                ✅ Activer Premium
+            </button>
+
+            <p id="resultat-activation">Aucune activation</p>
+        </div>
+
+        <!-- ANALYSE -->
+        <div class="box premium">
+            <h2>🏇 Analyse du jour</h2>
+            <p>API d'analyse : <span id="etat-api">Vérification...</span></p>
+        </div>
+
+        <!-- LISTE ABONNEMENTS -->
+        <div class="box premium">
+            <h2>📋 Liste des abonnements</h2>
+            <div id="liste-abonnements">Aucun abonnement affiché</div>
+        </div>
+
+        <!-- PUBLICITES -->
+        <div class="box premium">
+            <h2>📢 Publicités</h2>
+            <p>Gestion des bannières publicitaires AZ Turf Pro.</p>
+            <button class="btn-vip" style="margin-top: 10px;">Gérer les bannières</button>
+        </div>
+
+        <!-- PARAMETRES -->
+        <div class="box premium">
+            <h2>⚙️ Paramètres</h2>
+            <p>Configuration générale de la plateforme.</p>
+        </div>
+
+    </section>
 
 </main>
 
-
-
-
-
-
-
 <footer>
-
-<p>
-AZ Turf Pro - Administration
-</p>
-
+    <p>AZ Turf Pro - Administration</p>
 </footer>
-
-
-
-
-
-
 
 <script src="admin.js"></script>
 
-
 <script>
-
-function actualiserAdmin(){
-
-    chargerStatistiquesAdmin();
-
-    chargerAbonnements();
-
-}
-
+    function actualiserAdmin() {
+        if (typeof chargerStatistiquesAdmin === "function") chargerStatistiquesAdmin();
+        if (typeof chargerAbonnements === "function") chargerAbonnements();
+    }
 </script>
 
-
 </body>
-
 </html>
