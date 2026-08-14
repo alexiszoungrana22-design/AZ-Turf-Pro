@@ -1,224 +1,221 @@
-Le problème provient des **marges verticales excessives** (`margin-bottom` de 25px et `padding` de 30px) combinées aux deux tirets (`-`) qui créaient des lignes vides imposantes au milieu.
+<!DOCTYPE html>
+<html lang="fr">
 
-Voici le code **CSS** et **HTML** corrigé avec un système de disposition souple (`flex` et `gap`) pour resserrer le bloc et éliminer tout l'espace inutile.
-
----
-
-### 1. Remplacer la section CSS dans votre fichier `style.css`
-
-Remplacez la partie `.pmu-clone-header` par ce CSS ultra-compact :
-
-```css
-/* ===============================
-   BANDEAU PMU COMPACT (ESPACEMENT CORRIGÉ)
-================================ */
-
-.pmu-clone-header {
-    width: 100%;
-    background: #ffffff;
-    border-bottom: 1px solid #e5e7eb;
-    margin-0 0 15px 0;
-}
-
-/* Onglets compacts */
-.clone-tabs {
-    display: flex;
-    background-color: #888888;
-    width: 100%;
-}
-
-.clone-tab {
-    flex: 1;
-    text-align: center;
-    padding: 10px 4px; /* Marges internes réduites */
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    color: #ffffff;
-    text-transform: uppercase;
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-}
-
-.clone-tab.active {
-    background-color: #555555;
-    border-bottom: 3px solid #d91c3d;
-}
-
-/* Corps resserré avec gap */
-.clone-body {
-    padding: 12px 10px; /* Passage de 30px à 12px */
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px; /* Contrôle strict de l'écartement entre chaque ligne */
-}
-
-.clone-title {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 20px;
-    font-weight: bold;
-    color: #000000;
-    margin: 0;
-    line-height: 1.2;
-}
-
-.clone-subtitle {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 22px;
-    font-weight: 900;
-    color: #000000;
-    text-transform: uppercase;
-    margin: 0;
-    line-height: 1.2;
-}
-
-.clone-date {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 16px;
-    font-weight: bold;
-    font-style: italic;
-    color: #333333;
-    margin: 0;
-    line-height: 1.2;
-}
-
-/* Masque automatiquement le sous-titre ou la date s'ils sont vides */
-.clone-subtitle:empty, 
-.clone-date:empty {
-    display: none;
-}
-
-/* Infos techniques compactes */
-.clone-infos {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin: 6px 0;
-}
-
-.clone-info-text {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 13px;
-    color: #555555;
-    font-weight: 600;
-}
-
-/* Ligne du bas : Timer + Badges */
-.clone-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 6px;
-    padding-top: 8px;
-    border-top: 1px solid #f1f5f9;
-}
-
-.clone-timer {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 16px;
-    font-weight: 800;
-    color: #008f63;
-}
-
-.clone-badges {
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.pmu-badge {
-    transform: skewX(-15deg);
-    padding: 3px 6px;
-    border-radius: 3px;
-}
-
-.pmu-badge span {
-    transform: skewX(15deg);
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 10px;
-    font-weight: 800;
-    font-style: italic;
-    color: #ffffff;
-    display: block;
-}
-
-.badge-simple { background: #008dd2; }
-.badge-couple { background: #ea6418; }
-.badge-2sur4  { background: #5f2879; }
-.badge-multi  { background: #da0076; }
-.badge-tierce { background: #00985f; }
-.badge-quarte { background: #0076cf; }
-.badge-quinte { background: #df0024; }
-
-```
-
----
-
-### 2. Le bloc HTML à mettre dans `index.html`
-
-Pour éviter que les éléments sans données affichent des tirets qui prennent de la place, laissez les conteneurs vides (`""`) : JavaScript viendra insérer la valeur au chargement sans créer d'espace blanc.
-
-```html
-<section class="card pmu-clone-header">
+<head>
+    <meta charset="UTF-8">
+    <!-- Balises pour l'affichage Mobile Plein Écran (PWA / Standalone) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f172a">
     
-    <!-- Onglets -->
-    <div class="clone-tabs">
-        <div class="clone-tab">QUINTE HIER</div>
-        <div class="clone-tab active">QUINTE DU JOUR</div>
-        <div class="clone-tab">QUINTE DEMAIN</div>
+    <meta name="description" content="AZ Turf Pro - Pronostics hippiques et analyses professionnelles du Quinté+">
+    <title>AZ Turf Pro - Accueil</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="top-header">
+    <div class="brand-zone">
+        <div class="logo">
+            🏇 <span>AZ Turf Pro</span>
+        </div>
+        <div id="mini-countdown" class="mini-countdown">
+            ⏱️ Départ dans --:--:--
+        </div>
     </div>
 
-    <!-- Corps du texte compact -->
-    <div class="clone-body">
-        <div class="clone-title">Course Quinté+ du jour – <span id="meta-course"></span></div>
-        <div class="clone-subtitle" id="meta-nom-prix"></div>
-        <div class="clone-date" id="meta-date"></div>
+    <nav class="top-menu">
+        <a href="index.html" class="active">🏠 Accueil</a>
+        <a href="analyse.html">📊 Analyse</a>
+        <a href="ticket.html">📰 Journal</a>
+        <a href="historique.html">🏆 Historique</a>
+    </nav>
 
-        <!-- Infos techniques -->
-        <div class="clone-infos">
-            <svg class="icon-cheval" viewBox="0 0 512 512" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
-                <path fill="#000000" d="M366.5 77c-17.5-12.8-40.8-21-65.5-21-29.2 0-55.8 11.2-74.2 29.5-23.8-3.5-47.5-3.5-70.5 0-14 2.2-27.2 7-38.8 13.5-10.8 6.2-20.2 14.5-27.5 24.2-12 16.5-17.2 36.5-14 56.8 2.2 13.8 8.2 26 16.5 35.8-19.8 12.8-38 30-51.5 50.8-16 24.8-26 53.5-28 83.5l30.8 4.2c2-25.5 10.5-49.8 24.2-71.2 10-15.5 23-28.5 37.8-38.5v52.2h32v-65.8c13-5.5 27.2-9 42.2-10 16-1 32 1 47.5 5l2.2-32c-17.5-4-35.8-5.8-54-5-8.5.5-17 1.5-25.2 3.2-12-19.5-15.2-42.5-8-64.2 4-12 11-22.5 20.2-31.2 16.8-15.8 40.5-25.8 66.8-25.8 21.8 0 42 6.5 58.5 17.5l14.2-26.8zM454.5 199l-22.8-22.2c-15.5 28.5-38.5 52.8-66.2 70.8-23 15-49 24.2-76.5 26.5v52.2h32v-32c21.5-2.2 41.5-9.2 59.8-19.5l33.8 58.5h37L404 233c20.5-10 38.5-23 50.5-34zM169 332v82h32v-82h-32z"/>
-            </svg>
-            <span class="clone-info-text">
-                <span id="meta-discipline"></span> - 
-                <span id="meta-distance"></span> - 
-                <span id="meta-partants"></span> Partants - 
-                <span id="meta-hippodrome"></span>
-            </span>
+    <a href="abonnement.html" class="btn-vip">💎 Premium</a>
+</header>
+
+<main class="content">
+
+    <!-- BANDEAU COURSE CLONE EXACT (STYLE PMU HARMONISÉ) -->
+    <section class="card pmu-clone-header">
+        
+        <!-- Onglets Quinté -->
+        <div class="clone-tabs">
+            <div class="clone-tab">QUINTE HIER</div>
+            <div class="clone-tab active">QUINTE DU JOUR</div>
+            <div class="clone-tab">QUINTE DEMAIN</div>
         </div>
 
-        <!-- Timer & Badges -->
-        <div class="clone-footer">
-            <div class="clone-timer">
-                <svg class="icon-clock" viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="10" fill="#4b5563"/>
-                    <path d="M12 6v6l4 2" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Corps du texte -->
+        <div class="clone-body">
+            <div class="clone-title">Course Quinté+ du jour – <span id="meta-course">-</span></div>
+            <div class="clone-subtitle" id="meta-nom-prix">-</div>
+            <div class="clone-date" id="meta-date">-</div>
+
+            <!-- Infos techniques (Identifiants d'origine conservés) -->
+            <div class="clone-infos">
+                <svg class="icon-cheval" viewBox="0 0 512 512" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#000000" d="M366.5 77c-17.5-12.8-40.8-21-65.5-21-29.2 0-55.8 11.2-74.2 29.5-23.8-3.5-47.5-3.5-70.5 0-14 2.2-27.2 7-38.8 13.5-10.8 6.2-20.2 14.5-27.5 24.2-12 16.5-17.2 36.5-14 56.8 2.2 13.8 8.2 26 16.5 35.8-19.8 12.8-38 30-51.5 50.8-16 24.8-26 53.5-28 83.5l30.8 4.2c2-25.5 10.5-49.8 24.2-71.2 10-15.5 23-28.5 37.8-38.5v52.2h32v-65.8c13-5.5 27.2-9 42.2-10 16-1 32 1 47.5 5l2.2-32c-17.5-4-35.8-5.8-54-5-8.5.5-17 1.5-25.2 3.2-12-19.5-15.2-42.5-8-64.2 4-12 11-22.5 20.2-31.2 16.8-15.8 40.5-25.8 66.8-25.8 21.8 0 42 6.5 58.5 17.5l14.2-26.8zM454.5 199l-22.8-22.2c-15.5 28.5-38.5 52.8-66.2 70.8-23 15-49 24.2-76.5 26.5v52.2h32v-32c21.5-2.2 41.5-9.2 59.8-19.5l33.8 58.5h37L404 233c20.5-10 38.5-23 50.5-34zM169 332v82h32v-82h-32z"/>
                 </svg>
-                <span id="timer-quinte">--:--:--</span>
+                <span class="clone-info-text">
+                    <span id="meta-discipline">-</span> - 
+                    <span id="meta-distance">-</span> - 
+                    <span id="meta-partants">-</span> Partants - 
+                    <span id="meta-hippodrome">-</span>
+                </span>
             </div>
 
-            <div class="clone-badges">
-                <div class="pmu-badge badge-simple"><span>Simple</span></div>
-                <div class="pmu-badge badge-couple"><span>Couplé</span></div>
-                <div class="pmu-badge badge-2sur4"><span>2sur4</span></div>
-                <div class="pmu-badge badge-multi"><span>Multi</span></div>
-                <div class="pmu-badge badge-tierce"><span>Tiercé</span></div>
-                <div class="pmu-badge badge-quarte"><span>Quarté+</span></div>
-                <div class="pmu-badge badge-quinte"><span>Quinté+</span></div>
+            <!-- Ligne du bas : Compte à rebours et Badges PMU -->
+            <div class="clone-footer">
+                <div class="clone-timer">
+                    <svg class="icon-clock" viewBox="0 0 24 24" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" fill="#4b5563"/>
+                        <path d="M12 6v6l4 2" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span id="timer-quinte">--:--:--</span>
+                </div>
+
+                <div class="clone-badges">
+                    <div class="pmu-badge badge-simple"><span>Simple</span></div>
+                    <div class="pmu-badge badge-couple"><span>Couplé</span></div>
+                    <div class="pmu-badge badge-2sur4"><span>2sur4</span></div>
+                    <div class="pmu-badge badge-multi"><span>Multi</span></div>
+                    <div class="pmu-badge badge-tierce"><span>Tiercé</span></div>
+                    <div class="pmu-badge badge-quarte"><span>Quarté+</span></div>
+                    <div class="pmu-badge badge-quinte"><span>Quinté+</span></div>
+                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-```
+    <!-- BANNIÈRE PUBLICITÉ -->
+    <section class="card pub-box">
+        <h2>📢 Publicité</h2>
+        <div class="slider-pub">
+            <img id="pub-image" src="images/pub1.jpg" alt="Publicité AZ Turf Pro">
+            <div class="pub-overlay">
+                <h3 id="pub-title">⭐ AZ Turf Pro Premium</h3>
+                <p id="pub-text">Analyse professionnelle et pronostics hippiques</p>
+            </div>
+        </div>
+        <div class="slider-dots">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+    </section>
+
+    <!-- ANALYSE AZ (FAVORI & OUTSIDER) -->
+    <section class="card analyse-az">
+        <h2>⭐ Analyse AZ du jour</h2>
+        <div class="analyse-az-container">
+
+            <div class="az-box favori-az">
+                <h3>🟢 Favori AZ</h3>
+                <div class="az-numero" id="favori-numero">-</div>
+                <h4 id="favori-nom">Chargement...</h4>
+                <p>📊 Indice AZ : <strong id="favori-indice">-</strong></p>
+                <p>🎯 Confiance : <strong id="favori-confiance">-</strong></p>
+                <p id="favori-raison">Analyse en cours...</p>
+            </div>
+
+            <div class="az-box outsider-az">
+                <h3>🟠 Outsider AZ</h3>
+                <div class="az-numero outsider-numero" id="outsider-numero">-</div>
+                <h4 id="outsider-nom">Chargement...</h4>
+                <p>📊 Indice AZ : <strong id="outsider-indice">-</strong></p>
+                <p>🎯 Confiance : <strong id="outsider-confiance">-</strong></p>
+                <p id="outsider-raison">Analyse en cours...</p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- INDICE DE CONFIANCE COURSE -->
+    <section class="card confiance-box">
+        <h2>📊 Indice de confiance de la course</h2>
+        <div class="confiance-score">
+            <span id="indice-confiance">-</span>
+        </div>
+        <p id="message-confiance">Analyse en cours...</p>
+    </section>
+
+    <!-- CHEVAUX À SURVEILLER -->
+    <section class="card surveillance-box">
+        <h2>👀 Chevaux à surveiller</h2>
+        <div id="chevaux-surveiller">Analyse en cours...</div>
+    </section>
+
+    <!-- TABLEAU DE TOUS LES PARTANTS -->
+    <section class="card">
+        <h2>🐎 Tous les partants</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>N°</th>
+                        <th>Cheval</th>
+                        <th>Jockey / Driver</th>
+                        <th>Entraîneur</th>
+                        <th>Cote</th>
+                        <th>Indice AZ</th>
+                        <th>Confiance</th>
+                    </tr>
+                </thead>
+                <tbody id="all-horses">
+                    <!-- Rempli dynamiquement par accueil.js -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- CHEVAUX LES PLUS JOUÉS -->
+    <section class="card">
+        <h2>🔥 Chevaux les plus joués</h2>
+        <div id="popular-horses" class="popular-horizontal"></div>
+    </section>
+
+    <!-- TENDANCE DE LA COURSE -->
+    <section class="card tendance-box">
+        <h2>📈 Tendance de la course</h2>
+        <div id="course-tendance">Analyse en cours...</div>
+    </section>
+
+    <section class="news-bar">
+        📢 AZ Turf Pro : une analyse professionnelle et approfondie au service des pronostics hippiques
+    </section>
+
+</main>
+
+<!-- BARRE DE NAVIGATION DU BAS -->
+<footer class="bottom-menu">
+    <a href="index.html" class="active">
+        <span class="menu-icon">🏡</span>
+        <span>Accueil</span>
+    </a>
+    <a href="analyse.html">
+        <span class="menu-icon">📊</span>
+        <span>Analyse</span>
+    </a>
+    <a href="ticket.html">
+        <span class="menu-icon">📰</span>
+        <span>Journal</span>
+    </a>
+    <a href="historique.html">
+        <span class="menu-icon">🏆</span>
+        <span>Historique</span>
+    </a>
+</footer>
+
+<!-- SCRIPTS JS -->
+<script src="historique.js?v=4"></script>
+<script src="accueil.js?v=16"></script>
+<script src="tri-partants.js"></script>
+
+</body>
+                                   </html>
