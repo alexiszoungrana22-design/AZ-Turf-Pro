@@ -1,155 +1,312 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Journal & Actualités - AZ Turf Pro</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .journal-section-title { color: #08783f; font-size: 1.2rem; margin-top: 0; display: flex; align-items: center; gap: 8px; }
-        .pdf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 12px; }
-        .btn-pdf-item { background: #f8fafc; border: 1px solid #cbd5e0; padding: 12px; border-radius: 12px; text-align: center; text-decoration: none; color: #2d3748; font-weight: bold; display: block; transition: all 0.2s; }
-        .btn-pdf-item:hover { background: #08783f; color: white; border-color: #08783f; }
-        .btn-pdf-item span { display: block; font-size: 0.85rem; color: #718096; margin-top: 4px; }
-        .btn-pdf-item:hover span { color: #e2e8f0; }
-        
-        .avis-card { background: #fffaf0; border-left: 4px solid #d4af37; padding: 12px 15px; border-radius: 8px; margin-bottom: 12px; text-align: left; }
-        .avis-card h4 { margin: 0 0 5px; color: #975a16; font-size: 1rem; }
-        .avis-card p { margin: 0; color: #4a5568; font-size: 0.95rem; line-height: 1.4; }
-        .btn-direct { background: #08783f; color: white; padding: 10px 18px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 0.9rem; display: inline-block; }
-    </style>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Journal Hippique - AZ Turf Pro</title>
+
+<link rel="stylesheet" href="style.css">
+
 </head>
+
+
 <body>
 
+
 <header class="top-header">
-    <div class="logo">
-        🏇 <span>AZ Turf Pro</span>
-    </div>
-    <nav class="top-menu">
-        <a href="index.html">🏠 Accueil</a>
-        <a href="analyse.html">📊 Analyse</a>
-        <a href="ticket.html">📰 Journal</a>
-        <a href="historique.html">🏆 Historique</a>
-    </nav>
+
+
+<div class="brand-zone">
+
+
+<div class="logo">
+🏇 <span>AZ Turf Pro</span>
+</div>
+
+
+<div class="mini-countdown">
+📰 Journal Hippique
+</div>
+
+
+</div>
+
+
+
+
+<nav class="top-menu">
+
+
+<a href="index.html">
+🏠 Accueil
+</a>
+
+
+<a href="analyse.html">
+📊 Analyse
+</a>
+
+
+<a href="ticket.html">
+📰 Journal
+</a>
+
+
+<a href="historique.html">
+🏆 Historique
+</a>
+
+
+</nav>
+
+
 </header>
 
+
+
+
+
+
+
 <main class="content">
-    <div class="page-container">
 
-        <!-- En-tête -->
-        <section class="card" style="text-align: center;">
-            <h1 style="color: #08783f; margin-top: 0;">📰 Journal Hippique & Infos Pro</h1>
-            <p style="color: #4a5568; margin-bottom: 0;">Téléchargement direct des PDF officiels et informations des pistes.</p>
-        </section>
 
-        <!-- 1. Journal Hippique LONAB (Téléchargement Direct) -->
-        <section class="card">
-            <h2 class="journal-section-title">📅 Journal Hippique LONAB (PDF)</h2>
-            <p style="color: #4a5568; font-size: 0.95rem;">Accédez instantanément au document officiel du jour.</p>
-            
-            <div class="pdf-grid">
-                <!-- Ces liens pointent vers votre API qui redirigera vers le vrai lien PDF du jour -->
-                <a href="https://az-turf-pro.onrender.com/api/pdf/journal/aujourdhui" target="_blank" class="btn-pdf-item">
-                    📥 Aujourd'hui
-                    <span>Ouvrir le PDF</span>
-                </a>
-                <a href="https://az-turf-pro.onrender.com/api/pdf/journal/demain" target="_blank" class="btn-pdf-item">
-                    📥 Demain
-                    <span>Ouvrir le PDF</span>
-                </a>
-                <a href="https://az-turf-pro.onrender.com/api/pdf/journal/special-15-aout" target="_blank" class="btn-pdf-item">
-                    📥 Spécial 15 Août
-                    <span>Ouvrir le PDF</span>
-                </a>
-            </div>
-        </section>
 
-        <!-- 2. Arrivées Officielles LONAB (Téléchargement Direct) -->
-        <section class="card">
-            <h2 class="journal-section-title">🏁 Arrivées Officielles LONAB (PDF)</h2>
-            <p style="color: #4a5568; font-size: 0.95rem;">Le bulletin d'arrivée certifié directement sur votre écran.</p>
-            
-            <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 14px 16px; border-radius: 12px; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px;">
-                <div>
-                    <strong style="color: #2d3748;">Bulletin Officiel des Arrivées</strong>
-                    <br><small style="color: #718096;">Derniers rapports validés</small>
-                </div>
-                <a href="https://az-turf-pro.onrender.com/api/pdf/arrivees/dernieres" target="_blank" class="btn-direct">
-                    📥 Voir le PDF
-                </a>
-            </div>
-        </section>
 
-        <!-- 3. Programmes Internationaux (Téléchargement Direct) -->
-        <section class="card">
-            <h2 class="journal-section-title">🌍 Programmes Étrangers (Mali & Niger)</h2>
-            <p style="color: #4a5568; font-size: 0.95rem;">Accès direct aux PDF de la sous-région.</p>
-            
-            <div class="pdf-grid">
-                <a href="https://az-turf-pro.onrender.com/api/pdf/programmes/mali" target="_blank" class="btn-pdf-item">
-                    🇲🇱 Hippisme Mali
-                    <span>PDF Programme</span>
-                </a>
-                <a href="https://az-turf-pro.onrender.com/api/pdf/programmes/niger" target="_blank" class="btn-pdf-item">
-                    🇳🇪 Hippisme Niger
-                    <span>PDF Programme</span>
-                </a>
-            </div>
-        </section>
+<section class="card">
 
-        <!-- 4. Bruits d'écurie & Avis des Pros (Flux dynamique) -->
-        <section class="card">
-            <h2 class="journal-section-title">🤫 Bruits d'Écurie & Avis des Pros</h2>
-            <p style="color: #4a5568; font-size: 0.95rem; margin-bottom: 15px;">Dernières informations du matin en provenance des pistes.</p>
-            
-            <div id="conteneur-bruits">
-                <div class="avis-card">
-                    <h4>🎯 Le Tuyau des Pistes (Bruit d'écurie)</h4>
-                    <p id="texte-tuyau">Chargement des données...</p>
-                </div>
 
-                <div class="avis-card" style="border-left-color: #3182ce; background: #ebf8ff;">
-                    <h4 style="color: #2b6cb0;">🗣️ Avis des Entraîneurs & Jockeys</h4>
-                    <p id="texte-avis"><em>Chargement des données...</em></p>
-                </div>
-            </div>
-        </section>
+<h1>
+📰 Journal Hippique AZ Turf Pro
+</h1>
 
-    </div>
+
+<p>
+Toutes les informations utiles pour suivre les courses hippiques.
+</p>
+
+
+</section>
+
+
+
+
+
+
+
+
+<section class="card">
+
+
+<h2>
+🇧🇫 Journal PMU'B LONAB
+</h2>
+
+
+<p>
+Dernières informations officielles disponibles.
+</p>
+
+
+
+
+<div class="journal-box">
+
+
+<div id="journal-lonab">
+
+
+📄 Journal hippique bientôt disponible.
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<section class="card">
+
+
+<h2>
+🏁 Dernières arrivées
+</h2>
+
+
+<div id="dernieres-arrivees">
+
+
+📄 Résultats bientôt disponibles.
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<section class="card">
+
+
+<h2>
+💰 Résultats et rapports
+</h2>
+
+
+<div id="rapports-courses">
+
+
+📄 Rapports bientôt disponibles.
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+<section class="card">
+
+
+<h2>
+🌍 Actualités hippiques
+</h2>
+
+
+<div id="actualites-hippiques">
+
+
+<ul>
+
+
+<li>
+🏇 Préparation des grandes courses
+</li>
+
+
+<li>
+📊 Analyse des performances des chevaux
+</li>
+
+
+<li>
+⭐ Suivi des favoris et outsiders
+</li>
+
+
+</ul>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+<section class="card premium-access">
+
+
+<h2>
+💎 Espace Premium
+</h2>
+
+
+<p>
+Les tickets Premium et combinaisons avancées sont réservés aux membres abonnés.
+</p>
+
+
+
+<a href="abonnement.html">
+
+Accéder à Premium
+
+</a>
+
+
+</section>
+
+
+
+
+
+
+
 </main>
 
+
+
+
+
+
+
+
 <footer class="bottom-menu">
-    <a href="index.html">🏠 Accueil</a>
-    <a href="analyse.html">📊 Analyse</a>
-    <a href="ticket.html">📰 Journal</a>
-    <a href="historique.html">🏆 Historique</a>
+
+
+<a href="index.html">
+🏠 Accueil
+</a>
+
+
+<a href="analyse.html">
+📊 Analyse
+</a>
+
+
+<a href="ticket.html">
+📰 Journal
+</a>
+
+
+<a href="historique.html">
+🏆 Historique
+</a>
+
+
 </footer>
 
-<script>
-    // Chargement dynamique des bruits d'écurie
-    async function chargerBruitsEcurie() {
-        const elTuyau = document.getElementById("texte-tuyau");
-        const elAvis = document.getElementById("texte-avis");
 
-        try {
-            const res = await fetch("https://az-turf-pro.onrender.com/api/bruits-ecurie", { cache: "no-store" });
-            if (res.ok) {
-                const data = await res.json();
-                if (data.tuyau) elTuyau.textContent = data.tuyau;
-                if (data.avis_pros) elAvis.innerHTML = `<em>« ${data.avis_pros} »</em>`;
-                return;
-            }
-        } catch (e) {
-            console.warn("Connexion API indisponible.");
-        }
 
-        // Sécurité si la connexion échoue
-        elTuyau.textContent = "Remarqué lors des derniers galops : un cheval de classe qui cherche sa course avec insistance.";
-        elAvis.innerHTML = "<em>« Le cheval est resté au mieux depuis sa dernière sortie. S'il bénéficie d'un bon parcours, sa place est sur le podium. »</em>";
-    }
 
-    document.addEventListener("DOMContentLoaded", chargerBruitsEcurie);
-</script>
 
+
+
+
+<script src="journal.js?v=5"></script>
 </body>
+
 </html>
