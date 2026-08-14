@@ -138,7 +138,8 @@ body{
 .analyse-detail, 
 .analyse-section, 
 .detail-analyse, 
-.synthese-zone{
+.synthese-zone,
+.selection-jour-container{
     background: var(--bg-card);
     width: 95%;
     margin: 20px auto;
@@ -153,7 +154,8 @@ body{
 .analyse-detail > *:not(:last-child),
 .analyse-section > *:not(:last-child),
 .detail-analyse > *:not(:last-child),
-.synthese-zone > *:not(:last-child) {
+.synthese-zone > *:not(:last-child),
+.selection-jour-container > *:not(:last-child) {
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 18px;
     margin-bottom: 18px;
@@ -213,6 +215,7 @@ td{
 .analyse-horizontal{
     display: flex;
     gap: 20px;
+    width: 100%;
 }
 
 .analyse-cheval{
@@ -251,6 +254,7 @@ td{
     opacity: 1 !important;
     height: auto !important;
     overflow: visible !important;
+    width: 100%;
 }
 
 #avis-jockey,
@@ -272,6 +276,7 @@ td{
 /* Indice de Confiance & Surveillance */
 .confiance-box, .surveillance-box{
     text-align: center;
+    width: 100%;
 }
 
 .surveillance-box{
@@ -327,6 +332,7 @@ td{
 /* Tendance */
 .tendance-box{
     border-top: 5px solid var(--primary-blue);
+    width: 100%;
 }
 
 #course-tendance{
@@ -342,11 +348,13 @@ td{
 /* Analyse Premium Container */
 .analyse-az{
     border-top: 5px solid var(--primary-blue);
+    width: 100%;
 }
 
 .analyse-az-container{
     display: flex;
     gap: 20px;
+    width: 100%;
 }
 
 .az-box{
@@ -380,6 +388,7 @@ td{
     justify-content: center;
     overflow-x: auto;
     padding: 15px;
+    width: 100%;
 }
 
 .popular-card{
@@ -398,12 +407,14 @@ td{
     border: 1px solid var(--border-color);
 }
 
-#selection-jour{
+#selection-jour,
+.selection-jour{
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
     gap: 10px;
+    width: 100%;
 }
 
 .numero-selection-jour{
@@ -470,12 +481,14 @@ td{
     max-width: 900px;
     margin: auto;
     padding: 15px;
+    width: 100%;
 }
 
 .premium-header{
     text-align: center;
     padding: 25px;
     border-radius: 25px;
+    width: 100%;
 }
 
 .premium-logo{
@@ -496,6 +509,7 @@ td{
     border-radius: 25px;
     text-align: center;
     border: 1px solid var(--gold-badge);
+    width: 100%;
 }
 
 .premium-card{
@@ -505,6 +519,7 @@ td{
     margin: 20px 0;
     box-shadow: 0 8px 20px rgba(0,0,0,.15);
     border: 1px solid rgba(217, 119, 6, 0.3);
+    width: 100%;
 }
 
 .premium-card h2{
@@ -520,6 +535,7 @@ td{
     letter-spacing: 6px;
     padding: 20px;
     color: var(--gold-badge);
+    width: 100%;
 }
 
 .ticket-premium-box{
@@ -530,6 +546,7 @@ td{
     margin: 20px 0;
     text-align: center;
     overflow: hidden;
+    width: 100%;
 }
 
 .ticket-premium-box h3{
@@ -540,12 +557,14 @@ td{
 
 .ticket-gratuit-box{
     text-align: center;
+    width: 100%;
 }
 
 .ticket-gratuit-item{
     margin: 25px 0;
     padding: 20px;
     border-radius: 20px;
+    width: 100%;
 }
 
 .ticket-grand{
@@ -584,6 +603,7 @@ td{
     font-size: 18px;
     color: var(--gold-badge);
     border: 1px solid var(--border-color);
+    width: 100%;
 }
 
 /* ===============================
@@ -597,6 +617,7 @@ td{
     justify-content: center;
     flex-wrap: wrap;
     margin-top: 20px;
+    width: 100%;
 }
 
 .payment-choice button,
@@ -654,6 +675,7 @@ td{
 .pub-box{
     padding: 10px;
     overflow: hidden;
+    width: 100%;
 }
 
 .pub-content img,
@@ -725,6 +747,7 @@ td{
 .slider-dots{
     text-align: center;
     margin-top: 15px;
+    width: 100%;
 }
 
 .slider-dots .dot{
@@ -785,6 +808,7 @@ td{
     max-width: 1000px;
     box-shadow: 0 8px 20px rgba(0,0,0,.15);
     border: 1px solid var(--border-color);
+    width: 100%;
 }
 
 .admin-card h2{
@@ -831,7 +855,7 @@ td{
     .content{
         padding-top: 80px;
     }
-    .card, .analyse-detail, .analyse-section, .detail-analyse, .synthese-zone{
+    .card, .analyse-detail, .analyse-section, .detail-analyse, .synthese-zone, .selection-jour-container{
         width: 95%;
         padding: 15px;
     }
@@ -917,4 +941,4 @@ td{
         height: 42px;
         font-size: 24px;
     }
-}
+   }
