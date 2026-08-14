@@ -3,11 +3,16 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Balises pour l'affichage Mobile Plein Écran (PWA / Standalone) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f172a">
+    
     <meta name="description" content="AZ Turf Pro - Pronostics hippiques et analyses professionnelles du Quinté+">
     <title>AZ Turf Pro - Accueil</title>
     <link rel="stylesheet" href="style.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 </head>
 
 <body>
@@ -34,14 +39,51 @@
 
 <main class="content">
 
-    <!-- INFOS COURSE DU JOUR -->
-    <section class="card course-card">
-        <h2>🏆 Course du jour</h2>
-        <p>📍 Hippodrome : <strong id="meta-hippodrome">-</strong></p>
-        <p>🏇 Course : <strong id="meta-course">-</strong></p>
-        <p>🏁 Discipline : <strong id="meta-discipline">-</strong></p>
-        <p>📏 Distance : <strong id="meta-distance">-</strong></p>
-        <p>🐎 Partants : <strong id="meta-partants">-</strong></p>
+    <!-- BANDEAU PRINCIPAL DE LA COURSE (NOUVEAU MODÈLE PMU PLEIN ÉCRAN) -->
+    <section class="card pmu-course-header">
+        
+        <!-- Onglets Quinté -->
+        <div class="quinte-tabs">
+            <button class="tab-btn">QUINTÉ HIER</button>
+            <button class="tab-btn active">QUINTÉ DU JOUR</button>
+            <button class="tab-btn">QUINTÉ DEMAIN</button>
+        </div>
+
+        <!-- Détails de la course -->
+        <div class="course-body">
+            <h1 class="course-title">Course Quinté+ du jour – <span id="meta-course">-</span></h1>
+            <h2 class="course-subtitle" id="meta-nom-prix">PRIX OFFICIEL QUINTÉ+</h2>
+            <div class="course-date" id="meta-date">Aujourd'hui</div>
+
+            <!-- Infos techniques -->
+            <div class="course-infos">
+                <span class="icon-horse">🏇</span>
+                <span class="info-text">
+                    <strong id="meta-discipline">-</strong> - 
+                    <strong id="meta-distance">-</strong> - 
+                    <strong id="meta-partants">-</strong> Partants - 
+                    <strong id="meta-hippodrome">-</strong>
+                </span>
+            </div>
+
+            <!-- Compte à rebours + Badges de paris PMU -->
+            <div class="course-footer-row">
+                <div class="countdown-badge">
+                    <span class="clock-icon">⏱️</span>
+                    <span id="timer-quinte">--:--:--</span>
+                </div>
+
+                <div class="pmu-badges-list">
+                    <span class="badge badge-simple">Simple</span>
+                    <span class="badge badge-couple">Couplé</span>
+                    <span class="badge badge-2sur4">2sur4</span>
+                    <span class="badge badge-multi">Multi</span>
+                    <span class="badge badge-tierce">Tiercé</span>
+                    <span class="badge badge-quarte">Quarté+</span>
+                    <span class="badge badge-quinte">Quinté+</span>
+                </div>
+            </div>
+        </div>
     </section>
 
     <!-- BANNIÈRE PUBLICITÉ -->
@@ -145,11 +187,24 @@
 
 </main>
 
+<!-- BARRE DE NAVIGATION DU BAS (SYMBOLES AU-DESSUS DU TEXTE) -->
 <footer class="bottom-menu">
-    <a href="index.html" class="active">🏠 Accueil</a>
-    <a href="analyse.html">📊 Analyse</a>
-    <a href="ticket.html">📰 Journal</a>
-    <a href="historique.html">🏆 Historique</a>
+    <a href="index.html" class="active">
+        <span class="menu-icon">🏡</span>
+        <span>Accueil</span>
+    </a>
+    <a href="analyse.html">
+        <span class="menu-icon">📊</span>
+        <span>Analyse</span>
+    </a>
+    <a href="ticket.html">
+        <span class="menu-icon">📰</span>
+        <span>Journal</span>
+    </a>
+    <a href="historique.html">
+        <span class="menu-icon">🏆</span>
+        <span>Historique</span>
+    </a>
 </footer>
 
 <!-- SCRIPTS JS -->
@@ -158,4 +213,4 @@
 <script src="tri-partants.js"></script>
 
 </body>
-  </html>
+</html>
