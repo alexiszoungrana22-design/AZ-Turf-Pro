@@ -4,15 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0f172a">
     <title>Espace Ticket Premium - AZ Turf Pro</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="ticket-premium.css">
     <style>
-        /* DESIGN CARTES BLANC NEIGE ET TYPOGRAPHIE SOMBRE */
+        /* RÈGLE ANTI-CONFLIT : RENDS LE MASQUAGE ABSOLU */
+        .zone-masquee {
+            display: none !important;
+        }
+
+        /* DESIGN DES CARTES BLANC NEIGE */
         .premium-card { 
             background-color: #ffffff !important; 
             color: #000000 !important; 
@@ -27,7 +28,7 @@
             margin-bottom: 12px;
         }
 
-        /* STYLE EXCLUSIF DES PASTILLES NUMÉROTÉES ALIGNÉES */
+        /* PASTILLES NUMÉROTÉES ROBUSTES */
         .numero-cheval {
             display: inline-block;
             background-color: #0f172a;
@@ -43,7 +44,7 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.15);
         }
 
-        /* BOÎTE DES TICKETS */
+        /* BOÎTE TICKETS */
         .ticket-premium-box {
             margin-bottom: 15px;
             background-color: #fffbeb;
@@ -67,7 +68,6 @@
             margin-top: 5px; 
         }
 
-        /* BOUTON D'ACTION ET STATUT */
         .btn-vip { 
             background: linear-gradient(135deg, #f59e0b, #d97706); 
             color: #ffffff; 
@@ -95,7 +95,7 @@
     </button>
 
     <!-- TABLEAU LIVE DYNAMIQUE -->
-    <div id="conteneur-tableau" style="display: none; margin-top: 15px; overflow-x: auto;">
+    <div id="conteneur-tableau" class="zone-masquee" style="margin-top: 15px; overflow-x: auto;">
         <table style="width: 100%; border-collapse: collapse; background: #ffffff; color: #000000; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
             <thead>
                 <tr style="background: #f1f5f9; text-align: left; font-size: 14px; color: #334155;">
@@ -127,16 +127,16 @@
 
 <main class="premium-container">
 
-    <!-- 🔒 MESSAGE SI ACCÈS NON AUTORISÉ -->
-    <div id="message-blocage" class="premium-card" style="display:none; text-align: center;">
+    <!-- 🔒 1. BLOCAGE (PAR DÉFAUT MASQUÉ PAR CLASSE CSS) -->
+    <div id="message-blocage" class="premium-card zone-masquee" style="text-align: center;">
         <h2>🔒 Accès Premium indisponible</h2>
         <p style="color: #4b5563; margin-bottom: 15px;">Votre abonnement n'est pas actif ou votre référence doit être validée.</p>
         <a href="activation.html" class="btn-vip">🔑 Activer ma Référence</a>
         <a href="mon-abonnement.html" style="display: block; margin-top: 12px; color: #0f172a; font-weight: bold; text-decoration: none;">👑 Espace Compte / Admin</a>
     </div>
 
-    <!-- 🔓 CONTENU DYNAMIQUE VIP VIP -->
-    <div id="contenu-premium" style="display:none;">
+    <!-- 🔓 2. CONTENU VIP (PAR DÉFAUT MASQUÉ PAR CLASSE CSS) -->
+    <div id="contenu-premium" class="zone-masquee">
 
         <div class="premium-back" style="margin-bottom: 15px;">
             <a href="mon-abonnement.html" style="color: #d97706; text-decoration: none; font-weight: bold;">⬅ Retour à mon compte</a>
@@ -228,27 +228,8 @@
     <a href="mon-abonnement.html">🔑 Compte</a>
 </footer>
 
-<!-- SCRIPT DE DÉVERROUILLAGE SÉCURISÉ -->
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const estActif = localStorage.getItem("AZ_TURF_PREMIUM_ACTIF") === "true";
-        const tel = localStorage.getItem("AZ_TURF_TELEPHONE");
-
-        const blocage = document.getElementById("message-blocage");
-        const contenu = document.getElementById("contenu-premium");
-
-        if (estActif || tel === "ADMINISTRATEUR" || tel === "COMPTE ADMINISTRATEUR") {
-            if (blocage) blocage.style.display = "none";
-            if (contenu) contenu.style.display = "block";
-        } else {
-            if (blocage) blocage.style.display = "block";
-            if (contenu) contenu.style.display = "none";
-        }
-    });
-</script>
-
-<!-- BACKEND JS POUR INJECTER LES TICKETS ET PASTILLES -->
-<script src="ticket-premium.js?v=3"></script>
+<!-- SCRIPT JS DE GESTION DES PRONOSTICS -->
+<script src="ticket-premium.js?v=4"></script>
 
 </body>
-</html>
+                </html>
