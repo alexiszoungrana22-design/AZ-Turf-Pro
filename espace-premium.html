@@ -6,14 +6,16 @@
     <title>Espace Premium - AZ Turf Pro</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .form-group { margin-bottom: 20px; text-align: left; }
-        .form-group label { display: block; font-weight: bold; margin-bottom: 8px; color: #2d3748; }
-        .form-control { width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 16px; box-sizing: border-box; }
-        .form-control:focus { border-color: #08783f; outline: none; box-shadow: 0 0 0 3px rgba(8, 120, 63, 0.2); }
-        .btn-action { width: 100%; padding: 16px; font-size: 18px; font-weight: bold; border-radius: 12px; background: linear-gradient(45deg,#d4af37,#ffe680); color: #111; border: none; cursor: pointer; margin-top: 10px; }
-        #message-alerte { display: none; padding: 15px; border-radius: 10px; margin-top: 15px; font-weight: bold; text-align: center; }
-        .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .alert-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 6px; color: #1e293b; font-size: 14px; }
+        .form-control { width: 100%; padding: 14px; border: 2px solid #cbd5e1; border-radius: 10px; font-size: 16px; box-sizing: border-box; }
+        .form-control:focus { border-color: #d97706; outline: none; }
+        .btn-action { width: 100%; padding: 15px; font-size: 16px; font-weight: bold; border-radius: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; border: none; cursor: pointer; margin-top: 10px; }
+        .btn-whatsapp { display: block; width: 100%; padding: 14px; text-align: center; background-color: #25D366; color: white; border-radius: 10px; font-weight: bold; text-decoration: none; margin-top: 10px; box-sizing: border-box; }
+        #message-alerte { display: none; padding: 12px; border-radius: 8px; margin-top: 15px; font-weight: bold; text-align: center; font-size: 14px; }
+        .alert-success { background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .alert-error { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+        .paiement-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; margin-bottom: 10px; text-align: center; }
     </style>
 </head>
 <body>
@@ -25,132 +27,108 @@
     <nav class="top-menu">
         <a href="index.html">🏠 Accueil</a>
         <a href="analyse.html">📊 Analyse</a>
-        <a href="mon-abonnement.html">🔑 Mon Compte</a>
+        <a href="ticket-premium.html">🎟️ Ticket VIP</a>
     </nav>
 </header>
 
 <main class="content">
-    <div class="page-container">
 
-        <!-- En-tête Premium -->
-        <section class="premium-header premium-banner" style="margin-bottom: 25px;">
-            <div class="premium-logo">⭐ VIP</div>
-            <div class="premium-title">
-                <h1 style="color: white;">Rejoignez le Club Premium</h1>
-            </div>
-            <p style="font-size: 16px;">Accédez aux tickets exclusifs, aux synthèses poussées et aux chevaux de confiance.</p>
-        </section>
+    <!-- ÉTAPE 1 : PAIEMENT -->
+    <section class="card">
+        <h2>💳 1. Effectuer le paiement</h2>
+        <p style="font-size: 13px; color: #475569; margin-bottom: 12px;">Faites votre dépôt Mobile Money puis contactez-nous pour recevoir votre Code VIP.</p>
+        
+        <div class="paiement-card">
+            <h3 style="color: #ea580c; font-size: 15px;">Orange Money</h3>
+            <p style="font-size: 18px; font-weight: 800; color: #0f172a;">+226 XX XX XX XX</p>
+        </div>
+        
+        <div class="paiement-card">
+            <h3 style="color: #0284c7; font-size: 15px;">Moov Money</h3>
+            <p style="font-size: 18px; font-weight: 800; color: #0f172a;">+226 XX XX XX XX</p>
+        </div>
 
-        <!-- Formulaire d'identification -->
-        <section class="card">
-            <h2>📱 Identifiez-vous</h2>
-            <p style="text-align: center; color: #4a5568; margin-bottom: 20px;">
-                Entrez votre numéro de téléphone (WhatsApp ou Mobile Money) pour activer ou consulter votre abonnement.
-            </p>
+        <a href="https://wa.me/22600000000?text=Bonjour,%20je%20souhaite%20recevoir%20mon%20Code%20VIP%20AZ%20Turf%20Pro." target="_blank" class="btn-whatsapp">
+            💬 Demander mon Code VIP sur WhatsApp
+        </a>
+    </section>
 
-            <form id="form-premium">
-                <div class="form-group">
-                    <label for="telephone-input">Votre numéro de téléphone :</label>
-                    <input type="tel" id="telephone-input" class="form-control" placeholder="Ex: 0022670000000" required>
-                </div>
+    <!-- ÉTAPE 2 : ACTIVATION AVEC LE CODE -->
+    <section class="card">
+        <h2>🔑 2. Activer mon accès VIP</h2>
+        <p style="font-size: 13px; color: #475569; margin-bottom: 15px;">Entrez votre numéro et le code fourni par l'administrateur.</p>
 
-                <div class="form-group">
-                    <label for="offre-select">Choisissez votre offre :</label>
-                    <select id="offre-select" class="form-control">
-                        <option value="1 SEMAINE">1 Semaine - VIP Standard</option>
-                        <option value="1 MOIS">1 Mois - VIP Privilège</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="btn-action">✅ Valider et S'abonner</button>
-            </form>
-
-            <div id="message-alerte"></div>
-        </section>
-
-        <!-- Options de paiement -->
-        <section class="card" id="bloc-paiement" style="display: none;">
-            <h2>💳 Finaliser le paiement</h2>
-            <p style="text-align: center;">Effectuez votre dépôt via l'un de ces moyens puis contactez l'administrateur.</p>
-            
-            <div class="paiement-options">
-                <div class="paiement-card">
-                    <h3 style="color: #ff6600;">Orange Money</h3>
-                    <p style="font-size: 20px; font-weight: bold;">+226 XX XX XX XX</p>
-                </div>
-                <div class="paiement-card">
-                    <h3 style="color: #0055a4;">Moov Money</h3>
-                    <p style="font-size: 20px; font-weight: bold;">+226 XX XX XX XX</p>
-                </div>
+        <form id="form-activation">
+            <div class="form-group">
+                <label for="telephone-input">Votre numéro de téléphone :</label>
+                <input type="tel" id="telephone-input" class="form-control" placeholder="Ex: 70000000" required>
             </div>
 
-            <a href="mon-abonnement.html" class="btn-payment" style="text-align: center; display: block; margin-top: 20px; text-decoration: none;">
-                Vérifier mon statut d'abonnement
-            </a>
-        </section>
+            <div class="form-group">
+                <label for="code-input">Code VIP reçu :</label>
+                <input type="text" id="code-input" class="form-control" placeholder="Entrez votre code VIP" style="text-transform: uppercase;" required>
+            </div>
 
-    </div>
+            <button type="submit" class="btn-action">✅ Débloquer mes Tickets VIP</button>
+        </form>
+
+        <div id="message-alerte"></div>
+    </section>
+
 </main>
 
 <footer class="bottom-menu">
     <a href="index.html">🏠 Accueil</a>
     <a href="analyse.html">📊 Analyse</a>
     <a href="ticket-premium.html">🎟️ Ticket</a>
-    <a href="mon-abonnement.html">🔑 Compte</a>
+    <a href="espace-premium.html" class="active">⭐ Premium</a>
 </footer>
 
 <script>
+    // LISTE DES CODES VIP VALIDES (Tu peux modifier ou ajouter des codes ici)
+    const CODES_VALIDES = ["AZ2026", "VIP777", "TURF88", "PRO2026"];
+
     document.addEventListener("DOMContentLoaded", () => {
-        const form = document.getElementById("form-premium");
-        const inputTelephone = document.getElementById("telephone-input");
-        const blocPaiement = document.getElementById("bloc-paiement");
+        const form = document.getElementById("form-activation");
+        const inputTel = document.getElementById("telephone-input");
+        const inputCode = document.getElementById("code-input");
         const messageAlerte = document.getElementById("message-alerte");
 
-        // Pré-remplir le champ si le numéro est déjà enregistré dans le téléphone
-        const telephoneExistant = localStorage.getItem("AZ_TURF_TELEPHONE");
-        if (telephoneExistant) {
-            inputTelephone.value = telephoneExistant;
-        }
+        // Pré-remplir le numéro s'il existe déjà
+        const telExistant = localStorage.getItem("AZ_TURF_TELEPHONE");
+        if (telExistant) inputTel.value = telExistant;
 
-        // Gérer la soumission du formulaire
-        form.addEventListener("submit", async (e) => {
-            e.preventDefault(); // Empêche le rechargement de la page
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
 
-            // 1. Récupération et nettoyage du numéro
-            let numero = inputTelephone.value.replace(/\s+/g, '').trim();
+            let tel = inputTel.value.replace(/\s+/g, '').trim();
+            let codeSaisi = inputCode.value.trim().toUpperCase();
 
-            if (numero.length < 8) {
-                afficherMessage("Veuillez entrer un numéro valide.", "error");
+            if (tel.length < 8) {
+                afficherMessage("Veuillez entrer un numéro de téléphone valide.", "error");
                 return;
             }
 
-            // 2. SAUVEGARDE DANS LA MÉMOIRE DU TÉLÉPHONE (Crucial pour les autres pages)
-            localStorage.setItem("AZ_TURF_TELEPHONE", numero);
+            // Vérification si le code est dans la liste autorisée
+            if (CODES_VALIDES.includes(codeSaisi)) {
+                // Sauvegarde de l'accès VIP dans la mémoire du téléphone
+                localStorage.setItem("AZ_TURF_TELEPHONE", tel);
+                localStorage.setItem("AZ_TURF_PREMIUM_ACTIF", "true");
 
-            // 3. Simulation de l'enregistrement de l'intention d'abonnement (Optionnel côté API)
-            const offre = document.getElementById("offre-select").value;
-            
-            afficherMessage("Numéro enregistré avec succès ! Procédez au paiement ci-dessous.", "success");
-            
-            // Afficher le bloc des options de paiement
-            blocPaiement.style.display = "block";
-            
-            // Fait défiler la page doucement vers les options de paiement
-            blocPaiement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                afficherMessage("🎉 Code VIP Valide ! Accès débloqué...", "success");
+
+                setTimeout(() => {
+                    window.location.href = "ticket-premium.html";
+                }, 1200);
+            } else {
+                afficherMessage("❌ Code VIP incorrect ou expiré.", "error");
+            }
         });
 
-        // Fonction utilitaire pour afficher les messages
         function afficherMessage(texte, type) {
             messageAlerte.textContent = texte;
             messageAlerte.className = type === "success" ? "alert-success" : "alert-error";
             messageAlerte.style.display = "block";
-            
-            // Cache l'alerte d'erreur après 4 secondes
-            if (type === "error") {
-                setTimeout(() => {
-                    messageAlerte.style.display = "none";
-                }, 4000);
-            }
         }
     });
 </script>
