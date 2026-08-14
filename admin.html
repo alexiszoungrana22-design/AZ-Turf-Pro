@@ -31,9 +31,16 @@
         <h2>📊 Tableau de bord administrateur</h2>
         <p>Gestion et suivi de la plateforme AZ Turf Pro</p>
 
-        <button class="btn-vip" onclick="actualiserAdmin()">
-            🔄 Actualiser les données
-        </button>
+        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px;">
+            <button class="btn-vip" onclick="actualiserAdmin()">
+                🔄 Actualiser les données
+            </button>
+
+            <!-- BOUTON ACCÈS DIRECT ADMIN -->
+            <button class="btn-vip" onclick="accederVIPAdmin()" style="background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #ffffff;">
+                👑 Voir les Tickets VIP (Accès Admin)
+            </button>
+        </div>
     </section>
 
     <section class="ticket-container">
@@ -127,6 +134,13 @@
     function actualiserAdmin() {
         if (typeof chargerStatistiquesAdmin === "function") chargerStatistiquesAdmin();
         if (typeof chargerAbonnements === "function") chargerAbonnements();
+    }
+
+    // FONCTION POUR DÉBLOQUER LES TICKETS EN MODE ADMIN
+    function accederVIPAdmin() {
+        localStorage.setItem("AZ_TURF_PREMIUM_ACTIF", "true");
+        localStorage.setItem("AZ_TURF_TELEPHONE", "COMPTE ADMINISTRATEUR");
+        window.location.href = "ticket-premium.html";
     }
 </script>
 
