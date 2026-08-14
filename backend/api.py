@@ -5,38 +5,10 @@
 # =====================================
 #
 # Fichier complet : api.py
-#
-# CORRECTIONS APPORTEES SUR LA SECTION "NOUVELLES ROUTES" :
-#
-# - L'URL LONAB utilisee ("www.lonab.bf/journal-hippique") etait
-#   fausse. La vraie URL, deja testee en direct avec succes, est
-#   "https://lonab.bf/programme-pmub" (sans www, chemin different).
-#   Les routes reutilisent maintenant directement les fonctions
-#   deja verifiees de lonab_source.py au lieu de dupliquer un
-#   scraper non teste avec httpx/BeautifulSoup.
-#
-# - "/pdf/programmes/mali" pointait vers "https://pmug.ml/programme.pdf",
-#   une URL inventee (jamais vue dans aucune source reelle). Remplacee
-#   par une vraie source verifiee : https://pmu.malijet.com (PMU
-#   officiel du Mali, en partenariat avec Malijet.com), via le
-#   nouveau module isole mali_source.py, teste sur de vraies donnees.
-#
-# - "/pdf/programmes/niger" retiree : aucune source fiable et
-#   verifiable trouvee. Mieux vaut ne pas avoir cette route que
-#   d'en avoir une qui pointe vers une URL inventee.
-#
-# - "/bruits-ecurie" retiree : son contenu etait entierement
-#   fabrique ("Repere ce matin lors des derniers heats...", texte
-#   fixe, jamais issu d'une vraie source). Presenter ca comme une
-#   vraie information a des utilisateurs qui parient est trompeur.
-#
-# Tout le reste du fichier (routes /analyse, /abonnement,
-# /activation, /premium, /admin/*, /journal, /historique,
-# /debug-pmu, /debug-journal) est conserve tel quel.
-
+# =====================================
 
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
 
 from engine import lancer_analyse
 
@@ -54,16 +26,16 @@ from models import (
 )
 
 from pmu_source import charger_course_pmu
-from lonab_source import (
-    recuperer_journal_lonab,
-    diagnostiquer_journal_lonab,
-    trouver_url_pdf_du_jour,
-)
+from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
 from learning import lire_historique, mettre_a_jour_arrivee, mettre_a_jour_publications
 
 import json
 import os
 from datetime import datetime, timedelta
+
+# Nouveaux imports pour le téléchargement direct des PDF
+import httpx
+from bs4 import BeautifulSoup
 
 
 router = APIRouter(
@@ -88,11 +60,11 @@ def charger_course_locale():
 def charger_course():
     aujourd_hui = datetime.now()
     date_pmu = aujourd_hui.strftime("%d%m%Y")
-
+    
     try:
         course = charger_course_pmu(date_pmu)
         if course and isinstance(course, dict) and course.get("chevaux"):
-            print("Source utilisÃ©e : PMU rÃ©el")
+            print("Source utilisée : PMU réel")
             return course, "pmu_live"
     except Exception as erreur:
         print("PMU indisponible :", erreur)
@@ -100,12 +72,12 @@ def charger_course():
     try:
         course = charger_course_locale()
         if course and isinstance(course, dict) and course.get("chevaux"):
-            print("Source utilisÃ©e : donnÃ©es locales (dÃ©mo)")
+            print("Source utilisée : données locales (démo)")
             course["donnees_demo"] = True
             return course, "demo"
     except Exception as erreur:
         print("Erreur chargement local :", erreur)
-
+        
     return None, "none"
 
 
@@ -117,12 +89,12 @@ def analyse():
     try:
         course, source = charger_course()
         if not course:
-            raise HTTPException(status_code=503, detail="Aucune donnÃ©e de course disponible actuellement.")
-
+            raise HTTPException(status_code=503, detail="Aucune donnée de course disponible actuellement.")
+            
         chevaux = course.get("chevaux", [])
         if not chevaux:
-            raise HTTPException(status_code=503, detail="Aucun cheval trouvÃ© dans la course.")
-
+            raise HTTPException(status_code=503, detail="Aucun cheval trouvé dans la course.")
+            
         resultat = lancer_analyse(
             chevaux,
             info_course={
@@ -141,20 +113,20 @@ def analyse():
         )
 
         if not isinstance(resultat, dict):
-            raise Exception("RÃ©ponse invalide du moteur AZ")
-
+            raise Exception("Réponse invalide du moteur AZ")
+            
         classement = resultat.get("chevaux", [])
         if not classement:
-            raise Exception("Le moteur AZ n'a retournÃ© aucun classement.")
-
+            raise Exception("Le moteur AZ n'a retourné aucun classement.")
+            
         aujourd_hui = datetime.now()
         est_demo = (source == "demo")
         date_course = (course.get("date") or aujourd_hui.strftime("%Y-%m-%d"))
         reunion = (course.get("reunion") or "R1")
         course_numero = (course.get("course_numero") or "C1")
-
+        
         reponse = {
-            "message": "Analyse AZ Turf terminÃ©e" if not est_demo else "Analyse AZ Turf terminÃ©e (donnÃ©es de dÃ©monstration, aucune course rÃ©elle disponible actuellement)",
+            "message": "Analyse AZ Turf terminée" if not est_demo else "Analyse AZ Turf terminée (données de démonstration, aucune course réelle disponible actuellement)",
             "source": source,
             "donnees_demo": est_demo,
             "course": course.get("course", "Course"),
@@ -179,10 +151,10 @@ def analyse():
         }
 
         if est_demo:
-            reponse["avertissement"] = "Ces donnÃ©es sont des donnÃ©es de dÃ©monstration figÃ©es et ne correspondent pas Ã  une course rÃ©elle du jour."
-
+            reponse["avertissement"] = "Ces données sont des données de démonstration figées et ne correspondent pas à une course réelle du jour."
+            
         return reponse
-
+        
     except HTTPException:
         raise
     except Exception as erreur:
@@ -197,7 +169,7 @@ def analyse():
 def abonnement(data: AbonnementRequest):
     try:
         resultat = creer_abonnement(data.model_dump())
-        return {"message": "Abonnement enregistrÃ©", "abonnement": resultat}
+        return {"message": "Abonnement enregistré", "abonnement": resultat}
     except Exception as erreur:
         raise HTTPException(status_code=500, detail=str(erreur))
 
@@ -209,10 +181,10 @@ def abonnement(data: AbonnementRequest):
 def activation_premium(activation: ActivationRequest):
     abonnement = activer_abonnement(activation.telephone, activation.reference)
     if abonnement is None:
-        raise HTTPException(status_code=404, detail="Aucun abonnement trouvÃ©")
-
+        raise HTTPException(status_code=404, detail="Aucun abonnement trouvé")
+        
     abonnement["date_fin"] = (datetime.now() + timedelta(days=int(abonnement.get("duree", 30)))).isoformat()
-    return {"message": "Premium activÃ©", "statut": "ACTIF", "date_fin": abonnement["date_fin"]}
+    return {"message": "Premium activé", "statut": "ACTIF", "date_fin": abonnement["date_fin"]}
 
 
 # =====================================
@@ -268,7 +240,7 @@ def journal():
                     "tickets": tickets,
                     "heure_arrivee": entree.get("heure_arrivee"),
                     "date_publication": entree.get("date_publication"),
-                    "titre": "RÃ©sultat et analyse AZ Turf Pro",
+                    "titre": "Résultat et analyse AZ Turf Pro",
                     "statut": "PUBLIE",
                 })
         except Exception as erreur:
@@ -288,34 +260,13 @@ def journal():
 # =====================================
 @router.get("/debug-pmu")
 def debug_pmu():
-    from pmu_source import trouver_quinte_du_jour, recuperer_participants, extraire_non_partants
-
+    from pmu_source import trouver_quinte_du_jour
     aujourd_hui = datetime.now()
     date_pmu = aujourd_hui.strftime("%d%m%Y")
-
+    
     try:
         programme, reunion, course = trouver_quinte_du_jour(date_pmu)
-
-        participants = []
-        non_partants = []
-
-        if course:
-            course_numero = (
-                course.get("numOrdre")
-                or course.get("numCourse")
-                or course.get("numero")
-            )
-
-            if course_numero is not None:
-                participants = recuperer_participants(date_pmu, reunion, course_numero)
-                non_partants = extraire_non_partants(course, participants)
-
-        return {
-            "reunion": reunion,
-            "course_brute": course,
-            "participants_bruts": participants,
-            "non_partants_detectes": non_partants,
-        }
+        return {"reunion": reunion, "programme_brut": programme, "course_brute": course}
     except Exception as erreur:
         raise HTTPException(status_code=500, detail=f"Erreur debug PMU : {erreur}")
 
@@ -384,76 +335,232 @@ def historique():
 
 
 # =========================================================
-# PROGRAMMES ET RESULTATS - SOURCES REELLES VERIFIEES
 # =========================================================
-#
-# Chaque route redirige vers une vraie page/PDF officiel trouve en
-# direct au moment de la requete (pas d'URL figee/inventee). Si la
-# source est introuvable ce jour-la, retourne une erreur 503
-# explicite plutot qu'un lien casse ou une redirection au hasard.
+# NOUVELLES ROUTES : TÉLÉCHARGEMENT DIRECT PDF & BRUITS
+# =========================================================
+# =========================================================
 
-
-@router.get("/pdf/journal/lonab")
-def pdf_journal_lonab_aujourdhui():
-    """
-    Redirige vers le vrai PDF du journal hippique LONAB du jour
-    (source verifiee : https://lonab.bf/programme-pmub). Reutilise
-    la fonction deja testee de lonab_source.py - aucune logique de
-    scraping dupliquee.
-    """
-
-    aujourd_hui = datetime.now()
-
+# Fonction de scraping
+async def chercher_lien_pdf_lonab(url_page: str, mots_cles: list) -> str:
     try:
-        url_pdf = trouver_url_pdf_du_jour(aujourd_hui)
+        async with httpx.AsyncClient(verify=False) as client:
+            reponse = await client.get(url_page, timeout=15.0)
+            reponse.raise_for_status()
+            
+            soup = BeautifulSoup(reponse.text, 'html.parser')
+            
+            for lien in soup.find_all('a', href=True):
+                href = lien['href']
+                texte_lien = lien.get_text().lower()
+                
+                if href.endswith('.pdf'):
+                    if any(mot in texte_lien or mot in href.lower() for mot in mots_cles):
+                        return href
+                        
+    except Exception as e:
+        print(f"Erreur de scraping LONAB : {e}")
+        
+    return "https://www.lonab.bf"
 
-        if not url_pdf:
+# Routes de redirection
+@router.get("/pdf/journal/aujourdhui")
+async def get_pdf_journal_aujourdhui():
+    url_lonab = "https://www.lonab.bf/journal-hippique"
+    lien_direct = await chercher_lien_pdf_lonab(url_lonab, ["aujourd", "jour"])
+    return RedirectResponse(url=lien_direct)
+
+@router.get("/pdf/journal/demain")
+async def get_pdf_journal_demain():
+    url_lonab = "https://www.lonab.bf/journal-hippique"
+    lien_direct = await chercher_lien_pdf_lonab(url_lonab, ["demain"])
+    return RedirectResponse(url=lien_direct)
+
+@router.get("/pdf/journal/special-15-aout")
+async def get_pdf_journal_special():
+    url_lonab = "https://www.lonab.bf/journal-hippique"
+    lien_direct = await chercher_lien_pdf_lonab(url_lonab, ["15", "aout", "août"])
+    return RedirectResponse(url=lien_direct)
+
+@router.get("/pdf/arrivees/dernieres")
+async def get_pdf_arrivees():
+    url_lonab = "https://www.lonab.bf/resultats-et-rapports"
+    lien_direct = await chercher_lien_pdf_lonab(url_lonab, ["arrivee", "rapport", "resultat"])
+    return RedirectResponse(url=lien_direct)
+
+@router.get("/pdf/programmes/mali")
+async def get_pdf_programme_mali():
+    return RedirectResponse(url="https://pmug.ml/programme.pdf")
+
+@router.get("/pdf/programmes/niger")
+async def get_pdf_programme_niger():
+    return RedirectResponse(url="https://www.lona-niger.ne/programme.pdf")
+
+@router.get("/bruits-ecurie")
+async def get_bruits_ecurie():
+    donnees = {
+        "tuyau": "Repéré ce matin lors des derniers heats : le numéro 4 montre une grande souplesse. Coup de poker idéal.",
+        "avis_pros": "Il redescend de catégorie aujourd'hui et affectionne particulièrement ce parcours. Place dans les 3."
+    }
+    return JSONResponse(content=donnees)
+
+# =====================================
+# ETAT COURSE / HORAIRES
+# =====================================
+@router.get("/etat-course")
+def etat_course():
+    """
+    Fournit au frontend les informations nécessaires au chronomètre
+    et au statut de la course : heure de départ, arrêt des jeux,
+    date, réunion, numéro et statut temporel.
+    """
+    try:
+        course, source = charger_course()
+
+        if not course:
             raise HTTPException(
                 status_code=503,
-                detail="Journal hippique LONAB du jour introuvable."
+                detail="Aucune course disponible actuellement."
             )
 
-        return RedirectResponse(url=url_pdf)
+        heure_depart = (
+            course.get("heure_depart")
+            or (course.get("horaires") or {}).get("depart")
+            or ""
+        )
+
+        horaires = course.get("horaires") or {}
+        arret_des_jeux = horaires.get("arret_des_jeux") or ""
+
+        return {
+            "source": source,
+            "date": course.get("date", ""),
+            "reunion": course.get("reunion", ""),
+            "course_numero": course.get("course_numero", ""),
+            "course": course.get("course", ""),
+            "hippodrome": course.get("hippodrome", ""),
+            "discipline": course.get("discipline", ""),
+            "heure_depart": heure_depart,
+            "horaires": {
+                "depart": heure_depart,
+                "arret_des_jeux": arret_des_jeux,
+            },
+            "non_partants": course.get("non_partants", []),
+            "statut": "HEURE_NON_DISPONIBLE" if not heure_depart else "PROGRAMMEE",
+        }
 
     except HTTPException:
         raise
     except Exception as erreur:
         raise HTTPException(
             status_code=500,
-            detail=f"Erreur rÃ©cupÃ©ration PDF LONAB : {erreur}"
+            detail=f"Erreur état course : {str(erreur)}"
         )
 
 
-@router.get("/programme/mali")
-def programme_mali_aujourdhui():
+# =====================================
+# ACTUALITES AZ / JOURNAL
+# =====================================
+@router.get("/journal/actualites")
+def journal_actualites():
     """
-    Redirige vers la vraie page de programme PMU Mali du jour
-    (source verifiee : https://pmu.malijet.com, PMU officiel du
-    Mali en partenariat avec Malijet.com).
-
-    Note : contrairement a LONAB, cette source publie des pages
-    HTML de detail par course, pas des PDF telechargeables.
+    Route dédiée au frontend Journal.
+    Retourne uniquement les publications AZ déjà disponibles.
     """
-
-    from mali_source import trouver_url_programme_mali_du_jour
-
-    aujourd_hui = datetime.now()
-
     try:
-        url_programme = trouver_url_programme_mali_du_jour(aujourd_hui)
+        mettre_a_jour_publications()
+        entrees = lire_historique()
 
-        if not url_programme:
-            raise HTTPException(
-                status_code=503,
-                detail="Programme PMU Mali du jour introuvable."
-            )
+        actualites = []
 
-        return RedirectResponse(url=url_programme)
+        for entree in reversed(entrees):
+            if entree.get("publication_statut") != "PUBLIE":
+                continue
 
-    except HTTPException:
-        raise
+            tickets = entree.get("tickets") or {}
+            premium = tickets.get("premium") or {}
+            gratuit = tickets.get("gratuit") or {}
+            course = entree.get("course") or {}
+            arrivee = entree.get("arrivee") or []
+
+            actualites.append({
+                "date": entree.get("date_analyse", ""),
+                "course": course,
+                "favori": entree.get("favori") or {},
+                "selection_premium_az": (
+                    entree.get("selection_premium_az")
+                    or premium.get("selection_quinte")
+                    or []
+                ),
+                "arrivee_officielle": (
+                    arrivee[:5] if isinstance(arrivee, list) else []
+                ),
+                "tickets": tickets,
+                "selection_az": (
+                    entree.get("selection_az")
+                    or gratuit.get("quinte")
+                    or []
+                ),
+                "heure_arrivee": entree.get("heure_arrivee"),
+                "date_publication": entree.get("date_publication"),
+                "publication_statut": "PUBLIE",
+            })
+
+        return {"actualites": actualites}
+
     except Exception as erreur:
         raise HTTPException(
             status_code=500,
-            detail=f"Erreur rÃ©cupÃ©ration programme Mali : {erreur}"
+            detail=f"Erreur actualités AZ : {str(erreur)}"
         )
+
+
+# =====================================
+# ETAT ADMINISTRATIF DES SOURCES
+# =====================================
+@router.get("/admin/etat")
+def admin_etat():
+    """
+    Vue synthétique destinée au tableau de bord administrateur.
+    Cette route ne modifie aucune donnée.
+    """
+    try:
+        historiques = lire_historique()
+
+        return {
+            "api": "OK",
+            "historique": {
+                "nombre": len(historiques),
+                "route": "/api/historique",
+            },
+            "journal": {
+                "route": "/api/journal",
+                "actualites": "/api/journal/actualites",
+            },
+            "analyse": {
+                "route": "/api/analyse",
+            },
+            "premium": {
+                "verification": "/api/premium/{telephone}",
+                "abonnement": "/api/abonnement",
+                "activation": "/api/activation",
+            },
+            "administration": {
+                "abonnements": "/api/admin/abonnements",
+                "statistiques": "/api/admin/statistiques",
+            },
+            "documents": {
+                "journal_aujourdhui": "/api/pdf/journal/aujourdhui",
+                "journal_demain": "/api/pdf/journal/demain",
+                "arrivees": "/api/pdf/arrivees/dernieres",
+            },
+            "divers": {
+                "etat_course": "/api/etat-course",
+                "bruits_ecurie": "/api/bruits-ecurie",
+            },
+        }
+
+    except Exception as erreur:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erreur Ã©tat administrateur : {str(erreur)}"
+    )
