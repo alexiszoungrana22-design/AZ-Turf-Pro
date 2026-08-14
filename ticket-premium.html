@@ -2,463 +2,128 @@
 <html lang="fr">
 
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Espace Ticket Premium - AZ Turf Pro</title>
-
-<link rel="stylesheet" href="style.css">
-
-<link rel="stylesheet" href="ticket-premium.css">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0f172a">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f172a">
+    <title>Ticket Premium - AZ Turf Pro</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
+<header class="top-header">
+    <div class="brand-zone">
+        <div class="logo">
+            🏇 <span>AZ Turf Pro</span>
+        </div>
+        <div class="mini-countdown">
+            💎 Ticket Premium
+        </div>
+    </div>
 
-<header class="premium-header">
-
-<div class="premium-logo">
-🏇 AZ Turf Pro
-</div>
-<!-- Le Bouton pour afficher/masquer le tableau -->
-<button id="btn-toggle-tableau" style="background: #10b981; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; margin: 15px 0; display: flex; align-items: center; gap: 8px;">
-    📊 Afficher le Tableau des Partants (Live)
-</button>
-
-<!-- Le Tableau (initialement masqué pour ne pas encombrer la page) -->
-<div id="conteneur-tableau" style="display: none; margin-top: 15px; overflow-x: auto;">
-    <table style="width: 100%; border-collapse: collapse; background: #111827; color: #fff; border-radius: 8px; overflow: hidden;">
-        <thead>
-            <tr style="background: #1f2937; text-align: left; font-size: 14px; color: #9ca3af;">
-                <th style="padding: 12px;">Rang</th>
-                <th style="padding: 12px;">N°</th>
-                <th style="padding: 12px;">Cheval</th>
-                <th style="padding: 12px;">Indice AZ</th>
-                <th style="padding: 12px;">Confiance</th>
-            </tr>
-        </thead>
-        <tbody id="all-horses">
-            <!-- Les données viendront s'injecter ici dynamiquement -->
-        </tbody>
-    </table>
-</div>
-
-<div class="premium-title">
-
-<h1>
-Espace Ticket Premium
-</h1>
-
-<p>
-Analyse spécialisée et combinaisons exclusives
-</p>
-
-</div>
-
-
+    <nav class="top-menu">
+        <a href="index.html">🏠 Accueil</a>
+        <a href="analyse.html">📊 Analyse</a>
+        <a href="ticket-premium.html" class="active">🎟️ Ticket</a>
+        <a href="mon-abonnement.html">🔑 Compte</a>
+    </nav>
 </header>
 
-
-<nav class="top-menu premium-menu">
-
-
-<a href="index.html">
-🏠 Accueil
-</a>
-
-
-<a href="analyse.html">
-📊 Analyse
-</a>
-
-
-<a href="ticket.html">
-🎟️ Programme
-</a>
-
-
-<a href="historique.html">
-🏆 Historique
-</a>
-
-
-</nav>
-
-
-
-
-
-
-
-<main class="premium-container">
-
-
-<div id="message-blocage" class="premium-card" style="display:none;">
-
-<h2>
-🔒 Accès Premium indisponible
-</h2>
-
-<p>
-Votre abonnement n'est pas actif ou a expiré.
-</p>
-
-<a href="espace-premium.html" class="btn-vip">
-⭐ Voir les offres Premium
-</a>
-
-</div>
-
-
-<div id="contenu-premium" style="display:none;">
-
-
-<div class="premium-back">
-
-<a href="abonnement.html">
-
-⬅ Retour à l'abonnement
-
-</a>
-
-</div>
-
-
-
-
-
-
-
-<section class="premium-banner">
-
-<h2>
-⭐ AZ Turf Pro Premium
-</h2>
-
-<p>
-Vos sélections exclusives basées sur l'analyse des performances.
-</p>
-
-</section>
-
-
-
-
-
-
-
-<section class="premium-card">
-
-<h2>
-🏇 Sélection Premium du jour
-</h2>
-
-
-<div
-id="selection-premium"
-class="chevaux-premium">
-
-Chargement...
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-<section class="premium-card">
-
-<h2>
-🧠 Pourquoi ces chevaux ?
-</h2>
-
-
-<div id="explication-premium">
-
-Chargement...
-
-</div>
-
-
-</section>
-
-    
-
-
-
-
-
-
-<section class="premium-card tickets-premium">
-
-
-<h2>
-🏆 Vos Tickets Premium
-</h2>
-
-
-
-
-
-<div class="ticket-premium-box">
-
-<h3>
-🏆 Quinté Premium
-</h3>
-
-
-<div
-id="quinte-premium"
-class="numero-ticket">
-
-Chargement...
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-<div class="ticket-premium-box">
-
-<h3>
-🥇 Quarté Premium
-</h3>
-
-
-<div
-id="quarte-premium"
-class="numero-ticket">
-
-Chargement...
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-<div class="ticket-premium-box">
-
-<h3>
-🎯 Trio Premium
-</h3>
-
-
-<div
-id="trio-premium"
-class="numero-ticket">
-
-Chargement...
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-<div class="ticket-premium-box">
-
-<h3>
-🤝 Couplé Gagnant / Placé
-</h3>
-
-
-<div
-id="couple-premium"
-class="numero-ticket">
-
-Chargement...
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-<div class="ticket-premium-box">
-
-<h3>
-🔒 Champ réduit Premium
-</h3>
-
-
-<div
-id="champ-reduit-premium"
-class="numero-ticket">
-
-Chargement...
-
-</div>
-
-
-</div>
-
-
-
-
-</section>
-
-
-
-
-
-
-
-
-
-<section class="premium-card">
-
-
-<h2>
-⚡ Dernière minute
-</h2>
-
-
-<div
-id="derniere-minute-premium">
-
-Chargement...
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-
-
-<section class="premium-card analyse-premium-zone">
-
-
-<h2>
-📈 Analyse Premium
-</h2>
-
-
-<div
-id="analyse-premium">
-
-Chargement...
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-
-
-<section class="premium-message">
-
-
-<h2>
-🍀 Message Premium
-</h2>
-
-
-<p
-id="message-premium">
-
-Chargement...
-
-</p>
-
-
-</section>
-
-
-</div>
-
-
-
+<main class="content">
+
+    <!-- ZONE VERIFICATION ACCES -->
+    <section class="card" id="zone-verification">
+        <h2>🔒 Vérification de l'accès...</h2>
+        <p>Veuillez patienter pendant la vérification de votre abonnement.</p>
+    </section>
+
+    <!-- CONTENU TICKET PREMIUM (Masqué par défaut) -->
+    <div id="zone-ticket-premium" style="display: none;">
+
+        <section class="card">
+            <h2>💎 Votre Ticket Premium du Jour</h2>
+            <p>Combinaisons réservées aux membres VIP abonnés.</p>
+            
+            <div id="statut-utilisateur" style="margin-top: 10px; font-weight: bold; color: #16a34a;"></div>
+        </section>
+
+        <!-- Ticket VIP -->
+        <section class="card">
+            <h2>🎯 Sélection Confiance Premium</h2>
+            <div id="contenu-ticket" style="font-size: 18px; font-weight: bold; text-align: center; padding: 15px; background: #f8fafc; border-radius: 8px; border: 2px dashed #f59e0b; color: #0f172a;">
+                Chargement des pronostics Premium...
+            </div>
+        </section>
+
+    </div>
+
+    <!-- BLOC ACCÈS REFUSÉ -->
+    <section class="card" id="zone-refuse" style="display: none; text-align: center;">
+        <h2>⚠️ Accès Réserver aux Abonnés</h2>
+        <p style="margin-bottom: 15px;">Aucun abonnement actif trouvé pour votre appareil.</p>
+        <a href="abonnement.html" class="btn-vip" style="display: inline-block; padding: 10px 20px;">S'abonner maintenant</a>
+    </section>
 
 </main>
 
-
-
-
-
-
-
-
-
 <footer class="bottom-menu">
-
-
-<a href="index.html">
-🏠 Accueil
-</a>
-
-
-<a href="analyse.html">
-📊 Analyse
-</a>
-
-
-<a href="ticket.html">
-🎟️ Programme
-</a>
-
-
-<a href="historique.html">
-🏆 Historique
-</a>
-
-
+    <a href="index.html">🏠 Accueil</a>
+    <a href="analyse.html">📊 Analyse</a>
+    <a href="ticket-premium.html" class="active">🎟️ Ticket</a>
+    <a href="mon-abonnement.html">🔑 Compte</a>
 </footer>
 
+<script>
+    const API = "https://az-turf-pro.onrender.com/api/premium/";
 
+    async function verifierAccesPremium() {
+        const telephone = localStorage.getItem("AZ_TURF_TELEPHONE");
+        const zoneVerif = document.getElementById("zone-verification");
+        const zoneTicket = document.getElementById("zone-ticket-premium");
+        const zoneRefuse = document.getElementById("zone-refuse");
+        const statutUser = document.getElementById("statut-utilisateur");
+        const contenuTicket = document.getElementById("contenu-ticket");
 
+        // 1. Si aucun numéro n'est mémorisé
+        if (!telephone) {
+            zoneVerif.style.display = "none";
+            zoneRefuse.style.display = "block";
+            return;
+        }
 
+        try {
+            // 2. Interrogation de l'API
+            const reponse = await fetch(API + encodeURIComponent(telephone));
+            const data = await reponse.json();
 
+            zoneVerif.style.display = "none";
 
+            // Permet l'accès si le statut est ACTIF ou si un numéro valide existe
+            if (reponse.ok && data.statut === "ACTIF") {
+                zoneTicket.style.display = "block";
+                statutUser.textContent = "✅ Membre Premium Actif (" + telephone + ")";
+                
+                // Exemple de chargement des pronostics
+                contenuTicket.innerHTML = "PRONOSTIC VIP : " + (data.ticket || "1 - 4 - 7 - 9 - 12 - 14");
+            } else {
+                // Si enregistrer localement mais pas encore validé par l'admin
+                zoneTicket.style.display = "block";
+                statutUser.textContent = "⌛ Compte en attente de confirmation (" + telephone + ")";
+                contenuTicket.innerHTML = "Vos tickets seront visibles dès confirmation du paiement.";
+            }
 
-<script src="ticket-premium.js?v=3"></script>
+        } catch (error) {
+            // En cas d'erreur réseau / serveur
+            zoneVerif.style.display = "none";
+            zoneTicket.style.display = "block";
+            statutUser.textContent = "📱 Mode Hors-Ligne (" + telephone + ")";
+            contenuTicket.innerHTML = "1 - 5 - 8 - 10 - 12 (Ticket de secours)";
+        }
+    }
 
+    document.addEventListener("DOMContentLoaded", verifierAccesPremium);
+</script>
 
 </body>
-
 </html>
