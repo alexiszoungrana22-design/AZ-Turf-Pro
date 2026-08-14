@@ -1,6 +1,6 @@
 /* ===============================
-   AZ TURF PRO - THEME CARTES "BLANC NEIGE"
-   Page Analyse & Cartes Unifiées à 95% avec Séparateurs Fins
+   AZ TURF PRO - CARTE UNIQUE PAR PAGE
+   Fini les petites cartes multiples : 1 seule grande carte par page
 ================================ */
 
 :root {
@@ -77,7 +77,6 @@ body{
     color: #ef4444;
 }
 
-/* Menu du haut masqué au profit de la barre du bas */
 .top-menu{
     display: none !important;
 }
@@ -92,7 +91,6 @@ body{
     box-shadow: 0 0 12px rgba(217, 119, 6, 0.3);
 }
 
-/* Barre de navigation du bas unifiée */
 .bottom-menu{
     display: flex;
     position: fixed;
@@ -104,7 +102,7 @@ body{
     border-top: 1px solid #1e293b;
     justify-content: space-around;
     align-items: center;
-    box-shadow: 0 -3px 15px rgba(0,0,0,.6);
+    box-shadow: -3px 15px rgba(0,0,0,.6);
     z-index: 1000;
 }
 
@@ -116,55 +114,55 @@ body{
 }
 
 /* ===============================
-   3. CONTENU GENERAL & CARTES UNIFIEES (95%)
+   3. LA CARTE UNIQUE DE LA PAGE & SÉPARATEURS FINS
 ================================ */
-.content{
-    padding-top: 100px;
-    padding-bottom: 90px;
-    max-width: 1200px;
-    margin: auto;
-    width: 100%;
-}
-
-.page-container{
+.content, 
+.page-container,
+.analyse-container,
+.premium-container{
+    background: var(--bg-card);
     width: 95%;
     max-width: 1200px;
-    margin: 20px auto;
-    padding: 20px;
-    padding-bottom: 90px;
+    margin: 25px auto;
+    padding: 30px;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    border: 1px solid var(--border-color);
+    padding-top: 100px;
+    padding-bottom: 100px;
 }
 
-/* Cartes et sections de la page analyse unifiées à 95% avec séparateurs fins */
+/* Neutralisation totale des anciennes petites cartes pour qu'elles fusionnent dans la carte unique */
 .card, 
 .analyse-detail, 
 .analyse-section, 
 .detail-analyse, 
 .synthese-zone,
 .selection-jour-container,
-.analyse-container{
-    background: var(--bg-card);
-    width: 95%;
-    margin: 20px auto;
-    padding: 25px;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,.25);
-    border: 1px solid var(--border-color);
+.admin-card,
+.premium-card{
+    background: transparent !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
 }
 
-/* Lignes de séparation fines entre chaque fonction / section à l'intérieur des cartes */
+/* Lignes de séparation fines automatiques entre chaque fonction/section de la carte unique */
+.content > *:not(:last-child),
+.page-container > *:not(:last-child),
+.analyse-container > *:not(:last-child),
 .card > *:not(:last-child),
 .analyse-detail > *:not(:last-child),
-.analyse-section > *:not(:last-child),
-.detail-analyse > *:not(:last-child),
-.synthese-zone > *:not(:last-child),
-.selection-jour-container > *:not(:last-child),
-.analyse-container > *:not(:last-child) {
+.analyse-section > *:not(:last-child) {
     border-bottom: 1px solid var(--border-color);
-    padding-bottom: 18px;
-    margin-bottom: 18px;
+    padding-bottom: 22px;
+    margin-bottom: 22px;
 }
 
-.card h2, .analyse-detail h3{
+h2, h3, .card h2, .analyse-detail h3{
     text-align: center;
     color: var(--primary-blue);
     margin-top: 0;
@@ -172,12 +170,12 @@ body{
 }
 
 .news-bar{
-    width: 95%;
-    margin: 20px auto;
+    width: 100%;
+    margin: 0 0 22px 0;
     background: var(--primary-blue);
     color: white;
     padding: 15px;
-    border-radius: 20px;
+    border-radius: 16px;
     text-align: center;
     font-weight: bold;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -224,7 +222,7 @@ td{
 .analyse-cheval{
     flex: 1;
     background: var(--bg-light-box);
-    border-radius: 20px;
+    border-radius: 18px;
     padding: 20px;
     text-align: center;
     border: 1px solid var(--border-color);
@@ -288,7 +286,6 @@ td{
     border-radius: 18px;
     padding: 20px;
     margin-top: 15px;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
 }
 
 .confiance-score{
@@ -364,7 +361,7 @@ td{
     flex: 1;
     background: var(--bg-light-box);
     padding: 22px;
-    border-radius: 22px;
+    border-radius: 18px;
     text-align: center;
     border: 1px solid var(--border-color);
 }
@@ -383,7 +380,7 @@ td{
 }
 
 /* ===============================
-   6. SELECTIONS & CHEVAUX (Sélection du jour)
+   6. SELECTIONS & CHEVAUX
 ================================ */
 .popular-horizontal{
     display: flex;
@@ -480,17 +477,9 @@ td{
 /* ===============================
    7. PREMIUM & TICKETS
 ================================ */
-.premium-container{
-    max-width: 900px;
-    margin: auto;
-    padding: 15px;
-    width: 100%;
-}
-
 .premium-header{
     text-align: center;
-    padding: 25px;
-    border-radius: 25px;
+    padding: 15px;
     width: 100%;
 }
 
@@ -500,7 +489,7 @@ td{
     color: var(--gold-badge);
 }
 
-.premium-title h1{
+.premium- title h1{
     font-size: 28px;
     color: var(--gold-badge);
 }
@@ -509,25 +498,10 @@ td{
     background: linear-gradient(135deg, #0f172a, #1e3a8a, #92400e);
     color: white;
     padding: 30px;
-    border-radius: 25px;
+    border-radius: 20px;
     text-align: center;
     border: 1px solid var(--gold-badge);
     width: 100%;
-}
-
-.premium-card{
-    background: var(--bg-card);
-    border-radius: 20px;
-    padding: 20px;
-    margin: 20px 0;
-    box-shadow: 0 8px 20px rgba(0,0,0,.15);
-    border: 1px solid rgba(217, 119, 6, 0.3);
-    width: 100%;
-}
-
-.premium-card h2{
-    text-align: center;
-    color: var(--gold-badge);
 }
 
 .chevaux-premium,
@@ -544,9 +518,9 @@ td{
 .ticket-premium-box{
     background: var(--bg-light-box);
     border: 2px solid var(--gold-badge);
-    border-radius: 20px;
+    border-radius: 18px;
     padding: 20px 10px;
-    margin: 20px 0;
+    margin: 15px 0;
     text-align: center;
     overflow: hidden;
     width: 100%;
@@ -564,10 +538,9 @@ td{
 }
 
 .ticket-gratuit-item{
-    margin: 25px 0;
-    padding: 20px;
-    border-radius: 20px;
-    width: 100%;
+    margin: 20px 0;
+    padding: 15px;
+    border-radius: 18px;
 }
 
 .ticket-grand{
@@ -599,8 +572,8 @@ td{
 .premium-message,
 .message-fin{
     text-align: center;
-    padding: 25px;
-    border-radius: 20px;
+    padding: 20px;
+    border-radius: 16px;
     background: var(--bg-light-box);
     font-weight: bold;
     font-size: 18px;
@@ -619,7 +592,7 @@ td{
     gap: 20px;
     justify-content: center;
     flex-wrap: wrap;
-    margin-top: 20px;
+    margin-top: 15px;
     width: 100%;
 }
 
@@ -629,7 +602,7 @@ td{
     color: var(--text-main);
     border: 2px solid var(--border-color);
     padding: 15px;
-    border-radius: 20px;
+    border-radius: 18px;
     font-weight: bold;
 }
 
@@ -655,7 +628,7 @@ td{
 .vip-box{
     background: var(--bg-card);
     border: 1px solid var(--gold-badge);
-    border-radius: 15px;
+    border-radius: 16px;
     padding: 20px;
     width: 260px;
     text-align: center;
@@ -676,7 +649,7 @@ td{
    9. MODULES ANNEXES (Pubs, Visiteurs, Admin)
 ================================ */
 .pub-box{
-    padding: 10px;
+    padding: 5px;
     overflow: hidden;
     width: 100%;
 }
@@ -686,7 +659,7 @@ td{
     width: 100%;
     height: 160px;
     object-fit: cover;
-    border-radius: 18px;
+    border-radius: 16px;
     display: block;
 }
 
@@ -713,7 +686,7 @@ td{
     width: 100%;
     height: 280px;
     overflow: hidden;
-    border-radius: 25px;
+    border-radius: 20px;
 }
 
 .slider-pub img{
@@ -775,7 +748,7 @@ td{
 
 .espace-visiteurs textarea{
     width: 100%;
-    min-height: 220px;
+    min-height: 180px;
     padding: 15px;
     background: var(--bg-light-box);
     color: var(--text-main);
@@ -796,37 +769,12 @@ td{
     border: none;
     border-radius: 12px;
     cursor: pointer;
+    margin-top: 10px;
 }
 
 #messages-visiteurs{
-    margin-top: 20px;
+    margin-top: 15px;
     width: 100%;
-}
-
-.admin-card{
-    background: var(--bg-card);
-    border-radius: 20px;
-    padding: 25px;
-    margin: 20px auto;
-    max-width: 1000px;
-    box-shadow: 0 8px 20px rgba(0,0,0,.15);
-    border: 1px solid var(--border-color);
-    width: 100%;
-}
-
-.admin-card h2{
-    text-align: center;
-    color: var(--primary-blue);
-}
-
-.admin-button{
-    background: var(--primary-blue);
-    color: white;
-    padding: 12px 25px;
-    border-radius: 25px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
 }
 
 .admin-table{
@@ -851,18 +799,18 @@ td{
         font-size: 12px;
     }
     
-    .page-container{
-        padding-top: 90px !important;
-        padding-bottom: 90px;
-        width: 95%;
-    }
-    .content{
-        padding-top: 80px;
-    }
-    .card, .analyse-detail, .analyse-section, .detail-analyse, .synthese-zone, .selection-jour-container, .analyse-container{
-        width: 95%;
+    .content, 
+    .page-container,
+    .analyse-container,
+    .premium-container{
+        width: 98%;
         padding: 15px;
+        padding-top: 90px;
+        padding-bottom: 90px;
+        margin: 10px auto;
+        border-radius: 16px;
     }
+
     .analyse-horizontal,
     .analyse-az-container{
         flex-direction: column;
@@ -875,10 +823,6 @@ td{
         justify-content: flex-start;
     }
 
-    .premium-title h1{
-        font-size: 22px;
-    }
-    
     .numero-ticket,
     .ticket-grand{
         font-size: 24px !important;
@@ -901,48 +845,5 @@ td{
         width: 100%;
         padding: 14px;
         letter-spacing: 2px;
-    }
-}
-
-@media(max-width: 600px){
-    .numero-ticket,
-    .ticket-grand{
-        font-size: 32px !important;
-        letter-spacing: 2px;
-        padding: 15px 0;
-    }
-    .couple-ligne{
-        font-size: 26px;
-    }
-    .champ-reduit{
-        font-size: 30px;
-    }
-    .slider-pub{
-        height: 230px;
-    }
-    .pub-overlay h3{
-        font-size: 20px;
-    }
-    .pub-overlay p{
-        font-size: 14px;
-    }
-    #indice-confiance{
-        font-size: 42px;
-    }
-    #message-confiance{
-        font-size: 16px;
-    }
-    #chevaux-surveiller{
-        font-size: 22px;
-        letter-spacing: 2px;
-    }
-    .numero-ticket-grand{
-        font-size: 48px;
-        letter-spacing: 5px;
-    }
-    .numero-selection-jour{
-        min-width: 42px;
-        height: 42px;
-        font-size: 24px;
     }
    }
