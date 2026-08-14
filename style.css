@@ -1,6 +1,6 @@
 /* ===============================
    AZ TURF PRO - DESIGN OFFICIEL TYPE PMU
-   Carte unique harmonisée & Numéros centrés haute visibilité
+   Carte unique harmonisée & Barre de navigation corrigée
 ================================ */
 
 :root {
@@ -93,13 +93,14 @@ body{
     box-shadow: 0 0 12px rgba(217, 119, 6, 0.4);
 }
 
+/* Barre de navigation du bas : Symboles en haut & Texte plus grand */
 .bottom-menu{
     display: flex;
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 65px;
+    height: 75px;
     background: #0f172a;
     border-top: 1px solid #1e293b;
     justify-content: space-around;
@@ -111,8 +112,19 @@ body{
 .bottom-menu a{
     text-decoration: none;
     color: #38bdf8;
-    font-size: 12px;
+    font-size: 14px; /* Texte plus grand */
     font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    text-align: center;
+}
+
+.bottom-menu a .menu-icon {
+    font-size: 20px; /* Symbole en haut bien visible */
+    line-height: 1;
 }
 
 /* ===============================
@@ -384,7 +396,6 @@ td{
     margin: 10px 0;
 }
 
-/* Style de pastille PMU officielle pour les numéros */
 .numero-selection-jour,
 .numero-cheval,
 .cheval-numero,
@@ -408,7 +419,6 @@ td{
     margin: 5px;
 }
 
-/* Numéros d'outsiders en badge doré PMU */
 .outsider .analyse-numero, 
 .outsider-numero,
 .outsider .numero-cheval {
@@ -416,7 +426,6 @@ td{
     color: var(--gold-badge) !important;
 }
 
-/* Gros numéros de tickets centrés */
 .numero-ticket,
 .ticket-numero,
 .ticket-grand{
