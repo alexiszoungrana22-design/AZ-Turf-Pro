@@ -7,7 +7,6 @@
     <title>Accueil - AZ Turf Pro</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* DESIGN DES CARTES ET TABLEAUX ACCUEIL */
         .home-card { 
             background-color: #ffffff !important; 
             color: #000000 !important; 
@@ -33,6 +32,7 @@
     <p style="color: #94a3b8; font-size: 14px; margin-top: 5px;">Votre application de pronostics hippiques</p>
 </header>
 
+<!-- MENU DE NAVIGATION PRINCIPAL (AVEC ACCÈS RESTAURÉ) -->
 <nav class="top-menu premium-menu" style="display: flex; justify-content: space-around; background: #1e293b; padding: 12px;">
     <a href="index.html" class="active" style="color: #f59e0b; text-decoration: none; font-weight: bold;">🏠 Accueil</a>
     <a href="analyse.html" style="color: #fff; text-decoration: none;">📊 Analyse</a>
@@ -46,7 +46,7 @@
     <section class="home-card">
         <h2>🏇 Résultats & Programmes Quinté+</h2>
 
-        <!-- BOUTONS DE SÉLECTION (ONGLETS) -->
+        <!-- TES BOUTONS D'ORIGINE CONNECTÉS AUX FONCTIONS -->
         <div style="display: flex; gap: 10px; margin-bottom: 15px;">
             <button onclick="changerJourQuinte('hier')" id="btn-hier" class="btn-jour" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; background: #f1f5f9; cursor: pointer; font-weight: bold;">Hier</button>
             <button onclick="changerJourQuinte('aujourdhui')" id="btn-aujourdhui" class="btn-jour active" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #f59e0b; background: #f59e0b; color: #fff; cursor: pointer; font-weight: bold;">Aujourd'hui</button>
@@ -79,17 +79,14 @@
     &copy; 2026 AZ Turf Pro - Tous droits réservés
 </footer>
 
-<!-- SCRIPT JAVASCRIPT INTÉGRÉ POUR GÉRER LES ONGLETS ET LES DONNÉES -->
 <script>
     const API_URL = "https://az-turf-pro-backend.onrender.com";
 
     document.addEventListener("DOMContentLoaded", () => {
-        // Charge par défaut le Quinté d'aujourd'hui au démarrage
         changerJourQuinte('aujourdhui');
     });
 
     async function changerJourQuinte(jour) {
-        // 1. Gestion visuelle des boutons (onglets)
         document.querySelectorAll('.btn-jour').forEach(btn => {
             btn.style.background = "#f1f5f9";
             btn.style.color = "#000";
@@ -103,24 +100,20 @@
             btnActif.style.borderColor = "#f59e0b";
         }
 
-        // 2. Affichage du message de chargement
         const tbody = document.getElementById("table-quinte-body");
         tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: #64748b;">Chargement du Quinté (${jour})...</td></tr>`;
 
         try {
-            // Interroge ton API backend pour récupérer les données du jour correspondant
             const response = await fetch(`${API_URL}/api/quinte/${jour}`);
-            
             if (response.ok) {
                 const partants = await response.json();
                 remplirTableauAccueil(partants);
                 return;
             }
         } catch (error) {
-            console.warn("Serveur en veille ou injoignable, bascule sur les données de secours.");
+            console.warn("Connexion au serveur ralentie, affichage des données de secours.");
         }
 
-        // Données de secours locales si le serveur Render met du temps à répondre
         const simulation = [
             { numero: "04", nom: "TITAN DU GUET", jockey: "J. M. Bazire", indice: "94.5" },
             { numero: "09", nom: "ROYAL STAR", jockey: "E. Raffin", indice: "91.2" },
