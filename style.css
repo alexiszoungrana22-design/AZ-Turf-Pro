@@ -267,9 +267,18 @@ td{
     border-top: 5px solid var(--primary-blue);
 }
 
-/* Indice de Confiance & Surveillance */
+/* Indice de Confiance & Surveillance (Design Repensé) */
 .confiance-box, .surveillance-box{
     text-align: center;
+}
+
+.surveillance-box{
+    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    border: 2px solid var(--border-color);
+    border-radius: 18px;
+    padding: 20px;
+    margin-top: 15px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
 }
 
 .confiance-score{
@@ -292,12 +301,25 @@ td{
     color: var(--gold-badge);
 }
 
+/* Chevaux à surveiller - Nouveau style épuré, texte en noir */
 #chevaux-surveiller{
-    font-size: 30px;
+    font-size: 32px;
     font-weight: 900;
-    line-height: 1.8;
-    padding: 20px;
-    color: var(--primary-blue);
+    letter-spacing: 4px;
+    line-height: 1.6;
+    padding: 18px 25px;
+    color: #000000 !important;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    display: inline-block;
+    width: 90%;
+    max-width: 600px;
+    border-left: 6px solid var(--gold-badge);
+    border-right: 1px solid var(--border-color);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    margin: 10px 0;
 }
 
 /* Tendance */
@@ -867,6 +889,13 @@ td{
     .paiement-card{
         width: 90%;
     }
+    
+    #chevaux-surveiller{
+        font-size: 26px;
+        width: 100%;
+        padding: 14px;
+        letter-spacing: 2px;
+    }
 }
 
 @media(max-width: 600px){
@@ -898,7 +927,8 @@ td{
         font-size: 16px;
     }
     #chevaux-surveiller{
-        font-size: 26px;
+        font-size: 22px;
+        letter-spacing: 2px;
     }
     .numero-ticket-grand{
         font-size: 48px;
