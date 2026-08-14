@@ -1,832 +1,117 @@
-/* ===============================
-   AZ TURF PRO - DESIGN OFFICIEL TYPE PMU
-   Carte unique harmonisée & Barre de navigation corrigée
-================================ */
+/* ==========================================
+   AZ TURF PRO - DESIGN GLOBAL HARMONISÉ
+========================================== */
 
-:root {
-    --bg-dark: #0b131a;
-    --bg-card: #ffffff;
-    --bg-light-box: #f4f6f9;
-    --tech-cyan: #0099ff;
-    --primary-blue: #1b3b6f;
-    --primary-blue-hover: #122b50;
-    --turf-green: #059669;
-    --gold-badge: #d97706;
-    --gold-bright: #f59e0b;
-    --text-main: #1e293b;
-    --text-muted: #64748b;
-    --border-color: #cbd5e1;
-}
-
-/* ===============================
-   1. RESET GENERAL
-================================ */
-*{
+* {
     box-sizing: border-box;
-}
-
-html{
-    scroll-behavior: smooth;
-}
-
-body{
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: var(--bg-dark);
-    color: var(--text-main);
-    line-height: 1.5;
 }
 
-/* ===============================
-   2. HEADER PRINCIPAL & NAVIGATION FIXE
-================================ */
-.top-header{
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 75px;
-    background: #0f172a;
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background-color: #0f172a;
+    color: #f8fafc;
+    padding-bottom: 70px;
+}
+
+.content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+/* En-tête de l'application */
+.top-header {
+    background: #1e293b;
+    padding: 12px 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 20px;
-    box-shadow: 0 4px 20px rgba(0,0,0,.6);
-    border-bottom: 2px solid var(--tech-cyan);
-    z-index: 1000;
+    border-bottom: 2px solid #334155;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
-.brand-zone{
-    display: flex;
-    flex-direction: column;
-}
-
-.logo{
-    font-size: 22px;
+.logo span {
     font-weight: 800;
+    font-size: 18px;
     color: #ffffff;
-    letter-spacing: 0.5px;
 }
 
-.mini-countdown{
-    font-size: 12px;
+.mini-countdown {
+    font-size: 11px;
+    color: #f59e0b;
     font-weight: bold;
-    color: #fbbf24;
+    margin-top: 2px;
 }
 
-.mini-countdown.urgent{
-    color: #ef4444;
-}
-
-.top-menu{
-    display: none !important;
-}
-
-.btn-vip{
-    background: linear-gradient(135deg, var(--gold-badge), var(--gold-bright));
-    color: #ffffff;
-    padding: 10px 18px;
-    border-radius: 25px;
-    font-weight: bold;
-    text-decoration: none;
-    box-shadow: 0 0 12px rgba(217, 119, 6, 0.4);
-}
-
-/* Barre de navigation du bas : Symboles en haut & Texte plus grand */
-.bottom-menu{
+.top-menu {
     display: flex;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 75px;
-    background: #0f172a;
-    border-top: 1px solid #1e293b;
-    justify-content: space-around;
-    align-items: center;
-    box-shadow: 0 -4px 15px rgba(0,0,0,.6);
-    z-index: 1000;
-}
-
-.bottom-menu a{
-    text-decoration: none;
-    color: #38bdf8;
-    font-size: 14px; /* Texte plus grand */
-    font-weight: bold;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    text-align: center;
-}
-
-.bottom-menu a .menu-icon {
-    font-size: 20px; /* Symbole en haut bien visible */
-    line-height: 1;
-}
-
-/* ===============================
-   3. STRUCTURE DE LA CARTE UNIQUE & HARMONISATION
-================================ */
-.content, 
-.page-container,
-.analyse-container,
-.premium-container{
-    background: var(--bg-card);
-    width: 95%;
-    max-width: 1100px;
-    margin: 30px auto;
-    padding: 35px;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-    border: 1px solid var(--border-color);
-    padding-top: 100px;
-    padding-bottom: 100px;
-}
-
-/* Neutralisation totale des anciennes cartes imbriquées */
-.card, 
-.analyse-detail, 
-.analyse-section, 
-.detail-analyse, 
-.synthese-zone,
-.selection-jour-container,
-.admin-card,
-.premium-card{
-    background: transparent !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    border: none !important;
-}
-
-/* Lignes de séparation fines et propres entre chaque section de la carte unique */
-.content > *:not(:last-child),
-.page-container > *:not(:last-child),
-.analyse-container > *:not(:last-child),
-.card > *:not(:last-child) {
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 25px;
-    margin-bottom: 25px;
-}
-
-h2, h3, .card h2, .analyse-detail h3{
-    text-align: center;
-    color: var(--primary-blue);
-    font-size: 24px;
-    font-weight: 800;
-    margin-top: 0;
-    margin-bottom: 20px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.news-bar{
-    width: 100%;
-    background: var(--primary-blue);
-    color: white;
-    padding: 14px;
-    border-radius: 12px;
-    text-align: center;
-    font-weight: bold;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-/* ===============================
-   4. TABLEAUX PROFESSIONNELS TYPE PMU
-================================ */
-.table-container{
-    width: 100%;
-    overflow-x: auto;
-}
-
-table{
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 800px;
-    background: var(--bg-card);
-}
-
-th{
-    background: var(--primary-blue);
-    color: white;
-    padding: 14px;
-    font-size: 14px;
-    text-transform: uppercase;
-    border-bottom: 3px solid var(--tech-cyan);
-}
-
-td{
-    padding: 14px;
-    text-align: center;
-    border-bottom: 1px solid var(--border-color);
-    color: var(--text-main);
-    font-weight: 600;
-}
-
-/* ===============================
-   5. BLOCS D'ANALYSE & TENDANCES HARMONISÉS
-================================ */
-.analyse-horizontal{
-    display: flex;
-    gap: 20px;
-    width: 100%;
-}
-
-.analyse-cheval{
-    flex: 1;
-    background: var(--bg-light-box);
-    border-radius: 14px;
-    padding: 22px;
-    text-align: center;
-    border: 1px solid var(--border-color);
-    border-top: 5px solid var(--primary-blue);
-}
-
-.analyse-cheval.outsider{
-    border-top-color: var(--gold-badge);
-}
-
-.analyse-cheval p{
-    line-height: 1.6;
-    color: var(--text-muted);
-}
-
-#avis-jockey,
-#avis-entraineur,
-#couple-place,
-#synthese-az{
-    line-height: 1.6;
-    padding: 18px;
-    background: var(--bg-light-box);
-    border-radius: 14px;
-    color: var(--text-muted);
-    border: 1px solid var(--border-color);
-    text-align: center;
-}
-
-/* Indice de Confiance & Surveillance */
-.confiance-box, .surveillance-box{
-    text-align: center;
-    width: 100%;
-}
-
-.surveillance-box{
-    background: var(--bg-light-box);
-    border: 1px solid var(--border-color);
-    border-radius: 14px;
-    padding: 22px;
-}
-
-#indice-confiance{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 50px;
-    font-weight: 900;
-    color: var(--primary-blue);
-}
-
-#message-confiance{
-    font-size: 17px;
-    font-weight: bold;
-    text-align: center;
-    color: var(--gold-badge);
-    margin-top: 8px;
-}
-
-/* Chevaux à surveiller - Centrés & Texte en noir */
-#chevaux-surveiller{
-    font-size: 32px;
-    font-weight: 900;
-    letter-spacing: 5px;
-    line-height: 1.6;
-    padding: 18px 25px;
-    color: #000000 !important;
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-    display: inline-block;
-    width: 100%;
-    max-width: 550px;
-    border: 2px solid var(--border-color);
-    border-left: 6px solid var(--gold-badge);
-    margin: 10px auto;
-    text-align: center;
-}
-
-#course-tendance{
-    background: var(--bg-light-box);
-    padding: 18px;
-    border-radius: 14px;
-    text-align: center;
-    font-weight: bold;
-    color: var(--text-main);
-    border: 1px solid var(--border-color);
-}
-
-.analyse-az-container{
-    display: flex;
-    gap: 20px;
-    width: 100%;
-}
-
-.az-box{
-    flex: 1;
-    background: var(--bg-light-box);
-    padding: 20px;
-    border-radius: 14px;
-    text-align: center;
-    border: 1px solid var(--border-color);
-}
-
-.az-box h4{
-    font-size: 20px;
-    color: var(--text-main);
-}
-
-.favori-az{
-    border-top: 5px solid var(--primary-blue);
-}
-
-.outsider-az{
-    border-top: 5px solid var(--gold-badge);
-}
-
-/* ===============================
-   6. NUMÉROS PMU CENTRÉS & BADGES HAUTE VISIBILITÉ
-================================ */
-.popular-horizontal{
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    padding: 10px;
-    width: 100%;
-}
-
-.popular-card{
-    width: 65px;
-    height: 65px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-light-box);
-    border-radius: 50%;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    font-size: 32px;
-    font-weight: 900;
-    color: var(--primary-blue);
-    border: 3px solid var(--primary-blue);
-}
-
-#selection-jour,
-.selection-jour{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
     gap: 12px;
-    width: 100%;
-    margin: 10px 0;
 }
 
-.numero-selection-jour,
-.numero-cheval,
-.cheval-numero,
-.numero-selection,
-.analyse-numero,
-.az-numero {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 65px !important;
-    height: 65px !important;
-    min-width: 65px !important;
-    border-radius: 50% !important;
-    background: var(--bg-light-box) !important;
-    border: 3px solid var(--primary-blue) !important;
-    color: var(--primary-blue) !important;
-    font-size: 30px !important;
-    font-weight: 900 !important;
-    text-align: center !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    margin: 5px;
+.top-menu a {
+    color: #94a3b8;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
 }
 
-.outsider .analyse-numero, 
-.outsider-numero,
-.outsider .numero-cheval {
-    border-color: var(--gold-badge) !important;
-    color: var(--gold-badge) !important;
+.top-menu a.active {
+    color: #38bdf8;
 }
 
-.numero-ticket,
-.ticket-numero,
-.ticket-grand{
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-    font-size: 45px !important;
-    font-weight: 900 !important;
-    letter-spacing: 6px !important;
-    color: var(--gold-badge) !important;
-    padding: 15px 0;
-    width: 100%;
+.btn-vip {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 13px;
 }
 
-.numero-ticket-grand{
-    font-size: 50px;
-    font-weight: 900;
-    letter-spacing: 6px;
-    text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    color: var(--primary-blue);
-    width: 100%;
-}
-
-/* ===============================
-   7. SECTION PREMIUM & TICKETS
-================================ */
-.premium-header{
-    text-align: center;
-    padding: 10px;
-    width: 100%;
-}
-
-.premium-logo{
-    font-size: 28px;
-    font-weight: 800;
-    color: var(--gold-badge);
-}
-
-.premium-banner{
-    background: linear-gradient(135deg, #0f172a, #1e3a8a, #78350f);
-    color: white;
-    padding: 25px;
-    border-radius: 16px;
-    text-align: center;
-    border: 1px solid var(--gold-badge);
-    width: 100%;
-}
-
-.chevaux-premium,
-#selection-premium{
-    text-align: center;
-    font-size: 30px;
-    font-weight: 900;
-    letter-spacing: 5px;
-    padding: 15px;
-    color: var(--gold-badge);
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.ticket-premium-box{
-    background: var(--bg-light-box);
-    border: 2px solid var(--gold-badge);
-    border-radius: 14px;
-    padding: 20px;
-    margin: 15px 0;
-    text-align: center;
-    width: 100%;
-}
-
-.ticket-premium-box h3{
-    font-size: 22px;
-    font-weight: 900;
-    color: var(--text-main);
-}
-
-.couple-ligne{
-    text-align: center;
-    font-size: 32px;
-    font-weight: 900;
-    margin: 10px 0;
-    color: var(--gold-badge);
-    letter-spacing: 3px;
-}
-
-.champ-reduit{
-    text-align: center;
-    font-size: 32px;
-    font-weight: 900;
-    overflow-wrap: anywhere;
-    color: var(--gold-badge);
-    letter-spacing: 3px;
-}
-
-.premium-message,
-.message-fin{
-    text-align: center;
-    padding: 18px;
+/* Cartes générales (Fond Blanc Neige) */
+.card {
+    background: #ffffff;
+    color: #0f172a;
     border-radius: 12px;
-    background: var(--bg-light-box);
-    font-weight: bold;
-    font-size: 16px;
-    color: var(--gold-badge);
-    border: 1px solid var(--border-color);
-    width: 100%;
-}
-
-/* ===============================
-   8. PAIEMENT & ABONNEMENT
-================================ */
-.payment-choice,
-.paiement-options,
-.vip-offres{
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-top: 15px;
-    width: 100%;
-}
-
-.paiement-card{
-    background: var(--bg-light-box);
-    color: var(--text-main);
-    border: 2px solid var(--border-color);
-    padding: 20px;
-    border-radius: 14px;
-    font-weight: bold;
-    width: 260px;
-    text-align: center;
-}
-
-.btn-payment,
-#confirmer-paiement{
-    display: block;
-    margin: 20px auto;
-    background: linear-gradient(135deg, var(--gold-badge), var(--gold-bright));
-    color: #ffffff;
-    border: none;
-    padding: 14px 35px;
-    border-radius: 30px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 0 12px rgba(217, 119, 6, 0.4);
-}
-
-.vip-box{
-    background: var(--bg-card);
-    border: 1px solid var(--gold-badge);
-    border-radius: 14px;
-    padding: 20px;
-    width: 260px;
-    text-align: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-.vip-box button{
-    background: linear-gradient(135deg, var(--gold-badge), var(--gold-bright));
-    color: #ffffff;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 25px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-/* ===============================
-   9. MODULES ANNEXES (Pubs, Visiteurs)
-================================ */
-.pub-box{
-    padding: 5px;
-    width: 100%;
-}
-
-.slider-pub{
-    position: relative;
-    width: 100%;
-    height: 260px;
+    padding: 14px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
     overflow: hidden;
-    border-radius: 14px;
 }
 
-.slider-pub img{
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.pub-overlay{
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    padding: 20px 15px;
-    text-align: center;
-    background: linear-gradient(transparent, rgba(15, 23, 42, .9));
-    color: white;
-}
-
-.pub-overlay h3{
-    margin: 0 0 5px;
-    font-size: 22px;
-    color: var(--tech-cyan);
-}
-
-.pub-overlay p{
-    margin: 0;
-    font-size: 15px;
-    color: #cbd5e1;
-}
-
-.espace-visiteurs textarea{
-    width: 100%;
-    min-height: 150px;
-    padding: 15px;
-    background: var(--bg-light-box);
-    color: var(--text-main);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
+.card h2 {
     font-size: 16px;
-    resize: vertical;
+    margin-bottom: 10px;
+    color: #1e293b;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 4px;
 }
 
-.espace-visiteurs button{
-    width: 100%;
-    padding: 15px;
-    background: var(--primary-blue);
-    color: white;
-    font-size: 17px;
-    font-weight: bold;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-/* ===============================
-   10. RESPONSIVE MOBILE
-================================ */
-@media(max-width: 700px){
-    .content, 
-    .page-container,
-    .analyse-container,
-    .premium-container{
-        width: 96%;
-        padding: 15px;
-        padding-top: 90px;
-        padding-bottom: 90px;
-        margin: 10px auto;
-        border-radius: 12px;
-    }
-
-    .analyse-horizontal,
-    .analyse-az-container{
-        flex-direction: column;
-    }
-    
-    .numero-selection-jour,
-    .numero-cheval,
-    .cheval-numero,
-    .numero-selection,
-    .analyse-numero,
-    .az-numero {
-        width: 55px !important;
-        height: 55px !important;
-        min-width: 55px !important;
-        font-size: 26px !important;
-    }
-
-    .popular-card{
-        width: 55px;
-        height: 55px;
-        font-size: 26px;
-    }
-
-    .numero-ticket,
-    .ticket-grand,
-    .couple-ligne,
-    .champ-reduit{
-        font-size: 28px !important;
-        letter-spacing: 3px !important;
-    }
-    
-    #chevaux-surveiller{
-        font-size: 24px;
-        letter-spacing: 3px;
-        padding: 12px;
-    }
-   }
-Pour reproduire **à l'identique** l'image que vous m'avez envoyée, il faut appliquer des détails très précis :
-
-1. La **police Serif classique** (Georgia/Times) pour les titres et la date.
-2. Les couleurs grises exactes des onglets avec la **ligne rouge au milieu**.
-3. Les icônes spécifiques (cheval noir et horloge grise).
-4. Surtout, la forme inclinée (**parallélogramme**) et collée des **badges PMU** avec leurs couleurs officielles.
-
-Voici le code HTML et CSS conçu pour être le **clone parfait** de la capture d'écran.
-
-### 1. Le bloc HTML à intégrer dans `index.html` (à la place de la section Course)
-
-J'ai inclus des icônes SVG dessinées en code pour que le cheval et l'horloge soient identiques à l'image, sans avoir besoin de télécharger d'images externes.
-
-```html
-<!-- BANDEAU COURSE CLONE EXACT (IMAGE PMU) -->
-<section class="pmu-clone-header">
-    
-    <!-- Onglets -->
-    <div class="clone-tabs">
-        <div class="clone-tab">QUINTE HIER</div>
-        <div class="clone-tab active">QUINTE DU JOUR</div>
-        <div class="clone-tab">QUINTE DEMAIN</div>
-    </div>
-
-    <!-- Corps du texte -->
-    <div class="clone-body">
-        <div class="clone-title">Course Quinté+ du jour – <span id="meta-course">R1C4</span></div>
-        <div class="clone-subtitle" id="meta-nom-prix">PRIX FABIEN ROSSOLINI</div>
-        <div class="clone-date" id="meta-date">Vendredi 14 Août 2026</div>
-
-        <!-- Infos techniques avec l'icône cheval noir -->
-        <div class="clone-infos">
-            <svg class="icon-cheval" viewBox="0 0 512 512" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
-                <path fill="#000000" d="M366.5 77c-17.5-12.8-40.8-21-65.5-21-29.2 0-55.8 11.2-74.2 29.5-23.8-3.5-47.5-3.5-70.5 0-14 2.2-27.2 7-38.8 13.5-10.8 6.2-20.2 14.5-27.5 24.2-12 16.5-17.2 36.5-14 56.8 2.2 13.8 8.2 26 16.5 35.8-19.8 12.8-38 30-51.5 50.8-16 24.8-26 53.5-28 83.5l30.8 4.2c2-25.5 10.5-49.8 24.2-71.2 10-15.5 23-28.5 37.8-38.5v52.2h32v-65.8c13-5.5 27.2-9 42.2-10 16-1 32 1 47.5 5l2.2-32c-17.5-4-35.8-5.8-54-5-8.5.5-17 1.5-25.2 3.2-12-19.5-15.2-42.5-8-64.2 4-12 11-22.5 20.2-31.2 16.8-15.8 40.5-25.8 66.8-25.8 21.8 0 42 6.5 58.5 17.5l14.2-26.8zM454.5 199l-22.8-22.2c-15.5 28.5-38.5 52.8-66.2 70.8-23 15-49 24.2-76.5 26.5v52.2h32v-32c21.5-2.2 41.5-9.2 59.8-19.5l33.8 58.5h37L404 233c20.5-10 38.5-23 50.5-34zM169 332v82h32v-82h-32z"/>
-            </svg>
-            <span class="clone-info-text">
-                <span id="meta-discipline">Attelé</span> - 
-                32000€ - 
-                <span id="meta-distance">2050 mètres</span> - 
-                <span id="meta-partants">14 Partants</span> - 
-                <span id="meta-hippodrome">Cabourg</span>
-            </span>
-        </div>
-
-        <!-- Ligne du bas : Compte à rebours et Badges PMU (formes inclinées) -->
-        <div class="clone-footer">
-            <div class="clone-timer">
-                <svg class="icon-clock" viewBox="0 0 24 24" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="10" fill="#4b5563"/>
-                    <path d="M12 6v6l4 2" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span id="timer-quinte">02:04:26</span>
-            </div>
-
-            <div class="clone-badges">
-                <div class="pmu-badge badge-simple"><span>Simple</span></div>
-                <div class="pmu-badge badge-couple"><span>Couplé</span></div>
-                <div class="pmu-badge badge-2sur4"><span>2sur4</span></div>
-                <div class="pmu-badge badge-multi"><span>Multi</span></div>
-                <div class="pmu-badge badge-tierce"><span>Tiercé</span></div>
-                <div class="pmu-badge badge-quarte"><span>Quarté+</span></div>
-                <div class="pmu-badge badge-quinte"><span>Quinté+</span></div>
-            </div>
-        </div>
-    </div>
-</section>
-
-```
-
----
-
-### 2. Le style CSS dédié à ajouter dans `style.css`
-
-Ces lignes vont générer la police Serif exacte, l'inclinaison très spécifique des badges de jeu et les couleurs conformes au visuel de référence.
-
-```css
-
-
-/* ===============================
-   BANDEAU PMU COMPACT (ESPACEMENT CORRIGÉ)
-================================ */
+/* ==========================================
+   BANDEAU PMU COMPACT (CLONE EXACT FIXÉ)
+========================================== */
 
 .pmu-clone-header {
-    width: 100%;
-    background: #ffffff;
-    border-bottom: 1px solid #e5e7eb;
-    margin-0 0 15px 0;
+    padding: 0 !important;
+    border: none;
 }
 
-/* Onglets compacts */
 .clone-tabs {
     display: flex;
-    background-color: #888888;
+    background-color: #71717a;
     width: 100%;
 }
 
 .clone-tab {
     flex: 1;
     text-align: center;
-    padding: 10px 4px; /* Marges internes réduites */
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 13px;
+    padding: 10px 4px;
+    font-size: 12px;
     font-weight: 700;
     color: #ffffff;
     text-transform: uppercase;
@@ -835,23 +120,23 @@ Ces lignes vont générer la police Serif exacte, l'inclinaison très spécifiqu
 }
 
 .clone-tab.active {
-    background-color: #555555;
-    border-bottom: 3px solid #d91c3d;
+    background-color: #3f3f46;
+    border-bottom: 3px solid #dc2626;
 }
 
-/* Corps resserré avec gap */
+/* Corps sans espace exagéré */
 .clone-body {
-    padding: 12px 10px; /* Passage de 30px à 12px */
+    padding: 12px 10px;
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px; /* Contrôle strict de l'écartement entre chaque ligne */
+    gap: 4px; /* Réduit l'écartement entre les lignes */
 }
 
 .clone-title {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 20px;
+    font-family: Georgia, serif;
+    font-size: 18px;
     font-weight: bold;
     color: #000000;
     margin: 0;
@@ -859,8 +144,8 @@ Ces lignes vont générer la police Serif exacte, l'inclinaison très spécifiqu
 }
 
 .clone-subtitle {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 22px;
+    font-family: Georgia, serif;
+    font-size: 20px;
     font-weight: 900;
     color: #000000;
     text-transform: uppercase;
@@ -868,59 +153,56 @@ Ces lignes vont générer la police Serif exacte, l'inclinaison très spécifiqu
     line-height: 1.2;
 }
 
-.clone-date {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 16px;
-    font-weight: bold;
-    font-style: italic;
-    color: #333333;
-    margin: 0;
-    line-height: 1.2;
-}
-
-/* Masque automatiquement le sous-titre ou la date s'ils sont vides */
+/* Cache les éléments vides sans créer de blancs */
 .clone-subtitle:empty, 
-.clone-date:empty {
+.clone-date:empty,
+#meta-course:empty {
     display: none;
 }
 
-/* Infos techniques compactes */
+.clone-date {
+    font-family: Georgia, serif;
+    font-size: 15px;
+    font-weight: bold;
+    font-style: italic;
+    color: #27272a;
+    margin: 0;
+}
+
 .clone-infos {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     margin: 6px 0;
 }
 
 .clone-info-text {
-    font-family: 'Segoe UI', Arial, sans-serif;
     font-size: 13px;
-    color: #555555;
+    color: #4b5563;
     font-weight: 600;
 }
 
-/* Ligne du bas : Timer + Badges */
+/* Ligne du bas : Compte à rebours & Badges */
 .clone-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
     margin-top: 6px;
     padding-top: 8px;
-    border-top: 1px solid #f1f5f9;
+    border-top: 1px solid #e2e8f0;
 }
 
 .clone-timer {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 800;
-    color: #008f63;
+    color: #047857;
 }
 
 .clone-badges {
@@ -933,13 +215,12 @@ Ces lignes vont générer la police Serif exacte, l'inclinaison très spécifiqu
 
 .pmu-badge {
     transform: skewX(-15deg);
-    padding: 3px 6px;
+    padding: 2px 6px;
     border-radius: 3px;
 }
 
 .pmu-badge span {
     transform: skewX(15deg);
-    font-family: 'Segoe UI', Arial, sans-serif;
     font-size: 10px;
     font-weight: 800;
     font-style: italic;
@@ -947,29 +228,121 @@ Ces lignes vont générer la police Serif exacte, l'inclinaison très spécifiqu
     display: block;
 }
 
-.badge-simple { background: #008dd2; }
-.badge-couple { background: #ea6418; }
-.badge-2sur4  { background: #5f2879; }
-.badge-multi  { background: #da0076; }
-.badge-tierce { background: #00985f; }
-.badge-quarte { background: #0076cf; }
-.badge-quinte { background: #df0024; }
+.badge-simple { background: #0284c7; }
+.badge-couple { background: #ea580c; }
+.badge-2sur4  { background: #7c3aed; }
+.badge-multi  { background: #db2777; }
+.badge-tierce { background: #059669; }
+.badge-quarte { background: #2563eb; }
+.badge-quinte { background: #dc2626; }
 
-/* Responsive Mobile */
-@media(max-width: 768px) {
-    .clone-title { font-size: 24px; }
-    .clone-subtitle { font-size: 26px; }
-    .clone-date { font-size: 20px; }
-    .clone-info-text { font-size: 14px; }
-    .clone-footer {
-        justify-content: center;
-    }
-    .pmu-badge {
-        padding: 2px 6px;
-    }
-    .pmu-badge span {
-        font-size: 10px;
-    }
+/* ==========================================
+   AUTRES SECTIONS (ANALYSE & COMPOSANTS)
+========================================== */
+
+.analyse-az-container {
+    display: flex;
+    gap: 10px;
 }
 
-```
+.az-box {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+}
+
+.favori-az { border-left: 4px solid #16a34a; }
+.outsider-az { border-left: 4px solid #ea580c; }
+
+.az-numero {
+    font-size: 20px;
+    font-weight: 900;
+    width: 32px;
+    height: 32px;
+    background: #16a34a;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 6px;
+}
+
+.outsider-numero { background: #ea580c; }
+
+/* Tableau */
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+th, td {
+    padding: 8px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+}
+
+th { background: #f1f5f9; font-weight: 700; }
+
+/* Surveillance chevaux */
+.surveillance-box {
+    color: #000000 !important;
+}
+
+/* Navigation Basse Mobile */
+.bottom-menu {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #1e293b;
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0;
+    border-top: 1px solid #334155;
+    z-index: 1000;
+}
+
+.bottom-menu a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.bottom-menu a.active {
+    color: #38bdf8;
+}
+
+.menu-icon {
+    font-size: 18px;
+    margin-bottom: 2px;
+}
+
+/* Publicité & Bande Défilante */
+.pub-box { padding: 0 !important; }
+.slider-pub img { width: 100%; height: auto; display: block; }
+
+.news-bar {
+    background: #1e293b;
+    color: #f59e0b;
+    padding: 8px;
+    font-size: 12px;
+    border-radius: 6px;
+    text-align: center;
+}
+
+@media (max-width: 600px) {
+    .top-menu { display: none; }
+    .analyse-az-container { flex-direction: column; }
+}
