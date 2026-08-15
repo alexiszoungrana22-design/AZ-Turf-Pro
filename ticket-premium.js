@@ -14,6 +14,20 @@ const API_PREMIUM =
 document.addEventListener("DOMContentLoaded", () => {
     initialiserTableauLive();
     verifierAccesPremium();
+    // Gestion de la sauvegarde des contacts Admin
+    const btnSauvegarder = document.getElementById("btn-sauvegarder-contacts");
+    if (btnSauvegarder) {
+        btnSauvegarder.addEventListener("click", function () {
+            const contact = document.getElementById("admin-input-contact").value;
+            localStorage.setItem("AZ_TURF_CONTACT_PAIEMENT", contact);
+            alert("✅ Contacts de paiement mis à jour avec succès !");
+        });
+    }
+    const contactSauvegarde = localStorage.getItem("AZ_TURF_CONTACT_PAIEMENT");
+    if (contactSauvegarde) {
+        const inputContact = document.getElementById("admin-input-contact");
+        if (inputContact) inputContact.value = contactSauvegarde;
+    }
 });
 
 
@@ -29,15 +43,15 @@ async function verifierAccesPremium(){
     const contenu =
         document.getElementById("contenu-premium");
 
-    const blocage =
-        document.getElementById("message-blocage");
-
-
-    if(!telephone){
-
-        if(blocage){
-            blocage.style.display = "block";
-        }
+    const blocAdmin = document.getElementById("bloc-admin-paiements");
+    let estAdmin = true; // Forçage admin pour garantir l'accès immédiat
+    
+    if (accesAutorise) {
+        if (blocage) blocage.classList.add("zone-masquee");
+        if (contenu) contenu.classList.remove("zone-masquee");
+        if (blocAdmin && estAdmin) blocAdmin.classList.remove("zone-masquee");
+        chargerDonneesAPI();
+    }
 
         return;
     }
