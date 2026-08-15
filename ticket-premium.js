@@ -1,5 +1,5 @@
 // ==========================================================
-// AZ TURF PRO - SCRIPT PREMIUM VIP (DYNAMIQUE)
+// AZ TURF PRO - SCRIPT PREMIUM VIP (DYNAMIQUE SYNCHRONISÉ)
 // ==========================================================
 
 const API_URL = "https://az-turf-pro-backend.onrender.com";
@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 async function initialiserPagePremium() {
-    // 1. VÉRIFICATION DES DROITS D'ACCÈS
     const isPremium = localStorage.getItem("AZ_TURF_PREMIUM_ACTIF") === "true";
     const tel = localStorage.getItem("AZ_TURF_TELEPHONE");
     const blocage = document.getElementById("message-blocage");
@@ -21,10 +20,9 @@ async function initialiserPagePremium() {
     } else {
         if (blocage) blocage.classList.remove("zone-masquee");
         if (contenu) contenu.classList.add("zone-masquee");
-        return; // Stoppe le script si pas d'accès
+        return; 
     }
 
-    // 2. BOUTON TABLEAU EN DIRECT
     const btnTableau = document.getElementById("btn-toggle-tableau");
     const conteneurTableau = document.getElementById("conteneur-tableau");
     if (btnTableau && conteneurTableau) {
@@ -32,7 +30,6 @@ async function initialiserPagePremium() {
             if (conteneurTableau.classList.contains("zone-masquee")) {
                 conteneurTableau.classList.remove("zone-masquee");
                 btnTableau.innerText = "❌ Masquer le Tableau Live";
-                // On remplit le tableau visuel
                 await chargerTableauPartantsLive();
             } else {
                 conteneurTableau.classList.add("zone-masquee");
@@ -41,18 +38,18 @@ async function initialiserPagePremium() {
         });
     }
 
-    // 3. CHARGEMENT DYNAMIQUE DES DONNÉES DU JOUR
+    // ON LANCE LA GÉNÉRATION DES TICKETS VIP
     await chargerEtGenererTicketsVIP();
 }
 
-// RÉCUPÉRATION DES CHEVAUX ET GÉNÉRATION DES TICKETS VIP
+// 🛑 MODIFICATION ICI : ON UTILISE LA MÊME API QUE L'ACCUEIL
 async function chargerEtGenererTicketsVIP() {
     try {
-        const response = await fetch(`${API_URL}/api/partants`);
+        // On tape sur la route "aujourdhui" qui fonctionne déjà sur ton accueil
+        const response = await fetch(`${API_URL}/api/quinte/aujourdhui`);
         if (response.ok) {
             const partants = await response.json();
             
-            // Si on a des partants, on extrait les 7 premiers numéros (triés par le backend)
             if (partants && partants.length >= 7) {
                 const top7 = partants.slice(0, 7).map(cheval => cheval.numero);
                 genererTickets(top7);
@@ -67,17 +64,13 @@ async function chargerEtGenererTicketsVIP() {
     genererTickets(["04", "09", "12", "01", "07", "11", "03"]);
 }
 
-// LOGIQUE MATHÉMATIQUE DE TES RÈGLES VIP
 function genererTickets(c) {
-    // c = Tableau des 7 meilleurs chevaux du jour (ex: ["10", "05", "12", "08", "02", "15", "06"])
-    
     const donneesVIP = {
-        selection: c.join(" - "),                                     // 7 chevaux
-        quinte: c.slice(0, 6).join(" - "),                             // 6 chevaux
-        quarte: c.slice(0, 5).join(" - "),                             // 5 chevaux
-        trio: c.slice(0, 3).join(" - "),                               // 3 chevaux
-        couple: `${c[0]} - ${c[1]}`,                                   // 2 chevaux
-        // Ton format exact : Base1 - Base2 - X - Base4 - X / Base3 - Base5 - Base6 - Base7
+        selection: c.join(" - "),                                     
+        quinte: c.slice(0, 6).join(" - "),                             
+        quarte: c.slice(0, 5).join(" - "),                             
+        trio: c.slice(0, 3).join(" - "),                               
+        couple: `${c[0]} - ${c[1]}`,                                   
         champReduit: `${c[0]} - ${c[1]} - X - ${c[3]} - X / ${c[2]} - ${c[4]} - ${c[5]} - ${c[6]}`,
         
         explication: "Sélection calculée en temps réel via l'algorithme de performance du jour.",
@@ -89,7 +82,7 @@ function genererTickets(c) {
     afficherDonneesVIP(donneesVIP);
 }
 
-// CHARGEMENT DU TABLEAU HTML LIVE (Au clic du bouton)
+// 🛑 MODIFICATION ICI AUSSI : POUR LE TABLEAU LIVE
 async function chargerTableauPartantsLive() {
     const tbody = document.getElementById("all-horses");
     if (!tbody) return;
@@ -97,7 +90,8 @@ async function chargerTableauPartantsLive() {
     tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 15px;">Chargement des partants...</td></tr>`;
 
     try {
-        const response = await fetch(`${API_URL}/api/partants`);
+        // On s'assure que le tableau affiche aussi la course d'aujourd'hui
+        const response = await fetch(`${API_URL}/api/quinte/aujourdhui`);
         if (response.ok) {
             const partants = await response.json();
             tbody.innerHTML = "";
@@ -117,7 +111,6 @@ async function chargerTableauPartantsLive() {
     }
 }
 
-// FORMATAGE DES PASTILLES RONDES ET DU SÉPARATEUR DE CHAMP RÉDUIT
 function formaterPastilles(texte) {
     if (!texte) return "";
     if (texte.includes("numero-cheval")) return texte;
@@ -146,7 +139,6 @@ function formaterPastilles(texte) {
     return convertirEnPastilles(texte);
 }
 
-// INJECTION DES DONNÉES DANS L'HTML
 function afficherDonneesVIP(data) {
     function injecter(id, contenu, estCombine = false) {
         const el = document.getElementById(id);
@@ -169,4 +161,4 @@ function afficherDonneesVIP(data) {
     injecter("derniere-minute-premium", data.derniereMinute, true);
     injecter("analyse-premium", data.analyse, false);
     injecter("message-premium", data.message, false);
-    }
+        }
