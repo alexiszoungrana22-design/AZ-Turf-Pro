@@ -1,212 +1,353 @@
+// ==========================================================
+// AZ TURF PRO - TICKETS PREMIUM
+// Vérification d'accès réelle + données réelles (/api/analyse)
+// ==========================================================
+
+const API_ANALYSE =
+"https://az-turf-pro.onrender.com/api/analyse";
+
+const API_PREMIUM =
+"https://az-turf-pro.onrender.com/api/premium/";
+
+
 document.addEventListener("DOMContentLoaded", function () {
-    verifierAccesEtChargerTickets();
 
-    // Gestion de l'affichage du Tableau des partants
-    const btnTableau = document.getElementById("btn-toggle-tableau");
-    const conteneurTableau = document.getElementById("conteneur-tableau");
-    if (btnTableau && conteneurTableau) {
-        btnTableau.addEventListener("click", function () {
-            const estMasque = conteneurTableau.classList.contains("zone-masquee");
-            conteneurTableau.classList.toggle("zone-masquee");
-            btnTableau.innerText = estMasque ? "❌ Masquer le Tableau Live" : "📊 Afficher le Tableau des Partants (Live)";
-        });
-    }
+    initialiserBoutonTableau();
 
-    // Gestion de la sauvegarde des contacts d'administration
-    const btnSauvegarder = document.getElementById("btn-sauvegarder-contacts");
-    if (btnSauvegarder) {
-        btnSauvegarder.addEventListener("click", function () {
-            const contactInput = document.getElementById("admin-input-contact");
-            if (contactInput) {
-                localStorage.setItem("AZ_TURF_CONTACT_PAIEMENT", contactInput.value);
-                alert("✅ Contacts de paiement mis à jour avec succès !");
-            }
-        });
-    }
+    verifierAccesPremium();
 
-    const contactSauvegarde = localStorage.getItem("AZ_TURF_CONTACT_PAIEMENT");
-    if (contactSauvegarde) {
-        const inputContact = document.getElementById("admin-input-contact");
-        if (inputContact) inputContact.value = contactSauvegarde;
-    }
 });
 
-/**
- * Vérification des accès VIP / Admin et chargement des pronostics
- */
-async function verifierAccesEtChargerTickets() {
-    const tel = localStorage.getItem("AZ_TURF_TELEPHONE");
-    const isLocalActive = localStorage.getItem("AZ_TURF_PREMIUM_ACTIF") === "true";
-    const blocage = document.getElementById("message-blocage");
-    const contenu = document.getElementById("contenu-premium");
-    const blocAdmin = document.getElementById("bloc-admin-paiements");
 
-    let accesAutorise = false;
-    let estAdmin = false;
+// =====================================
+// 1. VERIFICATION ACCES PREMIUM
+// (aucun contenu affiche tant que ce
+// n'est pas confirme cote serveur)
+// =====================================
 
-    if (tel === "ADMINISTRATEUR" || tel === "COMPTE ADMINISTRATEUR") {
-        accesAutorise = true;
-        estAdmin = true;
-    } else if (isLocalActive) {
-        accesAutorise = true;
-    } else if (tel) {
-        try {
-            const response = await fetch(`https://az-turf-pro.onrender.com/api/premium/${tel}`);
-            const data = await response.json();
-            if (data && data.isPremium) {
-                accesAutorise = true;
-            }
-        } catch (e) {
-            console.error("Erreur d'authentification :", e);
+async function verifierAccesPremium(){
+
+    const telephone =
+    localStorage.getItem("AZ_TURF_TELEPHONE");
+
+    const blocage =
+    document.getElementById("message-blocage");
+
+    const contenu =
+    document.getElementById("contenu-premium");
+
+    if(!telephone){
+
+        if(blocage) blocage.classList.remove("zone-masquee");
+        if(contenu) contenu.classList.add("zone-masquee");
+
+        return;
+
+    }
+
+    try{
+
+        const reponse = await fetch(
+            API_PREMIUM + encodeURIComponent(telephone)
+        );
+
+        const data = await reponse.json();
+
+        if(reponse.ok && data.statut === "ACTIF"){
+
+            if(blocage) blocage.classList.add("zone-masquee");
+            if(contenu) contenu.classList.remove("zone-masquee");
+
+            chargerTicketsPremium();
+
+        }else{
+
+            if(blocage) blocage.classList.remove("zone-masquee");
+            if(contenu) contenu.classList.add("zone-masquee");
+
         }
+
+    }catch(error){
+
+        console.error("Erreur vérification Premium :", error);
+
+        if(blocage) blocage.classList.remove("zone-masquee");
+        if(contenu) contenu.classList.add("zone-masquee");
+
     }
 
-    if (accesAutorise) {
-        if (blocage) blocage.classList.add("zone-masquee");
-        if (contenu) contenu.classList.remove("zone-masquee");
-        if (blocAdmin && estAdmin) blocAdmin.classList.remove("zone-masquee");
-        chargerDonneesAPI();
-    } else {
-        if (blocage) blocage.classList.remove("zone-masquee");
-        if (contenu) contenu.classList.add("zone-masquee");
-        if (blocAdmin) blocAdmin.classList.add("zone-masquee");
-    }
 }
 
-/**
- * Récupération des pronostics API et harmonisation des données VIP
- */
-async function chargerDonneesAPI() {
-    try {
-        const response = await fetch('https://az-turf-pro.onrender.com/api/analyse');
-        const data = await response.json();
 
-        let prem = (data && data.tickets && data.tickets.premium) ? data.tickets.premium : (data.tickets || {});
+// =====================================
+// 2. CHARGEMENT DES VRAIS TICKETS
+// (deja calcules cote serveur par
+// quinte.py - on ne les recalcule pas)
+// =====================================
 
-        const normaliserFormat = (val) => {
-            if (!val) return "";
-            if (Array.isArray(val)) return val.join(" - ");
-            return String(val);
-        };
+async function chargerTicketsPremium(){
 
-        // Traitement du Champ Réduit
-        let cr = prem.champReduit || prem.champ_reduit;
-        let basesCR = [];
-        let complementsCR = [];
-        if (typeof cr === 'object' && cr !== null) {
-            basesCR = Array.isArray(cr.bases) ? cr.bases : [];
-            complementsCR = Array.isArray(cr.complements) ? cr.complements : [];
-            const b = basesCR.join(" - ");
-            const c = complementsCR.join(" - ");
-            cr = (b && c) ? `${b} / ${c}` : (b || c || cr.format || "");
+    try{
+
+        const reponse = await fetch(API_ANALYSE);
+
+        if(!reponse.ok){
+            throw new Error("Erreur API analyse");
         }
 
-        const quinteTxt = normaliserFormat(prem.quinte);
-        const quarteTxt = normaliserFormat(prem.quarte);
-        const trioTxt = normaliserFormat(prem.trio);
+        const data = await reponse.json();
 
-        // Sélection du Jour : Strictement 7 chevaux
-        let selectionTxt = normaliserFormat(prem.selection || data.selection);
-        let listeNums = selectionTxt ? selectionTxt.split(/[-,\s]+/).filter(num => !isNaN(num) && num.trim() !== '') : [];
+        const tickets =
+        (data.tickets && data.tickets.premium) || {};
 
-        if (listeNums.length !== 7) {
-            let numsQuinte = quinteTxt.split(/[-,\s]+/).filter(num => !isNaN(num) && num.trim() !== '');
-            let tousLesNums = Array.from(new Set([...numsQuinte, ...basesCR, ...complementsCR]));
-            if (tousLesNums.length >= 7) {
-                selectionTxt = tousLesNums.slice(0, 7).join(" - ");
-            } else if (numsQuinte.length > 0) {
-                selectionTxt = numsQuinte.slice(0, 7).join(" - ");
-            }
-        }
+        const classement = data.classement || [];
 
-        // Couplé Gagnant Placé
-        let coupleTxt = normaliserFormat(prem.couple || prem.coupleGagnant);
-        if (!coupleTxt && quinteTxt) {
-            let numsQuinte = quinteTxt.split(/[-,\s]+/).filter(num => !isNaN(num) && num.trim() !== '');
-            coupleTxt = numsQuinte.slice(0, 3).join(" - ");
-        }
 
-        // Dernière Minute
-        let dmTxt = normaliserFormat(prem.derniereMinute || prem.derniere_minute || data.derniereMinute);
-        if (!dmTxt && quinteTxt) {
-            let premierCheval = quinteTxt.split(/[-,\s]+/).filter(num => !isNaN(num) && num.trim() !== '')[0] || "08";
-            dmTxt = premierCheval;
-        }
+        // ---- Selection Premium (8 chevaux) ----
+        injecter(
+            "selection-premium",
+            (tickets.selection_quinte || []).join(" - "),
+            true
+        );
 
-        const ticketsRemplis = {
-            selection: selectionTxt,
-            explication: prem.explication || "Sélection VIP rigoureusement établie sur la base des meilleures performances du jour.",
-            quinte: quinteTxt,
-            quarte: quarteTxt,
-            trio: trioTxt,
-            couple: coupleTxt,
-            champReduit: cr,
-            derniereMinute: dmTxt,
-            analyse: prem.analyse || data.analyse || "L'analyse indique une course ouverte où les bases VIP présentent les plus fortes garanties.",
-            message: prem.message || "Toute l'équipe AZ Turf Pro VIP vous souhaite une excellente journée et de très grands gains !"
-        };
 
-        afficherDonneesVIP(ticketsRemplis);
+        // ---- Explication ----
+        const favori = classement[0];
 
-    } catch (error) {
-        console.error("Erreur lors du chargement des données API :", error);
+        injecter(
+            "explication-premium",
+            favori
+            ? `Le n°${favori.numero} (${favori.nom || ""}) ressort en tête de l'analyse AZ avec un indice de ${Math.round(favori.indice_az || 0)} et une confiance de ${favori.confiance ?? "-"}%.`
+            : "Analyse basée sur la forme, la régularité et le classement AZ du jour.",
+            false
+        );
+
+
+        // ---- Tickets ----
+        injecter("quinte-premium", (tickets.quinte || []).join(" - "), true);
+        injecter("quarte-premium", (tickets.quarte || []).join(" - "), true);
+        injecter("trio-premium", (tickets.trio || []).join(" - "), true);
+
+        const couples = tickets.couple_gagnant_place || [];
+        injecter(
+            "couple-premium",
+            couples.map(c => c.join("-")).join(" | "),
+            true
+        );
+
+        const champReduit = tickets.champ_reduit || {};
+        injecter(
+            "champ-reduit-premium",
+            champReduit.format || "Non disponible",
+            true
+        );
+
+
+        // ---- Derniere minute ----
+        const derniereMinute =
+        (tickets.ticket_derniere_minute &&
+        tickets.ticket_derniere_minute.selection) || [];
+
+        injecter(
+            "derniere-minute-premium",
+            derniereMinute.length
+            ? derniereMinute.join(" - ")
+            : "Non disponible",
+            true
+        );
+
+
+        // ---- Analyse complete ----
+        injecter(
+            "analyse-premium",
+            tickets.explication ||
+            "Analyse AZ Turf Pro basée sur l'indice AZ, la forme récente et la régularité de chaque cheval.",
+            false
+        );
+
+
+        // ---- Message final ----
+        injecter(
+            "message-premium",
+            tickets.message_fin ||
+            "🍀 Bonne chance à tous les abonnés Premium pour cette course !",
+            false
+        );
+
+    }catch(error){
+
+        console.error("Erreur chargement tickets Premium :", error);
+
+        [
+            "selection-premium", "quinte-premium", "quarte-premium",
+            "trio-premium", "couple-premium", "champ-reduit-premium",
+            "derniere-minute-premium"
+        ].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.textContent = "Indisponible pour le moment";
+        });
+
     }
+
 }
 
-/**
- * Génération dynamique des pastilles épurées
- */
-function formaterPastilles(texte) {
-    if (!texte) return "";
-    if (typeof texte !== 'string') texte = String(texte);
-    if (texte.includes("numero-cheval")) return texte;
 
-    const parties = texte.split('/');
+// =====================================
+// FORMATAGE DES PASTILLES
+// (conserve tel quel - c'est une bonne
+// amelioration visuelle)
+// =====================================
 
-    function convertirEnPastilles(chaine) {
-        return chaine.split(/[-,\s]+/).map(item => item.trim()).filter(Boolean).map(num => {
-            if (!isNaN(num)) {
-                return `<span class="numero-cheval">${String(num).padStart(2, '0')}</span>`;
-            } else if (num.toUpperCase() === 'X') {
-                return `<span class="numero-cheval-x">X</span>`;
-            }
-            return num;
-        }).join(" ");
+function convertirEnPastilles(texte){
+
+    if(!texte) return "";
+
+    const parties = String(texte).split("/");
+
+    function convertir(chaine){
+        return String(chaine)
+            .split(/[-,\s]+/)
+            .map(item => item.trim())
+            .filter(Boolean)
+            .map(num => {
+                if(!isNaN(num)){
+                    return `<span class="numero-cheval">${String(num).padStart(2, "0")}</span>`;
+                }else if(num.toUpperCase() === "X"){
+                    return `<span class="numero-cheval" style="background-color: #d97706;">X</span>`;
+                }
+                return num;
+            })
+            .join(" ");
     }
 
-    if (parties.length > 1) {
-        return convertirEnPastilles(parties[0]) + `<span class="separateur-champ">/</span>` + convertirEnPastilles(parties[1]);
+    if(parties.length > 1){
+        return convertir(parties[0]) +
+            ` <strong style="font-size: 20px; color: #0f172a; margin: 0 6px;">/</strong> ` +
+            convertir(parties[1]);
     }
 
-    return convertirEnPastilles(texte);
+    return convertir(texte);
+
 }
 
-/**
- * Injection dans les conteneurs du DOM
- */
-function injecter(id, contenu, estCombine = false) {
+
+function injecter(id, contenu, estCombine){
+
     const el = document.getElementById(id);
-    if (el) {
-        if (estCombine && contenu) {
-            el.innerHTML = formaterPastilles(contenu);
-        } else {
-            el.innerText = contenu || "";
-        }
+
+    if(!el) return;
+
+    if(estCombine){
+        el.innerHTML = convertirEnPastilles(contenu);
+    }else{
+        el.textContent = contenu || "";
     }
+
 }
 
-/**
- * Affichage global des données VIP
- */
-function afficherDonneesVIP(data) {
-    injecter("selection-premium", data.selection, true);
-    injecter("explication-premium", data.explication, false);
-    injecter("quinte-premium", data.quinte, true);
-    injecter("quarte-premium", data.quarte, true);
-    injecter("trio-premium", data.trio, true);
-    injecter("couple-premium", data.couple, true);
-    injecter("champ-reduit-premium", data.champReduit, true);
-    injecter("derniere-minute-premium", data.derniereMinute, true);
-    injecter("analyse-premium", data.analyse, false);
-    injecter("message-premium", data.message, false);
+
+// =====================================
+// 3. TABLEAU LIVE (partants complets)
+// =====================================
+
+function initialiserBoutonTableau(){
+
+    const btnTableau =
+    document.getElementById("btn-toggle-tableau");
+
+    const conteneurTableau =
+    document.getElementById("conteneur-tableau");
+
+    if(!btnTableau || !conteneurTableau) return;
+
+    btnTableau.addEventListener("click", async function(){
+
+        if(conteneurTableau.classList.contains("zone-masquee")){
+
+            conteneurTableau.classList.remove("zone-masquee");
+            btnTableau.innerText = "❌ Masquer le Tableau Live";
+
+            await chargerTableauLive();
+
+        }else{
+
+            conteneurTableau.classList.add("zone-masquee");
+            btnTableau.innerText = "📊 Afficher le Tableau des Partants (Live)";
+
+        }
+
+    });
+
 }
+
+
+async function chargerTableauLive(){
+
+    const tableau =
+    document.getElementById("all-horses");
+
+    if(!tableau) return;
+
+    tableau.innerHTML =
+    `<tr><td colspan="5" style="text-align:center; padding:15px;">Chargement...</td></tr>`;
+
+    try{
+
+        const reponse = await fetch(API_ANALYSE);
+
+        if(!reponse.ok){
+            throw new Error("Erreur API analyse");
+        }
+
+        const data = await reponse.json();
+
+        const classement = data.classement || [];
+
+        if(!classement.length){
+
+            tableau.innerHTML =
+            `<tr><td colspan="5" style="text-align:center; padding:15px;">Classement indisponible.</td></tr>`;
+
+            return;
+
+        }
+
+        tableau.innerHTML = classement.map(cheval => {
+
+            const rang = cheval.rang ?? "-";
+            const numero = cheval.numero ?? "-";
+            const nom = cheval.nom || "-";
+
+            const indice =
+            (cheval.indice_az !== null && cheval.indice_az !== undefined)
+            ? Math.round(cheval.indice_az)
+            : "-";
+
+            const confiance =
+            (cheval.confiance !== null && cheval.confiance !== undefined)
+            ? cheval.confiance + " %"
+            : "-";
+
+            return `
+                <tr>
+                    <td style="padding:10px;"><strong>${rang}</strong></td>
+                    <td style="padding:10px;"><strong>${numero}</strong></td>
+                    <td style="padding:10px;">${nom}</td>
+                    <td style="padding:10px;">${indice}</td>
+                    <td style="padding:10px;">${confiance}</td>
+                </tr>
+            `;
+
+        }).join("");
+
+    }catch(error){
+
+        console.error("Erreur tableau live :", error);
+
+        tableau.innerHTML =
+        `<tr><td colspan="5" style="text-align:center; padding:15px;">Erreur de chargement.</td></tr>`;
+
+    }
+
+    }
+    
