@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Gestion de la sauvegarde des contacts Admin (Intégré sans toucher au reste)
+    // AJOUTÉ : Gestion de la sauvegarde des contacts Admin
     const btnSauvegarder = document.getElementById("btn-sauvegarder-contacts");
     if (btnSauvegarder) {
         btnSauvegarder.addEventListener("click", function () {
@@ -36,14 +36,14 @@ async function verifierAccesEtChargerTickets() {
     const isLocalActive = localStorage.getItem("AZ_TURF_PREMIUM_ACTIF") === "true";
     const blocage = document.getElementById("message-blocage");
     const contenu = document.getElementById("contenu-premium");
-    const blocAdmin = document.getElementById("bloc-admin-paiements");
+    const blocAdmin = document.getElementById("bloc-admin-paiements"); // AJOUTÉ
 
     let accesAutorise = false;
-    let estAdmin = false;
+    let estAdmin = false; // AJOUTÉ
 
     if (tel === "ADMINISTRATEUR" || tel === "COMPTE ADMINISTRATEUR") {
         accesAutorise = true;
-        estAdmin = true;
+        estAdmin = true; // AJOUTÉ
     } else if (isLocalActive) {
         accesAutorise = true;
     } else if (tel) {
@@ -61,12 +61,12 @@ async function verifierAccesEtChargerTickets() {
     if (accesAutorise) {
         if (blocage) blocage.classList.add("zone-masquee");
         if (contenu) contenu.classList.remove("zone-masquee");
-        if (blocAdmin && estAdmin) blocAdmin.classList.remove("zone-masquee");
+        if (blocAdmin && estAdmin) blocAdmin.classList.remove("zone-masquee"); // AJOUTÉ : Affiche le bloc admin si admin
         chargerDonneesAPI();
     } else {
         if (blocage) blocage.classList.remove("zone-masquee");
         if (contenu) contenu.classList.add("zone-masquee");
-        if (blocAdmin) blocAdmin.classList.add("zone-masquee");
+        if (blocAdmin) blocAdmin.classList.add("zone-masquee"); // AJOUTÉ
     }
 }
 
