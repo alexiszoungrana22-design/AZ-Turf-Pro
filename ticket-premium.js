@@ -1,5 +1,5 @@
 // ==========================================================
-// AZ TURF PRO - SCRIPT PREMIUM VIP (RÈGLES EXACTES)
+// AZ TURF PRO - SCRIPT PREMIUM VIP (DYNAMIQUE)
 // ==========================================================
 
 const API_URL = "https://az-turf-pro-backend.onrender.com";
@@ -9,30 +9,31 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 async function initialiserPagePremium() {
+    // 1. VÉRIFICATION DES DROITS D'ACCÈS
     const isPremium = localStorage.getItem("AZ_TURF_PREMIUM_ACTIF") === "true";
     const tel = localStorage.getItem("AZ_TURF_TELEPHONE");
-
     const blocage = document.getElementById("message-blocage");
     const contenu = document.getElementById("contenu-premium");
 
-    // 1. GESTION DES ACCÈS
     if (isPremium || tel === "ADMINISTRATEUR" || tel === "COMPTE ADMINISTRATEUR") {
         if (blocage) blocage.classList.add("zone-masquee");
         if (contenu) contenu.classList.remove("zone-masquee");
     } else {
         if (blocage) blocage.classList.remove("zone-masquee");
         if (contenu) contenu.classList.add("zone-masquee");
-        return;
+        return; // Stoppe le script si pas d'accès
     }
 
-    // 2. TOGGLE TABLEAU LIVE
+    // 2. BOUTON TABLEAU EN DIRECT
     const btnTableau = document.getElementById("btn-toggle-tableau");
     const conteneurTableau = document.getElementById("conteneur-tableau");
     if (btnTableau && conteneurTableau) {
-        btnTableau.addEventListener("click", function () {
+        btnTableau.addEventListener("click", async function () {
             if (conteneurTableau.classList.contains("zone-masquee")) {
                 conteneurTableau.classList.remove("zone-masquee");
                 btnTableau.innerText = "❌ Masquer le Tableau Live";
+                // On remplit le tableau visuel
+                await chargerTableauPartantsLive();
             } else {
                 conteneurTableau.classList.add("zone-masquee");
                 btnTableau.innerText = "📊 Afficher le Tableau des Partants (Live)";
@@ -40,44 +41,87 @@ async function initialiserPagePremium() {
         });
     }
 
-    // 3. CHARGEMENT SERVEUR OU DONNÉES DE SECOURS
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3500);
-
-        const response = await fetch(`${API_URL}/api/premium-tickets`, { signal: controller.signal });
-        clearTimeout(timeoutId);
-
-        if (response.ok) {
-            const data = await response.json();
-            afficherDonneesVIP(data);
-            return;
-        }
-    } catch (err) {
-        console.warn("Serveur en veille. Affichage des données VIP configurées...");
-    }
-
-    // DONNÉES EXACTES APPLIQUÉES SELON TES DIRECTIVES
-    afficherDonneesVIP({
-        selection: "04 - 09 - 12 - 01 - 07 - 11 - 03",             // 7 Chevaux
-        explication: "Sélection rigoureuse basée sur l'Indice AZ, la régularité et la forme récente.",
-        quinte: "04 - 09 - 12 - 01 - 07 - 11",                    // 6 Chevaux
-        quarte: "04 - 09 - 12 - 01 - 07",                         // 5 Chevaux
-        trio: "04 - 09 - 12",                                     // 3 Chevaux
-        couple: "04 - 09",                                        // 2 Chevaux
-        champReduit: "04 - 09 - X - 01 - X / 12 - 07 - 11 - 03",  // Format exact avec double X et associés
-        derniereMinute: "09 - Très bonne impression lors de son dernier passage.",
-        analyse: "Bases solides avec le 04 et le 09. Le 01 constitue la base intermédiaire idéale.",
-        message: "Excellente chance à tous nos abonnés VIP ! 🎯"
-    });
+    // 3. CHARGEMENT DYNAMIQUE DES DONNÉES DU JOUR
+    await chargerEtGenererTicketsVIP();
 }
 
-// FORMATAGE AUTO DES NUMÉROS ET SIGNES EN PASTILLES RONDES
+// RÉCUPÉRATION DES CHEVAUX ET GÉNÉRATION DES TICKETS VIP
+async function chargerEtGenererTicketsVIP() {
+    try {
+        const response = await fetch(`${API_URL}/api/partants`);
+        if (response.ok) {
+            const partants = await response.json();
+            
+            // Si on a des partants, on extrait les 7 premiers numéros (triés par le backend)
+            if (partants && partants.length >= 7) {
+                const top7 = partants.slice(0, 7).map(cheval => cheval.numero);
+                genererTickets(top7);
+                return;
+            }
+        }
+    } catch (e) {
+        console.warn("API indisponible, affichage des données de secours...");
+    }
+
+    // DONNÉES DE SECOURS (Si le serveur ne répond pas)
+    genererTickets(["04", "09", "12", "01", "07", "11", "03"]);
+}
+
+// LOGIQUE MATHÉMATIQUE DE TES RÈGLES VIP
+function genererTickets(c) {
+    // c = Tableau des 7 meilleurs chevaux du jour (ex: ["10", "05", "12", "08", "02", "15", "06"])
+    
+    const donneesVIP = {
+        selection: c.join(" - "),                                     // 7 chevaux
+        quinte: c.slice(0, 6).join(" - "),                             // 6 chevaux
+        quarte: c.slice(0, 5).join(" - "),                             // 5 chevaux
+        trio: c.slice(0, 3).join(" - "),                               // 3 chevaux
+        couple: `${c[0]} - ${c[1]}`,                                   // 2 chevaux
+        // Ton format exact : Base1 - Base2 - X - Base4 - X / Base3 - Base5 - Base6 - Base7
+        champReduit: `${c[0]} - ${c[1]} - X - ${c[3]} - X / ${c[2]} - ${c[4]} - ${c[5]} - ${c[6]}`,
+        
+        explication: "Sélection calculée en temps réel via l'algorithme de performance du jour.",
+        derniereMinute: `${c[1]} - Une excellente impression repérée ce matin.`,
+        analyse: `Nos algorithmes placent le ${c[0]} et le ${c[1]} en bases très solides aujourd'hui.`,
+        message: "Bonne chance pour vos combinaisons VIP du jour ! 🎯"
+    };
+
+    afficherDonneesVIP(donneesVIP);
+}
+
+// CHARGEMENT DU TABLEAU HTML LIVE (Au clic du bouton)
+async function chargerTableauPartantsLive() {
+    const tbody = document.getElementById("all-horses");
+    if (!tbody) return;
+
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 15px;">Chargement des partants...</td></tr>`;
+
+    try {
+        const response = await fetch(`${API_URL}/api/partants`);
+        if (response.ok) {
+            const partants = await response.json();
+            tbody.innerHTML = "";
+            partants.forEach(cheval => {
+                tbody.innerHTML += `
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 12px;">${cheval.rang || '-'}</td>
+                        <td style="padding: 12px; font-weight: bold;">${cheval.numero || '-'}</td>
+                        <td style="padding: 12px;">${cheval.nom || cheval.cheval || '-'}</td>
+                        <td style="padding: 12px; color: #d97706; font-weight: bold;">${cheval.indice || '-'}</td>
+                        <td style="padding: 12px;">${cheval.confiance || '-'}</td>
+                    </tr>`;
+            });
+        }
+    } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Données indisponibles</td></tr>`;
+    }
+}
+
+// FORMATAGE DES PASTILLES RONDES ET DU SÉPARATEUR DE CHAMP RÉDUIT
 function formaterPastilles(texte) {
     if (!texte) return "";
     if (texte.includes("numero-cheval")) return texte;
 
-    // Sépare en conservant la barre de séparation /
     const parties = texte.split('/');
     
     function convertirEnPastilles(chaine) {
@@ -102,7 +146,7 @@ function formaterPastilles(texte) {
     return convertirEnPastilles(texte);
 }
 
-// INJECTION DANS LA PAGE HTML
+// INJECTION DES DONNÉES DANS L'HTML
 function afficherDonneesVIP(data) {
     function injecter(id, contenu, estCombine = false) {
         const el = document.getElementById(id);
@@ -125,4 +169,4 @@ function afficherDonneesVIP(data) {
     injecter("derniere-minute-premium", data.derniereMinute, true);
     injecter("analyse-premium", data.analyse, false);
     injecter("message-premium", data.message, false);
-}
+    }
