@@ -69,15 +69,14 @@ async function verifierAccesEtChargerTickets() {
     }
 }
 
-// Fonction utilitaire sécurisée pour transformer n'importe quelle donnée brute (string, tableau ou objet) en texte propre
-function extraireTextePropre(valeurBrute, defaut) {
-    if (!valeurBrute) return defaut;
-    if (typeof valeurBrute === 'string') return valeurBrute;
-    if (typeof valeurBrute === 'object') {
-        // Si l'API renvoie un objet, on cherche une propriété textuelle ou on convertit proprement
-        return valeurBrute.texte || valeurBrute.valeur || valeurBrute.champReduit || JSON.stringify(valeurBrute).replace(/[{}]/g, '') || defaut;
+function extraireDonnee(champ, defaut) {
+    if (!champ) return defaut;
+    if (typeof champ === 'string') return champ;
+    if (Array.isArray(champ)) return champ.join(" - ");
+    if (typeof champ === 'object') {
+        return champ.texte || champ.valeur || champ.combinaison || JSON.stringify(champ) || defaut;
     }
-    return String(valeurBrute);
+    return String(champ);
 }
 
 async function chargerDonneesAPI() {
@@ -85,30 +84,24 @@ async function chargerDonneesAPI() {
         const response = await fetch('https://az-turf-pro.onrender.com/api/analyse');
         const data = await response.json();
 
-        let selection = ["01", "02", "03", "04", "05", "06", "07", "08"];
-        if (data && data.selection && Array.isArray(data.selection) && data.selection.length > 0) {
-            selection = data.selection;
-        }
-
         let prem = {};
         if (data && data.tickets && data.tickets.premium) {
             prem = data.tickets.premium;
+        } else if (data && data.tickets) {
+            prem = data.tickets;
         }
 
-        const defautChampReduit = `${selection[0]} - ${selection[1]} - X - ${selection[3]} - X / ${selection[2]} - ${selection[4]} - ${selection[5]} - ${selection[6] || selection[0]}`;
-        const defautDerniereMin = `${selection[0]} - Cheval repéré pour sa condition physique exceptionnelle.`;
-
         const ticketsRemplis = {
-            selection: extraireTextePropre(prem.selection, selection.join(" - ")),
-            explication: extraireTextePropre(prem.explication, "Sélection rigoureusement établie sur la base des meilleures performances et indices VIP du jour."),
-            quinte: extraireTextePropre(prem.quinte, selection.slice(0, 6).join(" - ")),
-            quarte: extraireTextePropre(prem.quarte, selection.slice(0, 5).join(" - ")),
-            trio: extraireTextePropre(prem.trio, selection.slice(0, 4).join(" - ")),
-            couple: extraireTextePropre(prem.couple, `${selection[0]} - ${selection[1]} - ${selection[2]}`),
-            champReduit: extraireTextePropre(prem.champReduit || prem.champ_reduit || (data.tickets ? data.tickets.champReduit : null), defautChampReduit),
-            derniereMinute: extraireTextePropre(prem.derniereMinute || prem.derniere_minute || (data.tickets ? data.tickets.derniereMinute : null), defautDerniereMin),
-            analyse: extraireTextePropre(prem.analyse || data.analyse, "L'analyse complète indique une course ouverte où les bases de notre sélection présentent les plus fortes garanties au papier."),
-            message: extraireTextePropre(prem.message, "Toute l'équipe AZ Turf Pro VIP vous souhaite une excellente journée et de très grands gains !")
+            selection: extraireDonnee(prem.selection, ""),
+            explication: extraireDonnee(prem.explication, ""),
+            quinte: extraireDonnee(prem.quinte, ""),
+            quarte: extraireDonnee(prem.quarte, ""),
+            trio: extraireDonnee(prem.trio, ""),
+            couple: extraireDonnee(prem.couple, ""),
+            champReduit: extraireDonnee(prem.champReduit || prem.champ_reduit, ""),
+            derniereMinute: extraireDonnee(prem.derniereMinute || prem.derniere_minute, ""),
+            analyse: extraireDonnee(prem.analyse || data.analyse, ""),
+            message: extraireDonnee(prem.message, "")
         };
 
         afficherDonneesVIP(ticketsRemplis);
@@ -161,7 +154,6 @@ function afficherDonneesVIP(data) {
     injecter("quarte-premium", data.quarte, true);
     injecter("trio-premium", data.trio, true);
     injecter("couple-premium", data.couple, true);
-    // Affichage strict en pastilles identique à l'accueil/analyse
     injecter("champ-reduit-premium", data.champReduit, true);
     injecter("derniere-minute-premium", data.derniereMinute, true);
     injecter("analyse-premium", data.analyse, false);
