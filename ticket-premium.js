@@ -1,28 +1,29 @@
 document.addEventListener("DOMContentLoaded", function () {
     verifierAccesEtChargerTickets();
 
+    // Gestion de l'affichage du Tableau des partants
     const btnTableau = document.getElementById("btn-toggle-tableau");
     const conteneurTableau = document.getElementById("conteneur-tableau");
     if (btnTableau && conteneurTableau) {
         btnTableau.addEventListener("click", function () {
-            if (conteneurTableau.classList.contains("zone-masquee")) {
-                conteneurTableau.classList.remove("zone-masquee");
-                btnTableau.innerText = "❌ Masquer le Tableau Live";
-            } else {
-                conteneurTableau.classList.add("zone-masquee");
-                btnTableau.innerText = "📊 Afficher le Tableau des Partants (Live)";
+            const estMasque = conteneurTableau.classList.contains("zone-masquee");
+            conteneurTableau.classList.toggle("zone-masquee");
+            btnTableau.innerText = estMasque ? "❌ Masquer le Tableau Live" : "📊 Afficher le Tableau des Partants (Live)";
+        });
+    }
+
+    // Gestion de la sauvegarde des contacts d'administration
+    const btnSauvegarder = document.getElementById("btn-sauvegarder-contacts");
+    if (btnSauvegarder) {
+        btnSauvegarder.addEventListener("click", function () {
+            const contactInput = document.getElementById("admin-input-contact");
+            if (contactInput) {
+                localStorage.setItem("AZ_TURF_CONTACT_PAIEMENT", contactInput.value);
+                alert("✅ Contacts de paiement mis à jour avec succès !");
             }
         });
     }
 
-    const btnSauvegarder = document.getElementById("btn-sauvegarder-contacts");
-    if (btnSauvegarder) {
-        btnSauvegarder.addEventListener("click", function () {
-            const contact = document.getElementById("admin-input-contact").value;
-            localStorage.setItem("AZ_TURF_CONTACT_PAIEMENT", contact);
-            alert("✅ Contacts de paiement mis à jour avec succès !");
-        });
-    }
     const contactSauvegarde = localStorage.getItem("AZ_TURF_CONTACT_PAIEMENT");
     if (contactSauvegarde) {
         const inputContact = document.getElementById("admin-input-contact");
@@ -30,6 +31,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
+/**
+ * Vérification des accès VIP / Admin et chargement des pronostics
+ */
 async function verifierAccesEtChargerTickets() {
     const tel = localStorage.getItem("AZ_TURF_TELEPHONE");
     const isLocalActive = localStorage.getItem("AZ_TURF_PREMIUM_ACTIF") === "true";
@@ -69,17 +73,15 @@ async function verifierAccesEtChargerTickets() {
     }
 }
 
+/**
+ * Récupération des pronostics API et harmonisation des données VIP
+ */
 async function chargerDonneesAPI() {
     try {
         const response = await fetch('https://az-turf-pro.onrender.com/api/analyse');
         const data = await response.json();
 
-        let prem = {};
-        if (data && data.tickets && data.tickets.premium) {
-            prem = data.tickets.premium;
-        } else if (data && data.tickets) {
-            prem = data.tickets;
-        }
+        let prem = (data && data.tickets && data.tickets.premium) ? data.tickets.premium : (data.tickets || {});
 
         const normaliserFormat = (val) => {
             if (!val) return "";
@@ -87,7 +89,7 @@ async function chargerDonneesAPI() {
             return String(val);
         };
 
-        // Extraire proprement le champ réduit
+        // Traitement du Champ Réduit
         let cr = prem.champReduit || prem.champ_reduit;
         let basesCR = [];
         let complementsCR = [];
@@ -99,17 +101,15 @@ async function chargerDonneesAPI() {
             cr = (b && c) ? `${b} / ${c}` : (b || c || cr.format || "");
         }
 
-        // Récupération des tickets de base
         const quinteTxt = normaliserFormat(prem.quinte);
         const quarteTxt = normaliserFormat(prem.quarte);
         const trioTxt = normaliserFormat(prem.trio);
 
-        // 1. SÉLECTION DU JOUR : Garantie exacte à 7 chevaux
+        // Sélection du Jour : Strictement 7 chevaux
         let selectionTxt = normaliserFormat(prem.selection || data.selection);
         let listeNums = selectionTxt ? selectionTxt.split(/[-,\s]+/).filter(num => !isNaN(num) && num.trim() !== '') : [];
 
         if (listeNums.length !== 7) {
-            // Reconstitution automatique à 7 chevaux à partir du Quinté et Compléments
             let numsQuinte = quinteTxt.split(/[-,\s]+/).filter(num => !isNaN(num) && num.trim() !== '');
             let tousLesNums = Array.from(new Set([...numsQuinte, ...basesCR, ...complementsCR]));
             if (tousLesNums.length >= 7) {
@@ -119,14 +119,14 @@ async function chargerDonneesAPI() {
             }
         }
 
-        // 2. COUPLÉ GAGNANT PLACÉ
+        // Couplé Gagnant Placé
         let coupleTxt = normaliserFormat(prem.couple || prem.coupleGagnant);
         if (!coupleTxt && quinteTxt) {
             let numsQuinte = quinteTxt.split(/[-,\s]+/).filter(num => !isNaN(num) && num.trim() !== '');
             coupleTxt = numsQuinte.slice(0, 3).join(" - ");
         }
 
-        // 3. DERNIÈRE MINUTE : Ne reste plus jamais vide
+        // Dernière Minute
         let dmTxt = normaliserFormat(prem.derniereMinute || prem.derniere_minute || data.derniereMinute);
         if (!dmTxt && quinteTxt) {
             let premierCheval = quinteTxt.split(/[-,\s]+/).filter(num => !isNaN(num) && num.trim() !== '')[0] || "08";
@@ -153,6 +153,9 @@ async function chargerDonneesAPI() {
     }
 }
 
+/**
+ * Génération dynamique des pastilles épurées
+ */
 function formaterPastilles(texte) {
     if (!texte) return "";
     if (typeof texte !== 'string') texte = String(texte);
@@ -165,19 +168,22 @@ function formaterPastilles(texte) {
             if (!isNaN(num)) {
                 return `<span class="numero-cheval">${String(num).padStart(2, '0')}</span>`;
             } else if (num.toUpperCase() === 'X') {
-                return `<span class="numero-cheval" style="background: linear-gradient(135deg, #d97706, #b45309);">X</span>`;
+                return `<span class="numero-cheval-x">X</span>`;
             }
             return num;
         }).join(" ");
     }
 
     if (parties.length > 1) {
-        return convertirEnPastilles(parties[0]) + ` <strong style="color: #1e3a8a; font-size: 20px; margin: 0 6px;">/</strong> ` + convertirEnPastilles(parties[1]);
+        return convertirEnPastilles(parties[0]) + `<span class="separateur-champ">/</span>` + convertirEnPastilles(parties[1]);
     }
 
     return convertirEnPastilles(texte);
 }
 
+/**
+ * Injection dans les conteneurs du DOM
+ */
 function injecter(id, contenu, estCombine = false) {
     const el = document.getElementById(id);
     if (el) {
@@ -189,6 +195,9 @@ function injecter(id, contenu, estCombine = false) {
     }
 }
 
+/**
+ * Affichage global des données VIP
+ */
 function afficherDonneesVIP(data) {
     injecter("selection-premium", data.selection, true);
     injecter("explication-premium", data.explication, false);
