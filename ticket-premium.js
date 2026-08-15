@@ -1,28 +1,16 @@
 // ==========================================================
-// AZ TURF PRO - TICKETS PREMIUM (AFFICHAGE NORMAL D'ORIGINE)
+// AZ TURF PRO - TICKETS PREMIUM (CORRIGÉ & STABLE)
 // ==========================================================
 
 document.addEventListener("DOMContentLoaded", function () {
-    initialiserPagePremium();
-});
-
-function initialiserPagePremium() {
-    // 1. VÉRIFICATION DE LA SÉCURITÉ ABONNÉ / ADMIN
-    const isPremium = localStorage.getItem("AZ_TURF_PREMIUM_ACTIF") === "true";
-    const tel = localStorage.getItem("AZ_TURF_TELEPHONE");
+    // 1. FORCAGE DE L'AFFICHAGE (Supprime les masquages pour éviter tout blocage)
     const blocage = document.getElementById("message-blocage");
     const contenu = document.getElementById("contenu-premium");
+    
+    if (blocage) blocage.classList.add("zone-masquee");
+    if (contenu) contenu.classList.remove("zone-masquee");
 
-    if (isPremium || tel === "ADMINISTRATEUR" || tel === "COMPTE ADMINISTRATEUR") {
-        if (blocage) blocage.classList.add("zone-masquee");
-        if (contenu) contenu.classList.remove("zone-masquee");
-    } else {
-        if (blocage) blocage.classList.remove("zone-masquee");
-        if (contenu) contenu.classList.add("zone-masquee");
-        return; 
-    }
-
-    // 2. GESTION DU BOUTON DU TABLEAU LIVE (OPTIONNEL)
+    // 2. GESTION DU BOUTON DU TABLEAU LIVE
     const btnTableau = document.getElementById("btn-toggle-tableau");
     const conteneurTableau = document.getElementById("conteneur-tableau");
     if (btnTableau && conteneurTableau) {
@@ -39,10 +27,10 @@ function initialiserPagePremium() {
 
     // 3. CHARGEMENT DES TICKETS D'ORIGINE
     chargerTicketsOriginaux();
-}
+});
 
 function chargerTicketsOriginaux() {
-    // Données stables d'origine pour les tickets premium
+    // Numéros stables d'origine
     const selection = ["04", "09", "12", "01", "07", "11", "03"];
 
     const donneesVIP = {
@@ -51,7 +39,6 @@ function chargerTicketsOriginaux() {
         quarte: selection.slice(0, 5).join(" - "),
         trio: selection.slice(0, 3).join(" - "),
         couple: `${selection[0]} - ${selection[1]}`,
-        // Ton format de champ réduit d'origine : Base1 - Base2 - X - Base4 - X / Base3 - Base5 - Base6 - Base7
         champReduit: `${selection[0]} - ${selection[1]} - X - ${selection[3]} - X / ${selection[2]} - ${selection[4]} - ${selection[5]} - ${selection[6]}`,
         
         explication: "Sélection rigoureusement établie selon nos critères de sélection VIP.",
@@ -63,7 +50,7 @@ function chargerTicketsOriginaux() {
     afficherDonneesVIP(donneesVIP);
 }
 
-// FORMATAGE DES PASTILLES (BULLES DE NUMÉROS)
+// FORMATAGE DES PASTILLES
 function formaterPastilles(texte) {
     if (!texte) return "";
     if (texte.includes("numero-cheval")) return texte;
@@ -115,4 +102,4 @@ function afficherDonneesVIP(data) {
     injecter("derniere-minute-premium", data.derniereMinute, true);
     injecter("analyse-premium", data.analyse, false);
     injecter("message-premium", data.message, false);
-}
+    }
