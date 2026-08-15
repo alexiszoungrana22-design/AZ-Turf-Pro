@@ -1,466 +1,215 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Espace Ticket Premium - AZ Turf Pro</title>
-
-<link rel="stylesheet" href="style.css">
-
-<link rel="stylesheet" href="ticket-premium.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AZ Turf Pro - Espace VIP</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            padding: 12px;
+        }
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        header {
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.06);
+        }
+        header h1 {
+            font-size: 20px;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+        header p {
+            font-size: 13px;
+            color: #dbeafe;
+        }
+        .zone-masquee {
+            display: none !important;
+        }
+        #message-blocage {
+            background-color: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #b91c1c;
+            padding: 18px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+            margin-top: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+        .ticket-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            padding: 14px 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .ticket-card h3 {
+            font-size: 15px;
+            color: #1e3a8a;
+            margin-bottom: 8px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ticket-valeur {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0f172a;
+            margin: 6px 0;
+            word-break: break-word;
+            line-height: 1.4;
+        }
+        .numero-cheval {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #ffffff;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            font-weight: 700;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            font-size: 16px;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25);
+        }
+        .btn-action {
+            display: block;
+            width: 100%;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 13px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 14px;
+            text-align: center;
+            text-decoration: none;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.15);
+        }
+        .btn-action:active {
+            background-color: #1d4ed8;
+        }
+        .btn-retour {
+            background-color: #dc2626;
+            margin-top: 15px;
+        }
+        #conteneur-tableau {
+            background: #ffffff;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        p {
+            font-size: 14px;
+            color: #475569;
+            line-height: 1.4;
+        }
+    </style>
 </head>
-
 <body>
 
-
-<header class="premium-header">
-
-<div class="premium-logo">
-🏇 AZ Turf Pro
-</div>
-<!-- Le Bouton pour afficher/masquer le tableau -->
-<button id="btn-toggle-tableau" style="background: #10b981; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; margin: 15px 0; display: flex; align-items: center; gap: 8px;">
-    📊 Afficher le Tableau des Partants (Live)
-</button>
-
-<!-- Le Tableau (initialement masqué pour ne pas encombrer la page) -->
-<div id="conteneur-tableau" style="display: none; margin-top: 15px; overflow-x: auto;">
-    <table style="width: 100%; border-collapse: collapse; background: #111827; color: #fff; border-radius: 8px; overflow: hidden;">
-        <thead>
-            <tr style="background: #1f2937; text-align: left; font-size: 14px; color: #9ca3af;">
-                <th style="padding: 12px;">Rang</th>
-                <th style="padding: 12px;">N°</th>
-                <th style="padding: 12px;">Cheval</th>
-                <th style="padding: 12px;">Indice AZ</th>
-                <th style="padding: 12px;">Confiance</th>
-            </tr>
-        </thead>
-        <tbody id="all-horses">
-            <!-- Les données viendront s'injecter ici dynamiquement -->
-        </tbody>
-    </table>
-</div>
-
-<div class="premium-title">
-
-<h1>
-Espace Ticket Premium
-</h1>
-
-<p>
-Analyse spécialisée et combinaisons exclusives
-</p>
-
-</div>
-
-
-</header>
-<!-- Bloc Admin intégré dans la page VIP -->
-<div id="bloc-admin-paiements" class="ticket-card zone-masquee" style="border: 2px dashed #2563eb; background: #eff6ff;">
-    <h3 style="color: #1e3a8a;">⚙️ Admin : Gestion Paiements</h3>
-    <label style="font-size: 13px;">Modifier le numéro de paiement affiché :</label>
-    <input type="text" id="admin-input-contact" placeholder="+226 XX XX XX XX" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; margin: 8px 0;">
-    <button id="btn-sauvegarder-contacts" class="btn-action" style="margin: 0; padding: 10px;">💾 Sauvegarder</button>
-</div>
-
-<nav class="top-menu premium-menu">
-
-
-<a href="index.html">
-🏠 Accueil
-</a>
-
-
-<a href="analyse.html">
-📊 Analyse
-</a>
-
-
-<a href="ticket.html">
-🎟️ Programme
-</a>
-
-
-<a href="historique.html">
-🏆 Historique
-</a>
-
-
-</nav>
-
-
-
-
-
-
-
-<main class="premium-container">
-
-
-<div id="message-blocage" class="premium-card" style="display:none;">
-
-<h2>
-🔒 Accès Premium indisponible
-</h2>
-
-<p>
-Votre abonnement n'est pas actif ou a expiré.
-</p>
-
-<a href="espace-premium.html" class="btn-vip">
-⭐ Voir les offres Premium
-</a>
-
-</div>
-
-
-<div id="contenu-premium" style="display:none;">
-
-
-<div class="premium-back">
-
-<a href="abonnement.html">
-
-⬅ Retour à l'abonnement
-
-</a>
-
-</div>
-
-
-
-
-
-
-
-<section class="premium-banner">
-
-<h2>
-⭐ AZ Turf Pro Premium
-</h2>
-
-<p>
-Vos sélections exclusives basées sur l'analyse des performances.
-</p>
-
-</section>
-
-
-
-
-
-
-
-<section class="premium-card">
-
-<h2>
-🏇 Sélection Premium du jour
-</h2>
-
-
-<div
-id="selection-premium"
-class="chevaux-premium">
-
-Chargement...
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-<section class="premium-card">
-
-<h2>
-🧠 Pourquoi ces chevaux ?
-</h2>
-
-
-<div id="explication-premium">
-
-Chargement...
-
-</div>
-
-
-</section>
-
-    
-
-
-
-
-
-
-<section class="premium-card tickets-premium">
-
-
-<h2>
-🏆 Vos Tickets Premium
-</h2>
-
-
-
-
-
-<div class="ticket-premium-box">
-
-<h3>
-🏆 Quinté Premium
-</h3>
-
-
-<div
-id="quinte-premium"
-class="numero-ticket">
-
-Chargement...
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-<div class="ticket-premium-box">
-
-<h3>
-🥇 Quarté Premium
-</h3>
-
-
-<div
-id="quarte-premium"
-class="numero-ticket">
-
-Chargement...
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-<div class="ticket-premium-box">
-
-<h3>
-🎯 Trio Premium
-</h3>
-
-
-<div
-id="trio-premium"
-class="numero-ticket">
-
-Chargement...
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-<div class="ticket-premium-box">
-
-<h3>
-🤝 Couplé Gagnant / Placé
-</h3>
-
-
-<div
-id="couple-premium"
-class="numero-ticket">
-
-Chargement...
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-<div class="ticket-premium-box">
-
-<h3>
-🔒 Champ réduit Premium
-</h3>
-
-
-<div
-id="champ-reduit-premium"
-class="numero-ticket">
-
-Chargement...
-
-</div>
-
-
-</div>
-
-
-
-
-</section>
-
-
-
-
-
-
-
-
-
-<section class="premium-card">
-
-
-<h2>
-⚡ Dernière minute
-</h2>
-
-
-<div
-id="derniere-minute-premium">
-
-Chargement...
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-
-
-<section class="premium-card analyse-premium-zone">
-
-
-<h2>
-📈 Analyse Premium
-</h2>
-
-
-<div
-id="analyse-premium">
-
-Chargement...
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-
-
-<section class="premium-message">
-
-
-<h2>
-🍀 Message Premium
-</h2>
-
-
-<p
-id="message-premium">
-
-Chargement...
-
-</p>
-
-
-</section>
-
-
-</div>
-
-
-
-
-</main>
-
-
-
-
-
-
-
-
-
-<footer class="bottom-menu">
-
-
-<a href="index.html">
-🏠 Accueil
-</a>
-
-
-<a href="analyse.html">
-📊 Analyse
-</a>
-
-
-<a href="ticket.html">
-🎟️ Programme
-</a>
-
-
-<a href="historique.html">
-🏆 Historique
-</a>
-
-
-</footer>
-
-
-
-
-
-
-
-<script src="ticket-premium.js?v=3"></script>
-
-
+    <div class="container">
+        <header>
+            <h1>AZ Turf Pro - Espace VIP</h1>
+            <p>Pronostics et Analyses Réservés aux Abonnés</p>
+        </header>
+
+        <!-- Bloc Administration / Gestion des Paiements (Intégré sans toucher au reste) -->
+        <div id="bloc-admin-paiements" class="ticket-card zone-masquee" style="border: 2px dashed #2563eb; background: #eff6ff;">
+            <h3 style="color: #1e3a8a;">⚙️ Admin : Gestion des Paiements</h3>
+            <label style="font-size: 13px; color: #1e293b;">Modifier le numéro/contact de paiement :</label>
+            <input type="text" id="admin-input-contact" placeholder="Ex: +226 XX XX XX XX" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; margin: 8px 0; font-size: 14px;">
+            <button id="btn-sauvegarder-contacts" class="btn-action" style="margin: 0; padding: 10px;">💾 Sauvegarder les contacts</button>
+        </div>
+
+        <!-- Message d'accès refusé (masqué par défaut) -->
+        <div id="message-blocage" class="zone-masquee">
+            🔒 Contenu réservé aux membres abonnés.<br>Veuillez activer votre compte pour voir les tickets VIP du jour.
+            <a href="abonnement.html" class="btn-action btn-retour">🔄 Retourner à l'Espace Abonnement</a>
+        </div>
+
+        <!-- Bouton Tableau Live -->
+        <button id="btn-toggle-tableau" class="btn-action">📊 Afficher le Tableau des Partants (Live)</button>
+        
+        <div id="conteneur-tableau" class="zone-masquee">
+            <p style="text-align: center; color: #64748b; padding: 8px;">Chargement des partants en direct...</p>
+        </div>
+
+        <!-- Contenu Premium -->
+        <div id="contenu-premium" class="zone-masquee">
+            
+            <div class="ticket-card">
+                <h3>🎯 La Sélection du Jour (Premium)</h3>
+                <div id="selection-premium" class="ticket-valeur">-</div>
+                <p id="explication-premium" style="font-size: 13px; color: #64748b; margin-top: 4px;"></p>
+            </div>
+
+            <div class="ticket-card">
+                <h3>🥇 Quinté+ Premium</h3>
+                <div id="quinte-premium" class="ticket-valeur">-</div>
+            </div>
+
+            <div class="ticket-card">
+                <h3>🥈 Quarté+ Premium</h3>
+                <div id="quarte-premium" class="ticket-valeur">-</div>
+            </div>
+
+            <div class="ticket-card">
+                <h3>🥉 Trio Premium</h3>
+                <div id="trio-premium" class="ticket-valeur">-</div>
+            </div>
+
+            <div class="ticket-card">
+                <h3>🤝 Couplé Gagnant & Placé</h3>
+                <div id="couple-premium" class="ticket-valeur">-</div>
+            </div>
+
+            <div class="ticket-card">
+                <h3>⚙️ Champ Réduit</h3>
+                <div id="champ-reduit-premium" class="ticket-valeur">-</div>
+            </div>
+
+            <div class="ticket-card">
+                <h3>⚡ La Dernière Minute</h3>
+                <p id="derniere-minute-premium" style="font-weight: 700; color: #b45309; font-size: 15px;"></p>
+            </div>
+
+            <div class="ticket-card">
+                <h3>📈 Analyse de la Course</h3>
+                <p id="analyse-premium"></p>
+            </div>
+
+            <div class="ticket-card" style="background-color: #f8fafc; border-left: 4px solid #2563eb;">
+                <h3 style="color: #1e40af;">💬 Message du Pronostiqueur</h3>
+                <p id="message-premium" style="font-style: italic; color: #1e3a8a; font-weight: 500;"></p>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="ticket-premium.js"></script>
 </body>
-
 </html>
