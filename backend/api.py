@@ -684,6 +684,10 @@ def debug_journal():
 # disque persistant, ce fichier peut etre remis a zero a chaque
 # redeploiement - l'historique ne survit alors pas dans le temps.
 
+@app.route('/api/historique', methods=['GET'])
+def api_historique():
+    return jsonify(voir_historique())
+    
 @router.get("/historique")
 def historique():
 
