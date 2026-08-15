@@ -21,73 +21,34 @@ document.addEventListener("DOMContentLoaded", () => {
 // VERIFICATION ACCES PREMIUM
 // =====================================
 
-async function verifierAccesPremium(){
+async function verifierAccesEtChargerTickets() {
+    const tel = localStorage.getItem("AZ_TURF_TELEPHONE");
+    const isLocalActive = localStorage.getItem("AZ_TURF_PREMIUM_ACTIF") === "true";
+    const blocage = document.getElementById("message-blocage");
+    const contenu = document.getElementById("contenu-premium");
+    const blocAdmin = document.getElementById("bloc-admin-paiements");
 
-    const telephone =
-        localStorage.getItem("AZ_TURF_TELEPHONE");
+    // L'ADMINISTRATEUR passe toujours en priorité
+    let estAdmin = (tel === "ADMINISTRATEUR" || tel === "COMPTE ADMINISTRATEUR");
+    let accesAutorise = estAdmin || isLocalActive;
 
-    const contenu =
-        document.getElementById("contenu-premium");
-
-    const blocage =
-        document.getElementById("message-blocage");
-
-
-    if(!telephone){
-
-        if(blocage){
-            blocage.style.display = "block";
-        }
-
-        return;
+    if (!accesAutorise && tel) {
+        try {
+            const response = await fetch(`https://az-turf-pro.onrender.com/api/premium/${tel}`);
+            const data = await response.json();
+            if (data && data.isPremium) accesAutorise = true;
+        } catch (e) { console.error("Erreur API :", e); }
     }
 
-
-    try{
-
-        const reponse = await fetch(
-            API_PREMIUM + encodeURIComponent(telephone)
-        );
-
-        const data = await reponse.json();
-
-
-        if(
-            reponse.ok &&
-            data.statut === "ACTIF"
-        ){
-
-            if(contenu){
-                contenu.style.display = "block";
-            }
-
-            if(blocage){
-                blocage.style.display = "none";
-            }
-
-            chargerPremium();
-
-        }else{
-
-            if(blocage){
-                blocage.style.display = "block";
-            }
-
-        }
-
-    }catch(error){
-
-        console.error(
-            "Erreur vérification Premium :",
-            error
-        );
-
-        if(blocage){
-            blocage.style.display = "block";
-        }
-
+    if (accesAutorise) {
+        if (blocage) blocage.classList.add("zone-masquee");
+        if (contenu) contenu.classList.remove("zone-masquee");
+        if (blocAdmin && estAdmin) blocAdmin.classList.remove("zone-masquee"); // Affiche bloc Admin
+        chargerDonneesAPI();
+    } else {
+        if (blocage) blocage.classList.remove("zone-masquee");
+        if (contenu) contenu.classList.add("zone-masquee");
     }
-
 }
 
 
@@ -978,6 +939,19 @@ window.addEventListener(
 
     }
 );
-
+// Sauvegarde des contacts Admin
+document.addEventListener("DOMContentLoaded", function () {
+    const btnSauvegarder = document.getElementById("btn-sauvegarder-contacts");
+    if (btnSauvegarder) {
+        btnSauvegarder.addEventListener("click", function () {
+            const contact = document.getElementById("admin-input-contact").value;
+            localStorage.setItem("AZ_TURF_CONTACT_PAIEMENT", contact);
+            alert("✅ Contacts mis à jour !");
+        });
+    }
+    // Charger la valeur actuelle si elle existe
+    const contactSauvegarde = localStorage.getItem("AZ_TURF_CONTACT_PAIEMENT");
+    if (contactSauvegarde) document.getElementById("admin-input-contact").value = contactSauvegarde;
+});
 
         
