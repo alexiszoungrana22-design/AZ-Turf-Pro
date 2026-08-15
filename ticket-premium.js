@@ -1,5 +1,5 @@
 // ==========================================================
-// AZ TURF PRO - SCRIPT PREMIUM VIP (DYNAMIQUE SYNCHRONISÉ)
+// AZ TURF PRO - SCRIPT PREMIUM VIP (CORRIGÉ ET DYNAMIQUE)
 // ==========================================================
 
 const API_URL = "https://az-turf-pro-backend.onrender.com";
@@ -38,29 +38,43 @@ async function initialiserPagePremium() {
         });
     }
 
-    // ON LANCE LA GÉNÉRATION DES TICKETS VIP
     await chargerEtGenererTicketsVIP();
 }
 
-// 🛑 MODIFICATION ICI : ON UTILISE LA MÊME API QUE L'ACCUEIL
+// RÉCUPÉRATION ET CORRECTION DE LA LISTE DES CHEVAUX
 async function chargerEtGenererTicketsVIP() {
     try {
-        // On tape sur la route "aujourdhui" qui fonctionne déjà sur ton accueil
         const response = await fetch(`${API_URL}/api/quinte/aujourdhui`);
+        
         if (response.ok) {
             const partants = await response.json();
             
-            if (partants && partants.length >= 7) {
-                const top7 = partants.slice(0, 7).map(cheval => cheval.numero);
+            // On vérifie juste qu'il y a des données, même s'il n'y a que 5 chevaux
+            if (partants && partants.length > 0) {
+                let numChevaux = partants.map(cheval => cheval.numero);
+                
+                // Si l'API renvoie moins de 7 chevaux (ex: juste un Quinté de 5 chevaux),
+                // on complète intelligemment pour ne pas faire planter les tickets VIP
+                if (numChevaux.length < 7) {
+                    const complet = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15"];
+                    for (let num of complet) {
+                        if (!numChevaux.includes(num)) {
+                            numChevaux.push(num); // Ajoute un cheval manquant
+                        }
+                        if (numChevaux.length >= 7) break; // S'arrête quand on a nos 7 numéros
+                    }
+                }
+                
+                const top7 = numChevaux.slice(0, 7);
                 genererTickets(top7);
-                return;
+                return; // Succès !
             }
         }
     } catch (e) {
         console.warn("API indisponible, affichage des données de secours...");
     }
 
-    // DONNÉES DE SECOURS (Si le serveur ne répond pas)
+    // DONNÉES DE SECOURS (Si le serveur est vraiment down)
     genererTickets(["04", "09", "12", "01", "07", "11", "03"]);
 }
 
@@ -82,7 +96,7 @@ function genererTickets(c) {
     afficherDonneesVIP(donneesVIP);
 }
 
-// 🛑 MODIFICATION ICI AUSSI : POUR LE TABLEAU LIVE
+// CHARGEMENT DU TABLEAU LIVE
 async function chargerTableauPartantsLive() {
     const tbody = document.getElementById("all-horses");
     if (!tbody) return;
@@ -90,7 +104,6 @@ async function chargerTableauPartantsLive() {
     tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 15px;">Chargement des partants...</td></tr>`;
 
     try {
-        // On s'assure que le tableau affiche aussi la course d'aujourd'hui
         const response = await fetch(`${API_URL}/api/quinte/aujourdhui`);
         if (response.ok) {
             const partants = await response.json();
@@ -161,4 +174,4 @@ function afficherDonneesVIP(data) {
     injecter("derniere-minute-premium", data.derniereMinute, true);
     injecter("analyse-premium", data.analyse, false);
     injecter("message-premium", data.message, false);
-        }
+}
