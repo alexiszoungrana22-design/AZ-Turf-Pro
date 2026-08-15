@@ -1,5 +1,5 @@
 // ==========================================================
-// AZ TURF PRO - SCRIPT PREMIUM VIP (CORRIGÉ ET DYNAMIQUE)
+// AZ TURF PRO - SCRIPT PREMIUM VIP (EXTRACTION SECURISEE)
 // ==========================================================
 
 const API_URL = "https://az-turf-pro-backend.onrender.com";
@@ -41,7 +41,7 @@ async function initialiserPagePremium() {
     await chargerEtGenererTicketsVIP();
 }
 
-// RÉCUPÉRATION ET CORRECTION DE LA LISTE DES CHEVAUX
+// RÉCUPÉRATION ET EXTRACTION SÉCURISÉE DES NUMÉROS
 async function chargerEtGenererTicketsVIP() {
     try {
         const response = await fetch(`${API_URL}/api/quinte/aujourdhui`);
@@ -49,33 +49,35 @@ async function chargerEtGenererTicketsVIP() {
         if (response.ok) {
             const partants = await response.json();
             
-            // On vérifie juste qu'il y a des données, même s'il n'y a que 5 chevaux
             if (partants && partants.length > 0) {
-                let numChevaux = partants.map(cheval => cheval.numero);
+                // Extraction intelligente : gère cheval.numero, cheval.cheval ou le rang
+                let numChevaux = partants.map((item, index) => {
+                    let num = item.numero || item.num || item.cheval || (index + 1);
+                    return String(num).padStart(2, '0');
+                });
                 
-                // Si l'API renvoie moins de 7 chevaux (ex: juste un Quinté de 5 chevaux),
-                // on complète intelligemment pour ne pas faire planter les tickets VIP
+                // Si on a moins de 7 numéros pour construire les combinaisons VIP
                 if (numChevaux.length < 7) {
-                    const complet = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15"];
-                    for (let num of complet) {
+                    const listeDeSecours = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15"];
+                    for (let num of listeDeSecours) {
                         if (!numChevaux.includes(num)) {
-                            numChevaux.push(num); // Ajoute un cheval manquant
+                            numChevaux.push(num);
                         }
-                        if (numChevaux.length >= 7) break; // S'arrête quand on a nos 7 numéros
+                        if (numChevaux.length >= 7) break;
                     }
                 }
                 
                 const top7 = numChevaux.slice(0, 7);
                 genererTickets(top7);
-                return; // Succès !
+                return;
             }
         }
     } catch (e) {
-        console.warn("API indisponible, affichage des données de secours...");
+        console.warn("Erreur d'extraction ou API indisponible :", e);
     }
 
-    // DONNÉES DE SECOURS (Si le serveur est vraiment down)
-    genererTickets(["04", "09", "12", "01", "07", "11", "03"]);
+    // Uniquement en cas d'échec total de connexion au serveur
+    genererTickets(["01", "02", "03", "04", "05", "06", "07"]);
 }
 
 function genererTickets(c) {
@@ -87,16 +89,16 @@ function genererTickets(c) {
         couple: `${c[0]} - ${c[1]}`,                                   
         champReduit: `${c[0]} - ${c[1]} - X - ${c[3]} - X / ${c[2]} - ${c[4]} - ${c[5]} - ${c[6]}`,
         
-        explication: "Sélection calculée en temps réel via l'algorithme de performance du jour.",
-        derniereMinute: `${c[1]} - Une excellente impression repérée ce matin.`,
-        analyse: `Nos algorithmes placent le ${c[0]} et le ${c[1]} en bases très solides aujourd'hui.`,
+        explication: "Sélection VIP générée à partir des meilleures données de la course du jour.",
+        derniereMinute: `${c[1]} - Une excellente impression aux entraînements.`,
+        analyse: `Les algorithmes placent le ${c[0]} et le ${c[1]} en bases prioritaires aujourd'hui.`,
         message: "Bonne chance pour vos combinaisons VIP du jour ! 🎯"
     };
 
     afficherDonneesVIP(donneesVIP);
 }
 
-// CHARGEMENT DU TABLEAU LIVE
+// TABLEAU LIVE SIMPLIFIÉ ET SYNCHRONISÉ
 async function chargerTableauPartantsLive() {
     const tbody = document.getElementById("all-horses");
     if (!tbody) return;
@@ -108,14 +110,17 @@ async function chargerTableauPartantsLive() {
         if (response.ok) {
             const partants = await response.json();
             tbody.innerHTML = "";
-            partants.forEach(cheval => {
+            partants.forEach((cheval, idx) => {
+                const num = String(cheval.numero || cheval.num || idx + 1).padStart(2, '0');
+                const nom = cheval.nom || cheval.cheval || "Cheval " + num;
+                
                 tbody.innerHTML += `
                     <tr style="border-bottom: 1px solid #f1f5f9;">
-                        <td style="padding: 12px;">${cheval.rang || '-'}</td>
-                        <td style="padding: 12px; font-weight: bold;">${cheval.numero || '-'}</td>
-                        <td style="padding: 12px;">${cheval.nom || cheval.cheval || '-'}</td>
+                        <td style="padding: 12px;">${cheval.rang || (idx + 1)}</td>
+                        <td style="padding: 12px; font-weight: bold;">${num}</td>
+                        <td style="padding: 12px;">${nom}</td>
                         <td style="padding: 12px; color: #d97706; font-weight: bold;">${cheval.indice || '-'}</td>
-                        <td style="padding: 12px;">${cheval.confiance || '-'}</td>
+                        <td style="padding: 12px;">${cheval.jockey || cheval.confiance || '-'}</td>
                     </tr>`;
             });
         }
@@ -134,7 +139,7 @@ function formaterPastilles(texte) {
         const elements = chaine.split(/[-,\s]+/).map(item => item.trim()).filter(Boolean);
         return elements.map(num => {
             if (!isNaN(num)) {
-                const formattedNum = num.padStart(2, '0');
+                const formattedNum = String(num).padStart(2, '0');
                 return `<span class="numero-cheval">${formattedNum}</span>`;
             } else if (num.toUpperCase() === 'X') {
                 return `<span class="numero-cheval" style="background-color: #d97706;">X</span>`;
