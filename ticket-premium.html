@@ -229,7 +229,80 @@
 </footer>
 
 <!-- SCRIPT JS DE GESTION DES PRONOSTICS -->
-<script src="ticket-premium.js?v=8"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // 1. Forcer l'affichage immédiat
+    const blocage = document.getElementById("message-blocage");
+    const contenu = document.getElementById("contenu-premium");
+    
+    if (blocage) blocage.classList.add("zone-masquee");
+    if (contenu) contenu.classList.remove("zone-masquee");
+
+    // 2. Gestion du bouton tableau
+    const btnTableau = document.getElementById("btn-toggle-tableau");
+    const conteneurTableau = document.getElementById("conteneur-tableau");
+    if (btnTableau && conteneurTableau) {
+        btnTableau.addEventListener("click", function () {
+            if (conteneurTableau.classList.contains("zone-masquee")) {
+                conteneurTableau.classList.remove("zone-masquee");
+                btnTableau.innerText = "❌ Masquer le Tableau Live";
+            } else {
+                conteneurTableau.classList.add("zone-masquee");
+                btnTableau.innerText = "📊 Afficher le Tableau des Partants (Live)";
+            }
+        });
+    }
+
+    // 3. Injection des tickets
+    const selection = ["04", "09", "12", "01", "07", "11", "03"];
+    
+    const donneesVIP = {
+        selection: selection.join(" - "),
+        quinte: selection.slice(0, 6).join(" - "),
+        quarte: selection.slice(0, 5).join(" - "),
+        trio: selection.slice(0, 3).join(" - "),
+        couple: `${selection[0]} - ${selection[1]}`,
+        champReduit: `${selection[0]} - ${selection[1]} - X - ${selection[3]} - X / ${selection[2]} - ${selection[4]} - ${selection[5]} - ${selection[6]}`,
+        explication: "Sélection rigoureusement établie selon nos critères de sélection VIP.",
+        derniereMinute: `${selection[1]} - Très remarqué lors des heats d'échauffement.`,
+        analyse: `Nos analyses placent en priorité le ${selection[0]} et le ${selection[1]} pour disputer les premières places.`,
+        message: "Bonne chance à tous les membres VIP pour cette course ! 🎯"
+    };
+
+    function convertirEnPastilles(chaine) {
+        return chaine.split(/[-,\s]+/).map(item => item.trim()).filter(Boolean).map(num => {
+            if (!isNaN(num)) {
+                return `<span class="numero-cheval">${String(num).padStart(2, '0')}</span>`;
+            } else if (num.toUpperCase() === 'X') {
+                return `<span class="numero-cheval" style="background-color: #d97706;">X</span>`;
+            }
+            return num;
+        }).join(" ");
+    }
+
+    function injecter(id, contenu, estCombine = false) {
+        const el = document.getElementById(id);
+        if (el) {
+            if (estCombine) {
+                el.innerHTML = convertirEnPastilles(contenu);
+            } else {
+                el.innerText = contenu || "";
+            }
+        }
+    }
+
+    injecter("selection-premium", donneesVIP.selection, true);
+    injecter("explication-premium", donneesVIP.explication, false);
+    injecter("quinte-premium", donneesVIP.quinte, true);
+    injecter("quarte-premium", donneesVIP.quarte, true);
+    injecter("trio-premium", donneesVIP.trio, true);
+    injecter("couple-premium", donneesVIP.couple, true);
+    injecter("champ-reduit-premium", donneesVIP.champReduit, true);
+    injecter("derniere-minute-premium", donneesVIP.derniereMinute, true);
+    injecter("analyse-premium", donneesVIP.analyse, false);
+    injecter("message-premium", donneesVIP.message, false);
+});
+                    </script>
 
 </body>
                 </html>
