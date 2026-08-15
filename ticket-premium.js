@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // AJOUTÉ : Gestion de la sauvegarde des contacts Admin
+    // Gestion de la sauvegarde des contacts Admin
     const btnSauvegarder = document.getElementById("btn-sauvegarder-contacts");
     if (btnSauvegarder) {
         btnSauvegarder.addEventListener("click", function () {
@@ -36,14 +36,14 @@ async function verifierAccesEtChargerTickets() {
     const isLocalActive = localStorage.getItem("AZ_TURF_PREMIUM_ACTIF") === "true";
     const blocage = document.getElementById("message-blocage");
     const contenu = document.getElementById("contenu-premium");
-    const blocAdmin = document.getElementById("bloc-admin-paiements"); // AJOUTÉ
+    const blocAdmin = document.getElementById("bloc-admin-paiements");
 
     let accesAutorise = false;
-    let estAdmin = false; // AJOUTÉ
+    let estAdmin = false;
 
     if (tel === "ADMINISTRATEUR" || tel === "COMPTE ADMINISTRATEUR") {
         accesAutorise = true;
-        estAdmin = true; // AJOUTÉ
+        estAdmin = true;
     } else if (isLocalActive) {
         accesAutorise = true;
     } else if (tel) {
@@ -61,12 +61,12 @@ async function verifierAccesEtChargerTickets() {
     if (accesAutorise) {
         if (blocage) blocage.classList.add("zone-masquee");
         if (contenu) contenu.classList.remove("zone-masquee");
-        if (blocAdmin && estAdmin) blocAdmin.classList.remove("zone-masquee"); // AJOUTÉ : Affiche le bloc admin si admin
+        if (blocAdmin && estAdmin) blocAdmin.classList.remove("zone-masquee");
         chargerDonneesAPI();
     } else {
         if (blocage) blocage.classList.remove("zone-masquee");
         if (contenu) contenu.classList.add("zone-masquee");
-        if (blocAdmin) blocAdmin.classList.add("zone-masquee"); // AJOUTÉ
+        if (blocAdmin) blocAdmin.classList.add("zone-masquee");
     }
 }
 
@@ -85,6 +85,19 @@ async function chargerDonneesAPI() {
             prem = data.tickets.premium;
         }
 
+        // Harmonisation stricte pour récupérer le champ réduit et la dernière minute sous toutes leurs formes possibles (API ou défaut)
+        let champReduitVal = prem.champReduit || prem.champ_reduit;
+        if (!champReduitVal && data.tickets && data.tickets.champReduit) champReduitVal = data.tickets.champReduit;
+        if (!champReduitVal) {
+            champReduitVal = `${selection[0]} - ${selection[1]} - X - ${selection[3]} - X / ${selection[2]} - ${selection[4]} - ${selection[5]} - ${selection[6] || selection[0]}`;
+        }
+
+        let derniereMinVal = prem.derniereMinute || prem.derniere_minute;
+        if (!derniereMinVal && data.tickets && data.tickets.derniereMinute) derniereMinVal = data.tickets.derniereMinute;
+        if (!derniereMinVal) {
+            derniereMinVal = `${selection[0]} - Cheval repéré pour sa condition physique exceptionnelle.`;
+        }
+
         const ticketsRemplis = {
             selection: prem.selection || selection.join(" - "),
             explication: prem.explication || "Sélection rigoureusement établie sur la base des meilleures performances et indices VIP du jour.",
@@ -92,8 +105,8 @@ async function chargerDonneesAPI() {
             quarte: prem.quarte || selection.slice(0, 5).join(" - "),
             trio: prem.trio || selection.slice(0, 4).join(" - "),
             couple: prem.couple || `${selection[0]} - ${selection[1]} - ${selection[2]}`,
-            champReduit: prem.champReduit || prem.champ_reduit || `${selection[0]} - ${selection[1]} - X - ${selection[3]} - X / ${selection[2]} - ${selection[4]} - ${selection[5]} - ${selection[6] || selection[0]}`,
-            derniereMinute: prem.derniereMinute || prem.derniere_minute || `${selection[0]} - Cheval repéré pour sa condition physique exceptionnelle. À suivre de très près.`,
+            champReduit: champReduitVal,
+            derniereMinute: derniereMinVal,
             analyse: prem.analyse || data.analyse || "L'analyse complète indique une course ouverte où les bases de notre sélection présentent les plus fortes garanties au papier.",
             message: prem.message || "Toute l'équipe AZ Turf Pro VIP vous souhaite une excellente journée et de très grands gains !"
         };
@@ -148,8 +161,10 @@ function afficherDonneesVIP(data) {
     injecter("quarte-premium", data.quarte, true);
     injecter("trio-premium", data.trio, true);
     injecter("couple-premium", data.couple, true);
+    // On applique formaterPastilles sur le champ réduit pour qu'il ait exactement le même rendu graphique en pastilles que l'accueil/analyse
     injecter("champ-reduit-premium", data.champReduit, true);
-    injecter("derniere-minute-premium", data.derniereMinute, false);
+    // Pour la dernière minute, on applique aussi le formatage si elle contient des numéros, ou du texte simple sinon
+    injecter("derniere-minute-premium", data.derniereMinute, true);
     injecter("analyse-premium", data.analyse, false);
     injecter("message-premium", data.message, false);
 }
