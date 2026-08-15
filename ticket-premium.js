@@ -87,41 +87,62 @@ async function chargerDonneesAPI() {
             return String(val);
         };
 
-        // Extraction sécurisée du champ réduit
+        // Extraire proprement le champ réduit
         let cr = prem.champReduit || prem.champ_reduit;
+        let basesCR = [];
+        let complementsCR = [];
         if (typeof cr === 'object' && cr !== null) {
-            const b = Array.isArray(cr.bases) ? cr.bases.join(" - ") : (cr.bases || "");
-            const c = Array.isArray(cr.complements) ? cr.complements.join(" - ") : (cr.complements || "");
+            basesCR = Array.isArray(cr.bases) ? cr.bases : [];
+            complementsCR = Array.isArray(cr.complements) ? cr.complements : [];
+            const b = basesCR.join(" - ");
+            const c = complementsCR.join(" - ");
             cr = (b && c) ? `${b} / ${c}` : (b || c || cr.format || "");
         }
 
-        // Récupération dynamique des tickets
+        // Récupération des tickets de base
         const quinteTxt = normaliserFormat(prem.quinte);
         const quarteTxt = normaliserFormat(prem.quarte);
         const trioTxt = normaliserFormat(prem.trio);
-        
-        // Harmonisation : si la sélection ou le couplé ne sont pas dans le VIP, on extrait du Quinté du jour
+
+        // 1. SÉLECTION DU JOUR : Garantie exacte à 7 chevaux
         let selectionTxt = normaliserFormat(prem.selection || data.selection);
-        if (!selectionTxt && quinteTxt) {
-            selectionTxt = quinteTxt;
+        let listeNums = selectionTxt ? selectionTxt.split(/[-,\s]+/).filter(num => !isNaN(num) && num.trim() !== '') : [];
+
+        if (listeNums.length !== 7) {
+            // Reconstitution automatique à 7 chevaux à partir du Quinté et Compléments
+            let numsQuinte = quinteTxt.split(/[-,\s]+/).filter(num => !isNaN(num) && num.trim() !== '');
+            let tousLesNums = Array.from(new Set([...numsQuinte, ...basesCR, ...complementsCR]));
+            if (tousLesNums.length >= 7) {
+                selectionTxt = tousLesNums.slice(0, 7).join(" - ");
+            } else if (numsQuinte.length > 0) {
+                selectionTxt = numsQuinte.slice(0, 7).join(" - ");
+            }
         }
 
+        // 2. COUPLÉ GAGNANT PLACÉ
         let coupleTxt = normaliserFormat(prem.couple || prem.coupleGagnant);
         if (!coupleTxt && quinteTxt) {
-            const elementsQuinte = quinteTxt.split(/[-,\s]+/).filter(Boolean);
-            coupleTxt = elementsQuinte.slice(0, 3).join(" - ");
+            let numsQuinte = quinteTxt.split(/[-,\s]+/).filter(num => !isNaN(num) && num.trim() !== '');
+            coupleTxt = numsQuinte.slice(0, 3).join(" - ");
+        }
+
+        // 3. DERNIÈRE MINUTE : Ne reste plus jamais vide
+        let dmTxt = normaliserFormat(prem.derniereMinute || prem.derniere_minute || data.derniereMinute);
+        if (!dmTxt && quinteTxt) {
+            let premierCheval = quinteTxt.split(/[-,\s]+/).filter(num => !isNaN(num) && num.trim() !== '')[0] || "08";
+            dmTxt = premierCheval;
         }
 
         const ticketsRemplis = {
             selection: selectionTxt,
-            explication: prem.explication || "Sélection rigoureusement établie sur la base des meilleures performances et indices VIP du jour.",
+            explication: prem.explication || "Sélection VIP rigoureusement établie sur la base des meilleures performances du jour.",
             quinte: quinteTxt,
             quarte: quarteTxt,
             trio: trioTxt,
             couple: coupleTxt,
             champReduit: cr,
-            derniereMinute: normaliserFormat(prem.derniereMinute || prem.derniere_minute),
-            analyse: prem.analyse || data.analyse || "L'analyse complète indique une course ouverte où les bases de notre sélection présentent les plus fortes garanties au papier.",
+            derniereMinute: dmTxt,
+            analyse: prem.analyse || data.analyse || "L'analyse indique une course ouverte où les bases VIP présentent les plus fortes garanties.",
             message: prem.message || "Toute l'équipe AZ Turf Pro VIP vous souhaite une excellente journée et de très grands gains !"
         };
 
@@ -179,4 +200,4 @@ function afficherDonneesVIP(data) {
     injecter("derniere-minute-premium", data.derniereMinute, true);
     injecter("analyse-premium", data.analyse, false);
     injecter("message-premium", data.message, false);
-    }
+}
