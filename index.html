@@ -20,6 +20,28 @@
             font-size: 18px;
             margin-bottom: 12px;
         }
+
+        /* STYLE DES BOUTONS DE SÉLECTION DE JOUR */
+        .btn-jour {
+            flex: 1;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* BOUTON SELECTIONNÉ */
+        .btn-jour.active {
+            background-color: #f59e0b !important;
+            color: #ffffff !important;
+            border-color: #d97706 !important;
+            box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+        }
     </style>
 </head>
 
@@ -32,7 +54,7 @@
     <p style="color: #94a3b8; font-size: 14px; margin-top: 5px;">Votre application de pronostics hippiques</p>
 </header>
 
-<!-- MENU DE NAVIGATION PRINCIPAL (AVEC ACCÈS RESTAURÉ) -->
+<!-- MENU DE NAVIGATION PRINCIPAL -->
 <nav class="top-menu premium-menu" style="display: flex; justify-content: space-around; background: #1e293b; padding: 12px;">
     <a href="index.html" class="active" style="color: #f59e0b; text-decoration: none; font-weight: bold;">🏠 Accueil</a>
     <a href="analyse.html" style="color: #fff; text-decoration: none;">📊 Analyse</a>
@@ -42,15 +64,15 @@
 
 <main class="premium-container" style="padding: 15px;">
 
-    <!-- SECTION QUINTÉS (HIER, AUJOURD'HUI, DEMAIN) -->
+    <!-- SECTION QUINTÉ+ -->
     <section class="home-card">
         <h2>🏇 Résultats & Programmes Quinté+</h2>
 
-        <!-- TES BOUTONS D'ORIGINE CONNECTÉS AUX FONCTIONS -->
-        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-            <button onclick="changerJourQuinte('hier')" id="btn-hier" class="btn-jour" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; background: #f1f5f9; cursor: pointer; font-weight: bold;">Hier</button>
-            <button onclick="changerJourQuinte('aujourdhui')" id="btn-aujourdhui" class="btn-jour active" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #f59e0b; background: #f59e0b; color: #fff; cursor: pointer; font-weight: bold;">Aujourd'hui</button>
-            <button onclick="changerJourQuinte('demain')" id="btn-demain" class="btn-jour" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; background: #f1f5f9; cursor: pointer; font-weight: bold;">Demain</button>
+        <!-- TES BOUTONS DE NAVIGATION PAR DATE (HIER / AUJOURD'HUI / DEMAIN) -->
+        <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+            <button id="btn-hier" class="btn-jour" onclick="chargerQuinteParJour('hier')">📅 Hier</button>
+            <button id="btn-aujourdhui" class="btn-jour active" onclick="chargerQuinteParJour('aujourdhui')">⭐ Aujourd'hui</button>
+            <button id="btn-demain" class="btn-jour" onclick="chargerQuinteParJour('demain')">🚀 Demain</button>
         </div>
 
         <!-- CONTENEUR DU TABLEAU DYNAMIQUE -->
@@ -83,26 +105,23 @@
     const API_URL = "https://az-turf-pro-backend.onrender.com";
 
     document.addEventListener("DOMContentLoaded", () => {
-        changerJourQuinte('aujourdhui');
+        // Chargement initial du Quinté d'aujourd'hui
+        chargerQuinteParJour('aujourdhui');
     });
 
-    async function changerJourQuinte(jour) {
-        document.querySelectorAll('.btn-jour').forEach(btn => {
-            btn.style.background = "#f1f5f9";
-            btn.style.color = "#000";
-            btn.style.borderColor = "#cbd5e1";
-        });
-
-        const btnActif = document.getElementById(`btn-${jour}`);
-        if (btnActif) {
-            btnActif.style.background = "#f59e0b";
-            btnActif.style.color = "#fff";
-            btnActif.style.borderColor = "#f59e0b";
+    async function chargerQuinteParJour(jour) {
+        // 1. MISE À JOUR VISUELLE DES BOUTONS (ACTIF / INACTIF)
+        document.querySelectorAll('.btn-jour').forEach(btn => btn.classList.remove('active'));
+        const btnCible = document.getElementById(`btn-${jour}`);
+        if (btnCible) {
+            btnCible.classList.add('active');
         }
 
+        // 2. MESSAGE DE CHARGEMENT DANS LE TABLEAU
         const tbody = document.getElementById("table-quinte-body");
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: #64748b;">Chargement du Quinté (${jour})...</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: #64748b;">Chargement des données pour (${jour})...</td></tr>`;
 
+        // 3. APPEL DU BACKEND DYNAMIQUE
         try {
             const response = await fetch(`${API_URL}/api/quinte/${jour}`);
             if (response.ok) {
@@ -111,22 +130,43 @@
                 return;
             }
         } catch (error) {
-            console.warn("Connexion au serveur ralentie, affichage des données de secours.");
+            console.warn(`Serveur en veille ou erreur pour ${jour}, affichage des données locales de secours.`);
         }
 
-        const simulation = [
-            { numero: "04", nom: "TITAN DU GUET", jockey: "J. M. Bazire", indice: "94.5" },
-            { numero: "09", nom: "ROYAL STAR", jockey: "E. Raffin", indice: "91.2" },
-            { numero: "12", nom: "KID DES CHAMPS", jockey: "A. Abrivard", indice: "88.0" },
-            { numero: "01", nom: "ZARKAND", jockey: "F. Nivard", indice: "85.4" },
-            { numero: "07", nom: "LUCKY BOY", jockey: "M. Abrivard", indice: "82.1" }
-        ];
-        remplirTableauAccueil(simulation);
+        // 4. DONNÉES DE SECOURS DIFFÉRENCIÉES SELON LE JOUR SÉLECTIONNÉ
+        const donneesSecours = {
+            hier: [
+                { numero: "03", nom: "SAPHIR DU GOUTIER", jockey: "E. Raffin", indice: "92.0" },
+                { numero: "08", nom: "ORLANDO JET", jockey: "M. Abrivard", indice: "89.5" },
+                { numero: "15", nom: "DIABLO DU NOYER", jockey: "F. Nivard", indice: "86.1" },
+                { numero: "02", nom: "VIVALDI D'AMBOISE", jockey: "A. Prat", indice: "81.4" }
+            ],
+            aujourdhui: [
+                { numero: "04", nom: "TITAN DU GUET", jockey: "J. M. Bazire", indice: "94.5" },
+                { numero: "09", nom: "ROYAL STAR", jockey: "E. Raffin", indice: "91.2" },
+                { numero: "12", nom: "KID DES CHAMPS", jockey: "A. Abrivard", indice: "88.0" },
+                { numero: "01", nom: "ZARKAND", jockey: "F. Nivard", indice: "85.4" },
+                { numero: "07", nom: "LUCKY BOY", jockey: "M. Abrivard", indice: "82.1" }
+            ],
+            demain: [
+                { numero: "10", nom: "GOLDEN DREAM", jockey: "A. Abrivard", indice: "95.1" },
+                { numero: "06", nom: "ECLAIR DU DOME", jockey: "J. M. Bazire", indice: "90.8" },
+                { numero: "05", nom: "PRINCE DE L'OUEST", jockey: "F. Nivard", indice: "87.3" },
+                { numero: "14", nom: "LION DE BERG", jockey: "E. Raffin", indice: "84.0" }
+            ]
+        };
+
+        remplirTableauAccueil(donneesSecours[jour] || donneesSecours.aujourdhui);
     }
 
     function remplirTableauAccueil(partants) {
         const tbody = document.getElementById("table-quinte-body");
         tbody.innerHTML = "";
+
+        if (!partants || partants.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: #94a3b8;">Aucune donnée disponible.</td></tr>`;
+            return;
+        }
 
         partants.forEach(cheval => {
             tbody.innerHTML += `
