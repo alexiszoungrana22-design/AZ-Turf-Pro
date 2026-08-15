@@ -130,3 +130,4 @@ def generer_tickets_az(classement):
     }
 
     return {"gratuit":gratuit,"premium":premium_data}
+    
