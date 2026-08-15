@@ -70,20 +70,34 @@ async function verifierAccesEtChargerTickets() {
     }
 }
 
-// Nettoyage et conversion sécurisée des données issues de l'API (tableaux, objets ou chaînes)
-function extraireDonnee(champ, defaut = "") {
-    if (!champ) return defaut;
-    if (typeof champ === 'string') return champ;
-    if (Array.isArray(champ)) return champ.join(" - ");
-    if (typeof champ === 'object') {
-        if (champ.bases || champ.complements) {
-            const bases = Array.isArray(champ.bases) ? champ.bases.join(" - ") : (champ.bases || "");
-            const complements = Array.isArray(champ.complements) ? champ.complements.join(" - ") : (champ.complements || "");
-            return bases && complements ? `${bases} / ${complements}` : (bases || complements);
-        }
-        return champ.texte || champ.valeur || champ.combinaison || defaut;
+// Convertisseur universel tout-terrain pour extraire du texte propre peu importe la structure backend
+function extraireContenuInfaillible(valeur) {
+    if (valeur === undefined || valeur === null) return "";
+    
+    // Si c'est déjà une chaîne de caractères
+    if (typeof valeur === 'string') return valeur;
+    
+    // Si c'est un tableau (ex: ["08", "06", "01"])
+    if (Array.isArray(valeur)) {
+        return valeur.map(e => extraireContenuInfaillible(e)).filter(Boolean).join(" - ");
     }
-    return String(champ);
+    
+    // Si c'est un objet (ex: champ réduit ou structure complexe)
+    if (typeof valeur === 'object') {
+        if (valeur.bases || valeur.complements) {
+            const b = extraireContenuInfaillible(valeur.bases);
+            const c = extraireContenuInfaillible(valeur.complements);
+            if (b && c) return `${b} / ${c}`;
+            return b || c;
+        }
+        if (valeur.selection) return extraireContenuInfaillible(valeur.selection);
+        if (valeur.valeur) return extraireContenuInfaillible(valeur.valeur);
+        if (valeur.texte) return extraireContenuInfaillible(valeur.texte);
+        if (valeur.format) return extraireContenuInfaillible(valeur.format);
+        if (valeur.combinaison) return extraireContenuInfaillible(valeur.combinaison);
+    }
+    
+    return String(valeur);
 }
 
 async function chargerDonneesAPI() {
@@ -91,6 +105,7 @@ async function chargerDonneesAPI() {
         const response = await fetch('https://az-turf-pro.onrender.com/api/analyse');
         const data = await response.json();
 
+        // Récupération globale du sous-objet premium s'il existe
         let prem = {};
         if (data && data.tickets && data.tickets.premium) {
             prem = data.tickets.premium;
@@ -98,17 +113,18 @@ async function chargerDonneesAPI() {
             prem = data.tickets;
         }
 
+        // On vérifie d'abord dans 'prem', puis directement à la racine de 'data' ou 'data.tickets'
         const ticketsRemplis = {
-            selection: extraireDonnee(prem.selection),
-            explication: extraireDonnee(prem.explication),
-            quinte: extraireDonnee(prem.quinte),
-            quarte: extraireDonnee(prem.quarte),
-            trio: extraireDonnee(prem.trio),
-            couple: extraireDonnee(prem.couple),
-            champReduit: extraireDonnee(prem.champReduit || prem.champ_reduit),
-            derniereMinute: extraireDonnee(prem.derniereMinute || prem.derniere_minute),
-            analyse: extraireDonnee(prem.analyse || data.analyse),
-            message: extraireDonnee(prem.message)
+            selection: extraireContenuInfaillible(prem.selection || data.selection),
+            explication: extraireContenuInfaillible(prem.explication || data.explication),
+            quinte: extraireContenuInfaillible(prem.quinte || (data.tickets && data.tickets.quinte)),
+            quarte: extraireContenuInfaillible(prem.quarte || (data.tickets && data.tickets.quarte)),
+            trio: extraireContenuInfaillible(prem.trio || (data.tickets && data.tickets.trio)),
+            couple: extraireContenuInfaillible(prem.couple || prem.coupleGagnant || (data.tickets && data.tickets.couple)),
+            champReduit: extraireContenuInfaillible(prem.champReduit || prem.champ_reduit || (data.tickets && data.tickets.champReduit)),
+            derniereMinute: extraireContenuInfaillible(prem.derniereMinute || prem.derniere_minute || (data.tickets && data.tickets.derniereMinute)),
+            analyse: extraireContenuInfaillible(prem.analyse || data.analyse),
+            message: extraireContenuInfaillible(prem.message || data.message)
         };
 
         afficherDonneesVIP(ticketsRemplis);
@@ -118,7 +134,6 @@ async function chargerDonneesAPI() {
     }
 }
 
-// Transforme une chaîne de numéros ("08 - 06 - X / 01 - 02") en pastilles graphiques exactes de la page d'accueil/analyse
 function formaterPastilles(texte) {
     if (!texte) return "";
     if (typeof texte !== 'string') texte = String(texte);
@@ -147,7 +162,7 @@ function formaterPastilles(texte) {
 function injecter(id, contenu, estCombine = false) {
     const el = document.getElementById(id);
     if (el) {
-        if (estCombine) {
+        if (estCombine && contenu) {
             el.innerHTML = formaterPastilles(contenu);
         } else {
             el.innerText = contenu || "";
