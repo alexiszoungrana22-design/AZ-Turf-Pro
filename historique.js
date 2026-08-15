@@ -1,120 +1,92 @@
-/**
- * AZ Turf Pro - Historique des analyses et arrivées (AVEC ANTI-DOUBLON)
- */
-
-const HISTORIQUE_STORAGE_KEY = "AZ_TURF_HISTORIQUE_COURSES_V1";
-const API_HISTORIQUE = "https://az-turf-pro.onrender.com/api/historique";
+// =====================================
+// AZ TURF PRO - HISTORIQUE
+// Chargement dynamique des données SQL
+// =====================================
 
 document.addEventListener("DOMContentLoaded", () => {
-    afficherPageHistorique();
+    chargerHistorique();
 });
 
-function lireLocal(){
-    try { return JSON.parse(localStorage.getItem(HISTORIQUE_STORAGE_KEY) || "[]"); }
-    catch(e){ return []; }
-}
-
-function normaliserEntree(c){
-    const tickets=c.tickets || {};
-    const gratuit=tickets.gratuit || {};
-    const selection=c.selection_az || gratuit.quinte || c.selection || [];
-    const arrivee=Array.isArray(c.arrivee_quinte) ? c.arrivee_quinte : (Array.isArray(c.arrivee) ? c.arrivee.slice(0,5) : []);
-    const courseInfo=(c.course && typeof c.course === "object") ? c.course : {};
+async function chargerHistorique() {
+    const tbody = document.getElementById("historique-body");
     
-    // Déduction ou récupération du favori
-    const favori = c.favori || (selection.length > 0 ? selection[0] : "-");
-
-    return {
-        date:c.date || courseInfo.date || c.date_analyse || "-",
-        reunion:c.reunion || courseInfo.reunion || "",
-        numero:c.course_numero || courseInfo.course_numero || "",
-        course:courseInfo.course || c.nom || c.course || "Course",
-        hippodrome:courseInfo.hippodrome || c.hippodrome || "",
-        favori: favori,
-        selection:Array.isArray(selection) ? selection : [],
-        arrivee,
-        statut:arrivee.length >= 5 ? "ARRIVÉE OFFICIELLE" : "EN ATTENTE"
-    };
-}
-
-async function chargerHistorique(){
-    try{
-        const r=await fetch(API_HISTORIQUE,{cache:"no-store"});
-        if(!r.ok) throw new Error("API historique indisponible");
-        const data=await r.json();
-        const liste=Array.isArray(data.historique) ? data.historique : [];
-        if(liste.length) return liste.map(normaliserEntree);
-    }catch(e){
-        console.warn("Historique API indisponible, utilisation locale",e);
-    }
-    return lireLocal().map(normaliserEntree);
-}
-
-// NOUVELLE FONCTION : Filtre les doublons stricts
-function eliminerDoublons(liste) {
-    const coursesVues = new Set();
-    
-    return liste.filter(c => {
-        // Crée un identifiant unique (ex: "13/08/2026-R1-3")
-        const identifiant = `${c.date}-${c.reunion}-${c.numero}`;
+    try {
+        // Envoi de la requête vers l'API backend Python
+        const response = await fetch("/api/historique");
         
-        if (coursesVues.has(identifiant)) {
-            return false; // C'est un doublon, on l'ignore
+        if (!response.ok) {
+            throw new Error("Erreur lors de la récupération de l'historique");
         }
         
-        coursesVues.add(identifiant);
-        return true; // Première fois qu'on voit cette course, on la garde
-    });
+        const courses = await response.json();
+        
+        // Réinitialisation du tableau HTML
+        tbody.innerHTML = "";
+
+        if (courses.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Aucune course enregistrée pour le moment.</td></tr>`;
+            mettreAJourStatistiques([]);
+            return;
+        }
+
+        // Remplissage dynamique des lignes
+        courses.forEach(c => {
+            const row = document.createElement("tr");
+            
+            row.innerHTML = `
+                <td>${c.date || '-'}</td>
+                <td><strong>${c.course || '-'}</strong></td>
+                <td>${c.favori || '-'}</td>
+                <td><span class="badge-selection">${c.selection_az || '-'}</span></td>
+                <td><span class="badge-arrivee">${c.arrivee || 'En attente'}</span></td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+
+        // Mise à jour des cartes KPI
+        mettreAJourStatistiques(courses);
+
+    } catch (error) {
+        console.error("Erreur historique :", error);
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Impossible de charger l'historique.</td></tr>`;
+    }
 }
 
-function afficherPageHistorique(){
-    const tbody=document.getElementById("historique-body") || document.getElementById("historique-table-body");
-    const container=document.getElementById("historique-container");
-    if(!tbody && !container) return;
+// =====================================
+// CALCUL ET AFFICHAGE DES STATISTIQUES
+// =====================================
 
-    chargerHistorique().then(listeBrute=>{
-        
-        // Application du filtre anti-doublon avant l'affichage
-        const liste = eliminerDoublons(listeBrute);
+function mettreAJourStatistiques(courses) {
+    const totalCoursesEl = document.getElementById("total-courses");
+    const favorisGagnantsEl = document.getElementById("favoris-gagnants");
+    const ticketsReussisEl = document.getElementById("tickets-reussis");
 
-        if(tbody){
-            tbody.innerHTML="";
-            if(!liste.length){
-                tbody.innerHTML='<tr><td colspan="5">Aucune course enregistrée pour le moment.</td></tr>';
-                return;
+    if (!totalCoursesEl || !favorisGagnantsEl || !ticketsReussisEl) return;
+
+    // Total des courses analysées
+    const total = courses.length;
+    totalCoursesEl.textContent = total;
+
+    let favorisGagnants = 0;
+    let ticketsReussis = 0;
+
+    courses.forEach(c => {
+        if (c.arrivee && c.arrivee !== "En attente") {
+            const premierArrive = c.arrivee.split("-")[0]?.trim();
+
+            // Vérification si le favori est dans l'arrivée
+            if (c.favori && c.arrivee.includes(c.favori)) {
+                favorisGagnants++;
             }
-            liste.forEach(c=>{
-                const selection=c.selection.length ? c.selection.join(" - ") : "-";
-                const arrivee=c.arrivee.length ? c.arrivee.join(" - ") : "En attente";
-                
-                // Formatage propre du numéro de course (N°)
-                const affichageReunion = c.numero ? `${c.reunion} N°${c.numero}` : c.reunion;
 
-                const tr=document.createElement("tr");
-                tr.innerHTML=`
-                    <td>${c.date}</td>
-                    <td><strong>${affichageReunion}</strong><br>${c.course}${c.hippodrome ? `<br><small>${c.hippodrome}</small>` : ""}</td>
-                    <td><strong style="color: #08783f;">${c.favori}</strong></td>
-                    <td><strong style="color: #b8860b; letter-spacing: 1px;">${selection}</strong></td>
-                    <td><strong class="badge-arrivee">${arrivee}</strong></td>`;
-                tbody.appendChild(tr);
-            });
-        }else if(container){
-            container.innerHTML=liste.map(c=>`
-                <article class="historique-card">
-                    <h3>${c.reunion} N°${c.numero} - ${c.course}</h3>
-                    <p>${c.hippodrome || "Hippodrome non disponible"}</p>
-                    <p><strong>Favori :</strong> ${c.favori}</p>
-                    <p><strong>Sélection Premium AZ :</strong> ${c.selection.join(" - ") || "-"}</p>
-                    <p><strong>Arrivée officielle :</strong> ${c.arrivee.join(" - ") || "En attente"}</p>
-                </article>`).join("");
+            // Vérification si un des numéros de la sélection AZ est 1er
+            if (c.selection_az && premierArrive && c.selection_az.includes(premierArrive)) {
+                ticketsReussis++;
+            }
         }
     });
-}
 
-function reinitialiserHistorique(){
-    if(confirm("Voulez-vous vraiment effacer tout l'historique local ?")){
-        localStorage.removeItem(HISTORIQUE_STORAGE_KEY);
-        afficherPageHistorique();
-    }
+    favorisGagnantsEl.textContent = favorisGagnants;
+    ticketsReussisEl.textContent = ticketsReussis;
 }
