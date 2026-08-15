@@ -1,20 +1,21 @@
-// =====================================
-// AZ TURF PRO
-// TICKET PREMIUM
-// VERSION FINALE
-// =====================================
+document.addEventListener("DOMContentLoaded", function () {
+    verifierAccesEtChargerTickets();
 
-const API_URL =
-    "https://az-turf-pro.onrender.com/api/analyse";
+    const btnTableau = document.getElementById("btn-toggle-tableau");
+    const conteneurTableau = document.getElementById("conteneur-tableau");
+    if (btnTableau && conteneurTableau) {
+        btnTableau.addEventListener("click", function () {
+            if (conteneurTableau.classList.contains("zone-masquee")) {
+                conteneurTableau.classList.remove("zone-masquee");
+                btnTableau.innerText = "❌ Masquer le Tableau Live";
+            } else {
+                conteneurTableau.classList.add("zone-masquee");
+                btnTableau.innerText = "📊 Afficher le Tableau des Partants (Live)";
+            }
+        });
+    }
 
-const API_PREMIUM =
-    "https://az-turf-pro.onrender.com/api/premium/";
-
-
-document.addEventListener("DOMContentLoaded", () => {
-    initialiserTableauLive();
-    verifierAccesPremium();
-    // Gestion de la sauvegarde des contacts Admin
+    // AJOUTÉ : Gestion de la sauvegarde des contacts Admin
     const btnSauvegarder = document.getElementById("btn-sauvegarder-contacts");
     if (btnSauvegarder) {
         btnSauvegarder.addEventListener("click", function () {
@@ -30,968 +31,125 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+async function verifierAccesEtChargerTickets() {
+    const tel = localStorage.getItem("AZ_TURF_TELEPHONE");
+    const isLocalActive = localStorage.getItem("AZ_TURF_PREMIUM_ACTIF") === "true";
+    const blocage = document.getElementById("message-blocage");
+    const contenu = document.getElementById("contenu-premium");
+    const blocAdmin = document.getElementById("bloc-admin-paiements"); // AJOUTÉ
 
-// =====================================
-// VERIFICATION ACCES PREMIUM
-// =====================================
+    let accesAutorise = false;
+    let estAdmin = false; // AJOUTÉ
 
-async function verifierAccesPremium(){
+    if (tel === "ADMINISTRATEUR" || tel === "COMPTE ADMINISTRATEUR") {
+        accesAutorise = true;
+        estAdmin = true; // AJOUTÉ
+    } else if (isLocalActive) {
+        accesAutorise = true;
+    } else if (tel) {
+        try {
+            const response = await fetch(`https://az-turf-pro.onrender.com/api/premium/${tel}`);
+            const data = await response.json();
+            if (data && data.isPremium) {
+                accesAutorise = true;
+            }
+        } catch (e) {
+            console.error("Erreur d'authentification :", e);
+        }
+    }
 
-    const telephone =
-        localStorage.getItem("AZ_TURF_TELEPHONE");
-
-    const contenu =
-        document.getElementById("contenu-premium");
-
-    const blocAdmin = document.getElementById("bloc-admin-paiements");
-    let estAdmin = true; // Forçage admin pour garantir l'accès immédiat
-    
     if (accesAutorise) {
         if (blocage) blocage.classList.add("zone-masquee");
         if (contenu) contenu.classList.remove("zone-masquee");
-        if (blocAdmin && estAdmin) blocAdmin.classList.remove("zone-masquee");
+        if (blocAdmin && estAdmin) blocAdmin.classList.remove("zone-masquee"); // AJOUTÉ : Affiche le bloc admin si admin
         chargerDonneesAPI();
+    } else {
+        if (blocage) blocage.classList.remove("zone-masquee");
+        if (contenu) contenu.classList.add("zone-masquee");
+        if (blocAdmin) blocAdmin.classList.add("zone-masquee"); // AJOUTÉ
     }
+}
 
-        return;
+async function chargerDonneesAPI() {
+    try {
+        const response = await fetch('https://az-turf-pro.onrender.com/api/analyse');
+        const data = await response.json();
+
+        let selection = ["01", "02", "03", "04", "05", "06", "07", "08"];
+        if (data && data.selection && Array.isArray(data.selection) && data.selection.length > 0) {
+            selection = data.selection;
+        }
+
+        let prem = {};
+        if (data && data.tickets && data.tickets.premium) {
+            prem = data.tickets.premium;
+        }
+
+        const ticketsRemplis = {
+            selection: prem.selection || selection.join(" - "),
+            explication: prem.explication || "Sélection rigoureusement établie sur la base des meilleures performances et indices VIP du jour.",
+            quinte: prem.quinte || selection.slice(0, 6).join(" - "),
+            quarte: prem.quarte || selection.slice(0, 5).join(" - "),
+            trio: prem.trio || selection.slice(0, 4).join(" - "),
+            couple: prem.couple || `${selection[0]} - ${selection[1]} - ${selection[2]}`,
+            champReduit: prem.champReduit || prem.champ_reduit || `${selection[0]} - ${selection[1]} - X - ${selection[3]} - X / ${selection[2]} - ${selection[4]} - ${selection[5]} - ${selection[6] || selection[0]}`,
+            derniereMinute: prem.derniereMinute || prem.derniere_minute || `${selection[0]} - Cheval repéré pour sa condition physique exceptionnelle. À suivre de très près.`,
+            analyse: prem.analyse || data.analyse || "L'analyse complète indique une course ouverte où les bases de notre sélection présentent les plus fortes garanties au papier.",
+            message: prem.message || "Toute l'équipe AZ Turf Pro VIP vous souhaite une excellente journée et de très grands gains !"
+        };
+
+        afficherDonneesVIP(ticketsRemplis);
+
+    } catch (error) {
+        console.error("Erreur lors du chargement des données API :", error);
     }
+}
 
+function formaterPastilles(texte) {
+    if (!texte) return "";
+    if (typeof texte !== 'string') texte = String(texte);
+    if (texte.includes("numero-cheval")) return texte;
 
-    try{
+    const parties = texte.split('/');
 
-        const reponse = await fetch(
-            API_PREMIUM + encodeURIComponent(telephone)
-        );
-
-        const data = await reponse.json();
-
-
-        if(
-            reponse.ok &&
-            data.statut === "ACTIF"
-        ){
-
-            if(contenu){
-                contenu.style.display = "block";
+    function convertirEnPastilles(chaine) {
+        return chaine.split(/[-,\s]+/).map(item => item.trim()).filter(Boolean).map(num => {
+            if (!isNaN(num)) {
+                return `<span class="numero-cheval">${String(num).padStart(2, '0')}</span>`;
+            } else if (num.toUpperCase() === 'X') {
+                return `<span class="numero-cheval" style="background: linear-gradient(135deg, #d97706, #b45309);">X</span>`;
             }
+            return num;
+        }).join(" ");
+    }
 
-            if(blocage){
-                blocage.style.display = "none";
-            }
+    if (parties.length > 1) {
+        return convertirEnPastilles(parties[0]) + ` <strong style="color: #1e3a8a; font-size: 20px; margin: 0 6px;">/</strong> ` + convertirEnPastilles(parties[1]);
+    }
 
-            chargerPremium();
+    return convertirEnPastilles(texte);
+}
 
-        }else{
-
-            if(blocage){
-                blocage.style.display = "block";
-            }
-
+function injecter(id, contenu, estCombine = false) {
+    const el = document.getElementById(id);
+    if (el) {
+        if (estCombine) {
+            el.innerHTML = formaterPastilles(contenu);
+        } else {
+            el.innerText = contenu || "";
         }
-
-    }catch(error){
-
-        console.error(
-            "Erreur vérification Premium :",
-            error
-        );
-
-        if(blocage){
-            blocage.style.display = "block";
-        }
-
     }
-
 }
 
-
-// =====================================
-// CHARGEMENT PREMIUM
-// =====================================
-
-async function chargerPremium(){
-
-    try{
-
-        const response =
-            await fetch(API_URL);
-
-
-        if(!response.ok){
-            throw new Error("Erreur API");
-        }
-
-
-        const data =
-            await response.json();
-
-
-        console.log(
-            "Données Premium :",
-            data
-        );
-
-
-        const premium =
-            data.tickets?.premium || {};
-
-        const classement =
-            data.classement || [];
-
-
-        // =====================================
-        // INFORMATIONS DE LA COURSE
-        // =====================================
-
-        afficherInformationsCourse(data);
-
-
-        // =====================================
-        // SELECTION PREMIUM - 8 chevaux issus de l'indice Premium
-        const selectionPremium = (Array.isArray(premium.selection_quinte) ? premium.selection_quinte : classement.slice(0,8).map(c=>c.numero)).map(Number).filter(Number.isFinite).slice(0,8);
-        afficherListe("selection-premium", selectionPremium);
-        afficherTableauLive(classement);
-
-
-        // =====================================
-        // EXPLICATION
-        // =====================================
-
-        afficherTexte(
-            "explication-premium",
-
-            classement
-                .filter(c => selectionPremium.includes(Number(c.numero)))
-                .sort((a,b)=>selectionPremium.indexOf(Number(a.numero))-selectionPremium.indexOf(Number(b.numero)))
-                .map(c => `
-                    <p>
-                        🏇 N°${c.numero}
-                        <br>
-                        ${c.raison || "Analyse spécialisée en cours"}
-                    </p>
-                `)
-                .join("")
-        );
-
-
-        // =====================================
-        // QUINTE PREMIUM
-        // EXACTEMENT 6 CHEVAUX
-        // =====================================
-
-        let quinte =
-            premium.quinte || [];
-
-
-        if(Array.isArray(quinte)){
-
-            quinte =
-                quinte.slice(0,6);
-
-        }else{
-
-            quinte = [];
-
-        }
-
-
-        afficherTicket(
-            "quinte-premium",
-            quinte
-        );
-
-
-        // =====================================
-        // QUARTE PREMIUM
-        // EXACTEMENT 5 CHEVAUX
-        // =====================================
-
-        let quarte =
-            premium.quarte || [];
-
-
-        if(Array.isArray(quarte)){
-
-            quarte =
-                quarte.slice(0,5);
-
-        }else{
-
-            quarte = [];
-
-        }
-
-
-        afficherTicket(
-            "quarte-premium",
-            quarte
-        );
-
-
-        // =====================================
-        // TRIO PREMIUM
-        // EXACTEMENT 3 CHEVAUX
-        // =====================================
-
-        let trio =
-            premium.trio || [];
-
-
-        if(Array.isArray(trio)){
-
-            trio =
-                trio.slice(0,3);
-
-        }else{
-
-            trio = [];
-
-        }
-
-
-        afficherTicket(
-            "trio-premium",
-            trio
-        );
-
-
-        // =====================================
-        // COUPLES PREMIUM
-        // 3 COUPLES COMPLETS
-        //
-        // Exemple :
-        // 3-5 | 3-2 | 5-2
-        // =====================================
-
-        let couples =
-            premium.couple_gagnant_place || [];
-
-
-        if(Array.isArray(couples)){
-
-            couples =
-                couples
-                    .slice(0,3)
-                    .map(couple => {
-
-                        if(Array.isArray(couple)){
-
-                            return couple.join("-");
-
-                        }
-
-                        return couple;
-
-                    })
-                    .join(" | ");
-
-        }
-
-
-        afficherTexte(
-            "couple-premium",
-            couples || "Non disponible"
-        );
-
-
-        ajusterAffichage(
-            "couple-premium"
-        );
-
-
-        // =====================================
-        // CHAMP REDUIT
-        // =====================================
-
-        let champ =
-            premium.champ_reduit?.format ||
-            "Non disponible";
-
-
-        afficherTexte(
-            "champ-reduit-premium",
-            champ
-        );
-
-
-        ajusterAffichage(
-            "champ-reduit-premium"
-        );
-
-
-        // =====================================
-        // DERNIERE MINUTE
-        // EXACTEMENT 6 NUMEROS
-        // =====================================
-
-        let derniere =
-            premium.ticket_derniere_minute?.selection || [];
-
-
-        if(Array.isArray(derniere)){
-
-            derniere =
-                derniere.slice(0,6);
-
-        }else{
-
-            derniere = [];
-
-        }
-
-
-        afficherTicket("derniere-minute-premium", derniere);
-        if(premium.ticket_derniere_minute?.joker) afficherTexte("joker-derniere-minute", "Joker : " + premium.ticket_derniere_minute.joker);
-
-
-        // =====================================
-        // ANALYSE
-        // =====================================
-
-        afficherTexte(
-
-            "analyse-premium",
-
-            `
-            <h3>📈 Points forts</h3>
-
-            <p>
-            Analyse de la forme, régularité,
-            distance, terrain et expérience.
-            </p>
-
-            <h3>📉 Points de vigilance</h3>
-
-            <p>
-            Évaluation des risques liés à la course.
-            </p>
-            <p><strong>🔎 Méthode Premium :</strong> ${premium.methode || "lecture complémentaire de l'indice AZ"}</p>
-            `
-
-        );
-
-
-        // =====================================
-        // MESSAGE FINAL
-        // =====================================
-
-        afficherTexte(
-
-            "message-premium",
-
-            premium.message_fin ||
-            "🍀 Bonne chance ! Jouez avec discipline."
-
-        );
-
-
-    }catch(error){
-
-        console.error(
-            "Erreur Premium :",
-            error
-        );
-
-    }
-
+function afficherDonneesVIP(data) {
+    injecter("selection-premium", data.selection, true);
+    injecter("explication-premium", data.explication, false);
+    injecter("quinte-premium", data.quinte, true);
+    injecter("quarte-premium", data.quarte, true);
+    injecter("trio-premium", data.trio, true);
+    injecter("couple-premium", data.couple, true);
+    injecter("champ-reduit-premium", data.champReduit, true);
+    injecter("derniere-minute-premium", data.derniereMinute, false);
+    injecter("analyse-premium", data.analyse, false);
+    injecter("message-premium", data.message, false);
 }
-
-
-// =====================================
-// INFORMATIONS DE LA COURSE
-// =====================================
-
-function afficherInformationsCourse(data){
-
-    const contenu =
-        document.getElementById("contenu-premium");
-
-
-    if(!contenu){
-        return;
-    }
-
-
-    // Evite de créer le bloc plusieurs fois
-    let bloc =
-        document.getElementById("informations-course-premium");
-
-
-    if(!bloc){
-
-        bloc =
-            document.createElement("section");
-
-        bloc.id =
-            "informations-course-premium";
-
-
-        // Insertion juste avant la sélection du jour
-        const selection =
-            document.getElementById("selection-premium");
-
-
-        if(selection){
-
-            const parent =
-                selection.parentElement;
-
-            if(parent){
-
-                parent.insertBefore(
-                    bloc,
-                    selection
-                );
-
-            }else{
-
-                contenu.prepend(bloc);
-
-            }
-
-        }else{
-
-            contenu.prepend(bloc);
-
-        }
-
-    }
-
-
-    // =====================================
-    // DONNEES
-    // =====================================
-
-    const course =
-        data.course || "Course du jour";
-
-    const date =
-        formaterDateCourse(data.date);
-
-    const reunion =
-        data.reunion || "";
-
-    const numeroCourse =
-        data.course_numero || "";
-
-    const hippodrome =
-        data.hippodrome || "";
-
-    const discipline =
-        data.discipline || "";
-
-    const distance =
-        data.distance
-            ? `${data.distance} m`
-            : "";
-
-
-    // =====================================
-    // AFFICHAGE
-    // =====================================
-
-    bloc.innerHTML = `
-
-        <div class="course-premium-header">
-
-            <div class="course-premium-titre">
-                🏇 ${echapperHTML(course)}
-            </div>
-
-            ${
-                date
-                ? `
-                <div class="course-premium-date">
-                    📅 ${echapperHTML(date)}
-                </div>
-                `
-                : ""
-            }
-
-            <div class="course-premium-details">
-
-                ${
-                    hippodrome
-                    ? `
-                    <span>
-                        📍 ${echapperHTML(hippodrome)}
-                    </span>
-                    `
-                    : ""
-                }
-
-                ${
-                    reunion || numeroCourse
-                    ? `
-                    <span>
-                        🏁 ${echapperHTML(
-                            `${reunion}${numeroCourse ? " — " + numeroCourse : ""}`
-                        )}
-                    </span>
-                    `
-                    : ""
-                }
-
-                ${
-                    discipline
-                    ? `
-                    <span>
-                        🐎 ${echapperHTML(discipline)}
-                    </span>
-                    `
-                    : ""
-                }
-
-                ${
-                    distance
-                    ? `
-                    <span>
-                        📏 ${echapperHTML(distance)}
-                    </span>
-                    `
-                    : ""
-                }
-
-            </div>
-
-        </div>
-
-    `;
-
-
-    // =====================================
-    // STYLE LOCAL
-    // Ne dépend pas d'une modification
-    // obligatoire de style.css
-    // =====================================
-
-    bloc.style.width =
-        "100%";
-
-    bloc.style.maxWidth =
-        "100%";
-
-    bloc.style.boxSizing =
-        "border-box";
-
-    bloc.style.margin =
-        "0 0 20px 0";
-
-    bloc.style.textAlign =
-        "center";
-
-
-    const header =
-        bloc.querySelector(
-            ".course-premium-header"
-        );
-
-
-    if(header){
-
-        header.style.width =
-            "100%";
-
-        header.style.boxSizing =
-            "border-box";
-
-        header.style.padding =
-            "16px 12px";
-
-        header.style.borderRadius =
-            "16px";
-
-        header.style.marginBottom =
-            "8px";
-
-        header.style.background =
-            "#ffffff";
-
-        header.style.border =
-            "2px solid #d4af37";
-
-        header.style.overflow =
-            "hidden";
-
-    }
-
-
-    const titre =
-        bloc.querySelector(
-            ".course-premium-titre"
-        );
-
-
-    if(titre){
-
-        titre.style.fontSize =
-            "20px";
-
-        titre.style.fontWeight =
-            "700";
-
-        titre.style.lineHeight =
-            "1.3";
-
-        titre.style.marginBottom =
-            "8px";
-
-    }
-
-
-    const dateElement =
-        bloc.querySelector(
-            ".course-premium-date"
-        );
-
-
-    if(dateElement){
-
-        dateElement.style.fontSize =
-            "16px";
-
-        dateElement.style.fontWeight =
-            "600";
-
-        dateElement.style.marginBottom =
-            "10px";
-
-    }
-
-
-    const details =
-        bloc.querySelector(
-            ".course-premium-details"
-        );
-
-
-    if(details){
-
-        details.style.display =
-            "flex";
-
-        details.style.flexWrap =
-            "wrap";
-
-        details.style.justifyContent =
-            "center";
-
-        details.style.gap =
-            "6px 12px";
-
-        details.style.fontSize =
-            "14px";
-
-        details.style.lineHeight =
-            "1.5";
-
-    }
-
-}
-
-
-// =====================================
-// FORMATAGE DATE
-// =====================================
-
-function formaterDateCourse(date){
-
-    if(!date){
-        return "";
-    }
-
-
-    const texte =
-        String(date);
-
-
-    const correspondance =
-        texte.match(
-            /^(\d{4})-(\d{2})-(\d{2})$/
-        );
-
-
-    if(!correspondance){
-
-        return texte;
-
-    }
-
-
-    const annee =
-        correspondance[1];
-
-    const mois =
-        correspondance[2];
-
-    const jour =
-        correspondance[3];
-
-
-    const moisNoms = [
-
-        "janvier",
-        "février",
-        "mars",
-        "avril",
-        "mai",
-        "juin",
-        "juillet",
-        "août",
-        "septembre",
-        "octobre",
-        "novembre",
-        "décembre"
-
-    ];
-
-
-    const indexMois =
-        Number(mois) - 1;
-
-
-    if(
-        indexMois < 0 ||
-        indexMois > 11
-    ){
-
-        return texte;
-
-    }
-
-
-    return `${jour} ${moisNoms[indexMois]} ${annee}`;
-
-}
-
-
-// =====================================
-// PROTECTION AFFICHAGE HTML
-// =====================================
-
-function echapperHTML(texte){
-
-    return String(texte)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-}
-
-
-// =====================================
-// AFFICHAGE RESPONSIVE
-// AUCUN DEFILEMENT HORIZONTAL
-// =====================================
-
-function ajusterAffichage(id){
-
-    const zone =
-        document.getElementById(id);
-
-
-    if(!zone){
-        return;
-    }
-
-
-    zone.style.width =
-        "100%";
-
-    zone.style.maxWidth =
-        "100%";
-
-    zone.style.minWidth =
-        "0";
-
-    zone.style.boxSizing =
-        "border-box";
-
-    zone.style.textAlign =
-        "center";
-
-    zone.style.whiteSpace =
-        "normal";
-
-    zone.style.overflow =
-        "visible";
-
-    zone.style.overflowX =
-        "visible";
-
-    zone.style.overflowWrap =
-        "break-word";
-
-    zone.style.wordBreak =
-        "normal";
-
-    zone.style.letterSpacing =
-        "0px";
-
-}
-
-
-// =====================================
-// AFFICHAGE TICKET
-// =====================================
-
-function afficherTicket(id,liste){
-
-    const zone =
-        document.getElementById(id);
-
-
-    if(!zone){
-        return;
-    }
-
-
-    if(
-        !liste ||
-        liste.length === 0
-    ){
-
-        zone.innerHTML =
-            "Non disponible";
-
-        return;
-    }
-
-
-    zone.innerHTML =
-        liste.join(" - ");
-
-
-    ajusterAffichage(id);
-
-}
-
-
-// =====================================
-// AFFICHAGE LISTE
-// =====================================
-
-function afficherListe(id,liste){
-
-    const zone =
-        document.getElementById(id);
-
-
-    if(!zone){
-        return;
-    }
-
-
-    if(
-        !liste ||
-        liste.length === 0
-    ){
-
-        zone.innerHTML =
-            "Non disponible";
-
-        return;
-    }
-
-
-    zone.innerHTML =
-        liste.join(" - ");
-
-
-    ajusterAffichage(id);
-
-}
-
-
-// =====================================
-// AFFICHAGE TEXTE
-// =====================================
-
-function afficherTexte(id,contenu){
-
-    const zone =
-        document.getElementById(id);
-
-
-    if(!zone){
-        return;
-    }
-
-
-    zone.innerHTML =
-        contenu;
-
-}
-
-
-// =====================================
-// TABLEAU LIVE DES PARTANTS
-// =====================================
-
-function afficherTableauLive(classement){
-    const zone=document.getElementById("all-horses");
-    if(!zone) return;
-
-    if(!Array.isArray(classement) || !classement.length){
-        zone.innerHTML='<tr><td colspan="5">Données indisponibles</td></tr>';
-        return;
-    }
-
-    zone.innerHTML=classement.map(c=>{
-        const np=Boolean(c.non_partant || c.statut === "NON_PARTANT");
-        return `<tr class="${np ? "non-partant" : ""}">
-            <td>${c.rang ?? "-"}</td>
-            <td><strong>${echapperHTML(c.numero ?? "-")}</strong></td>
-            <td>${echapperHTML(c.nom ?? "-")}</td>
-            <td>${Number(c.indice_az ?? 0).toFixed(2)}</td>
-            <td>${c.confiance ?? 0}%</td>
-        </tr>`;
-    }).join("");
-}
-
-function initialiserTableauLive(){
-    const bouton=document.getElementById("btn-toggle-tableau");
-    const conteneur=document.getElementById("conteneur-tableau");
-    if(!bouton || !conteneur) return;
-
-    bouton.addEventListener("click",()=>{
-        const ouvert=getComputedStyle(conteneur).display !== "none";
-        conteneur.style.display=ouvert ? "none" : "block";
-        bouton.textContent=ouvert
-            ? "📊 Afficher le Tableau des Partants (Live)"
-            : "📊 Masquer le Tableau des Partants (Live)";
-    });
-}
-
-// =====================================
-// REAJUSTEMENT ECRAN
-// =====================================
-
-window.addEventListener(
-    "resize",
-    function(){
-
-        const zones = [
-
-            "selection-premium",
-            "quinte-premium",
-            "quarte-premium",
-            "trio-premium",
-            "couple-premium",
-            "champ-reduit-premium",
-            "derniere-minute-premium"
-
-        ];
-
-
-        zones.forEach(
-            id => ajusterAffichage(id)
-        );
-
-    }
-);
-
-
-    
