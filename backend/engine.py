@@ -1,121 +1,187 @@
-"""
-AZ TURF PRO - MOTEUR D'INTELLIGENCE (Avec filtrage automatique des non-partants)
-Fichier complet à remplacer : engine.py
-"""
+# =====================================
+# AZ TURF PRO
+# MOTEUR D'ANALYSE COMPLET (engine.py)
+# =====================================
 
-from scoring import calculer_score_az
-from ranking import classer_chevaux
-from quinte import generer_tickets_az
-from learning import enregistrer_course
-
-
-def calculer_indice_premium(cheval, discipline="TROT"):
+def calculer_score_gratuit(cheval, info_course):
     """
-    Indice Premium : combine l'Indice AZ avec une analyse croisée de valeur.
+    Analyse de base pour les utilisateurs gratuits (Cote + Musique simple)
     """
-    indice_az = float(cheval.get("indice_az", 0) or 0)
-    forme = float(cheval.get("forme", 5) or 5)
-    regularite = float(cheval.get("regularite", 5) or 5)
-    cote = float(cheval.get("cote", 5) or 5)
-    experience = float(cheval.get("experience", 5) or 5)
+    score = 0.0
     
-    bonnes_places = sum(
-        1 for p in (cheval.get("performances") or []) 
-        if isinstance(p, (int, float)) and p <= 3
-    )
+    # 1. Musique simple
+    musique = str(cheval.get("musique", "")).upper()
+    if "1P" in musique or "1A" in musique or "1M" in musique:
+        score += 10
+    elif "2P" in musique or "3P" in musique:
+        score += 5
 
-    bonus_outsider_chaud = 0.0
-    if cote >= 10.0 and (forme >= 7.0 or regularite >= 7.0):
-        bonus_outsider_chaud = 15.0
+    # 2. Cote du marché
+    cote = float(cheval.get("cote", 20))
+    if 0 < cote <= 5.0:
+        score += 15
+    elif 5.0 < cote <= 10.0:
+        score += 8
 
-    return round(
-        indice_az
-        + (forme * 1.35)
-        + (regularite * 1.20)
-        + (cote * 1.10)
-        + (experience * 0.80)
-        + (bonnes_places * 2.0)
-        + bonus_outsider_chaud,
-        2
-    )
+    return round(score, 2)
 
 
-def lancer_analyse(chevaux, info_course=None):
+def calculer_score_premium_expert(cheval, info_course):
     """
-    Orchestre l'analyse complète d'une course en filtrant automatiquement les non-partants.
+    Analyse ultra-poussée avec TOUS les critères experts réservée au Premium
     """
-    if not chevaux:
-        return {
-            "message": "Aucun cheval analysé",
-            "chevaux": [],
-            "classement": [],
-            "tickets": {},
-        }
+    score = 0.0
 
-    # =========================================================
-    # 1. EXTRACTION ET FILTRAGE AUTOMATIQUE DES NON-PARTANTS
-    # =========================================================
-    non_partants = []
-    if info_course and isinstance(info_course, dict):
-        non_partants = info_course.get("non_partants", [])
+    # 1. Aptitude à la distance (0 à 15 pts)
+    distance_course = int(info_course.get("distance", 2000) or 2000)
+    dist_pref = int(cheval.get("distance_predilection", distance_course))
+    ecart_dist = abs(distance_course - dist_pref)
+    
+    if ecart_dist == 0:
+        score += 15
+    elif ecart_dist <= 200:
+        score += 10
+    elif ecart_dist <= 400:
+        score += 5
 
-    np_nums = set()
-    for np in non_partants:
-        if isinstance(np, dict):
-            num = np.get("numero")
-            if num is not None:
-                np_nums.add(str(num))
-        elif np is not None:
-            np_nums.add(str(np))
+    # 2. Déférage (Critère majeur au Trot) (0 à 15 pts)
+    deferre = str(cheval.get("deferre", "")).upper()
+    if deferre in ["D4", "DP_DG"]:
+        score += 15
+    elif deferre in ["DA", "DP"]:
+        score += 8
 
-    # Exclusion stricte des non-partants de la liste des chevaux à analyser
-    chevaux_valides = []
+    # 3. Œillères & Équipement (0 à 10 pts)
+    oeilleres = str(cheval.get("oeilleres", "")).upper()
+    if "OEI" in oeilleres or "FERMEES" in oeilleres:
+        score += 10
+    elif "AUSTRALIAN" in oeilleres or "OEA" in oeilleres:
+        score += 5
+
+    # 4. Forme récente & Musique (0 à 15 pts)
+    musique = str(cheval.get("musique", "")).upper()
+    if "1P" in musique or "1T" in musique or "1A" in musique or "1M" in musique:
+        score += 15
+    elif "2P" in musique or "3P" in musique:
+        score += 12
+    elif "4P" in musique or "5P" in musique:
+        score += 8
+
+    # 5. Forme Jockey/Driver & Confiance Entraîneur (0 à 15 pts)
+    taux_jockey = float(cheval.get("reussite_jockey", 50))
+    score += (taux_jockey / 100) * 10
+    
+    confiance_entraineur = int(cheval.get("confiance_entraineur", 1))
+    if confiance_entraineur == 2:
+        score += 5
+
+    # 6. Retard de gains & Valeur (0 à 15 pts)
+    gains = float(cheval.get("gains_carriere", 0))
+    courses = max(int(cheval.get("nombre_courses", 1)), 1)
+    gain_moyen = gains / courses
+    
+    if gain_moyen > 10000:
+        score += 15
+    elif gain_moyen > 5000:
+        score += 10
+
+    # 7. Leçons des échecs passés / Signal de Rachat (0 à 12 pts)
+    cote = float(cheval.get("cote", 20))
+    if ("DA" in musique or "DISQ" in musique or "0P" in musique) and cote < 8.0:
+        score += 12  # Détection d'un échec accidentel corrigé par l'entourage
+
+    # 8. Fraîcheur / Intervalle de repos (0 à 10 pts)
+    jours_repos = int(cheval.get("jours_depuis_derniere_course", 20))
+    if 12 <= jours_repos <= 30:
+        score += 10  # Condition physique optimale
+    elif jours_repos > 90:
+        score -= 5   # Manque de compétition (Rentrée)
+
+    # 9. Aptitude à l'hippodrome (0 à 10 pts)
+    hippodrome_actuel = str(info_course.get("hippodrome", "")).upper()
+    hippodromes_gagnes = str(cheval.get("hippodromes_favoris", "")).upper()
+    if hippodrome_actuel and hippodrome_actuel in hippodromes_gagnes:
+        score += 10
+
+    # 10. Cotes et Enjeux du marché (0 à 15 pts)
+    if 0 < cote <= 4.0:
+        score += 15
+    elif 4.0 < cote <= 8.0:
+        score += 10
+    elif 8.0 < cote <= 15.0:
+        score += 5
+
+    return round(score, 2)
+
+
+# =====================================
+# LANCEUR D'ANALYSE PRINCIPAL
+# =====================================
+
+def lancer_analyse(chevaux, info_course, est_premium=False):
+    """
+    Fonction principale appelée par api.py
+    Gère le filtrage des non-partants, le tri et la génération des tickets
+    """
+    chevaux_analyses = []
+    non_partants_officiels = [str(np) for np in info_course.get("non_partants", [])]
+
     for cheval in chevaux:
-        num = cheval.get("numero")
-        if num is not None and str(num) in np_nums:
-            continue  # Ignore le cheval s'il est non-partant
-        chevaux_valides.append(cheval)
-
-    discipline = "TROT"
-    if info_course and isinstance(info_course, dict):
-        discipline = info_course.get("discipline", "TROT")
-
-    chevaux_scores = []
-
-    for cheval in chevaux_valides:
-        score_base = calculer_score_az(cheval, discipline=discipline)
+        num_str = str(cheval.get("numero", ""))
         
-        entree = dict(cheval)
-        entree["numero"] = cheval.get("numero")
-        entree["nom"] = cheval.get("nom", "")
-        entree["indice_az"] = score_base
-        entree["indice_premium"] = calculer_indice_premium(entree, discipline=discipline)
-        chevaux_scores.append(entree)
+        # Isolation des non-partants
+        if num_str in non_partants_officiels or cheval.get("statut") == "NON_PARTANT":
+            c_copy = dict(cheval)
+            c_copy["score_az"] = -999.0
+            c_copy["est_non_partant"] = True
+            chevaux_analyses.append(c_copy)
+            continue
 
-    # 2. Classement des chevaux valides uniquement
-    classement = classer_chevaux(chevaux_scores)
-    
-    # 3. Génération des tickets sans les non-partants
-    tickets = generer_tickets_az(classement)
+        # Calcul selon la formule choisie (Gratuit ou Premium Expert)
+        if est_premium:
+            score = calculer_score_premium_expert(cheval, info_course)
+        else:
+            score = calculer_score_gratuit(cheval, info_course)
 
-    # 4. Sauvegarde dans le module d'apprentissage
-    try:
-        enregistrer_course({
-            "chevaux": chevaux_valides,
-            "classement": classement,
-            "tickets": tickets,
-            "selection_az": (tickets.get("gratuit") or {}).get("quinte", []),
-            "course": info_course or {},
-        })
-    except Exception:
-        pass
+        c_copy = dict(cheval)
+        c_copy["score_az"] = score
+        c_copy["est_non_partant"] = False
+        chevaux_analyses.append(c_copy)
+
+    # Tri des chevaux par score décroissant (les non-partants finissent en dernier)
+    chevaux_analyses.sort(key=lambda x: x.get("score_az", -999.0), reverse=True)
+
+    # Extraction exclusive des vrais partants valides
+    partants_valides = [
+        str(c.get("numero", "")) 
+        for c in chevaux_analyses 
+        if not c.get("est_non_partant")
+    ]
+
+    # Attribution de l'ordre de classement
+    rang = 1
+    for c in chevaux_analyses:
+        if not c.get("est_non_partant"):
+            c["rang"] = rang
+            rang += 1
+        else:
+            c["rang"] = "NP"
+
+    # Generation des pronostics et tickets
+    tickets = {
+        "favori": partants_valides[0] if len(partants_valides) > 0 else "",
+        "base_solide": partants_valides[:2],
+        "gratuit_trio": partants_valides[:3]
+    }
+
+    # Desormais accessible aux comptes Premium
+    if est_premium:
+        tickets["couple_vip"] = partants_valides[:3]
+        tickets["tierce_premium"] = partants_valides[:4]
+        tickets["quarte_premium"] = partants_valides[:5]
+        tickets["quinte_vip"] = partants_valides[:8]
 
     return {
-        "message": "Analyse AZ Turf Pro (Mode Avancé) terminée",
-        "chevaux": classement,
-        "classement": classement,
-        "partants_complets": chevaux,
-        "non_partants": sorted(np_nums, key=lambda x: int(x) if str(x).isdigit() else 9999),
-        "favori": classement[0] if classement else {},
-        "tickets": tickets,
+        "chevaux": chevaux_analyses,
+        "tickets": tickets
         }
