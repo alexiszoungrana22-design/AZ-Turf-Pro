@@ -1,13 +1,15 @@
 // ==========================================================
 // AZ TURF PRO - TICKETS PREMIUM
-// Vérification d'accès réelle + données réelles (/api/analyse)
+// Accès administrateur direct
+// Utilisateurs : vérification Premium côté serveur
+// Données : /api/analyse
 // ==========================================================
 
 const API_ANALYSE =
-"https://az-turf-pro.onrender.com/api/analyse";
+    "https://az-turf-pro.onrender.com/api/analyse";
 
 const API_PREMIUM =
-"https://az-turf-pro.onrender.com/api/premium/";
+    "https://az-turf-pro.onrender.com/api/premium/";
 
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -19,172 +21,478 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-// =====================================
-// 1. VERIFICATION ACCES PREMIUM
-// (aucun contenu affiche tant que ce
-// n'est pas confirme cote serveur)
-// =====================================
+// ==========================================================
+// 1. DETECTION DU MODE ADMINISTRATEUR
+// ==========================================================
 
-async function verifierAccesPremium(){
+function estAdministrateur() {
+
+    /*
+     * admin.html utilise actuellement :
+     *
+     * AZ_TURF_TELEPHONE = "COMPTE ADMINISTRATEUR"
+     *
+     * On conserve cette logique existante.
+     */
 
     const telephone =
-    localStorage.getItem("AZ_TURF_TELEPHONE");
+        localStorage.getItem("AZ_TURF_TELEPHONE");
+
+    return telephone === "COMPTE ADMINISTRATEUR";
+}
+
+
+// ==========================================================
+// 2. VERIFICATION ACCES PREMIUM
+// ==========================================================
+
+async function verifierAccesPremium() {
 
     const blocage =
-    document.getElementById("message-blocage");
+        document.getElementById("message-blocage");
 
     const contenu =
-    document.getElementById("contenu-premium");
+        document.getElementById("contenu-premium");
 
-    if(!telephone){
 
-        if(blocage) blocage.classList.remove("zone-masquee");
-        if(contenu) contenu.classList.add("zone-masquee");
+    // ------------------------------------------------------
+    // ADMINISTRATEUR
+    // ------------------------------------------------------
 
-        return;
+    if (estAdministrateur()) {
 
-    }
-
-    try{
-
-        const reponse = await fetch(
-            API_PREMIUM + encodeURIComponent(telephone)
+        console.log(
+            "AZ Turf Pro : accès administrateur direct aux Tickets Premium."
         );
 
-        const data = await reponse.json();
+        if (blocage) {
+            blocage.classList.add("zone-masquee");
+            blocage.style.display = "none";
+        }
 
-        if(reponse.ok && data.statut === "ACTIF"){
+        if (contenu) {
+            contenu.classList.remove("zone-masquee");
+            contenu.style.display = "";
+        }
 
-            if(blocage) blocage.classList.add("zone-masquee");
-            if(contenu) contenu.classList.remove("zone-masquee");
+        // L'administrateur n'a PAS besoin
+        // d'un abonnement Premium.
+        await chargerTicketsPremium();
 
-            chargerTicketsPremium();
+        return;
+    }
 
-        }else{
 
-            if(blocage) blocage.classList.remove("zone-masquee");
-            if(contenu) contenu.classList.add("zone-masquee");
+    // ------------------------------------------------------
+    // UTILISATEUR NORMAL
+    // ------------------------------------------------------
+
+    const telephone =
+        localStorage.getItem("AZ_TURF_TELEPHONE");
+
+
+    if (!telephone) {
+
+        afficherBlocagePremium();
+
+        return;
+    }
+
+
+    try {
+
+        const reponse = await fetch(
+            API_PREMIUM +
+            encodeURIComponent(telephone),
+            {
+                method: "GET",
+                cache: "no-store",
+                headers: {
+                    "Accept": "application/json"
+                }
+            }
+        );
+
+
+        let data = {};
+
+        try {
+            data = await reponse.json();
+        } catch (_) {
+            data = {};
+        }
+
+
+        if (
+            reponse.ok &&
+            data.statut === "ACTIF"
+        ) {
+
+            if (blocage) {
+                blocage.classList.add("zone-masquee");
+                blocage.style.display = "none";
+            }
+
+            if (contenu) {
+                contenu.classList.remove("zone-masquee");
+                contenu.style.display = "";
+            }
+
+            await chargerTicketsPremium();
+
+        } else {
+
+            afficherBlocagePremium();
 
         }
 
-    }catch(error){
 
-        console.error("Erreur vérification Premium :", error);
+    } catch (error) {
 
-        if(blocage) blocage.classList.remove("zone-masquee");
-        if(contenu) contenu.classList.add("zone-masquee");
+        console.error(
+            "Erreur vérification Premium :",
+            error
+        );
+
+        afficherBlocagePremium();
 
     }
 
 }
 
 
-// =====================================
-// 2. CHARGEMENT DES VRAIS TICKETS
-// (deja calcules cote serveur par
-// quinte.py - on ne les recalcule pas)
-// =====================================
+// ==========================================================
+// 3. BLOCAGE UTILISATEUR NON PREMIUM
+// ==========================================================
 
-async function chargerTicketsPremium(){
+function afficherBlocagePremium() {
 
-    try{
+    const blocage =
+        document.getElementById("message-blocage");
 
-        const reponse = await fetch(API_ANALYSE);
+    const contenu =
+        document.getElementById("contenu-premium");
 
-        if(!reponse.ok){
-            throw new Error("Erreur API analyse");
+
+    if (blocage) {
+
+        blocage.classList.remove("zone-masquee");
+
+        blocage.style.display = "block";
+
+    }
+
+
+    if (contenu) {
+
+        contenu.classList.add("zone-masquee");
+
+        contenu.style.display = "none";
+
+    }
+
+}
+
+
+// ==========================================================
+// 4. CHARGEMENT DES TICKETS PREMIUM
+// ==========================================================
+
+async function chargerTicketsPremium() {
+
+    try {
+
+        const reponse =
+            await fetch(
+                API_ANALYSE,
+                {
+                    method: "GET",
+                    cache: "no-store",
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                }
+            );
+
+
+        if (!reponse.ok) {
+
+            throw new Error(
+                "Erreur API analyse : " +
+                reponse.status
+            );
+
         }
 
-        const data = await reponse.json();
+
+        const data =
+            await reponse.json();
+
 
         const tickets =
-        (data.tickets && data.tickets.premium) || {};
+            data.tickets &&
+            data.tickets.premium
+                ? data.tickets.premium
+                : {};
 
-        const classement = data.classement || [];
+
+        const classement =
+            Array.isArray(data.classement)
+                ? data.classement
+                : [];
 
 
-        // ---- Selection Premium (8 chevaux) ----
+        // ==================================================
+        // SELECTION PREMIUM
+        // ==================================================
+
+        const selectionPremium =
+            Array.isArray(tickets.selection_quinte)
+                ? tickets.selection_quinte
+                    .map(Number)
+                    .filter(Number.isFinite)
+                    .slice(0, 8)
+                : [];
+
+
         injecter(
             "selection-premium",
-            (tickets.selection_quinte || []).join(" - "),
+            selectionPremium.join(" - "),
             true
         );
 
 
-        // ---- Explication ----
-        const favori = classement[0];
+        // ==================================================
+        // EXPLICATION PREMIUM
+        // ==================================================
+
+        const favori =
+            classement.length
+                ? classement[0]
+                : null;
+
 
         injecter(
             "explication-premium",
+
             favori
-            ? `Le n°${favori.numero} (${favori.nom || ""}) ressort en tête de l'analyse AZ avec un indice de ${Math.round(favori.indice_az || 0)} et une confiance de ${favori.confiance ?? "-"}%.`
-            : "Analyse basée sur la forme, la régularité et le classement AZ du jour.",
+
+                ? `Le n°${favori.numero} (${favori.nom || ""}) ressort en tête de l'analyse AZ avec un indice de ${Math.round(favori.indice_az || 0)} et une confiance de ${favori.confiance ?? "-"}%.`
+
+                : "Analyse Premium basée sur les données de la course, la forme, la régularité et les indicateurs AZ.",
+
             false
         );
 
 
-        // ---- Tickets ----
-        injecter("quinte-premium", (tickets.quinte || []).join(" - "), true);
-        injecter("quarte-premium", (tickets.quarte || []).join(" - "), true);
-        injecter("trio-premium", (tickets.trio || []).join(" - "), true);
+        // ==================================================
+        // QUINTE PREMIUM
+        // ==================================================
 
-        const couples = tickets.couple_gagnant_place || [];
+        const quintePremium =
+            Array.isArray(tickets.quinte)
+                ? tickets.quinte
+                    .map(Number)
+                    .filter(Number.isFinite)
+                    .slice(0, 6)
+                : [];
+
+
+        injecter(
+            "quinte-premium",
+            quintePremium.join(" - "),
+            true
+        );
+
+
+        // ==================================================
+        // QUARTE PREMIUM
+        // ==================================================
+
+        const quartePremium =
+            Array.isArray(tickets.quarte)
+                ? tickets.quarte
+                    .map(Number)
+                    .filter(Number.isFinite)
+                    .slice(0, 5)
+                : [];
+
+
+        injecter(
+            "quarte-premium",
+            quartePremium.join(" - "),
+            true
+        );
+
+
+        // ==================================================
+        // TRIO PREMIUM
+        // ==================================================
+
+        const trioPremium =
+            Array.isArray(tickets.trio)
+                ? tickets.trio
+                    .map(Number)
+                    .filter(Number.isFinite)
+                    .slice(0, 3)
+                : [];
+
+
+        injecter(
+            "trio-premium",
+            trioPremium.join(" - "),
+            true
+        );
+
+
+        // ==================================================
+        // COUPLES PREMIUM
+        // ==================================================
+
+        const couples =
+            Array.isArray(tickets.couple_gagnant_place)
+                ? tickets.couple_gagnant_place
+                : [];
+
+
         injecter(
             "couple-premium",
-            couples.map(c => c.join("-")).join(" | "),
+
+            couples
+                .filter(c => Array.isArray(c))
+                .map(c =>
+                    c
+                        .map(Number)
+                        .filter(Number.isFinite)
+                        .join("-")
+                )
+                .filter(Boolean)
+                .join(" | "),
+
             true
         );
 
-        const champReduit = tickets.champ_reduit || {};
+
+        // ==================================================
+        // CHAMP REDUIT
+        // ==================================================
+
+        const champReduit =
+            tickets.champ_reduit || {};
+
+
         injecter(
             "champ-reduit-premium",
-            champReduit.format || "Non disponible",
+
+            champReduit.format ||
+            "Non disponible",
+
             true
         );
 
 
-        // ---- Derniere minute ----
+        // ==================================================
+        // DERNIERE MINUTE
+        // IMPORTANT :
+        // elle vient du bloc dédié et n'est pas forcée
+        // à reprendre le Quinté Premium.
+        // ==================================================
+
         const derniereMinute =
-        (tickets.ticket_derniere_minute &&
-        tickets.ticket_derniere_minute.selection) || [];
+            tickets.ticket_derniere_minute &&
+            Array.isArray(
+                tickets.ticket_derniere_minute.selection
+            )
+
+                ? tickets.ticket_derniere_minute.selection
+                    .map(Number)
+                    .filter(Number.isFinite)
+
+                : [];
+
 
         injecter(
             "derniere-minute-premium",
+
             derniereMinute.length
-            ? derniereMinute.join(" - ")
-            : "Non disponible",
+                ? derniereMinute.join(" - ")
+                : "Non disponible",
+
             true
         );
 
 
-        // ---- Analyse complete ----
+        // ==================================================
+        // ANALYSE COMPLETE
+        // ==================================================
+
         injecter(
             "analyse-premium",
+
             tickets.explication ||
-            "Analyse AZ Turf Pro basée sur l'indice AZ, la forme récente et la régularité de chaque cheval.",
+            "Analyse AZ Turf Pro basée sur les données disponibles de la course.",
+
             false
         );
 
 
-        // ---- Message final ----
+        // ==================================================
+        // MESSAGE FINAL
+        // ==================================================
+
         injecter(
             "message-premium",
+
             tickets.message_fin ||
-            "🍀 Bonne chance à tous les abonnés Premium pour cette course !",
+            "🍀 Bonne chance ! Jouez avec discipline et responsabilité.",
+
             false
         );
 
-    }catch(error){
 
-        console.error("Erreur chargement tickets Premium :", error);
+        console.log(
+            "AZ Turf Pro : Tickets Premium chargés.",
+            {
+                selection: selectionPremium,
+                quinte: quintePremium,
+                quarte: quartePremium,
+                trio: trioPremium,
+                derniereMinute
+            }
+        );
 
-        [
-            "selection-premium", "quinte-premium", "quarte-premium",
-            "trio-premium", "couple-premium", "champ-reduit-premium",
+
+    } catch (error) {
+
+        console.error(
+            "Erreur chargement tickets Premium :",
+            error
+        );
+
+
+        const zones = [
+            "selection-premium",
+            "quinte-premium",
+            "quarte-premium",
+            "trio-premium",
+            "couple-premium",
+            "champ-reduit-premium",
             "derniere-minute-premium"
-        ].forEach(id => {
-            const el = document.getElementById(id);
-            if(el) el.textContent = "Indisponible pour le moment";
+        ];
+
+
+        zones.forEach(function (id) {
+
+            const zone =
+                document.getElementById(id);
+
+            if (zone) {
+
+                zone.textContent =
+                    "Données Premium indisponibles";
+
+            }
+
         });
 
     }
@@ -192,162 +500,388 @@ async function chargerTicketsPremium(){
 }
 
 
-// =====================================
-// FORMATAGE DES PASTILLES
-// (conserve tel quel - c'est une bonne
-// amelioration visuelle)
-// =====================================
+// ==========================================================
+// 5. FORMATAGE DES NUMEROS
+// ==========================================================
 
-function convertirEnPastilles(texte){
+function convertirEnPastilles(texte) {
 
-    if(!texte) return "";
+    if (!texte) {
+        return "";
+    }
 
-    const parties = String(texte).split("/");
 
-    function convertir(chaine){
+    const parties =
+        String(texte).split("/");
+
+
+    function convertir(chaine) {
+
         return String(chaine)
+
             .split(/[-,\s]+/)
-            .map(item => item.trim())
+
+            .map(item =>
+                item.trim()
+            )
+
             .filter(Boolean)
+
             .map(num => {
-                if(!isNaN(num)){
-                    return `<span class="numero-cheval">${String(num).padStart(2, "0")}</span>`;
-                }else if(num.toUpperCase() === "X"){
-                    return `<span class="numero-cheval" style="background-color: #d97706;">X</span>`;
+
+                if (!isNaN(num)) {
+
+                    return `
+                        <span class="numero-cheval">
+                            ${String(num).padStart(2, "0")}
+                        </span>
+                    `;
+
                 }
+
+
+                if (
+                    num.toUpperCase() === "X"
+                ) {
+
+                    return `
+                        <span
+                            class="numero-cheval"
+                            style="background-color:#d97706;"
+                        >
+                            X
+                        </span>
+                    `;
+
+                }
+
+
                 return num;
+
             })
+
             .join(" ");
+
     }
 
-    if(parties.length > 1){
-        return convertir(parties[0]) +
-            ` <strong style="font-size: 20px; color: #0f172a; margin: 0 6px;">/</strong> ` +
-            convertir(parties[1]);
+
+    if (parties.length > 1) {
+
+        return (
+
+            convertir(parties[0]) +
+
+            `
+            <strong
+                style="
+                    font-size:20px;
+                    color:#0f172a;
+                    margin:0 6px;
+                "
+            >
+                /
+            </strong>
+            ` +
+
+            convertir(parties[1])
+
+        );
+
     }
+
 
     return convertir(texte);
 
 }
 
 
-function injecter(id, contenu, estCombine){
+// ==========================================================
+// 6. INJECTION SECURISEE
+// ==========================================================
 
-    const el = document.getElementById(id);
+function injecter(
+    id,
+    contenu,
+    estCombine
+) {
 
-    if(!el) return;
+    const element =
+        document.getElementById(id);
 
-    if(estCombine){
-        el.innerHTML = convertirEnPastilles(contenu);
-    }else{
-        el.textContent = contenu || "";
+
+    if (!element) {
+        return;
+    }
+
+
+    if (estCombine) {
+
+        element.innerHTML =
+            convertirEnPastilles(
+                contenu
+            );
+
+    } else {
+
+        element.textContent =
+            contenu || "";
+
     }
 
 }
 
 
-// =====================================
-// 3. TABLEAU LIVE (partants complets)
-// =====================================
+// ==========================================================
+// 7. TABLEAU LIVE
+// ==========================================================
 
-function initialiserBoutonTableau(){
+function initialiserBoutonTableau() {
 
     const btnTableau =
-    document.getElementById("btn-toggle-tableau");
+        document.getElementById(
+            "btn-toggle-tableau"
+        );
+
 
     const conteneurTableau =
-    document.getElementById("conteneur-tableau");
+        document.getElementById(
+            "conteneur-tableau"
+        );
 
-    if(!btnTableau || !conteneurTableau) return;
 
-    btnTableau.addEventListener("click", async function(){
+    if (
+        !btnTableau ||
+        !conteneurTableau
+    ) {
 
-        if(conteneurTableau.classList.contains("zone-masquee")){
+        return;
 
-            conteneurTableau.classList.remove("zone-masquee");
-            btnTableau.innerText = "❌ Masquer le Tableau Live";
+    }
 
-            await chargerTableauLive();
 
-        }else{
+    btnTableau.addEventListener(
+        "click",
+        async function () {
 
-            conteneurTableau.classList.add("zone-masquee");
-            btnTableau.innerText = "📊 Afficher le Tableau des Partants (Live)";
+            if (
+                conteneurTableau
+                    .classList
+                    .contains("zone-masquee")
+            ) {
+
+                conteneurTableau
+                    .classList
+                    .remove(
+                        "zone-masquee"
+                    );
+
+
+                btnTableau.innerText =
+                    "❌ Masquer le Tableau Live";
+
+
+                await chargerTableauLive();
+
+
+            } else {
+
+                conteneurTableau
+                    .classList
+                    .add(
+                        "zone-masquee"
+                    );
+
+
+                btnTableau.innerText =
+                    "📊 Afficher le Tableau des Partants (Live)";
+
+            }
 
         }
-
-    });
+    );
 
 }
 
 
-async function chargerTableauLive(){
+// ==========================================================
+// 8. TABLEAU DES PARTANTS LIVE
+// ==========================================================
+
+async function chargerTableauLive() {
 
     const tableau =
-    document.getElementById("all-horses");
+        document.getElementById(
+            "all-horses"
+        );
 
-    if(!tableau) return;
 
-    tableau.innerHTML =
-    `<tr><td colspan="5" style="text-align:center; padding:15px;">Chargement...</td></tr>`;
+    if (!tableau) {
+        return;
+    }
 
-    try{
 
-        const reponse = await fetch(API_ANALYSE);
+    tableau.innerHTML = `
+        <tr>
+            <td
+                colspan="5"
+                style="
+                    text-align:center;
+                    padding:15px;
+                "
+            >
+                Chargement...
+            </td>
+        </tr>
+    `;
 
-        if(!reponse.ok){
-            throw new Error("Erreur API analyse");
+
+    try {
+
+        const reponse =
+            await fetch(
+                API_ANALYSE,
+                {
+                    method: "GET",
+                    cache: "no-store",
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                }
+            );
+
+
+        if (!reponse.ok) {
+
+            throw new Error(
+                "Erreur API analyse"
+            );
+
         }
 
-        const data = await reponse.json();
 
-        const classement = data.classement || [];
+        const data =
+            await reponse.json();
 
-        if(!classement.length){
 
-            tableau.innerHTML =
-            `<tr><td colspan="5" style="text-align:center; padding:15px;">Classement indisponible.</td></tr>`;
+        const classement =
+            Array.isArray(data.classement)
+                ? data.classement
+                : [];
+
+
+        if (!classement.length) {
+
+            tableau.innerHTML = `
+                <tr>
+                    <td
+                        colspan="5"
+                        style="
+                            text-align:center;
+                            padding:15px;
+                        "
+                    >
+                        Classement indisponible.
+                    </td>
+                </tr>
+            `;
 
             return;
 
         }
 
-        tableau.innerHTML = classement.map(cheval => {
-
-            const rang = cheval.rang ?? "-";
-            const numero = cheval.numero ?? "-";
-            const nom = cheval.nom || "-";
-
-            const indice =
-            (cheval.indice_az !== null && cheval.indice_az !== undefined)
-            ? Math.round(cheval.indice_az)
-            : "-";
-
-            const confiance =
-            (cheval.confiance !== null && cheval.confiance !== undefined)
-            ? cheval.confiance + " %"
-            : "-";
-
-            return `
-                <tr>
-                    <td style="padding:10px;"><strong>${rang}</strong></td>
-                    <td style="padding:10px;"><strong>${numero}</strong></td>
-                    <td style="padding:10px;">${nom}</td>
-                    <td style="padding:10px;">${indice}</td>
-                    <td style="padding:10px;">${confiance}</td>
-                </tr>
-            `;
-
-        }).join("");
-
-    }catch(error){
-
-        console.error("Erreur tableau live :", error);
 
         tableau.innerHTML =
-        `<tr><td colspan="5" style="text-align:center; padding:15px;">Erreur de chargement.</td></tr>`;
+            classement
+                .map(function (cheval) {
+
+                    const rang =
+                        cheval.rang ?? "-";
+
+
+                    const numero =
+                        cheval.numero ?? "-";
+
+
+                    const nom =
+                        cheval.nom || "-";
+
+
+                    const indice =
+                        cheval.indice_az !== null &&
+                        cheval.indice_az !== undefined
+
+                            ? Math.round(
+                                cheval.indice_az
+                            )
+
+                            : "-";
+
+
+                    const confiance =
+                        cheval.confiance !== null &&
+                        cheval.confiance !== undefined
+
+                            ? cheval.confiance + " %"
+
+                            : "-";
+
+
+                    return `
+                        <tr>
+
+                            <td style="padding:10px;">
+                                <strong>
+                                    ${rang}
+                                </strong>
+                            </td>
+
+                            <td style="padding:10px;">
+                                <strong>
+                                    ${numero}
+                                </strong>
+                            </td>
+
+                            <td style="padding:10px;">
+                                ${nom}
+                            </td>
+
+                            <td style="padding:10px;">
+                                ${indice}
+                            </td>
+
+                            <td style="padding:10px;">
+                                ${confiance}
+                            </td>
+
+                        </tr>
+                    `;
+
+                })
+                .join("");
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur tableau live :",
+            error
+        );
+
+
+        tableau.innerHTML = `
+            <tr>
+                <td
+                    colspan="5"
+                    style="
+                        text-align:center;
+                        padding:15px;
+                    "
+                >
+                    Erreur de chargement.
+                </td>
+            </tr>
+        `;
 
     }
 
-    }
-    
+            }
