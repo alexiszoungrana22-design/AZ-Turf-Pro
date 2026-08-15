@@ -102,7 +102,7 @@ function formaterPastilles(texte) {
     }
 
     if (parties.length > 1) {
-        return convertirEnPastilles(parties[0]) + ` <strong style="color: #1e3a8a; font-size: 20px; margin: 0 6px;">/</strong> ` + convertirEnPastilles(parties[1]);
+        return convertirEnPastilles(parties[0]) + ` <strong style="color: #1e3a8a; font-size: 22px; margin: 0 6px;">/</strong> ` + convertirEnPastilles(parties[1]);
     }
 
     return convertirEnPastilles(texte);
@@ -130,4 +130,4 @@ function afficherDonneesVIP(data) {
     injecter("derniere-minute-premium", data.derniereMinute, false);
     injecter("analyse-premium", data.analyse, false);
     injecter("message-premium", data.message, false);
-                }
+}
