@@ -1,7 +1,9 @@
 // =====================================
-// AZ TURF PRO - HISTORIQUE
-// Chargement dynamique des données SQL
+// AZ TURF PRO - HISTORIQUE JS
 // =====================================
+
+
+const BACKEND_URL = https://az-turf-pro.onrender.com
 
 document.addEventListener("DOMContentLoaded", () => {
     chargerHistorique();
@@ -11,16 +13,16 @@ async function chargerHistorique() {
     const tbody = document.getElementById("historique-body");
     
     try {
-        // Envoi de la requête vers l'API backend Python
-        const response = await fetch("/api/historique");
+        // Envoi de la requête HTTP vers ton backend Python
+        const response = await fetch(`${BACKEND_URL}/api/historique`);
         
         if (!response.ok) {
-            throw new Error("Erreur lors de la récupération de l'historique");
+            throw new Error(`Erreur HTTP : ${response.status}`);
         }
         
         const courses = await response.json();
         
-        // Réinitialisation du tableau HTML
+        // Vider le tableau HTML avant d'injecter les données
         tbody.innerHTML = "";
 
         if (courses.length === 0) {
@@ -29,7 +31,7 @@ async function chargerHistorique() {
             return;
         }
 
-        // Remplissage dynamique des lignes
+        // Remplissage des lignes du tableau
         courses.forEach(c => {
             const row = document.createElement("tr");
             
@@ -48,13 +50,13 @@ async function chargerHistorique() {
         mettreAJourStatistiques(courses);
 
     } catch (error) {
-        console.error("Erreur historique :", error);
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Impossible de charger l'historique.</td></tr>`;
+        console.error("Erreur de chargement historique :", error);
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Impossible de charger l'historique. Vérifiez la connexion serveur.</td></tr>`;
     }
 }
 
 // =====================================
-// CALCUL ET AFFICHAGE DES STATISTIQUES
+// MISE A JOUR DES KPI STATISTIQUES
 // =====================================
 
 function mettreAJourStatistiques(courses) {
@@ -64,7 +66,6 @@ function mettreAJourStatistiques(courses) {
 
     if (!totalCoursesEl || !favorisGagnantsEl || !ticketsReussisEl) return;
 
-    // Total des courses analysées
     const total = courses.length;
     totalCoursesEl.textContent = total;
 
@@ -75,12 +76,10 @@ function mettreAJourStatistiques(courses) {
         if (c.arrivee && c.arrivee !== "En attente") {
             const premierArrive = c.arrivee.split("-")[0]?.trim();
 
-            // Vérification si le favori est dans l'arrivée
             if (c.favori && c.arrivee.includes(c.favori)) {
                 favorisGagnants++;
             }
 
-            // Vérification si un des numéros de la sélection AZ est 1er
             if (c.selection_az && premierArrive && c.selection_az.includes(premierArrive)) {
                 ticketsReussis++;
             }
