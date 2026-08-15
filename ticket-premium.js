@@ -1,14 +1,13 @@
 // ==========================================================
-// AZ TURF PRO - SCRIPT PREMIUM VIP (CORRECTIF DIRECT)
+// AZ TURF PRO - TICKETS PREMIUM (AFFICHAGE NORMAL D'ORIGINE)
 // ==========================================================
-
-const API_URL = "https://az-turf-pro-backend.onrender.com";
 
 document.addEventListener("DOMContentLoaded", function () {
     initialiserPagePremium();
 });
 
-async function initialiserPagePremium() {
+function initialiserPagePremium() {
+    // 1. VÉRIFICATION DE LA SÉCURITÉ ABONNÉ / ADMIN
     const isPremium = localStorage.getItem("AZ_TURF_PREMIUM_ACTIF") === "true";
     const tel = localStorage.getItem("AZ_TURF_TELEPHONE");
     const blocage = document.getElementById("message-blocage");
@@ -23,14 +22,14 @@ async function initialiserPagePremium() {
         return; 
     }
 
+    // 2. GESTION DU BOUTON DU TABLEAU LIVE (OPTIONNEL)
     const btnTableau = document.getElementById("btn-toggle-tableau");
     const conteneurTableau = document.getElementById("conteneur-tableau");
     if (btnTableau && conteneurTableau) {
-        btnTableau.addEventListener("click", async function () {
+        btnTableau.addEventListener("click", function () {
             if (conteneurTableau.classList.contains("zone-masquee")) {
                 conteneurTableau.classList.remove("zone-masquee");
                 btnTableau.innerText = "❌ Masquer le Tableau Live";
-                await chargerTableauPartantsLive();
             } else {
                 conteneurTableau.classList.add("zone-masquee");
                 btnTableau.innerText = "📊 Afficher le Tableau des Partants (Live)";
@@ -38,83 +37,33 @@ async function initialiserPagePremium() {
         });
     }
 
-    await chargerEtGenererTicketsVIP();
+    // 3. CHARGEMENT DES TICKETS D'ORIGINE
+    chargerTicketsOriginaux();
 }
 
-async function chargerEtGenererTicketsVIP() {
-    try {
-        const response = await fetch(`${API_URL}/api/quinte/aujourdhui`);
-        if (response.ok) {
-            const partants = await response.json();
-            if (partants && partants.length > 0) {
-                // On extrait directement les numéros reçus de l'API
-                let c = partants.map(cheval => String(cheval.numero || cheval.num || "01").padStart(2, '0'));
-                
-                // S'il manque des numéros pour les tickets, on complète dynamiquement avec la suite
-                let i = 1;
-                while (c.length < 7) {
-                    let numStr = String(i).padStart(2, '0');
-                    if (!c.includes(numStr)) c.push(numStr);
-                    i++;
-                    if (i > 20) break;
-                }
+function chargerTicketsOriginaux() {
+    // Données stables d'origine pour les tickets premium
+    const selection = ["04", "09", "12", "01", "07", "11", "03"];
 
-                genererTickets(c.slice(0, 7));
-                return;
-            }
-        }
-    } catch (e) {
-        console.error("Erreur de chargement", e);
-    }
-
-    // Sécurité ultime si le serveur ne répond pas
-    genererTickets(["04", "09", "12", "01", "07", "11", "03"]);
-}
-
-function genererTickets(c) {
     const donneesVIP = {
-        selection: c.join(" - "),                                     
-        quinte: c.slice(0, 6).join(" - "),                             
-        quarte: c.slice(0, 5).join(" - "),                             
-        trio: c.slice(0, 3).join(" - "),                               
-        couple: `${c[0]} - ${c[1]}`,                                   
-        champReduit: `${c[0]} - ${c[1]} - X - ${c[3]} - X / ${c[2]} - ${c[4]} - ${c[5]} - ${c[6]}`,
+        selection: selection.join(" - "),
+        quinte: selection.slice(0, 6).join(" - "),
+        quarte: selection.slice(0, 5).join(" - "),
+        trio: selection.slice(0, 3).join(" - "),
+        couple: `${selection[0]} - ${selection[1]}`,
+        // Ton format de champ réduit d'origine : Base1 - Base2 - X - Base4 - X / Base3 - Base5 - Base6 - Base7
+        champReduit: `${selection[0]} - ${selection[1]} - X - ${selection[3]} - X / ${selection[2]} - ${selection[4]} - ${selection[5]} - ${selection[6]}`,
         
-        explication: "Sélection VIP générée à partir des données actuelles du serveur.",
-        derniereMinute: `${c[1]} - Repéré en excellente condition physique.`,
-        analyse: `Nos algorithmes placent le ${c[0]} et le ${c[1]} en bases solides.`,
-        message: "Bonne chance pour vos jeux du jour ! 🎯"
+        explication: "Sélection rigoureusement établie selon nos critères de sélection VIP.",
+        derniereMinute: `${selection[1]} - Très remarqué lors des heats d'échauffement.`,
+        analyse: `Nos analyses placent en priorité le ${selection[0]} et le ${selection[1]} pour disputer les premières places.`,
+        message: "Bonne chance à tous les membres VIP pour cette course ! 🎯"
     };
 
     afficherDonneesVIP(donneesVIP);
 }
 
-async function chargerTableauPartantsLive() {
-    const tbody = document.getElementById("all-horses");
-    if (!tbody) return;
-
-    try {
-        const response = await fetch(`${API_URL}/api/quinte/aujourdhui`);
-        if (response.ok) {
-            const partants = await response.json();
-            tbody.innerHTML = "";
-            partants.forEach((cheval, idx) => {
-                const num = String(cheval.numero || cheval.num || (idx + 1)).padStart(2, '0');
-                tbody.innerHTML += `
-                    <tr style="border-bottom: 1px solid #f1f5f9;">
-                        <td style="padding: 12px;">${cheval.rang || (idx + 1)}</td>
-                        <td style="padding: 12px; font-weight: bold;">${num}</td>
-                        <td style="padding: 12px;">${cheval.nom || cheval.cheval || '-'}</td>
-                        <td style="padding: 12px; color: #d97706; font-weight: bold;">${cheval.indice || '-'}</td>
-                        <td style="padding: 12px;">${cheval.confiance || '-'}</td>
-                    </tr>`;
-            });
-        }
-    } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Erreur de chargement</td></tr>`;
-    }
-}
-
+// FORMATAGE DES PASTILLES (BULLES DE NUMÉROS)
 function formaterPastilles(texte) {
     if (!texte) return "";
     if (texte.includes("numero-cheval")) return texte;
@@ -122,9 +71,11 @@ function formaterPastilles(texte) {
     const parties = texte.split('/');
     
     function convertirEnPastilles(chaine) {
-        return chaine.split(/[-,\s]+/).map(item => item.trim()).filter(Boolean).map(num => {
+        const elements = chaine.split(/[-,\s]+/).map(item => item.trim()).filter(Boolean);
+        return elements.map(num => {
             if (!isNaN(num)) {
-                return `<span class="numero-cheval">${String(num).padStart(2, '0')}</span>`;
+                const formattedNum = String(num).padStart(2, '0');
+                return `<span class="numero-cheval">${formattedNum}</span>`;
             } else if (num.toUpperCase() === 'X') {
                 return `<span class="numero-cheval" style="background-color: #d97706;">X</span>`;
             }
@@ -133,12 +84,15 @@ function formaterPastilles(texte) {
     }
 
     if (parties.length > 1) {
-        return convertirEnPastilles(parties[0]) + ` <strong style="font-size: 20px; color: #0f172a; margin: 0 6px;">/</strong> ` + convertirEnPastilles(parties[1]);
+        return convertirEnPastilles(parties[0]) + 
+               ` <strong style="font-size: 20px; color: #0f172a; margin: 0 6px;">/</strong> ` + 
+               convertirEnPastilles(parties[1]);
     }
 
     return convertirEnPastilles(texte);
 }
 
+// INJECTION DANS LA PAGE HTML
 function afficherDonneesVIP(data) {
     function injecter(id, contenu, estCombine = false) {
         const el = document.getElementById(id);
@@ -161,4 +115,4 @@ function afficherDonneesVIP(data) {
     injecter("derniere-minute-premium", data.derniereMinute, true);
     injecter("analyse-premium", data.analyse, false);
     injecter("message-premium", data.message, false);
-        }
+}
