@@ -1,5 +1,5 @@
 // ==========================================================
-// AZ TURF PRO - TICKETS PREMIUM (CORRIGÉ & STABLE)
+// AZ TURF PRO - TICKETS PREMIUM (CORRIGÉ & DYNAMIQUE)
 // ==========================================================
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -25,29 +25,42 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // 3. CHARGEMENT DES TICKETS D'ORIGINE
-    chargerTicketsOriginaux();
+    // 3. CHARGEMENT AUTOMATIQUE DU QUINTÉ DU JOUR DEPUIS L'API
+    chargerQuintePremiumDynamique();
 });
 
-function chargerTicketsOriginaux() {
-    // Numéros stables d'origine
-    const selection = ["04", "09", "12", "01", "07", "11", "03"];
+async function chargerQuintePremiumDynamique() {
+    try {
+        // Interroge l'API backend pour récupérer les données du jour
+        const response = await fetch('https://az-turf-pro-backend.onrender.com/api/quinte/aujourdhui');
+        const data = await response.json();
 
-    const donneesVIP = {
-        selection: selection.join(" - "),
-        quinte: selection.slice(0, 6).join(" - "),
-        quarte: selection.slice(0, 5).join(" - "),
-        trio: selection.slice(0, 3).join(" - "),
-        couple: `${selection[0]} - ${selection[1]}`,
-        champReduit: `${selection[0]} - ${selection[1]} - X - ${selection[3]} - X / ${selection[2]} - ${selection[4]} - ${selection[5]} - ${selection[6]}`,
-        
-        explication: "Sélection rigoureusement établie selon nos critères de sélection VIP.",
-        derniereMinute: `${selection[1]} - Très remarqué lors des heats d'échauffement.`,
-        analyse: `Nos analyses placent en priorité le ${selection[0]} et le ${selection[1]} pour disputer les premières places.`,
-        message: "Bonne chance à tous les membres VIP pour cette course ! 🎯"
-    };
+        let selection = [];
+        if (Array.isArray(data)) {
+            selection = data.map(item => String(item.numero || item.num || item).padStart(2, '0'));
+        } else if (data.selection) {
+            selection = data.selection;
+        }
 
-    afficherDonneesVIP(donneesVIP);
+        // Si l'API renvoie bien les chevaux, on génère les tickets premium du jour
+        if (selection.length > 0) {
+            const donneesVIP = {
+                selection: selection.join(" - "),
+                quinte: selection.slice(0, 6).join(" - "),
+                quarte: selection.slice(0, 5).join(" - "),
+                trio: selection.slice(0, 3).join(" - "),
+                couple: `${selection[0]} - ${selection[1]}`,
+                champReduit: `${selection[0]} - ${selection[1]} - X - ${selection[3]} - X / ${selection[2]} - ${selection[4]} - ${selection[5]} - ${selection[6]}`,
+                explication: "Sélection VIP mise à jour automatiquement selon le quinté du jour.",
+                derniereMinute: `${selection[1]} - Repéré pour sa forme du jour.`,
+                analyse: `Nos analyses prioritaires basées sur le quinté du jour placent le ${selection[0]} et le ${selection[1]}.`,
+                message: "Bonne chance à tous les abonnés pour cette course ! 🎯"
+            };
+            afficherDonneesVIP(donneesVIP);
+        }
+    } catch (error) {
+        console.error("Erreur de chargement des tickets premium dynamiques :", error);
+    }
 }
 
 // FORMATAGE DES PASTILLES
@@ -58,11 +71,10 @@ function formaterPastilles(texte) {
     const parties = texte.split('/');
     
     function convertirEnPastilles(chaine) {
-        const elements = chaine.split(/[-,\s]+/).map(item => item.trim()).filter(Boolean);
+        const elements = String(chaine).split(/[-,\s]+/).map(item => item.trim()).filter(Boolean);
         return elements.map(num => {
             if (!isNaN(num)) {
-                const formattedNum = String(num).padStart(2, '0');
-                return `<span class="numero-cheval">${formattedNum}</span>`;
+                return `<span class="numero-cheval">${String(num).padStart(2, '0')}</span>`;
             } else if (num.toUpperCase() === 'X') {
                 return `<span class="numero-cheval" style="background-color: #d97706;">X</span>`;
             }
@@ -102,4 +114,4 @@ function afficherDonneesVIP(data) {
     injecter("derniere-minute-premium", data.derniereMinute, true);
     injecter("analyse-premium", data.analyse, false);
     injecter("message-premium", data.message, false);
-    }
+             }
