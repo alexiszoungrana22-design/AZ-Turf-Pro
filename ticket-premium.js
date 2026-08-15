@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // Gestion de la sauvegarde des contacts Admin
     const btnSauvegarder = document.getElementById("btn-sauvegarder-contacts");
     if (btnSauvegarder) {
         btnSauvegarder.addEventListener("click", function () {
@@ -69,12 +70,18 @@ async function verifierAccesEtChargerTickets() {
     }
 }
 
-function extraireDonnee(champ, defaut) {
+// Nettoyage et conversion sécurisée des données issues de l'API (tableaux, objets ou chaînes)
+function extraireDonnee(champ, defaut = "") {
     if (!champ) return defaut;
     if (typeof champ === 'string') return champ;
     if (Array.isArray(champ)) return champ.join(" - ");
     if (typeof champ === 'object') {
-        return champ.texte || champ.valeur || champ.combinaison || JSON.stringify(champ) || defaut;
+        if (champ.bases || champ.complements) {
+            const bases = Array.isArray(champ.bases) ? champ.bases.join(" - ") : (champ.bases || "");
+            const complements = Array.isArray(champ.complements) ? champ.complements.join(" - ") : (champ.complements || "");
+            return bases && complements ? `${bases} / ${complements}` : (bases || complements);
+        }
+        return champ.texte || champ.valeur || champ.combinaison || defaut;
     }
     return String(champ);
 }
@@ -92,16 +99,16 @@ async function chargerDonneesAPI() {
         }
 
         const ticketsRemplis = {
-            selection: extraireDonnee(prem.selection, ""),
-            explication: extraireDonnee(prem.explication, ""),
-            quinte: extraireDonnee(prem.quinte, ""),
-            quarte: extraireDonnee(prem.quarte, ""),
-            trio: extraireDonnee(prem.trio, ""),
-            couple: extraireDonnee(prem.couple, ""),
-            champReduit: extraireDonnee(prem.champReduit || prem.champ_reduit, ""),
-            derniereMinute: extraireDonnee(prem.derniereMinute || prem.derniere_minute, ""),
-            analyse: extraireDonnee(prem.analyse || data.analyse, ""),
-            message: extraireDonnee(prem.message, "")
+            selection: extraireDonnee(prem.selection),
+            explication: extraireDonnee(prem.explication),
+            quinte: extraireDonnee(prem.quinte),
+            quarte: extraireDonnee(prem.quarte),
+            trio: extraireDonnee(prem.trio),
+            couple: extraireDonnee(prem.couple),
+            champReduit: extraireDonnee(prem.champReduit || prem.champ_reduit),
+            derniereMinute: extraireDonnee(prem.derniereMinute || prem.derniere_minute),
+            analyse: extraireDonnee(prem.analyse || data.analyse),
+            message: extraireDonnee(prem.message)
         };
 
         afficherDonneesVIP(ticketsRemplis);
@@ -111,6 +118,7 @@ async function chargerDonneesAPI() {
     }
 }
 
+// Transforme une chaîne de numéros ("08 - 06 - X / 01 - 02") en pastilles graphiques exactes de la page d'accueil/analyse
 function formaterPastilles(texte) {
     if (!texte) return "";
     if (typeof texte !== 'string') texte = String(texte);
