@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Gestion de la sauvegarde des contacts Admin
     const btnSauvegarder = document.getElementById("btn-sauvegarder-contacts");
     if (btnSauvegarder) {
         btnSauvegarder.addEventListener("click", function () {
@@ -75,23 +74,20 @@ async function chargerDonneesAPI() {
         const response = await fetch('https://az-turf-pro.onrender.com/api/analyse');
         const data = await response.json();
 
-        let selection = ["01", "02", "03", "04", "05", "06", "07", "08"];
-        if (data && data.selection && Array.isArray(data.selection) && data.selection.length > 0) {
-            selection = data.selection;
-        }
-
         let prem = {};
         if (data && data.tickets && data.tickets.premium) {
             prem = data.tickets.premium;
+        } else if (data && data.tickets) {
+            prem = data.tickets;
         }
 
-        // Convertit proprement les tableaux de numéros en chaînes séparées par des tirets
         const normaliserFormat = (val) => {
+            if (!val) return "";
             if (Array.isArray(val)) return val.join(" - ");
-            return val;
+            return String(val);
         };
 
-        // Traitement sécurisé du champ réduit pour gérer les objets JSON { bases, complements }
+        // Extraction sécurisée du champ réduit
         let cr = prem.champReduit || prem.champ_reduit;
         if (typeof cr === 'object' && cr !== null) {
             const b = Array.isArray(cr.bases) ? cr.bases.join(" - ") : (cr.bases || "");
@@ -99,15 +95,32 @@ async function chargerDonneesAPI() {
             cr = (b && c) ? `${b} / ${c}` : (b || c || cr.format || "");
         }
 
+        // Récupération dynamique des tickets
+        const quinteTxt = normaliserFormat(prem.quinte);
+        const quarteTxt = normaliserFormat(prem.quarte);
+        const trioTxt = normaliserFormat(prem.trio);
+        
+        // Harmonisation : si la sélection ou le couplé ne sont pas dans le VIP, on extrait du Quinté du jour
+        let selectionTxt = normaliserFormat(prem.selection || data.selection);
+        if (!selectionTxt && quinteTxt) {
+            selectionTxt = quinteTxt;
+        }
+
+        let coupleTxt = normaliserFormat(prem.couple || prem.coupleGagnant);
+        if (!coupleTxt && quinteTxt) {
+            const elementsQuinte = quinteTxt.split(/[-,\s]+/).filter(Boolean);
+            coupleTxt = elementsQuinte.slice(0, 3).join(" - ");
+        }
+
         const ticketsRemplis = {
-            selection: normaliserFormat(prem.selection) || selection.join(" - "),
+            selection: selectionTxt,
             explication: prem.explication || "Sélection rigoureusement établie sur la base des meilleures performances et indices VIP du jour.",
-            quinte: normaliserFormat(prem.quinte) || selection.slice(0, 6).join(" - "),
-            quarte: normaliserFormat(prem.quarte) || selection.slice(0, 5).join(" - "),
-            trio: normaliserFormat(prem.trio) || selection.slice(0, 4).join(" - "),
-            couple: normaliserFormat(prem.couple || prem.coupleGagnant) || `${selection[0]} - ${selection[1]} - ${selection[2]}`,
-            champReduit: cr || `${selection[0]} - ${selection[1]} - X - ${selection[3]} - X / ${selection[2]} - ${selection[4]} - ${selection[5]} - ${selection[6] || selection[0]}`,
-            derniereMinute: normaliserFormat(prem.derniereMinute || prem.derniere_minute) || `${selection[0]} - Cheval repéré pour sa condition physique exceptionnelle. À suivre de très près.`,
+            quinte: quinteTxt,
+            quarte: quarteTxt,
+            trio: trioTxt,
+            couple: coupleTxt,
+            champReduit: cr,
+            derniereMinute: normaliserFormat(prem.derniereMinute || prem.derniere_minute),
             analyse: prem.analyse || data.analyse || "L'analyse complète indique une course ouverte où les bases de notre sélection présentent les plus fortes garanties au papier.",
             message: prem.message || "Toute l'équipe AZ Turf Pro VIP vous souhaite une excellente journée et de très grands gains !"
         };
@@ -147,7 +160,7 @@ function formaterPastilles(texte) {
 function injecter(id, contenu, estCombine = false) {
     const el = document.getElementById(id);
     if (el) {
-        if (estCombine) {
+        if (estCombine && contenu) {
             el.innerHTML = formaterPastilles(contenu);
         } else {
             el.innerText = contenu || "";
@@ -163,7 +176,7 @@ function afficherDonneesVIP(data) {
     injecter("trio-premium", data.trio, true);
     injecter("couple-premium", data.couple, true);
     injecter("champ-reduit-premium", data.champReduit, true);
-    injecter("derniere-minute-premium", data.derniereMinute, false);
+    injecter("derniere-minute-premium", data.derniereMinute, true);
     injecter("analyse-premium", data.analyse, false);
     injecter("message-premium", data.message, false);
-}
+    }
