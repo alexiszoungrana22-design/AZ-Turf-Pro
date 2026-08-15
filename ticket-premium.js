@@ -85,7 +85,13 @@ async function chargerDonneesAPI() {
             prem = data.tickets.premium;
         }
 
-        // Seul ajustement léger : extraire bases / complements si le champ réduit est sous forme d'objet
+        // Convertit proprement les tableaux de numéros en chaînes séparées par des tirets
+        const normaliserFormat = (val) => {
+            if (Array.isArray(val)) return val.join(" - ");
+            return val;
+        };
+
+        // Traitement sécurisé du champ réduit pour gérer les objets JSON { bases, complements }
         let cr = prem.champReduit || prem.champ_reduit;
         if (typeof cr === 'object' && cr !== null) {
             const b = Array.isArray(cr.bases) ? cr.bases.join(" - ") : (cr.bases || "");
@@ -94,14 +100,14 @@ async function chargerDonneesAPI() {
         }
 
         const ticketsRemplis = {
-            selection: prem.selection || selection.join(" - "),
+            selection: normaliserFormat(prem.selection) || selection.join(" - "),
             explication: prem.explication || "Sélection rigoureusement établie sur la base des meilleures performances et indices VIP du jour.",
-            quinte: prem.quinte || selection.slice(0, 6).join(" - "),
-            quarte: prem.quarte || selection.slice(0, 5).join(" - "),
-            trio: prem.trio || selection.slice(0, 4).join(" - "),
-            couple: prem.couple || `${selection[0]} - ${selection[1]} - ${selection[2]}`,
+            quinte: normaliserFormat(prem.quinte) || selection.slice(0, 6).join(" - "),
+            quarte: normaliserFormat(prem.quarte) || selection.slice(0, 5).join(" - "),
+            trio: normaliserFormat(prem.trio) || selection.slice(0, 4).join(" - "),
+            couple: normaliserFormat(prem.couple || prem.coupleGagnant) || `${selection[0]} - ${selection[1]} - ${selection[2]}`,
             champReduit: cr || `${selection[0]} - ${selection[1]} - X - ${selection[3]} - X / ${selection[2]} - ${selection[4]} - ${selection[5]} - ${selection[6] || selection[0]}`,
-            derniereMinute: prem.derniereMinute || prem.derniere_minute || `${selection[0]} - Cheval repéré pour sa condition physique exceptionnelle. À suivre de très près.`,
+            derniereMinute: normaliserFormat(prem.derniereMinute || prem.derniere_minute) || `${selection[0]} - Cheval repéré pour sa condition physique exceptionnelle. À suivre de très près.`,
             analyse: prem.analyse || data.analyse || "L'analyse complète indique une course ouverte où les bases de notre sélection présentent les plus fortes garanties au papier.",
             message: prem.message || "Toute l'équipe AZ Turf Pro VIP vous souhaite une excellente journée et de très grands gains !"
         };
