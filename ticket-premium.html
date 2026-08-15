@@ -137,7 +137,7 @@
             <p>Pronostics et Analyses Réservés aux Abonnés</p>
         </header>
 
-        <!-- Bloc Administration / Gestion des Paiements (Intégré sans toucher au reste) -->
+        <!-- AJOUTÉ : Bloc d'administration des paiements (affiché uniquement pour l'admin) -->
         <div id="bloc-admin-paiements" class="ticket-card zone-masquee" style="border: 2px dashed #2563eb; background: #eff6ff;">
             <h3 style="color: #1e3a8a;">⚙️ Admin : Gestion des Paiements</h3>
             <label style="font-size: 13px; color: #1e293b;">Modifier le numéro/contact de paiement :</label>
@@ -145,20 +145,17 @@
             <button id="btn-sauvegarder-contacts" class="btn-action" style="margin: 0; padding: 10px;">💾 Sauvegarder les contacts</button>
         </div>
 
-        <!-- Message d'accès refusé (masqué par défaut) -->
         <div id="message-blocage" class="zone-masquee">
             🔒 Contenu réservé aux membres abonnés.<br>Veuillez activer votre compte pour voir les tickets VIP du jour.
             <a href="abonnement.html" class="btn-action btn-retour">🔄 Retourner à l'Espace Abonnement</a>
         </div>
 
-        <!-- Bouton Tableau Live -->
         <button id="btn-toggle-tableau" class="btn-action">📊 Afficher le Tableau des Partants (Live)</button>
         
         <div id="conteneur-tableau" class="zone-masquee">
             <p style="text-align: center; color: #64748b; padding: 8px;">Chargement des partants en direct...</p>
         </div>
 
-        <!-- Contenu Premium -->
         <div id="contenu-premium" class="zone-masquee">
             
             <div class="ticket-card">
