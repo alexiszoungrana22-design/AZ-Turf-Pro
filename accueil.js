@@ -26,24 +26,6 @@ function enregistrerAnalyseDansHistorique(data){
             classement:data.classement||old.classement||[],
             arrivee:old.arrivee||[],
             rapports:old.rapports||[]
-            chevaux.forEach(cheval => {
-    const row = document.createElement("tr");
-    
-    // Si c'est un non-partant, on applique un style rouge et barré
-    if (cheval.est_non_partant) {
-        row.style.color = "#d9534f"; // Rouge
-        row.style.textDecoration = "line-through"; // Texte barré (optionnel)
-        row.style.backgroundColor = "#ffe6e6"; // Fond rouge très clair
-    }
-
-    row.innerHTML = `
-        <td>${cheval.numero} ${cheval.est_non_partant ? '<b style="color:red;">(NP)</b>' : ''}</td>
-        <td>${cheval.nom}</td>
-        <td>${cheval.est_non_partant ? 'NP' : cheval.indice_az}</td>
-    `;
-    
-    tableBody.appendChild(row);
-});
         };
         if(i>=0) h[i]=e; else h.unshift(e); 
         localStorage.setItem(key,JSON.stringify(h.slice(0,100)));
@@ -362,3 +344,4 @@ document.addEventListener("DOMContentLoaded", () => {
     chargerAnalyse();
     setInterval(changerPublicite, 4000);
 });
+                                                                                                               
