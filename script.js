@@ -121,3 +121,55 @@ function afficherErreur() {
         if (el) el.textContent = "Indisponible (Erreur serveur)";
     });
 }
+// Déclaration du graphique Chart.js
+let radarChartInstance = null;
+
+function ouvrirFicheCheval(cheval) {
+    document.getElementById("modal-nom-cheval").innerText = `${cheval.numero} - ${cheval.nom}`;
+    
+    // 1. Affichage des Badges Intelligents
+    const badgesContainer = document.getElementById("container-badges");
+    badgesContainer.innerHTML = "";
+    
+    if (cheval.badges && cheval.badges.length > 0) {
+        cheval.badges.forEach(b => {
+            const span = document.createElement("span");
+            span.className = "badge-item";
+            span.style.backgroundColor = b.couleur;
+            span.innerText = b.libelle;
+            badgesContainer.appendChild(span);
+        });
+    }
+
+    // 2. Traçage du Radar de Performance (Chart.js)
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    
+    if (radarChartInstance) {
+        radarChartInstance.destroy();
+    }
+
+    radarChartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['Forme', 'Distance', 'Jockey', 'Classe/Gains', 'Fraîcheur'],
+            datasets: [{
+                label: 'Indice AZ Expert',
+                data: [
+                    cheval.radar.forme, 
+                    cheval.radar.distance, 
+                    cheval.radar.jockey, 
+                    cheval.radar.classe, 
+                    cheval.radar.fraicheur
+                ],
+                backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                borderColor: '#007bff',
+                pointBackgroundColor: '#007bff'
+            }]
+        },
+        options: {
+            scales: {
+                r: { min: 0, max: 100, ticks: { display: false } }
+            }
+        }
+    });
+}
