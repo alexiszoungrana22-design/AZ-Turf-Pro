@@ -48,6 +48,7 @@ from learning import lire_historique, mettre_a_jour_arrivee
 
 import json
 import os
+import re
 from datetime import datetime, timedelta
 
 
@@ -115,7 +116,7 @@ def charger_course():
         ):
 
             print(
-                "Source utilisée : PMU réel"
+                "Source utilisÃ©e : PMU rÃ©el"
             )
 
             return course, "pmu_live"
@@ -146,7 +147,7 @@ def charger_course():
         ):
 
             print(
-                "Source utilisée : données locales (démo)"
+                "Source utilisÃ©e : donnÃ©es locales (dÃ©mo)"
             )
 
             course["donnees_demo"] = True
@@ -164,6 +165,173 @@ def charger_course():
 
 
 # =====================================
+# ACTUALITES / ARRIVEES HISTORIQUES
+# =====================================
+
+def _normaliser_arrivee(arrivee):
+    """Normalise une arrivee provenant de PMU/LONAB pour le frontend."""
+    if not arrivee:
+        return None
+
+    if isinstance(arrivee, dict):
+        resultat = dict(arrivee)
+        arrivee_val = (
+            resultat.get("arrivee")
+            or resultat.get("ordre")
+            or resultat.get("resultat")
+            or resultat.get("numeros")
+            or resultat.get("numbers")
+        )
+        if isinstance(arrivee_val, str):
+            arrivee_val = [x.strip() for x in arrivee_val.replace(",", "-").split("-") if x.strip()]
+        if isinstance(arrivee_val, (list, tuple)):
+            resultat["arrivee"] = [str(x) for x in arrivee_val]
+        return resultat if resultat.get("arrivee") else None
+
+    if isinstance(arrivee, (list, tuple)):
+        return {"arrivee": [str(x) for x in arrivee]}
+
+    if isinstance(arrivee, str):
+        nums = [x.strip() for x in arrivee.replace(",", "-").split("-") if x.strip()]
+        return {"arrivee": nums} if nums else None
+
+    return None
+
+
+def _course_terminee(info_course):
+    """Retourne True si la course est suffisamment ancienne pour chercher son arrivÃ©e."""
+    if not isinstance(info_course, dict):
+        return False
+
+    date_str = str(info_course.get("date") or "").strip()
+    heure = str(info_course.get("heure_depart") or "").strip()
+
+    try:
+        if re.match(r"^\d{8}$", date_str):
+            dt = datetime.strptime(date_str, "%d%m%Y")
+        else:
+            dt = datetime.strptime(date_str[:10], "%Y-%m-%d")
+    except Exception:
+        return False
+
+    if heure:
+        m = re.search(r"(\d{1,2})\s*[hH:](?:\s*(\d{1,2}))?", heure)
+        if m:
+            h = int(m.group(1))
+            minute = int(m.group(2) or 0)
+            dt = dt.replace(hour=h, minute=minute)
+
+    return datetime.now() >= dt + timedelta(hours=2)
+
+
+def _actualites_historique():
+    """
+    Recharge les arrivees des courses historiques non encore completees.
+    Cette fonction est appelee aussi par /api/journal afin que la carte
+    'Dernieres arrivees' ne reste pas bloquee sur le dernier PDF LONAB.
+    """
+    try:
+        entrees = lire_historique() or []
+    except Exception as erreur:
+        print("Lecture historique pour journal impossible :", erreur)
+        return []
+
+    actualites = []
+
+    for index, entree in enumerate(entrees):
+        if not isinstance(entree, dict):
+            continue
+
+        info = entree.get("course") or {}
+        if not _course_terminee(info):
+            continue
+
+        arrivee = _normaliser_arrivee(entree.get("arrivee"))
+
+        if not arrivee:
+            try:
+                from pmu_source import recuperer_arrivee_pmu
+                brut = recuperer_arrivee_pmu(
+                    info.get("date"),
+                    info.get("reunion"),
+                    info.get("course_numero")
+                )
+                arrivee = _normaliser_arrivee(brut)
+            except Exception as erreur:
+                print("Arrivee PMU historique indisponible :", erreur)
+
+            if arrivee:
+                try:
+                    mettre_a_jour_arrivee(index, arrivee)
+                except Exception as erreur:
+                    print("Mise a jour arrivee impossible :", erreur)
+
+        if not arrivee:
+            continue
+
+        actualites.append({
+            "type_pari": info.get("type_pari") or "QUINTE+",
+            "date": info.get("date") or "",
+            "course": info.get("course") or "Course",
+            "reunion": info.get("reunion") or "",
+            "course_numero": info.get("course_numero") or "",
+            "arrivee": arrivee.get("arrivee", [])[:5],
+            "rapport": arrivee.get("rapport") or arrivee.get("rapports") or {},
+            "source": arrivee.get("source") or "pmu",
+        })
+
+    return actualites
+
+
+def _fusionner_actualites(journal):
+    """Fusionne les actualites LONAB du jour avec l'historique AZ."""
+    if not isinstance(journal, dict):
+        return journal
+
+    existantes = journal.get("actualites") or []
+    historiques = _actualites_historique()
+
+    fusion = []
+    cles = set()
+
+    for item in existantes + historiques:
+        if not isinstance(item, dict):
+            continue
+        arrivee = item.get("arrivee") or []
+        cle = (
+            str(item.get("date") or ""),
+            str(item.get("course") or item.get("type_pari") or ""),
+            tuple(str(x) for x in arrivee[:5]),
+        )
+        if cle in cles:
+            continue
+        cles.add(cle)
+        fusion.append(item)
+
+    def cle_date(item):
+        valeur = str(item.get("date") or "")
+        try:
+            if re.match(r"^\d{8}$", valeur):
+                return datetime.strptime(valeur, "%d%m%Y")
+            return datetime.strptime(valeur[:10], "%Y-%m-%d")
+        except Exception:
+            return datetime.min
+
+    fusion.sort(key=cle_date, reverse=True)
+    journal["actualites"] = fusion[:20]
+    journal["dernieres_arrivees"] = fusion[:20]
+
+    # Les rapports historiques deviennent Ã©galement accessibles au frontend.
+    rapports = [
+        item for item in fusion
+        if item.get("rapport")
+    ]
+    journal["rapports"] = rapports[:20]
+
+    return journal
+
+
+# =====================================
 # ANALYSE AZ TURF
 # =====================================
 
@@ -173,7 +341,7 @@ def analyse():
     try:
 
         # =================================
-        # 1. CHARGEMENT DES DONNÉES
+        # 1. CHARGEMENT DES DONNÃ‰ES
         # =================================
 
         course, source = charger_course()
@@ -183,7 +351,7 @@ def analyse():
             raise HTTPException(
                 status_code=503,
                 detail=(
-                    "Aucune donnée de course "
+                    "Aucune donnÃ©e de course "
                     "disponible actuellement."
                 )
             )
@@ -202,7 +370,7 @@ def analyse():
             raise HTTPException(
                 status_code=503,
                 detail=(
-                    "Aucun cheval trouvé "
+                    "Aucun cheval trouvÃ© "
                     "dans la course."
                 )
             )
@@ -232,7 +400,7 @@ def analyse():
             dict
         ):
             raise Exception(
-                "Réponse invalide du moteur AZ"
+                "RÃ©ponse invalide du moteur AZ"
             )
 
         classement = resultat.get(
@@ -243,7 +411,7 @@ def analyse():
         if not classement:
 
             raise Exception(
-                "Le moteur AZ n'a retourné "
+                "Le moteur AZ n'a retournÃ© "
                 "aucun classement."
             )
 
@@ -273,17 +441,17 @@ def analyse():
         )
 
         # =================================
-        # 5. RÉPONSE API
+        # 5. RÃ‰PONSE API
         # =================================
 
         reponse = {
 
             "message": (
-                "Analyse AZ Turf terminée"
+                "Analyse AZ Turf terminÃ©e"
                 if not est_demo else
-                "Analyse AZ Turf terminée "
-                "(données de démonstration, "
-                "aucune course réelle "
+                "Analyse AZ Turf terminÃ©e "
+                "(donnÃ©es de dÃ©monstration, "
+                "aucune course rÃ©elle "
                 "disponible actuellement)"
             ),
 
@@ -386,10 +554,10 @@ def analyse():
         if est_demo:
 
             reponse["avertissement"] = (
-                "Ces données sont des données de "
-                "démonstration figées et ne "
-                "correspondent pas à  une course "
-                "réelle du jour."
+                "Ces donnÃ©es sont des donnÃ©es de "
+                "dÃ©monstration figÃ©es et ne "
+                "correspondent pas Ã   une course "
+                "rÃ©elle du jour."
             )
 
         return reponse
@@ -434,7 +602,7 @@ def abonnement(
         return {
 
             "message":
-                "Abonnement enregistré",
+                "Abonnement enregistrÃ©",
 
             "abonnement":
                 resultat
@@ -476,7 +644,7 @@ def activation_premium(
             status_code=404,
 
             detail=
-                "Aucun abonnement trouvé"
+                "Aucun abonnement trouvÃ©"
 
         )
 
@@ -504,7 +672,7 @@ def activation_premium(
     return {
 
         "message":
-            "Premium activé",
+            "Premium activÃ©",
 
         "statut":
             "ACTIF",
@@ -571,7 +739,20 @@ def journal():
             aujourd_hui
         )
 
-        if not resultat:
+        # Ne pas dependre uniquement du PDF du jour : les arrivees
+        # des courses deja analysees sont rechargees depuis l historique.
+        if resultat:
+            resultat = _fusionner_actualites(resultat)
+        else:
+            # Meme si le PDF LONAB du jour est temporairement indisponible,
+            # le journal peut encore afficher les dernieres arrivees connues.
+            resultat = _fusionner_actualites({
+                "source": "historique",
+                "actualites": [],
+                "masses_a_partager": [],
+            })
+
+        if not resultat or not (resultat.get("actualites") or resultat.get("entete")):
 
             raise HTTPException(
                 status_code=503,
@@ -651,87 +832,3 @@ def debug_pmu():
 
 @router.get("/debug-journal")
 def debug_journal():
-
-    aujourd_hui = datetime.now()
-
-    try:
-
-        diagnostic = diagnostiquer_journal_lonab(
-            aujourd_hui
-        )
-
-        return diagnostic
-
-    except Exception as erreur:
-
-        raise HTTPException(
-            status_code=500,
-            detail=f"Erreur debug journal : {erreur}"
-        )
-
-
-# =====================================
-# HISTORIQUE (SELECTION + RESULTATS)
-# =====================================
-#
-# Route additive : n'affecte aucune route existante. Lit
-# data/historique_az.json (rempli automatiquement par
-# engine.lancer_analyse a chaque appel de /api/analyse) et tente
-# de completer le vrai resultat (arrivee) des entrees passees dont
-# la course est desormais terminee.
-#
-# LIMITE CONNUE : si l'hebergement Render ne dispose pas d'un
-# disque persistant, ce fichier peut etre remis a zero a chaque
-# redeploiement - l'historique ne survit alors pas dans le temps.
-
-@app.route('/api/historique', methods=['GET'])
-def api_historique():
-    return jsonify(voir_historique())
-    
-@router.get("/historique")
-def historique():
-
-    try:
-
-        entrees = lire_historique()
-
-        for index, entree in enumerate(entrees):
-
-            if entree.get("arrivee"):
-                continue
-
-            info_course = entree.get("course") or {}
-
-            date = info_course.get("date")
-            reunion = info_course.get("reunion")
-            course_numero = info_course.get("course_numero")
-
-            if not (date and reunion and course_numero):
-                continue
-
-            try:
-
-                from pmu_source import recuperer_arrivee_pmu
-
-                arrivee = recuperer_arrivee_pmu(
-                    date, reunion, course_numero
-                )
-
-                if arrivee:
-                    mettre_a_jour_arrivee(index, arrivee)
-                    entree["arrivee"] = arrivee
-
-            except Exception:
-                pass
-
-        return {
-            "historique": list(reversed(entrees))
-        }
-
-    except Exception as erreur:
-
-        raise HTTPException(
-            status_code=500,
-            detail=f"Erreur historique : {erreur}"
-)
-            
