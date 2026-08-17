@@ -832,3 +832,79 @@ def debug_pmu():
 
 @router.get("/debug-journal")
 def debug_journal():
+
+aujourd_hui = datetime.now()
+
+    try:
+
+        diagnostic = diagnostiquer_journal_lonab(
+            aujourd_hui
+        )
+
+        return diagnostic
+
+    except Exception as erreur:
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erreur debug journal : {erreur}"
+        )
+
+
+
+# =====================================
+# HISTORIQUE (SELECTION + RESULTATS)
+# =====================================
+#
+# Route additive : n'affecte aucune route existante. Lit
+# data/historique_az.json (rempli automatiquement par
+# engine.lancer_analyse a chaque appel de /api/analyse) et tente
+# de completer le vrai resultat (arrivee) des entrees passees dont
+# la course est desormais terminee.
+#
+# LIMITE CONNUE : si l'hebergement Render ne dispose pas d'un
+# disque persistant, ce fichier peut etre remis a zero a chaque
+# redeploiement - l'historique ne survit alors pas dans le temps.
+
+@router.get("/historique")
+def historique():
+    try:
+        entrees = lire_historique() or []
+
+        for index, entree in enumerate(entrees):
+            if not isinstance(entree, dict) or entree.get("arrivee"):
+                continue
+
+            info_course = entree.get("course") or {}
+            if not _course_terminee(info_course):
+                continue
+
+            date = info_course.get("date")
+            reunion = info_course.get("reunion")
+            course_numero = info_course.get("course_numero")
+
+            if not (date and reunion and course_numero):
+                continue
+
+            try:
+                from pmu_source import recuperer_arrivee_pmu
+                arrivee = _normaliser_arrivee(
+                    recuperer_arrivee_pmu(
+                        date, reunion, course_numero
+                    )
+                )
+                if arrivee:
+                    mettre_a_jour_arrivee(index, arrivee)
+                    entree["arrivee"] = arrivee
+            except Exception as erreur:
+                print("Erreur arrivee historique :", erreur)
+
+        return {
+            "historique": list(reversed(entrees))
+        }
+
+    except Exception as erreur:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erreur historique : {erreur}"
+    )
