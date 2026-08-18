@@ -1,2 +1,2 @@
-def analyser_impact_terrain(data: dict) -> dict:
-    return {"status": "success", "impact": "NEUTRE"}
+def generer_pdf_ticket(data: dict) -> dict:
+    return {"status": "success", "url_pdf": ""}
