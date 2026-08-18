@@ -662,7 +662,12 @@ def lancer_analyse(
     # =====================================================
     # REPONSE API
     # =====================================================
-
+    # A la fin de lancer_analyse() dans engine.py :
+try:
+    from modules.cotes_history import enrichir_avec_cotes
+    chevaux_affichage = enrichir_avec_cotes(chevaux_affichage)
+except Exception:
+    pass # Si le module échoue, l'analyse principale continue normalement
     return {
 
         "message":
