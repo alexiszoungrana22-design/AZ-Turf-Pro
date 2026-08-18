@@ -733,3 +733,14 @@ def historique():
             detail=f"Erreur historique : {erreur}"
 )
             
+# Dans api.py (à la fin du fichier)
+from modules.cotes_history import analyser_tendances_cotes
+from modules.export_pdf import generer_pdf_ticket
+
+@router.post("/analyse/cotes")
+def api_analyse_cotes(data: dict):
+    return analyser_tendances_cotes(data)
+
+@router.post("/export/pdf")
+def api_export_pdf(data: dict):
+    return generer_pdf_ticket(data)
