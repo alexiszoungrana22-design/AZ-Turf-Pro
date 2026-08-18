@@ -296,7 +296,6 @@ def calculer_indice_premium(cheval, info_course=None, discipline="TROT"):
 def lancer_analyse(
     chevaux,
     info_course=None
-    # A la fin de lancer_analyse() dans engine.py :
 try:
     from modules.cotes_history import enrichir_avec_cotes
     chevaux_affichage = enrichir_avec_cotes(chevaux_affichage)
