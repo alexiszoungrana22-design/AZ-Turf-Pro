@@ -296,6 +296,12 @@ def calculer_indice_premium(cheval, info_course=None, discipline="TROT"):
 def lancer_analyse(
     chevaux,
     info_course=None
+    # A la fin de lancer_analyse() dans engine.py :
+try:
+    from modules.cotes_history import enrichir_avec_cotes
+    chevaux_affichage = enrichir_avec_cotes(chevaux_affichage)
+except Exception:
+    pass # Si le module échoue, l'analyse principale continue normalement
 ):
     """
     Orchestre l'analyse complÃ¨te d'une course.
@@ -662,40 +668,20 @@ def lancer_analyse(
     # =====================================================
     # REPONSE API
     # =====================================================
-    # A la fin de lancer_analyse() dans engine.py :
-try:
-    from modules.cotes_history import enrichir_avec_cotes
-    chevaux_affichage = enrichir_avec_cotes(chevaux_affichage)
-except Exception:
-    pass # Si le module échoue, l'analyse principale continue normalement
+    # =====================================================
+    # REPONSE API
+    # =====================================================
+
     return {
-
-        "message":
-            "Analyse AZ Turf Pro terminÃ©e",
-
-        "chevaux":
-            chevaux_affichage,
-
-        "classement":
-            classement,
-
-        "partants_complets":
-            chevaux_affichage,
-
-        "non_partants":
-            sorted(
-                list(np_nums),
-                key=lambda x:
-                    int(x)
-                    if str(x).isdigit()
-                    else 9999
-            ),
-
-        "favori":
-            favori,
-
-        "tickets":
-            tickets,
-
+        "message": "Analyse AZ Turf Pro terminée",
+        "chevaux": chevaux_affichage,
+        "classement": classement,
+        "partants_complets": chevaux_affichage,
+        "non_partants": sorted(
+            list(np_nums),
+            key=lambda x: int(x) if str(x).isdigit() else 9999
+        ),
+        "favori": favori,
+        "tickets": tickets,
     }
 
