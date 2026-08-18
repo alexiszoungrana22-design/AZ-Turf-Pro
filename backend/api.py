@@ -50,6 +50,10 @@ import json
 import os
 from datetime import datetime, timedelta
 
+from engine import lancer_analyse
+from modules.cotes_history import analyser_tendances_cotes
+from modules.pronos_presse import analyser_consensus_presse
+from modules.meteo_piste import analyser_impact_terrain
 
 router = APIRouter(
     prefix="/api",
@@ -744,3 +748,50 @@ def api_analyse_cotes(data: dict):
 @router.post("/export/pdf")
 def api_export_pdf(data: dict):
     return generer_pdf_ticket(data)
+
+# =========================================================
+# ENDPOINT TOUT-EN-UN (ANALYSE GLOBALE AZ TURF PRO)
+# =========================================================
+
+@router.post("/analyse/complete")
+def api_analyse_complete(payload: dict):
+    """
+    Combine le moteur principal, le suivi des cotes, la presse et la météo 
+    en une seule réponse structurée pour l'application.
+    """
+    chevaux = payload.get("chevaux", [])
+    info_course = payload.get("info_course", {})
+
+    # 1. Moteur d'analyse principal (Scores AZ, Premium, Badges et Radar)
+    res_moteur = lancer_analyse(chevaux, info_course)
+
+    # 2. Suivi des cotes & Smart Money (Sécurisé avec try/except)
+    res_cotes = {}
+    try:
+        res_cotes = analyser_tendances_cotes({"chevaux": chevaux})
+    except Exception as e:
+        print("Erreur analyse cotes :", e)
+
+    # 3. Consensus Presse (Sécurisé avec try/except)
+    res_presse = {}
+    try:
+        res_presse = analyser_consensus_presse({"info_course": info_course})
+    except Exception as e:
+        print("Erreur analyse presse :", e)
+
+    # 4. Météo et état de la piste (Sécurisé avec try/except)
+    res_meteo = {}
+    try:
+        res_meteo = analyser_impact_terrain({"info_course": info_course})
+    except Exception as e:
+        print("Erreur analyse météo :", e)
+
+    # Assemblage de la réponse globale
+    return {
+        "status": "success",
+        "message": "Analyse complète AZ Turf Pro effectuée",
+        "analyse_moteur": res_moteur,
+        "tendances_cotes": res_cotes.get("resultats", []),
+        "consensus_presse": res_presse.get("consensus", []),
+        "impact_meteo": res_meteo.get("impact", "NEUTRE")
+    }
