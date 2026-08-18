@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AZ Turf Pro</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ========================================================= -->
+  <!-- SECTION STATISTIQUES & SIMULATEUR BACKTEST                -->
+  <!-- ========================================================= -->
+  <div class="stats-container">
+    <h2>📊 Performances & Backtesting AZ Turf Pro</h2>
+    
+    <div class="backtest-card">
+      <h3>Simulateur de Stratégie</h3>
+      <div class="filter-group">
+        <label for="bt-cote-min">Cote Min :</label>
+        <input type="number" id="bt-cote-min" value="3.0" step="0.5">
+        
+        <label for="bt-cote-max">Cote Max :</label>
+        <input type="number" id="bt-cote-max" value="12.0" step="0.5">
+
+        <label for="bt-mise">Mise (€) :</label>
+        <input type="number" id="bt-mise" value="10">
+
+        <button onclick="lancerBacktest()" class="btn-analyser">Lancer le Backtest</button>
+      </div>
+    </div>
+
+    <div id="backtest-results" class="results-grid" style="display:none;">
+      <div class="stat-box">
+        <span class="stat-title">Mises Totales</span>
+        <span id="res-mises" class="stat-val">0 €</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-title">Gains Totaux</span>
+        <span id="res-gains" class="stat-val">0 €</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-title">Profit Net</span>
+        <span id="res-profit" class="stat-val">0 €</span>
+      </div>
+      <div class="stat-box highlight">
+        <span class="stat-title">ROI (%)</span>
+        <span id="res-roi" class="stat-val">0 %</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- WIDGET CHATBOT AZ TURF PRO                                -->
+  <!-- ========================================================= -->
+  <button id="az-chat-trigger" onclick="toggleChatbot()">
+    💬 <span>Assistant AZ</span>
+  </button>
+
+  <div id="az-chatbot-window" class="chat-hidden">
+    <div class="chat-header">
+      <span>🤖 Assistant AZ Turf Pro</span>
+      <button onclick="toggleChatbot()" class="chat-close">&times;</button>
+    </div>
+    
+    <div id="chat-messages" class="chat-body">
+      <div class="message bot">
+        Bonjour ! Posez-moi une question sur la course (ex: <i>"Quel est le coup sûr ?"</i> ou <i>"Donne-moi le ticket Quinté"</i>).
+      </div>
+    </div>
+
+    <div class="chat-suggestions">
+      <button onclick="envoyerQuestionRaccourci('Quel est le favori ?')">🎯 Favori</button>
+      <button onclick="envoyerQuestionRaccourci('Donne-moi le ticket Quinté')">💡 Quinté</button>
+      <button onclick="envoyerQuestionRaccourci('Quel est le meilleur outsider ?')">🔥 Outsider</button>
+    </div>
+
+    <div class="chat-footer">
+      <input type="text" id="chat-input" placeholder="Posez votre question..." onkeypress="handleKeyPress(event)" />
+      <button onclick="envoyerQuestion()">Envoyer</button>
+    </div>
+  </div>
+
+  <!-- Ingestion du script JavaScript externe -->
+  <script src="scripts.js"></script>
+</body>
+</html>
+
+/* ========================================================= */
+/* AZ TURF PRO - FEUILLE DE STYLE DES MODULES               */
+/* ========================================================= */
+
+/* --- SECTION STATISTIQUES & BACKTESTING --- */
+.stats-container {
+  background: #0f172a;
+  color: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 800px;
+  margin: 20px auto;
+  font-family: Arial, sans-serif;
+}
+
+.backtest-card {
+  background: #1e293b;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.filter-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-group input {
+  background: #0f172a;
+  border: 1px solid #334155;
+  color: #ffffff;
+  padding: 8px;
+  border-radius: 6px;
+  width: 80px;
+}
+
+.btn-analyser {
+  background: #10b981;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.stat-box {
+  background: #1e293b;
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-title {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.stat-val {
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 6px;
+}
+
+.stat-box.highlight {
+  border: 1px solid #10b981;
+}
+
+/* --- WIDGET CHATBOT FLOTTANT --- */
+#az-chat-trigger {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #10b981;
+  color: #ffffff;
+  border: none;
+  border-radius: 30px;
+  padding: 12px 20px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#az-chatbot-window {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 350px;
+  height: 480px;
+  background: #1e293b;
+  color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  z-index: 9999;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  font-family: Arial, sans-serif;
+}
+
+.chat-hidden {
+  display: none !important;
+}
+
+.chat-header {
+  background: #0f172a;
+  padding: 14px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #334155;
+}
+
+.chat-close {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.chat-body {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.message {
+  padding: 8px 12px;
+  border-radius: 8px;
+  max-width: 85%;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.message.bot {
+  background: #334155;
+  align-self: flex-start;
+  color: #f8fafc;
+}
+
+.message.user {
+  background: #10b981;
+  align-self: flex-end;
+  color: #ffffff;
+}
+
+.chat-suggestions {
+  display: flex;
+  gap: 6px;
+  padding: 8px;
+  background: #0f172a;
+  overflow-x: auto;
+}
+
+.chat-suggestions button {
+  background: #1e293b;
+  border: 1px solid #475569;
+  color: #cbd5e1;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.chat-footer {
+  display: flex;
+  padding: 8px;
+  background: #0f172a;
+  gap: 6px;
+}
+
+.chat-footer input {
+  flex: 1;
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #ffffff;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.chat-footer button {
+  background: #10b981;
+  border: none;
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  }
