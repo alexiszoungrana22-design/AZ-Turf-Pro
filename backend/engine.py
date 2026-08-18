@@ -693,3 +693,4 @@ def lancer_analyse(
             tickets,
 
     }
+
