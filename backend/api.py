@@ -50,10 +50,6 @@ import json
 import os
 from datetime import datetime, timedelta
 
-from engine import lancer_analyse
-from modules.cotes_history import analyser_tendances_cotes
-from modules.pronos_presse import analyser_consensus_presse
-from modules.meteo_piste import analyser_impact_terrain
 
 router = APIRouter(
     prefix="/api",
@@ -62,158 +58,42 @@ router = APIRouter(
 
 
 # =====================================
-# CHARGEMENT COURSE LOCALE
-# =====================================
-
-def charger_course_locale():
-
-    chemin = os.path.join(
-        os.path.dirname(__file__),
-        "data",
-        "courses.json"
-    )
-
-    with open(
-        chemin,
-        "r",
-        encoding="utf-8"
-    ) as fichier:
-
-        return json.load(fichier)
-
-
-# =====================================
-# CHARGEMENT COURSE
-# PMU PRIORITAIRE + FALLBACK LOCAL
+# CHARGEMENT COURSE PMU LIVE
 # =====================================
 
 def charger_course():
+    """
+    Charge uniquement la course réelle depuis PMU.
 
-    aujourd_hui = datetime.now()
-
-    # Format attendu par l'API PMU
-    date_pmu = aujourd_hui.strftime(
-        "%d%m%Y"
-    )
-
-    # =================================
-    # 1. TENTATIVE PMU
-    # reunion/course_numero ne sont plus
-    # fixes en dur : charger_course_pmu()
-    # determine elle-meme la premiere
-    # reunion/course reellement
-    # disponible dans le programme du
-    # jour si on ne lui impose rien.
-    # =================================
+    Important : aucune donnée de demonstration locale n'est utilisée
+    automatiquement. Cela empêche une ancienne course de courses.json
+    d'être présentée comme la course du jour lorsque PMU est indisponible.
+    """
+    date_pmu = datetime.now().strftime("%d%m%Y")
 
     try:
-
-        course = charger_course_pmu(
-            date_pmu
-        )
-
-        if (
-            course
-            and isinstance(course, dict)
-            and course.get("chevaux")
-        ):
-
-            print(
-                "Source utilisÃ©e : PMU rÃ©el"
-            )
-
-            return course, "pmu_live"
-
+        course = charger_course_pmu(date_pmu)
     except Exception as erreur:
+        print("PMU indisponible :", erreur)
+        return None, "none"
 
-        print(
-            "PMU indisponible :",
-            erreur
-        )
+    if not isinstance(course, dict) or not course.get("chevaux"):
+        print("PMU : aucune course exploitable pour", date_pmu)
+        return None, "none"
 
-    # =================================
-    # 2. FALLBACK LOCAL
-    # Marque explicitement comme donnee
-    # de demonstration : ne doit jamais
-    # etre presentee comme la course du
-    # jour.
-    # =================================
-
-    try:
-
-        course = charger_course_locale()
-
-        if (
-            course
-            and isinstance(course, dict)
-            and course.get("chevaux")
-        ):
-
-            print(
-                "Source utilisÃ©e : donnÃ©es locales (dÃ©mo)"
-            )
-
-            course["donnees_demo"] = True
-
-            return course, "demo"
-
-    except Exception as erreur:
-
-        print(
-            "Erreur chargement local :",
-            erreur
-        )
-
-    return None, "none"
+    print("Source utilisee : PMU reel")
+    return course, "pmu_live"
 
 
-# =====================================
-# PARTANTS — ROUTE ADDITIVE
-# =====================================
-@router.get("/partants")
-def partants():
-    """Retourne les partants analysés sans modifier /api/analyse."""
+def _charger_partants_live():
+    """Retourne la course et ses partants depuis PMU, sans fallback local."""
     course, source = charger_course()
-    if not course:
-        raise HTTPException(status_code=503, detail="Données PMU indisponibles actuellement.")
-    chevaux = course.get("chevaux", [])
-    if not chevaux:
-        raise HTTPException(status_code=503, detail="Aucun partant disponible.")
-    try:
-        resultat = lancer_analyse(
-            chevaux,
-            info_course={
-                "date": course.get("date"),
-                "reunion": course.get("reunion"),
-                "course_numero": course.get("course_numero"),
-                "course": course.get("course", ""),
-                "hippodrome": course.get("hippodrome", ""),
-                "discipline": course.get("discipline", ""),
-                "distance": course.get("distance_course", ""),
-                "allocation": course.get("allocation", ""),
-                "heure_depart": course.get("heure_depart", ""),
-                "non_partants": course.get("non_partants", []),
-            },
+    if source != "pmu_live" or not course:
+        raise HTTPException(
+            status_code=503,
+            detail="Les données PMU réelles du jour sont indisponibles actuellement."
         )
-        classement = resultat.get("chevaux", []) if isinstance(resultat, dict) else []
-        return [
-            {
-                "rang": c.get("rang"),
-                "numero": c.get("numero"),
-                "nom": c.get("nom"),
-                "indice": c.get("indice_az"),
-                "confiance": c.get("confiance"),
-                "jockey": c.get("jockey", ""),
-                "entraineur": c.get("entraineur", ""),
-                "cote": c.get("cote_brute", c.get("rapport", "")),
-                "statut": c.get("statut", ""),
-                "source": source,
-                "donnees_demo": source == "demo",
-            }
-            for c in classement
-        ]
-    except Exception as erreur:
-        raise HTTPException(status_code=500, detail=f"Erreur partants : {erreur}")
+    return course
 
 
 # =====================================
@@ -270,15 +150,7 @@ def analyse():
                 "date": course.get("date"),
                 "reunion": course.get("reunion"),
                 "course_numero": course.get("course_numero"),
-                "course": course.get("course", ""),
                 "hippodrome": course.get("hippodrome"),
-                "discipline": course.get("discipline", ""),
-                "distance": course.get("distance_course", ""),
-                "allocation": course.get("allocation", ""),
-                "heure_depart": course.get("heure_depart", ""),
-                "horaires": course.get("horaires", {}),
-                "non_partants": course.get("non_partants", []),
-                "plus_joues": course.get("plus_joues", []),
             }
         )
 
@@ -367,12 +239,6 @@ def analyse():
             "course_numero":
                 course_numero,
 
-            "heure_depart":
-                course.get("heure_depart", ""),
-
-            "horaires":
-                course.get("horaires", {"depart": course.get("heure_depart", ""), "arret_des_jeux": ""}),
-
             "hippodrome":
                 course.get(
                     "hippodrome",
@@ -443,7 +309,7 @@ def analyse():
             reponse["avertissement"] = (
                 "Ces donnÃ©es sont des donnÃ©es de "
                 "dÃ©monstration figÃ©es et ne "
-                "correspondent pas Ã   une course "
+                "correspondent pas Ã  une course "
                 "rÃ©elle du jour."
             )
 
@@ -469,6 +335,39 @@ def analyse():
             )
 
         )
+
+
+# =====================================
+# PARTANTS PMU LIVE
+# =====================================
+
+@router.get("/partants")
+def partants():
+    """Retourne les partants de la course PMU réelle du jour."""
+    try:
+        course = _charger_partants_live()
+        chevaux = course.get("chevaux", [])
+
+        return {
+            "source": "pmu_live",
+            "donnees_demo": False,
+            "course": course.get("course", ""),
+            "date": course.get("date") or datetime.now().strftime("%d%m%Y"),
+            "reunion": course.get("reunion", ""),
+            "course_numero": course.get("course_numero", ""),
+            "hippodrome": course.get("hippodrome", ""),
+            "discipline": course.get("discipline", ""),
+            "distance": course.get("distance_course", ""),
+            "allocation": course.get("allocation", ""),
+            "non_partants": course.get("non_partants", []),
+            "partants": len(chevaux),
+            "chevaux": chevaux,
+        }
+    except HTTPException:
+        raise
+    except Exception as erreur:
+        print("Erreur partants PMU :", erreur)
+        raise HTTPException(status_code=500, detail=f"Erreur partants : {erreur}")
 
 
 # =====================================
@@ -671,20 +570,30 @@ def journal():
 
 @router.get("/debug-pmu")
 def debug_pmu():
-    from pmu_source import trouver_quinte_du_jour, LAST_PMU_DIAGNOSTIC
-    date_pmu = datetime.now().strftime("%d%m%Y")
+
+    from pmu_source import trouver_quinte_du_jour
+
+    aujourd_hui = datetime.now()
+    date_pmu = aujourd_hui.strftime("%d%m%Y")
+
     try:
-        programme, reunion, course = trouver_quinte_du_jour(date_pmu)
-        from pmu_source import LAST_PMU_DIAGNOSTIC as diagnostic
+
+        programme, reunion, course = trouver_quinte_du_jour(
+            date_pmu
+        )
+
         return {
-            "date_demandee": date_pmu,
             "reunion": reunion,
             "programme_brut": programme,
             "course_brute": course,
-            "pmu_diagnostic": diagnostic,
         }
+
     except Exception as erreur:
-        raise HTTPException(status_code=500, detail=f"Erreur debug PMU : {erreur}")
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erreur debug PMU : {erreur}"
+        )
 
 
 # =====================================
@@ -738,7 +647,7 @@ def historique():
 
         for index, entree in enumerate(entrees):
 
-            if entree.get("arrivee"):
+            if entree.get("arrivee") is not None:
                 continue
 
             info_course = entree.get("course") or {}
@@ -774,63 +683,4 @@ def historique():
         raise HTTPException(
             status_code=500,
             detail=f"Erreur historique : {erreur}"
-)
-            
-# Dans api.py (à la fin du fichier)
-from modules.cotes_history import analyser_tendances_cotes
-from modules.export_pdf import generer_pdf_ticket
-
-@router.post("/analyse/cotes")
-def api_analyse_cotes(data: dict):
-    return analyser_tendances_cotes(data)
-
-@router.post("/export/pdf")
-def api_export_pdf(data: dict):
-    return generer_pdf_ticket(data)
-
-# =========================================================
-# ENDPOINT TOUT-EN-UN (ANALYSE GLOBALE AZ TURF PRO)
-# =========================================================
-
-@router.post("/analyse/complete")
-def api_analyse_complete(payload: dict):
-    """
-    Combine le moteur principal, le suivi des cotes, la presse et la météo 
-    en une seule réponse structurée pour l'application.
-    """
-    chevaux = payload.get("chevaux", [])
-    info_course = payload.get("info_course", {})
-
-    # 1. Moteur d'analyse principal (Scores AZ, Premium, Badges et Radar)
-    res_moteur = lancer_analyse(chevaux, info_course)
-
-    # 2. Suivi des cotes & Smart Money (Sécurisé avec try/except)
-    res_cotes = {}
-    try:
-        res_cotes = analyser_tendances_cotes({"chevaux": chevaux})
-    except Exception as e:
-        print("Erreur analyse cotes :", e)
-
-    # 3. Consensus Presse (Sécurisé avec try/except)
-    res_presse = {}
-    try:
-        res_presse = analyser_consensus_presse({"info_course": info_course})
-    except Exception as e:
-        print("Erreur analyse presse :", e)
-
-    # 4. Météo et état de la piste (Sécurisé avec try/except)
-    res_meteo = {}
-    try:
-        res_meteo = analyser_impact_terrain({"info_course": info_course})
-    except Exception as e:
-        print("Erreur analyse météo :", e)
-
-    # Assemblage de la réponse globale
-    return {
-        "status": "success",
-        "message": "Analyse complète AZ Turf Pro effectuée",
-        "analyse_moteur": res_moteur,
-        "tendances_cotes": res_cotes.get("resultats", []),
-        "consensus_presse": res_presse.get("consensus", []),
-        "impact_meteo": res_meteo.get("impact", "NEUTRE")
-    }
+        )
