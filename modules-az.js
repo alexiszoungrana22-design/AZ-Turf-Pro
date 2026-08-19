@@ -34,7 +34,7 @@ async function envoyerQuestion() {
 
   try {
     // 2. Appel vers le backend Render
-    const res = await fetch("/assistant/chat", {
+    const res = await fetch("https://az-turf-pro.onrender.com/api/assistant/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -71,7 +71,7 @@ async function lancerBacktest() {
   const historiqueExemple = JSON.parse(localStorage.getItem("az_historique_courses") || "[]");
 
   try {
-    const res = await fetch("/stats/backtest", {
+    const res = await fetch("https://az-turf-pro.onrender.com/api/stats/backtest", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

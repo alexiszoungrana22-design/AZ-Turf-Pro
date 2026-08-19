@@ -1,4 +1,4 @@
-const API_URL = "https://az-turf-pro-backend.onrender.com";
+const API_URL = "https://az-turf-pro.onrender.com";
 
 document.addEventListener("DOMContentLoaded", () => {
     const btnTableau = document.getElementById("btn-toggle-tableau");
