@@ -6,9 +6,9 @@
 
 import sqlite3
 from datetime import datetime, timedelta
-from pathlib import Path
 
-from config import DB_PATH
+
+DB_NAME = "az_turf.db"
 
 
 # =====================================
@@ -16,11 +16,7 @@ from config import DB_PATH
 # =====================================
 
 def connexion():
-    Path(DB_PATH).parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(str(DB_PATH), timeout=15)
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA foreign_keys=ON")
-    return conn
+    return sqlite3.connect(DB_NAME)
 
 
 # =====================================

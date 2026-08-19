@@ -4,7 +4,6 @@
 # =====================================
 
 from pathlib import Path
-import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
@@ -32,8 +31,7 @@ app.add_middleware(
         "http://localhost:3000",
         "http://localhost:8000",
         "http://127.0.0.1:5500",
-        "http://127.0.0.1:8000",
-        "http://localhost:5500"
+        "*"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -109,22 +107,6 @@ def accueil():
         "status": "OK",
         "documentation": "/docs"
     }
-
-
-@app.get("/{asset_name}.css", tags=["Frontend"])
-def servir_css(asset_name: str):
-    fichier = ROOT_DIR / f"{asset_name}.css"
-    if fichier.exists():
-        return FileResponse(fichier, media_type="text/css")
-    return JSONResponse(status_code=404, content={"message": "CSS introuvable."})
-
-
-@app.get("/{asset_name}.js", tags=["Frontend"])
-def servir_js(asset_name: str):
-    fichier = ROOT_DIR / f"{asset_name}.js"
-    if fichier.exists():
-        return FileResponse(fichier, media_type="application/javascript")
-    return JSONResponse(status_code=404, content={"message": "JS introuvable."})
 
 
 @app.get("/{page_name}.html", tags=["Frontend"])

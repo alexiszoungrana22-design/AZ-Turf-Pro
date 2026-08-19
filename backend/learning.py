@@ -9,10 +9,9 @@ import os
 import tempfile
 from datetime import datetime, timedelta
 
-from config import DATA_DIR, HISTORIQUE_FILE
-
-DATA_DIR = str(DATA_DIR)
-HISTORIQUE_FILE = str(HISTORIQUE_FILE)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, "data")
+HISTORIQUE_FILE = os.path.join(DATA_DIR, "historique_az.json")
 
 
 def _charger_historique():

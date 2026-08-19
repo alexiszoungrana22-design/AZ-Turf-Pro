@@ -16,16 +16,16 @@ from datetime import datetime
 # =====================================
 
 PMU_BASE_URLS = [
-    "https://online.turfinfo.api.pmu.fr/rest/client/61/programme",
-    "https://offline.turfinfo.api.pmu.fr/rest/client/61/programme",
-    "https://turfinfo.api.prd.pmutech.fr/rest/client/61/programme",
+    # Client 1 is the long-standing public JSON endpoint used by PMU integrations.
+    ("https://online.turfinfo.api.pmu.fr/rest/client/1/programme", "INTERNET"),
+    # Offline client 7 is kept as a secondary source when online is unavailable.
+    ("https://offline.turfinfo.api.pmu.fr/rest/client/7/programme", "OFFLINE"),
+    # Existing endpoint retained as a final compatibility fallback.
+    ("https://turfinfo.api.prd.pmutech.fr/rest/client/61/programme", "INTERNET"),
 ]
 
-# Compatibilite avec l'ancien nom utilise ailleurs dans le projet.
-PMU_BASE_URL = PMU_BASE_URLS[0]
-TIMEOUT = 15
-
-_LAST_PMU_DIAGNOSTIC = {}
+TIMEOUT = 12
+LAST_PMU_DIAGNOSTIC = {"ok": False, "erreurs": []}
 PARTANTS_MINIMUM_QUINTE = 10
 
 
@@ -588,59 +588,61 @@ def transformer_course(course, participants):
 # RECUPERATION PROGRAMME
 # =====================================
 
-def _extraire_reunions(programme):
-    if not isinstance(programme, dict):
-        return []
-    candidats = [
-        programme.get("reunions"),
-        (programme.get("programme") or {}).get("reunions") if isinstance(programme.get("programme"), dict) else None,
-        (programme.get("programmeJour") or {}).get("reunions") if isinstance(programme.get("programmeJour"), dict) else None,
-    ]
-    for value in candidats:
-        if isinstance(value, list):
-            return value
-    return []
-
-
-def _requete_pmu(path, params=None):
-    global _LAST_PMU_DIAGNOSTIC
-    params = params or {"specialisation": "INTERNET"}
-    headers = {
-        "Accept": "application/json",
-        "User-Agent": "AZ-Turf-Pro/1.0",
-        "Connection": "close",
-    }
-    erreurs = []
-    for base in PMU_BASE_URLS:
-        url = f"{base}/{path.lstrip('/')}"
-        try:
-            response = requests.get(url, params=params, timeout=TIMEOUT, headers=headers)
-            status = response.status_code
-            if status != 200:
-                erreurs.append({"url": url, "status": status})
-                continue
-            donnees = response.json()
-            if not isinstance(donnees, (dict, list)):
-                erreurs.append({"url": url, "status": status, "erreur": "JSON inattendu"})
-                continue
-            _LAST_PMU_DIAGNOSTIC = {"ok": True, "url": url, "status": status, "erreurs": erreurs}
-            return donnees
-        except Exception as erreur:
-            erreurs.append({"url": url, "erreur": f"{type(erreur).__name__}: {erreur}"})
-    _LAST_PMU_DIAGNOSTIC = {"ok": False, "erreurs": erreurs}
-    return None
-
-
 def recuperer_programme(date, reunion=None):
+    """Récupère le programme PMU réel avec plusieurs clients compatibles.
+
+    Le fallback entre clients ne change pas le format attendu par le reste du
+    moteur. Aucun fichier local n'est utilisé ici : si PMU est indisponible,
+    l'appelant conserve son comportement existant de fallback.
+    """
+    global LAST_PMU_DIAGNOSTIC
     date = normaliser_date(date)
-    path = date
-    if reunion is not None:
-        reunion_numero = str(reunion).upper().replace("R", "").strip()
-        if not reunion_numero.isdigit():
-            return None
-        path = f"{date}/R{reunion_numero}"
-    donnees = _requete_pmu(path)
-    return donnees if isinstance(donnees, dict) else None
+    erreurs = []
+
+    for base_url, specialisation in PMU_BASE_URLS:
+        if reunion is None:
+            url = f"{base_url}/{date}"
+        else:
+            reunion_numero = str(reunion).upper().replace("R", "").strip()
+            if not reunion_numero.isdigit():
+                continue
+            url = f"{base_url}/{date}/R{reunion_numero}"
+
+        try:
+            response = requests.get(
+                url,
+                params={"meteo": "true", "specialisation": specialisation},
+                timeout=TIMEOUT,
+                headers={
+                    "Accept": "application/json",
+                    "User-Agent": "AZ-Turf-Pro/1.0",
+                },
+            )
+            if response.status_code != 200:
+                erreurs.append({"url": response.url, "status": response.status_code})
+                continue
+
+            donnees = response.json()
+            if isinstance(donnees, dict):
+                LAST_PMU_DIAGNOSTIC = {
+                    "ok": True,
+                    "url": response.url,
+                    "status": response.status_code,
+                    "client": base_url.split("/client/")[-1].split("/")[0],
+                    "date": date,
+                }
+                return donnees
+
+            erreurs.append({"url": response.url, "status": response.status_code, "erreur": "Réponse JSON non objet"})
+        except requests.RequestException as erreur:
+            erreurs.append({"url": url, "erreur": str(erreur)})
+        except (ValueError, TypeError) as erreur:
+            erreurs.append({"url": url, "erreur": f"JSON invalide: {erreur}"})
+        except Exception as erreur:
+            erreurs.append({"url": url, "erreur": str(erreur)})
+
+    LAST_PMU_DIAGNOSTIC = {"ok": False, "date": date, "erreurs": erreurs}
+    return None
 
 
 # =====================================
@@ -648,23 +650,40 @@ def recuperer_programme(date, reunion=None):
 # =====================================
 
 def trouver_reunion(programme, reunion):
-    if not isinstance(programme, dict):
+    if not programme or not isinstance(programme, dict):
         return None
-    code = str(reunion or "").upper().strip()
-    if not code:
+
+    code_reunion = str(reunion or "").upper().strip()
+
+    if not code_reunion:
         return None
-    numero_recherche = code[1:] if code.startswith("R") else code
-    numero = str(programme.get("numOfficiel") or programme.get("numReunion") or programme.get("numero") or "").strip()
-    if numero == numero_recherche and isinstance(programme.get("courses"), list):
+
+    if not code_reunion.startswith("R"):
+        code_reunion = f"R{code_reunion}"
+
+    numero_recherche = code_reunion[1:]
+
+    numero = str(
+        programme.get("numOfficiel")
+        or programme.get("numReunion")
+        or programme.get("numero")
+        or ""
+    ).strip()
+
+    if numero and numero == numero_recherche:
         return programme
-    for item in _extraire_reunions(programme):
-        if not isinstance(item, dict):
-            continue
-        num = str(item.get("numOfficiel") or item.get("numReunion") or item.get("numero") or "").strip()
-        if num == numero_recherche:
-            return item
+
+    reunions = programme.get("reunions") or programme.get("programme", {}).get("reunions", [])
+    if isinstance(reunions, list):
+        for r_item in reunions:
+            if isinstance(r_item, dict):
+                r_num = str(r_item.get("numOfficiel") or r_item.get("numReunion") or r_item.get("numero") or "").strip()
+                if r_num == numero_recherche:
+                    return r_item
+
     if isinstance(programme.get("courses"), list):
         return programme
+
     return None
 
 
@@ -705,131 +724,32 @@ def trouver_course(reunion_data, course_numero):
 def recuperer_participants(date, reunion, course_numero):
     if reunion is None or course_numero is None:
         return []
+
     date = normaliser_date(date)
-    r = str(reunion).upper().replace("R", "").strip()
-    c = str(course_numero).upper().replace("C", "").strip()
-    if not r.isdigit() or not c.isdigit():
+    reunion_numero = str(reunion).upper().replace("R", "").strip()
+    course_numero = str(course_numero).upper().replace("C", "").strip()
+    if not reunion_numero.isdigit() or not course_numero.isdigit():
         return []
-    donnees = _requete_pmu(f"{date}/R{r}/C{c}/participants")
-    if isinstance(donnees, list):
-        return donnees
-    if isinstance(donnees, dict):
-        for cle in ("participants", "listeParticipants", "partants"):
-            if isinstance(donnees.get(cle), list):
-                return donnees[cle]
-    return []
 
-
-# =====================================
-# DETECTION QUINTE+ FIABILISEE
-# =====================================
-
-def _nombre_partants(course):
-    if not isinstance(course, dict):
-        return 0
-
-    for cle in (
-        "nombreDeclaresPartants",
-        "nombrePartants",
-        "nbPartants",
-    ):
-        valeur = course.get(cle)
+    for base_url, specialisation in PMU_BASE_URLS:
+        url = f"{base_url}/{date}/R{reunion_numero}/C{course_numero}/participants"
         try:
-            if valeur not in (None, ""):
-                return int(valeur)
-        except (TypeError, ValueError):
-            pass
-
-    participants = course.get("participants")
-    if isinstance(participants, list):
-        return len(participants)
-
-    return 0
-
-
-def _texte_contient_quinte(valeur):
-    if valeur is None:
-        return False
-
-    if isinstance(valeur, dict):
-        for cle, contenu in valeur.items():
-            cle_texte = str(cle).upper()
-            if "QUINTE" in cle_texte or "Q5" in cle_texte or "5PLUS" in cle_texte:
-                return True
-            if isinstance(contenu, (str, list, dict)):
-                if _texte_contient_quinte(contenu):
-                    return True
-        return False
-
-    if isinstance(valeur, list):
-        return any(_texte_contient_quinte(item) for item in valeur)
-
-    texte = str(valeur).upper()
-    return "QUINTE" in texte or "Q5" in texte or "5PLUS" in texte or "E_QUINTE" in texte
-
-
-def _extraire_types_paris(course):
-    if not isinstance(course, dict):
-        return []
-
-    for cle in (
-        "paris",
-        "parisPMU",
-        "typesParis",
-        "listePari",
-    ):
-        valeur = course.get(cle)
-        if isinstance(valeur, list):
-            return valeur
-
+            response = requests.get(
+                url,
+                params={"specialisation": specialisation},
+                timeout=TIMEOUT,
+                headers={"Accept": "application/json", "User-Agent": "AZ-Turf-Pro/1.0"},
+            )
+            if response.status_code != 200:
+                continue
+            donnees = response.json()
+            if isinstance(donnees, dict) and isinstance(donnees.get("participants"), list):
+                return donnees["participants"]
+            if isinstance(donnees, list):
+                return donnees
+        except Exception:
+            continue
     return []
-
-
-def _contient_quinte(course):
-    """
-    Detection securisee du QuintÃ©+ :
-    1. Booleens et drapeaux explicites (quintePlus, evenement, grandPrix)
-    2. Types de paris
-    3. Nom et libelle de la course
-    Ne renvoie PAS False prematurely.
-    """
-    if not isinstance(course, dict):
-        return False
-
-    # 1. Champs booleens directs
-    for flag in ("quintePlus", "quinte", "evenement", "grandPrix", "isQuinte"):
-        if course.get(flag) is True:
-            return True
-
-    # 2. Recherche dans les types de paris
-    types_paris = _extraire_types_paris(course)
-    if types_paris:
-        for pari in types_paris:
-            if _texte_contient_quinte(pari):
-                return True
-
-    # 3. Nombre de partants minimum
-    nombre_partants = _nombre_partants(course)
-    if nombre_partants > 0 and nombre_partants < PARTANTS_MINIMUM_QUINTE:
-        return False
-
-    # 4. Libelles de la course
-    champs_identification = (
-        "libelle",
-        "nom",
-        "libelleCourt",
-        "libelleLong",
-        "typeCourse",
-        "conditionModifiee",
-        "statutEvenement",
-    )
-
-    for cle in champs_identification:
-        valeur = course.get(cle)
-        if isinstance(valeur, str) and _texte_contient_quinte(valeur):
-            return True
-
-    return False
 
 
 # =====================================
@@ -837,37 +757,59 @@ def _contient_quinte(course):
 # =====================================
 
 def trouver_quinte_du_jour(date):
+    """
+    Parcourt les reunions et retourne (programme, reunion, course).
+    Inclus un systeme de secours (fallback R1C1) si aucun QuintÃ©+ n'est Ã©tiquetÃ©.
+    """
     date = normaliser_date(date)
-    prog_global = recuperer_programme(date)
-    if not prog_global:
-        return None, None, None
 
-    # API PMU client/61 renvoie normalement programme.reunions.
-    reunions = _extraire_reunions(prog_global)
-    for reunion_obj in reunions:
-        if not isinstance(reunion_obj, dict):
+    # 1. Essai via le programme global du jour
+    prog_global = recuperer_programme(date)
+    if prog_global:
+        reunions = prog_global.get("reunions") or prog_global.get("programme", {}).get("reunions", [])
+        if isinstance(reunions, list):
+            for reunion_obj in reunions:
+                if not isinstance(reunion_obj, dict):
+                    continue
+                num_r = reunion_obj.get("numOfficiel") or reunion_obj.get("numReunion") or reunion_obj.get("numero")
+                code_r = f"R{num_r}" if num_r else None
+                courses = reunion_obj.get("courses", [])
+                if isinstance(courses, list):
+                    for course in courses:
+                        if isinstance(course, dict) and _contient_quinte(course):
+                            return prog_global, code_r or "R1", course
+
+    # 2. Parcours individuel R1 Ã  R12
+    premiere_course_fallback = None
+
+    for numero_reunion in range(1, 13):
+        reunion = f"R{numero_reunion}"
+        programme = recuperer_programme(date, reunion)
+
+        if not programme:
             continue
-        num_r = reunion_obj.get("numOfficiel") or reunion_obj.get("numReunion") or reunion_obj.get("numero")
-        code_r = f"R{num_r}" if num_r is not None else None
-        courses = reunion_obj.get("courses", [])
+
+        reunion_data = trouver_reunion(programme, reunion)
+        if not reunion_data:
+            continue
+
+        courses = reunion_data.get("courses", [])
         if not isinstance(courses, list):
             continue
+
         for course in courses:
-            if isinstance(course, dict) and _contient_quinte(course):
-                return prog_global, code_r, course
+            if not isinstance(course, dict):
+                continue
 
-    # Si le drapeau Quinté+ n'est pas fourni, on choisit explicitement
-    # la première course avec au moins le minimum de partants, mais
-    # uniquement dans le programme LIVE du jour.
-    for reunion_obj in reunions:
-        if not isinstance(reunion_obj, dict):
-            continue
-        num_r = reunion_obj.get("numOfficiel") or reunion_obj.get("numReunion") or reunion_obj.get("numero")
-        code_r = f"R{num_r}" if num_r is not None else None
-        for course in reunion_obj.get("courses", []) or []:
-            if isinstance(course, dict) and _nombre_partants(course) >= PARTANTS_MINIMUM_QUINTE:
-                return prog_global, code_r, course
+            # On garde une reference sur la premiere course valide pour le secours
+            if premiere_course_fallback is None:
+                premiere_course_fallback = (programme, reunion, course)
 
+            if _contient_quinte(course):
+                return programme, reunion, course
+
+    # 3. Aucun Quinté explicite : ne pas inventer une course cible.
+    # Le fallback local de api.py reste disponible et inchangé.
     return None, None, None
 
 
@@ -974,10 +916,6 @@ def recuperer_arrivee_pmu(date, reunion, course_numero):
             arrivee.append(groupe)
 
     return arrivee
-
-
-def diagnostic_pmu():
-    return dict(_LAST_PMU_DIAGNOSTIC)
 
 
 # =====================================

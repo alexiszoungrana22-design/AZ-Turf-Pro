@@ -143,15 +143,18 @@ def charger_course():
 
         course = charger_course_locale()
 
-        date_locale = str(course.get("date", "")) if isinstance(course, dict) else ""
-        date_jour = datetime.now().strftime("%Y-%m-%d")
         if (
             course
             and isinstance(course, dict)
             and course.get("chevaux")
-            and date_locale == date_jour
         ):
+
+            print(
+                "Source utilisÃ©e : donnÃ©es locales (dÃ©mo)"
+            )
+
             course["donnees_demo"] = True
+
             return course, "demo"
 
     except Exception as erreur:
@@ -162,6 +165,55 @@ def charger_course():
         )
 
     return None, "none"
+
+
+# =====================================
+# PARTANTS — ROUTE ADDITIVE
+# =====================================
+@router.get("/partants")
+def partants():
+    """Retourne les partants analysés sans modifier /api/analyse."""
+    course, source = charger_course()
+    if not course:
+        raise HTTPException(status_code=503, detail="Données PMU indisponibles actuellement.")
+    chevaux = course.get("chevaux", [])
+    if not chevaux:
+        raise HTTPException(status_code=503, detail="Aucun partant disponible.")
+    try:
+        resultat = lancer_analyse(
+            chevaux,
+            info_course={
+                "date": course.get("date"),
+                "reunion": course.get("reunion"),
+                "course_numero": course.get("course_numero"),
+                "course": course.get("course", ""),
+                "hippodrome": course.get("hippodrome", ""),
+                "discipline": course.get("discipline", ""),
+                "distance": course.get("distance_course", ""),
+                "allocation": course.get("allocation", ""),
+                "heure_depart": course.get("heure_depart", ""),
+                "non_partants": course.get("non_partants", []),
+            },
+        )
+        classement = resultat.get("chevaux", []) if isinstance(resultat, dict) else []
+        return [
+            {
+                "rang": c.get("rang"),
+                "numero": c.get("numero"),
+                "nom": c.get("nom"),
+                "indice": c.get("indice_az"),
+                "confiance": c.get("confiance"),
+                "jockey": c.get("jockey", ""),
+                "entraineur": c.get("entraineur", ""),
+                "cote": c.get("cote_brute", c.get("rapport", "")),
+                "statut": c.get("statut", ""),
+                "source": source,
+                "donnees_demo": source == "demo",
+            }
+            for c in classement
+        ]
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur partants : {erreur}")
 
 
 # =====================================
@@ -619,31 +671,20 @@ def journal():
 
 @router.get("/debug-pmu")
 def debug_pmu():
-
-    from pmu_source import trouver_quinte_du_jour, diagnostic_pmu
-
-    aujourd_hui = datetime.now()
-    date_pmu = aujourd_hui.strftime("%d%m%Y")
-
+    from pmu_source import trouver_quinte_du_jour, LAST_PMU_DIAGNOSTIC
+    date_pmu = datetime.now().strftime("%d%m%Y")
     try:
-
-        programme, reunion, course = trouver_quinte_du_jour(
-            date_pmu
-        )
-
+        programme, reunion, course = trouver_quinte_du_jour(date_pmu)
+        from pmu_source import LAST_PMU_DIAGNOSTIC as diagnostic
         return {
+            "date_demandee": date_pmu,
             "reunion": reunion,
             "programme_brut": programme,
             "course_brute": course,
-            "pmu_diagnostic": diagnostic_pmu(),
+            "pmu_diagnostic": diagnostic,
         }
-
     except Exception as erreur:
-
-        raise HTTPException(
-            status_code=500,
-            detail=f"Erreur debug PMU : {erreur}"
-        )
+        raise HTTPException(status_code=500, detail=f"Erreur debug PMU : {erreur}")
 
 
 # =====================================
