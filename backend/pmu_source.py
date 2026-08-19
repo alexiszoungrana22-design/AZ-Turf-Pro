@@ -9,7 +9,81 @@
 import math
 import requests
 from datetime import datetime
+import re
+from datetime import datetime
 
+def enrichir_donnees_pmu(participant_brut, info_course):
+    """
+    Transforme les données brutes de l'API PMU en données enrichies pour AZ Turf Pro.
+    """
+    # 1. Extraction des équipements (Déferré & Oeillères)
+    # L'API PMU utilise souvent des codes comme 'DEFERRE_DES_QUATRE' ou 'PROTEGE'
+    deferre_pmu = participant_brut.get("indicateurDeferre") or participant_brut.get("deferre", "")
+    deferre_statut = None
+    if deferre_pmu in ["DEFERRE_DES_QUATRE", "D4"]:
+        deferre_statut = "D4"
+    elif deferre_pmu in ["DEFERRE_ANTERIEURS", "DA", "DEFERRE_POSTERIEURS", "DP"]:
+        deferre_statut = "D2"
+        
+    oeilleres = participant_brut.get("oeilleres", "") not in ["", "SANS_OEILLERES", None]
+
+    # 2. Corde (Surtout pour le Plat)
+    corde = participant_brut.get("placeCorde", 0)
+
+    # 3. Analyse de la Musique (ex: "1a 2a 3a 4a") pour calculer la Forme et l'Expérience
+    musique = participant_brut.get("musique", "")
+    forme_score = 5.0
+    if musique:
+        # On cherche les chiffres dans la musique pour évaluer les récentes places
+        places = [int(p) for p in re.findall(r'\d', musique[:10]) if p != '0']
+        if places:
+            # Plus la moyenne des places est basse (proche de 1), plus la forme est haute (sur 10)
+            moyenne = sum(places) / len(places)
+            forme_score = max(1.0, 10.0 - moyenne)
+    
+    # 4. Estimation de la réussite Jockey & Entraîneur
+    # Si le PMU ne donne pas le %, on l'estime via la cote ou le nombre de victoires récentes
+    cote_actuelle = participant_brut.get("cote", 10.0) or 10.0
+    
+    # Plus un cheval est favori, plus il y a de chances que le jockey/entraîneur soient en réussite
+    reussite_jockey = max(1.0, 10.0 - (cote_actuelle / 5)) if cote_actuelle else 5.0
+    confiance_entraineur = max(1.0, 9.0 - (cote_actuelle / 6)) if cote_actuelle else 5.0
+
+    # 5. Calcul de la Fraîcheur (Jours depuis dernière course)
+    jours_repos = 15 # Valeur par défaut neutre
+    date_derniere = participant_brut.get("dateDerniereCourse") # Format dépend du PMU
+    if date_derniere:
+        try:
+            # Adaptation selon le format de date renvoyé par le PMU (ex: timestamp ou DD/MM/YYYY)
+            # Si timestamp en ms:
+            if isinstance(date_derniere, int):
+                delta = datetime.now() - datetime.fromtimestamp(date_derniere / 1000.0)
+                jours_repos = delta.days
+        except Exception:
+            pass
+
+    return {
+        "numero": participant_brut.get("numPmu", participant_brut.get("numero")),
+        "nom": participant_brut.get("nom", "INCONNU"),
+        "cote": cote_actuelle,
+        "musique": musique,
+        
+        # Nouvelles données dynamiques pour le Moteur AZ Turf Pro
+        "deferre": deferre_statut,
+        "oeilleres": oeilleres,
+        "corde": corde,
+        "jours_depuis_derniere_course": jours_repos,
+        "reussite_jockey": round(reussite_jockey, 1),
+        "confiance_entraineur": round(confiance_entraineur, 1),
+        
+        # Données du Radar
+        "jockey_score": round(reussite_jockey, 1),
+        "forme_score": round(forme_score, 1),
+        
+        # Variables environnementales de la course
+        "distance": info_course.get("distance", 2100),
+        "terrain": info_course.get("etat_terrain", "Bon")
+    }
 
 # =====================================
 # CONFIGURATION
