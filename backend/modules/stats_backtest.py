@@ -1,13 +1,31 @@
 """
-AZ TURF PRO - MODULE STATISTIQUES & BACKTESTING
-Fichier : backend/modules/stats_backtest.py
+AZ TURF PRO - STATISTIQUES & BACKTESTING
+Les anciennes entrées utilisant 'arrivee' sont compatibles avec le nouveau format.
 """
 
+
+def _arrivee(course):
+    return [str(num) for num in (
+        course.get("arrivee_officielle")
+        or course.get("arrivee")
+        or []
+    )]
+
+
+def _selection(course):
+    selection = course.get("selection_az")
+    if not selection:
+        selection = (course.get("tickets") or {}).get("gratuit", {}).get("quinte", [])
+    result = []
+    for item in selection:
+        if isinstance(item, dict):
+            result.append(str(item.get("numero")))
+        else:
+            result.append(str(item))
+    return result
+
+
 def calculer_stats_performance(historique_courses: list) -> dict:
-    """
-    Analyse l'historique des courses enregistrées pour calculer
-    le taux de réussite des algorithmes AZ et Premium.
-    """
     if not historique_courses:
         return {
             "status": "warning",
@@ -16,44 +34,42 @@ def calculer_stats_performance(historique_courses: list) -> dict:
         }
 
     total_courses = len(historique_courses)
+    courses_avec_resultat = 0
     quinte_trouve_az = 0
-    tierce_trouve_premium = 0
+    tierce_trouve_az = 0
     favori_a_l_arrivee = 0
 
     for course in historique_courses:
-        arrivee_officielle = [str(num) for num in course.get("arrivee_officielle", [])]
-        selection_az = [str(c.get("numero")) for c in course.get("selection_az", [])[:5]]
-        favori = str(course.get("favori", {}).get("numero", ""))
+        arrivee = _arrivee(course)
+        if not arrivee:
+            continue
 
-        if arrivee_officielle:
-            # Vérification Favori dans le Top 3
-            if favori in arrivee_officielle[:3]:
-                favori_a_l_arrivee += 1
+        courses_avec_resultat += 1
+        selection = _selection(course)
+        favori_data = course.get("favori") or {}
+        favori = str(favori_data.get("numero", "") if isinstance(favori_data, dict) else favori_data)
 
-            # Vérification Tiercé Premium (3 premiers de la sélection dans le Top 3)
-            bonnes_tetes = set(selection_az[:3]).intersection(set(arrivee_officielle[:3]))
-            if len(bonnes_tetes) == 3:
-                tierce_trouve_premium += 1
+        if favori and favori in arrivee[:3]:
+            favori_a_l_arrivee += 1
 
-            # Vérification Quinté
-            bonnes_places = set(selection_az[:5]).intersection(set(arrivee_officielle[:5]))
-            if len(bonnes_places) >= 4:  # Bonus / Désordre
-                quinte_trouve_az += 1
+        if len(set(selection[:3]).intersection(arrivee[:3])) == 3:
+            tierce_trouve_az += 1
 
+        if len(set(selection[:5]).intersection(arrivee[:5])) >= 4:
+            quinte_trouve_az += 1
+
+    denom = courses_avec_resultat or 1
     return {
         "status": "success",
-        "courses_analysées": total_courses,
-        "taux_reussite_favori": round((favori_a_l_arrivee / total_courses) * 100, 1),
-        "taux_tierce_premium": round((tierce_trouve_premium / total_courses) * 100, 1),
-        "taux_quinte_az": round((quinte_trouve_az / total_courses) * 100, 1),
+        "courses_analysees": total_courses,
+        "courses_avec_resultat": courses_avec_resultat,
+        "taux_reussite_favori": round(favori_a_l_arrivee / denom * 100, 1),
+        "taux_tierce_az": round(tierce_trouve_az / denom * 100, 1),
+        "taux_quinte_az": round(quinte_trouve_az / denom * 100, 1),
     }
 
 
 def simuler_backtest_filtre(historique_courses: list, filtres: dict) -> dict:
-    """
-    Simule la rentabilité théorique d'une stratégie sur l'historique.
-    Exemple filtres: {"cote_min": 5.0, "cote_max": 15.0, "deferre_seulement": True}
-    """
     mise_de_base = float(filtres.get("mise_de_base", 10.0))
     cote_min = float(filtres.get("cote_min", 0.0))
     cote_max = float(filtres.get("cote_max", 999.0))
@@ -63,25 +79,25 @@ def simuler_backtest_filtre(historique_courses: list, filtres: dict) -> dict:
     mises_totales = 0.0
 
     for course in historique_courses:
-        arrivee = [str(num) for num in course.get("arrivee_officielle", [])]
-        chevaux = course.get("chevaux", [])
+        arrivee = _arrivee(course)
+        chevaux = course.get("chevaux") or course.get("classement") or []
 
         for cheval in chevaux:
-            num = str(cheval.get("numero"))
             cote = float(cheval.get("cote", 0) or 0)
-            
             if cote_min <= cote <= cote_max:
                 mises_totales += mise_de_base
-                if arrivee and num == arrivee[0]:  # Gagnant
+                if arrivee and str(cheval.get("numero")) == arrivee[0]:
                     paris_touches += 1
-                    gains_totaux += (mise_de_base * cote)
+                    gains_totaux += mise_de_base * cote
 
-    roi = round(((gains_totaux - mises_totales) / mises_totales) * 100, 2) if mises_totales > 0 else 0.0
+    roi = ((gains_totaux - mises_totales) / mises_totales * 100) if mises_totales else 0.0
+    nb_paris = mises_totales / mise_de_base if mise_de_base > 0 else 0
 
     return {
-        "mises_totales": mises_totales,
+        "status": "success",
+        "mises_totales": round(mises_totales, 2),
         "gains_totaux": round(gains_totaux, 2),
         "profit_net": round(gains_totaux - mises_totales, 2),
-        "roi_pourcent": roi,
-        "taux_gagnant": round((paris_touches / (mises_totales / mise_de_base)) * 100, 1) if mises_totales > 0 else 0.0
-          }
+        "roi_pourcent": round(roi, 2),
+        "taux_gagnant": round(paris_touches / nb_paris * 100, 1) if nb_paris else 0.0
+    }
