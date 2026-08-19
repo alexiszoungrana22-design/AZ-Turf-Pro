@@ -23,7 +23,7 @@
 #    premium, admin) sont strictement inchangees.
 
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends, Header
 
 from engine import lancer_analyse
 
@@ -45,15 +45,23 @@ from pmu_source import charger_course_pmu
 from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
 
 from learning import lire_historique, mettre_a_jour_arrivee
+from security import require_admin
+from config import ADMIN_API_KEY
+from database import verifier_premium
 
 import json
 import os
+from pathlib import Path
 from datetime import datetime, timedelta
 
 from engine import lancer_analyse
 from modules.cotes_history import analyser_tendances_cotes
 from modules.pronos_presse import analyser_consensus_presse
 from modules.meteo_piste import analyser_impact_terrain
+from modules.chatbot_turf import repondre_assistant_turf
+from modules.stats_backtest import calculer_stats_performance, simuler_backtest_filtre
+from modules.export_pdf import generer_pdf_ticket
+from config import EXPORT_DIR
 
 router = APIRouter(
     prefix="/api",
@@ -540,7 +548,7 @@ def premium(
 # =====================================
 
 @router.get("/admin/abonnements")
-def admin_abonnements():
+def admin_abonnements(_admin=Depends(require_admin)):
 
     return {
 
@@ -555,9 +563,85 @@ def admin_abonnements():
 # =====================================
 
 @router.get("/admin/statistiques")
-def admin_statistiques():
+def admin_statistiques(_admin=Depends(require_admin)):
 
     return statistiques_abonnements()
+
+
+
+# =====================================
+# PARTANTS / ANALYSE PREMIUM PROTEGEE
+# =====================================
+
+@router.get("/partants")
+def partants():
+    """Retourne les partants réels ou le fallback démo, avec le même moteur que /analyse."""
+    resultat = analyse()
+    return {
+        "source": resultat.get("source"),
+        "donnees_demo": resultat.get("donnees_demo", False),
+        "course": resultat.get("course"),
+        "date": resultat.get("date"),
+        "reunion": resultat.get("reunion"),
+        "course_numero": resultat.get("course_numero"),
+        "heure_depart": resultat.get("heure_depart"),
+        "horaires": resultat.get("horaires", {}),
+        "hippodrome": resultat.get("hippodrome"),
+        "discipline": resultat.get("discipline"),
+        "distance": resultat.get("distance"),
+        "partants": resultat.get("partants", 0),
+        "chevaux": resultat.get("chevaux", []),
+        "classement": resultat.get("classement", []),
+        "non_partants": resultat.get("non_partants", []),
+    }
+
+
+@router.get("/premium/analyse/{telephone}")
+def analyse_premium(telephone: str, x_admin_key: str | None = Header(default=None)):
+    """Expose les tickets Premium après contrôle serveur."""
+    if telephone == "COMPTE ADMINISTRATEUR":
+        if ADMIN_API_KEY and x_admin_key != ADMIN_API_KEY:
+            raise HTTPException(status_code=401, detail="Clé administrateur invalide.")
+    else:
+        acces = verifier_premium(telephone)
+        if acces.get("statut") != "ACTIF":
+            raise HTTPException(status_code=403, detail="Abonnement Premium inactif ou expiré.")
+
+    return analyse()
+
+
+@router.post("/assistant/chat")
+def assistant_chat(payload: dict):
+    question = str(payload.get("question", "")).strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="Question obligatoire.")
+
+    contexte = payload.get("contexte") or {}
+    moteur = contexte.get("moteur")
+
+    if not moteur:
+        base = analyse()
+        moteur = {
+            "classement": base.get("classement", []),
+            "tickets": base.get("tickets", {}),
+        }
+
+    return repondre_assistant_turf(
+        question,
+        {"moteur": moteur}
+    )
+
+
+@router.post("/stats/backtest")
+def stats_backtest(payload: dict):
+    historique = payload.get("historique")
+    if not isinstance(historique, list) or not historique:
+        historique = lire_historique()
+
+    filtres = payload.get("filtres") or {}
+    resultat = simuler_backtest_filtre(historique, filtres)
+    resultat["performance"] = calculer_stats_performance(historique)
+    return resultat
 
 
 # =====================================
@@ -621,7 +705,7 @@ def journal():
 # hippodrome dans le schema reel de l'API client/61.
 
 @router.get("/debug-pmu")
-def debug_pmu():
+def debug_pmu(_admin=Depends(require_admin)):
 
     from pmu_source import trouver_quinte_du_jour
 
@@ -656,7 +740,7 @@ def debug_pmu():
 # Montre precisement a quelle etape la recuperation LONAB echoue.
 
 @router.get("/debug-journal")
-def debug_journal():
+def debug_journal(_admin=Depends(require_admin)):
 
     aujourd_hui = datetime.now()
 
@@ -740,6 +824,7 @@ def historique():
 # Dans api.py (à la fin du fichier)
 from modules.cotes_history import analyser_tendances_cotes
 from modules.export_pdf import generer_pdf_ticket
+from config import EXPORT_DIR
 
 @router.post("/analyse/cotes")
 def api_analyse_cotes(data: dict):
@@ -748,6 +833,16 @@ def api_analyse_cotes(data: dict):
 @router.post("/export/pdf")
 def api_export_pdf(data: dict):
     return generer_pdf_ticket(data)
+
+
+@router.get("/export/pdf/{filename}")
+def api_download_pdf(filename: str):
+    from fastapi.responses import FileResponse
+    chemin = (EXPORT_DIR / Path(filename)).resolve()
+    base = EXPORT_DIR.resolve()
+    if base not in chemin.parents or chemin.suffix.lower() != ".pdf" or not chemin.exists():
+        raise HTTPException(status_code=404, detail="PDF introuvable.")
+    return FileResponse(chemin, media_type="application/pdf", filename=chemin.name)
 
 # =========================================================
 # ENDPOINT TOUT-EN-UN (ANALYSE GLOBALE AZ TURF PRO)
