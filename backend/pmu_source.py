@@ -15,29 +15,18 @@ from datetime import datetime
 # CONFIGURATION
 # =====================================
 
-PMU_BASE_URLS = (
-    # Endpoint public historiquement utilise pour les donnees PMU online.
+PMU_BASE_URLS = [
     "https://online.turfinfo.api.pmu.fr/rest/client/61/programme",
-    # Secours si l'endpoint online est temporairement indisponible.
+    "https://offline.turfinfo.api.pmu.fr/rest/client/61/programme",
     "https://turfinfo.api.prd.pmutech.fr/rest/client/61/programme",
-)
+]
 
-# Compatibilite avec le code existant qui pourrait importer PMU_BASE_URL.
+# Compatibilite avec l'ancien nom utilise ailleurs dans le projet.
 PMU_BASE_URL = PMU_BASE_URLS[0]
+TIMEOUT = 15
 
-TIMEOUT = 12
+_LAST_PMU_DIAGNOSTIC = {}
 PARTANTS_MINIMUM_QUINTE = 10
-
-# Dernier diagnostic PMU. Il ne modifie pas le fonctionnement metier ;
-# il permet seulement de comprendre pourquoi le fallback est utilise.
-LAST_PMU_DEBUG = {
-    "ok": False,
-    "url": None,
-    "status_code": None,
-    "error": None,
-    "response_type": None,
-    "keys": [],
-}
 
 
 # =====================================
@@ -599,85 +588,59 @@ def transformer_course(course, participants):
 # RECUPERATION PROGRAMME
 # =====================================
 
-def _requete_pmu(url, params=None):
-    """Effectue une requete PMU avec diagnostic et endpoint de secours."""
-    global LAST_PMU_DEBUG
+def _extraire_reunions(programme):
+    if not isinstance(programme, dict):
+        return []
+    candidats = [
+        programme.get("reunions"),
+        (programme.get("programme") or {}).get("reunions") if isinstance(programme.get("programme"), dict) else None,
+        (programme.get("programmeJour") or {}).get("reunions") if isinstance(programme.get("programmeJour"), dict) else None,
+    ]
+    for value in candidats:
+        if isinstance(value, list):
+            return value
+    return []
 
-    derniere_erreur = None
-    for base_url in PMU_BASE_URLS:
+
+def _requete_pmu(path, params=None):
+    global _LAST_PMU_DIAGNOSTIC
+    params = params or {"specialisation": "INTERNET"}
+    headers = {
+        "Accept": "application/json",
+        "User-Agent": "AZ-Turf-Pro/1.0",
+        "Connection": "close",
+    }
+    erreurs = []
+    for base in PMU_BASE_URLS:
+        url = f"{base}/{path.lstrip('/')}"
         try:
-            response = requests.get(
-                url if url.startswith(base_url) else url,
-                params=params or {"specialisation": "INTERNET"},
-                timeout=TIMEOUT,
-                headers={
-                    "Accept": "application/json",
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0 Safari/537.36",
-                },
-            )
-
-            LAST_PMU_DEBUG = {
-                "ok": response.ok,
-                "url": response.url,
-                "status_code": response.status_code,
-                "error": None if response.ok else f"HTTP {response.status_code}",
-                "response_type": None,
-                "keys": [],
-            }
-
-            response.raise_for_status()
+            response = requests.get(url, params=params, timeout=TIMEOUT, headers=headers)
+            status = response.status_code
+            if status != 200:
+                erreurs.append({"url": url, "status": status})
+                continue
             donnees = response.json()
-            LAST_PMU_DEBUG["response_type"] = type(donnees).__name__
-            if isinstance(donnees, dict):
-                LAST_PMU_DEBUG["keys"] = list(donnees.keys())[:30]
-                return donnees
-            if isinstance(donnees, list):
-                return donnees
-
-            LAST_PMU_DEBUG["error"] = "Reponse JSON inattendue"
-            return None
-
+            if not isinstance(donnees, (dict, list)):
+                erreurs.append({"url": url, "status": status, "erreur": "JSON inattendu"})
+                continue
+            _LAST_PMU_DIAGNOSTIC = {"ok": True, "url": url, "status": status, "erreurs": erreurs}
+            return donnees
         except Exception as erreur:
-            derniere_erreur = f"{type(erreur).__name__}: {erreur}"
-            LAST_PMU_DEBUG = {
-                "ok": False,
-                "url": url,
-                "status_code": getattr(locals().get("response"), "status_code", None),
-                "error": derniere_erreur,
-                "response_type": None,
-                "keys": [],
-            }
-            continue
-
-    if derniere_erreur:
-        LAST_PMU_DEBUG["error"] = derniere_erreur
+            erreurs.append({"url": url, "erreur": f"{type(erreur).__name__}: {erreur}"})
+    _LAST_PMU_DIAGNOSTIC = {"ok": False, "erreurs": erreurs}
     return None
 
 
 def recuperer_programme(date, reunion=None):
     date = normaliser_date(date)
-
-    if reunion is None:
-        suffixe = f"/{date}"
-    else:
-        reunion_numero = (
-            str(reunion)
-            .upper()
-            .replace("R", "")
-            .strip()
-        )
+    path = date
+    if reunion is not None:
+        reunion_numero = str(reunion).upper().replace("R", "").strip()
         if not reunion_numero.isdigit():
             return None
-        suffixe = f"/{date}/R{reunion_numero}"
-
-    # Tester chaque endpoint en construisant son URL complete.
-    for base_url in PMU_BASE_URLS:
-        url = f"{base_url}{suffixe}"
-        donnees = _requete_pmu(url, {"specialisation": "INTERNET"})
-        if donnees is not None:
-            return donnees
-
-    return None
+        path = f"{date}/R{reunion_numero}"
+    donnees = _requete_pmu(path)
+    return donnees if isinstance(donnees, dict) else None
 
 
 # =====================================
@@ -685,40 +648,23 @@ def recuperer_programme(date, reunion=None):
 # =====================================
 
 def trouver_reunion(programme, reunion):
-    if not programme or not isinstance(programme, dict):
+    if not isinstance(programme, dict):
         return None
-
-    code_reunion = str(reunion or "").upper().strip()
-
-    if not code_reunion:
+    code = str(reunion or "").upper().strip()
+    if not code:
         return None
-
-    if not code_reunion.startswith("R"):
-        code_reunion = f"R{code_reunion}"
-
-    numero_recherche = code_reunion[1:]
-
-    numero = str(
-        programme.get("numOfficiel")
-        or programme.get("numReunion")
-        or programme.get("numero")
-        or ""
-    ).strip()
-
-    if numero and numero == numero_recherche:
+    numero_recherche = code[1:] if code.startswith("R") else code
+    numero = str(programme.get("numOfficiel") or programme.get("numReunion") or programme.get("numero") or "").strip()
+    if numero == numero_recherche and isinstance(programme.get("courses"), list):
         return programme
-
-    reunions = programme.get("reunions") or programme.get("programme", {}).get("reunions", [])
-    if isinstance(reunions, list):
-        for r_item in reunions:
-            if isinstance(r_item, dict):
-                r_num = str(r_item.get("numOfficiel") or r_item.get("numReunion") or r_item.get("numero") or "").strip()
-                if r_num == numero_recherche:
-                    return r_item
-
+    for item in _extraire_reunions(programme):
+        if not isinstance(item, dict):
+            continue
+        num = str(item.get("numOfficiel") or item.get("numReunion") or item.get("numero") or "").strip()
+        if num == numero_recherche:
+            return item
     if isinstance(programme.get("courses"), list):
         return programme
-
     return None
 
 
@@ -759,27 +705,18 @@ def trouver_course(reunion_data, course_numero):
 def recuperer_participants(date, reunion, course_numero):
     if reunion is None or course_numero is None:
         return []
-
     date = normaliser_date(date)
-    reunion_numero = str(reunion).upper().replace("R", "").strip()
-    course_numero = str(course_numero).upper().replace("C", "").strip()
-
-    if not reunion_numero.isdigit() or not course_numero.isdigit():
+    r = str(reunion).upper().replace("R", "").strip()
+    c = str(course_numero).upper().replace("C", "").strip()
+    if not r.isdigit() or not c.isdigit():
         return []
-
-    for base_url in PMU_BASE_URLS:
-        url = (
-            f"{base_url}/{date}/R{reunion_numero}/"
-            f"C{course_numero}/participants"
-        )
-        donnees = _requete_pmu(url, {"specialisation": "INTERNET"})
-        if isinstance(donnees, dict):
-            participants = donnees.get("participants", [])
-            if isinstance(participants, list) and participants:
-                return participants
-        elif isinstance(donnees, list) and donnees:
-            return donnees
-
+    donnees = _requete_pmu(f"{date}/R{r}/C{c}/participants")
+    if isinstance(donnees, list):
+        return donnees
+    if isinstance(donnees, dict):
+        for cle in ("participants", "listeParticipants", "partants"):
+            if isinstance(donnees.get(cle), list):
+                return donnees[cle]
     return []
 
 
@@ -900,61 +837,36 @@ def _contient_quinte(course):
 # =====================================
 
 def trouver_quinte_du_jour(date):
-    """
-    Parcourt les reunions et retourne (programme, reunion, course).
-    Inclus un systeme de secours (fallback R1C1) si aucun QuintÃ©+ n'est Ã©tiquetÃ©.
-    """
     date = normaliser_date(date)
-
-    # 1. Essai via le programme global du jour
     prog_global = recuperer_programme(date)
-    if prog_global:
-        reunions = prog_global.get("reunions") or prog_global.get("programme", {}).get("reunions", [])
-        if isinstance(reunions, list):
-            for reunion_obj in reunions:
-                if not isinstance(reunion_obj, dict):
-                    continue
-                num_r = reunion_obj.get("numOfficiel") or reunion_obj.get("numReunion") or reunion_obj.get("numero")
-                code_r = f"R{num_r}" if num_r else None
-                courses = reunion_obj.get("courses", [])
-                if isinstance(courses, list):
-                    for course in courses:
-                        if isinstance(course, dict) and _contient_quinte(course):
-                            return prog_global, code_r or "R1", course
+    if not prog_global:
+        return None, None, None
 
-    # 2. Parcours individuel R1 Ã  R12
-    premiere_course_fallback = None
-
-    for numero_reunion in range(1, 13):
-        reunion = f"R{numero_reunion}"
-        programme = recuperer_programme(date, reunion)
-
-        if not programme:
+    # API PMU client/61 renvoie normalement programme.reunions.
+    reunions = _extraire_reunions(prog_global)
+    for reunion_obj in reunions:
+        if not isinstance(reunion_obj, dict):
             continue
-
-        reunion_data = trouver_reunion(programme, reunion)
-        if not reunion_data:
-            continue
-
-        courses = reunion_data.get("courses", [])
+        num_r = reunion_obj.get("numOfficiel") or reunion_obj.get("numReunion") or reunion_obj.get("numero")
+        code_r = f"R{num_r}" if num_r is not None else None
+        courses = reunion_obj.get("courses", [])
         if not isinstance(courses, list):
             continue
-
         for course in courses:
-            if not isinstance(course, dict):
-                continue
+            if isinstance(course, dict) and _contient_quinte(course):
+                return prog_global, code_r, course
 
-            # On garde une reference sur la premiere course valide pour le secours
-            if premiere_course_fallback is None:
-                premiere_course_fallback = (programme, reunion, course)
-
-            if _contient_quinte(course):
-                return programme, reunion, course
-
-    # 3. Fallback de securite
-    if premiere_course_fallback:
-        print(f"Note : Aucun QuintÃ©+ explicite trouvÃ© pour {date}. Utilisation de la course de secours {premiere_course_fallback[1]}")
-        return premiere_course_fallback
+    # Si le drapeau Quinté+ n'est pas fourni, on choisit explicitement
+    # la première course avec au moins le minimum de partants, mais
+    # uniquement dans le programme LIVE du jour.
+    for reunion_obj in reunions:
+        if not isinstance(reunion_obj, dict):
+            continue
+        num_r = reunion_obj.get("numOfficiel") or reunion_obj.get("numReunion") or reunion_obj.get("numero")
+        code_r = f"R{num_r}" if num_r is not None else None
+        for course in reunion_obj.get("courses", []) or []:
+            if isinstance(course, dict) and _nombre_partants(course) >= PARTANTS_MINIMUM_QUINTE:
+                return prog_global, code_r, course
 
     return None, None, None
 
@@ -1062,6 +974,10 @@ def recuperer_arrivee_pmu(date, reunion, course_numero):
             arrivee.append(groupe)
 
     return arrivee
+
+
+def diagnostic_pmu():
+    return dict(_LAST_PMU_DIAGNOSTIC)
 
 
 # =====================================
