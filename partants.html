@@ -97,6 +97,7 @@ Tableau des partants
 
 
 <table style="width:100%; border-collapse:collapse;">
+<tbody id="corps-tableau-partants">
 
 
 <tr style="background:#0b3d91;color:white;">
@@ -161,6 +162,7 @@ Tableau des partants
 
 
 
+</tbody>
 </table>
 
 
@@ -222,7 +224,20 @@ Partants et informations hippiques professionnelles
 
 
 
-<script src="partants.js?v=1"></script>
+<script src="tri-partants.js"></script>
+<script>
+// Chargement des données réelles via le backend courant.
+(async function(){
+  const tbody=document.getElementById("corps-tableau-partants");
+  if(!tbody) return;
+  try {
+    const r=await fetch("/api/partants");
+    if(!r.ok) return;
+    const data=await r.json();
+    tbody.innerHTML=data.map(c=>`<tr><td>${c.numero??"-"}</td><td>${c.nom??"-"}</td><td>${c.jockey??"-"}</td><td>${c.entraineur??"-"}</td><td>${c.cote??"-"}</td><td class="confiance">${c.confiance??"-"}%</td><td>${c.statut??"-"}</td></tr>`).join("");
+  } catch(e) { console.warn("Partants indisponibles",e); }
+})();
+</script>
 </body>
 
 </html>

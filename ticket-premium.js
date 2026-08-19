@@ -5,9 +5,8 @@
 // Données : /api/analyse
 // ==========================================================
 
-const API_ANALYSE = "https://az-turf-pro.onrender.com/api/analyse";
-const API_PREMIUM_ANALYSE = "https://az-turf-pro.onrender.com/api/premium/analyse/";
-const API_ADMIN_KEY = localStorage.getItem("AZ_TURF_ADMIN_KEY") || "";
+const API_ANALYSE =
+    "https://az-turf-pro.onrender.com/api/analyse";
 
 const API_PREMIUM =
     "https://az-turf-pro.onrender.com/api/premium/";
@@ -203,21 +202,17 @@ async function chargerTicketsPremium() {
 
     try {
 
-        const telephone = localStorage.getItem("AZ_TURF_TELEPHONE") || "";
-        const url = API_PREMIUM_ANALYSE + encodeURIComponent(telephone);
-        const headers = {
-            "Accept": "application/json"
-        };
-
-        if (telephone === "COMPTE ADMINISTRATEUR" && API_ADMIN_KEY) {
-            headers["X-Admin-Key"] = API_ADMIN_KEY;
-        }
-
-        const reponse = await fetch(url, {
-            method: "GET",
-            cache: "no-store",
-            headers
-        });
+        const reponse =
+            await fetch(
+                API_ANALYSE,
+                {
+                    method: "GET",
+                    cache: "no-store",
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                }
+            );
 
 
         if (!reponse.ok) {
@@ -742,21 +737,17 @@ async function chargerTableauLive() {
 
     try {
 
-        const telephone = localStorage.getItem("AZ_TURF_TELEPHONE") || "";
-        const url = API_PREMIUM_ANALYSE + encodeURIComponent(telephone);
-        const headers = {
-            "Accept": "application/json"
-        };
-
-        if (telephone === "COMPTE ADMINISTRATEUR" && API_ADMIN_KEY) {
-            headers["X-Admin-Key"] = API_ADMIN_KEY;
-        }
-
-        const reponse = await fetch(url, {
-            method: "GET",
-            cache: "no-store",
-            headers
-        });
+        const reponse =
+            await fetch(
+                API_ANALYSE,
+                {
+                    method: "GET",
+                    cache: "no-store",
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                }
+            );
 
 
         if (!reponse.ok) {

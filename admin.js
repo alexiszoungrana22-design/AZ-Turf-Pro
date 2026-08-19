@@ -28,26 +28,6 @@ API_BASE + "/admin/statistiques";
 const API_ABONNEMENTS =
 API_BASE + "/admin/abonnements";
 
-function getAdminHeaders(extra = {}) {
-    const key = localStorage.getItem("AZ_TURF_ADMIN_KEY") || "";
-    return Object.assign({
-        "Accept": "application/json"
-    }, key ? {"X-Admin-Key": key} : {}, extra);
-}
-
-function enregistrerCleAdmin() {
-    const input = document.getElementById("admin-api-key");
-    const status = document.getElementById("etat-cle-admin");
-    const key = input ? input.value.trim() : "";
-    if (key) {
-        localStorage.setItem("AZ_TURF_ADMIN_KEY", key);
-        if (status) status.textContent = "✅ Clé enregistrée sur cet appareil.";
-    } else {
-        localStorage.removeItem("AZ_TURF_ADMIN_KEY");
-        if (status) status.textContent = "ℹ️ Mode compatibilité activé.";
-    }
-}
-
 
 
 
@@ -66,8 +46,6 @@ initialiserAdmin
 // =====================================
 
 async function initialiserAdmin(){
-    const keyInput = document.getElementById("admin-api-key");
-    if (keyInput) keyInput.value = localStorage.getItem("AZ_TURF_ADMIN_KEY") || "";
 
     await verifierAPI();
 
@@ -217,7 +195,9 @@ try{
 
 
 const response =
-await fetch(API_STATISTIQUES, { headers: getAdminHeaders() });
+await fetch(
+API_STATISTIQUES
+);
 
 
 
@@ -282,7 +262,9 @@ try{
 
 
 const response =
-await fetch(API_ABONNEMENTS, { headers: getAdminHeaders() });
+await fetch(
+API_ABONNEMENTS
+);
 
 
 
@@ -433,8 +415,13 @@ try{
 
 const response =
 await fetch(
-API_PREMIUM + "/" + encodeURIComponent(telephone),
-{ headers: getAdminHeaders() }
+
+API_PREMIUM
++
+"/"
++
+encodeURIComponent(telephone)
+
 );
 
 
