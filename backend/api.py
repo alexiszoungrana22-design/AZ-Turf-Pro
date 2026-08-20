@@ -40,7 +40,7 @@ from models import (
     ActivationRequest
 )
 
-from pmu_source import charger_course_pmu, recuperer_programme, trouver_reunion, trouver_course
+from pmu_source import charger_course_pmu
 
 from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
 
@@ -97,52 +97,6 @@ def _charger_partants_live():
             detail="Les données PMU réelles du jour sont indisponibles actuellement."
         )
     return course
-
-
-
-# =====================================
-# HORAIRE PMU DE LA COURSE
-# =====================================
-
-def _recuperer_horaire_course(course):
-    """Récupère l'heure brute de départ depuis le programme PMU.
-    Le module pmu_source reste inchangé ; on enrichit seulement la réponse API.
-    """
-    if not isinstance(course, dict):
-        return {"depart": "", "arret_des_jeux": ""}
-
-    date = course.get("date")
-    reunion = course.get("reunion")
-    numero = course.get("course_numero")
-    if not date or not reunion or not numero:
-        return {"depart": "", "arret_des_jeux": ""}
-
-    try:
-        programme = recuperer_programme(date, reunion)
-        reunion_data = trouver_reunion(programme, reunion)
-        course_brute = trouver_course(reunion_data, numero)
-        if not isinstance(course_brute, dict):
-            return {"depart": "", "arret_des_jeux": ""}
-
-        def premier(*cles):
-            for cle in cles:
-                valeur = course_brute.get(cle)
-                if valeur not in (None, ""):
-                    return valeur
-            return ""
-
-        depart = premier(
-            "heureDepart", "heureDepartPrevue", "heureDepartCourse",
-            "heure_depart", "heure", "heureDeDepart"
-        )
-        arret = premier(
-            "heureArretDesJeux", "heureArretJeux",
-            "arretDesJeux", "arret_des_jeux"
-        )
-        return {"depart": depart, "arret_des_jeux": arret}
-    except Exception as erreur:
-        print("Horaire PMU indisponible :", erreur)
-        return {"depart": "", "arret_des_jeux": ""}
 
 
 # =====================================
@@ -312,12 +266,6 @@ def analyse():
                     ""
                 ),
 
-            "horaires":
-                _recuperer_horaire_course(course),
-
-            "heure_depart":
-                _recuperer_horaire_course(course).get("depart", ""),
-
             "non_partants":
                 course.get(
                     "non_partants",
@@ -414,8 +362,6 @@ def partants():
             "discipline": course.get("discipline", ""),
             "distance": course.get("distance_course", ""),
             "allocation": course.get("allocation", ""),
-            "horaires": _recuperer_horaire_course(course),
-            "heure_depart": _recuperer_horaire_course(course).get("depart", ""),
             "non_partants": course.get("non_partants", []),
             "partants": len(chevaux),
             "chevaux": chevaux,
