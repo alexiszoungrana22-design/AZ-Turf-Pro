@@ -15,17 +15,16 @@ from datetime import datetime
 # CONFIGURATION
 # =====================================
 
-PMU_BASE_URLS = [
-    # Client 1 is the long-standing public JSON endpoint used by PMU integrations.
-    ("https://online.turfinfo.api.pmu.fr/rest/client/1/programme", "INTERNET"),
-    # Offline client 7 is kept as a secondary source when online is unavailable.
-    ("https://offline.turfinfo.api.pmu.fr/rest/client/7/programme", "OFFLINE"),
-    # Existing endpoint retained as a final compatibility fallback.
-    ("https://turfinfo.api.prd.pmutech.fr/rest/client/61/programme", "INTERNET"),
-]
+PMU_BASE_URLS = (
+    "https://online.turfinfo.api.pmu.fr/rest/client/61/programme",
+    "https://offline.turfinfo.api.pmu.fr/rest/client/61/programme",
+    "https://turfinfo.api.prd.pmutech.fr/rest/client/61/programme",
+)
 
-TIMEOUT = 12
-LAST_PMU_DIAGNOSTIC = {"ok": False, "erreurs": []}
+# Premier endpoint utilisÃ© par dÃ©faut par les donnÃ©es PMU publiques.
+PMU_BASE_URL = PMU_BASE_URLS[0]
+
+TIMEOUT = 10
 PARTANTS_MINIMUM_QUINTE = 10
 
 
@@ -589,59 +588,68 @@ def transformer_course(course, participants):
 # =====================================
 
 def recuperer_programme(date, reunion=None):
-    """Récupère le programme PMU réel avec plusieurs clients compatibles.
-
-    Le fallback entre clients ne change pas le format attendu par le reste du
-    moteur. Aucun fichier local n'est utilisé ici : si PMU est indisponible,
-    l'appelant conserve son comportement existant de fallback.
-    """
-    global LAST_PMU_DIAGNOSTIC
     date = normaliser_date(date)
-    erreurs = []
 
-    for base_url, specialisation in PMU_BASE_URLS:
+    if reunion is not None:
+        reunion_numero = (
+            str(reunion)
+            .upper()
+            .replace("R", "")
+            .strip()
+        )
+
+        if not reunion_numero.isdigit():
+            return None
+
+    dernier_statut = None
+
+    for base_url in PMU_BASE_URLS:
         if reunion is None:
             url = f"{base_url}/{date}"
         else:
-            reunion_numero = str(reunion).upper().replace("R", "").strip()
-            if not reunion_numero.isdigit():
-                continue
             url = f"{base_url}/{date}/R{reunion_numero}"
 
         try:
             response = requests.get(
                 url,
-                params={"meteo": "true", "specialisation": specialisation},
+                params={"specialisation": "INTERNET"},
                 timeout=TIMEOUT,
                 headers={
                     "Accept": "application/json",
-                    "User-Agent": "AZ-Turf-Pro/1.0",
+                    "User-Agent": (
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                        "AppleWebKit/537.36 (KHTML, like Gecko) "
+                        "Chrome/122.0.0.0 Safari/537.36"
+                    ),
                 },
             )
+
+            dernier_statut = response.status_code
+
             if response.status_code != 200:
-                erreurs.append({"url": response.url, "status": response.status_code})
+                print(
+                    f"PMU programme indisponible "
+                    f"({response.status_code}) : {url}"
+                )
                 continue
 
             donnees = response.json()
+
             if isinstance(donnees, dict):
-                LAST_PMU_DIAGNOSTIC = {
-                    "ok": True,
-                    "url": response.url,
-                    "status": response.status_code,
-                    "client": base_url.split("/client/")[-1].split("/")[0],
-                    "date": date,
-                }
                 return donnees
 
-            erreurs.append({"url": response.url, "status": response.status_code, "erreur": "Réponse JSON non objet"})
-        except requests.RequestException as erreur:
-            erreurs.append({"url": url, "erreur": str(erreur)})
-        except (ValueError, TypeError) as erreur:
-            erreurs.append({"url": url, "erreur": f"JSON invalide: {erreur}"})
-        except Exception as erreur:
-            erreurs.append({"url": url, "erreur": str(erreur)})
+            print("RÃ©ponse programme PMU invalide :", type(donnees).__name__)
 
-    LAST_PMU_DIAGNOSTIC = {"ok": False, "date": date, "erreurs": erreurs}
+        except Exception as erreur:
+            print(
+                f"Erreur programme PMU "
+                f"({base_url}) : {erreur}"
+            )
+
+    print(
+        "Aucun endpoint PMU n'a fourni le programme "
+        f"du {date} (dernier statut={dernier_statut})."
+    )
     return None
 
 
@@ -726,30 +734,197 @@ def recuperer_participants(date, reunion, course_numero):
         return []
 
     date = normaliser_date(date)
-    reunion_numero = str(reunion).upper().replace("R", "").strip()
-    course_numero = str(course_numero).upper().replace("C", "").strip()
+
+    reunion_numero = (
+        str(reunion)
+        .upper()
+        .replace("R", "")
+        .strip()
+    )
+
+    course_numero = (
+        str(course_numero)
+        .upper()
+        .replace("C", "")
+        .strip()
+    )
+
     if not reunion_numero.isdigit() or not course_numero.isdigit():
         return []
 
-    for base_url, specialisation in PMU_BASE_URLS:
-        url = f"{base_url}/{date}/R{reunion_numero}/C{course_numero}/participants"
+    dernier_statut = None
+
+    for base_url in PMU_BASE_URLS:
+        url = (
+            f"{base_url}/"
+            f"{date}/"
+            f"R{reunion_numero}/"
+            f"C{course_numero}/"
+            f"participants"
+        )
+
         try:
             response = requests.get(
                 url,
-                params={"specialisation": specialisation},
+                params={"specialisation": "INTERNET"},
                 timeout=TIMEOUT,
-                headers={"Accept": "application/json", "User-Agent": "AZ-Turf-Pro/1.0"},
+                headers={
+                    "Accept": "application/json",
+                    "User-Agent": (
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                        "AppleWebKit/537.36 (KHTML, like Gecko) "
+                        "Chrome/122.0.0.0 Safari/537.36"
+                    ),
+                },
             )
+
+            dernier_statut = response.status_code
+
             if response.status_code != 200:
+                print(
+                    f"PMU participants indisponible "
+                    f"({response.status_code}) : {url}"
+                )
                 continue
+
             donnees = response.json()
-            if isinstance(donnees, dict) and isinstance(donnees.get("participants"), list):
-                return donnees["participants"]
+
+            if isinstance(donnees, dict):
+                participants = donnees.get("participants", [])
+                            if isinstance(donnees, dict):
+                participants = donnees.get("participants", [])
+                if isinstance(participants, list):
+                    return participants
+
             if isinstance(donnees, list):
                 return donnees
-        except Exception:
-            continue
+
+            print("RÃ©ponse participants PMU invalide :", type(donnees).__name__)
+
+        except Exception as erreur:
+            print(
+                f"Erreur participants PMU "
+                f"({base_url}) : {erreur}"
+            )
+
+    print(
+        "Aucun endpoint PMU n'a fourni les participants "
+        f"de R{reunion_numero} C{course_numero} "
+        f"pour {date} (dernier statut={dernier_statut})."
+    )
     return []
+
+
+# =====================================
+# DETECTION QUINTE+ FIABILISEE
+# =====================================
+
+def _nombre_partants(course):
+    if not isinstance(course, dict):
+        return 0
+
+    for cle in (
+        "nombreDeclaresPartants",
+        "nombrePartants",
+        "nbPartants",
+    ):
+        valeur = course.get(cle)
+        try:
+            if valeur not in (None, ""):
+                return int(valeur)
+        except (TypeError, ValueError):
+            pass
+
+    participants = course.get("participants")
+    if isinstance(participants, list):
+        return len(participants)
+
+    return 0
+
+
+def _texte_contient_quinte(valeur):
+    if valeur is None:
+        return False
+
+    if isinstance(valeur, dict):
+        for cle, contenu in valeur.items():
+            cle_texte = str(cle).upper()
+            if "QUINTE" in cle_texte or "Q5" in cle_texte or "5PLUS" in cle_texte:
+                return True
+            if isinstance(contenu, (str, list, dict)):
+                if _texte_contient_quinte(contenu):
+                    return True
+        return False
+
+    if isinstance(valeur, list):
+        return any(_texte_contient_quinte(item) for item in valeur)
+
+    texte = str(valeur).upper()
+    return "QUINTE" in texte or "Q5" in texte or "5PLUS" in texte or "E_QUINTE" in texte
+
+
+def _extraire_types_paris(course):
+    if not isinstance(course, dict):
+        return []
+
+    for cle in (
+        "paris",
+        "parisPMU",
+        "typesParis",
+        "listePari",
+    ):
+        valeur = course.get(cle)
+        if isinstance(valeur, list):
+            return valeur
+
+    return []
+
+
+def _contient_quinte(course):
+    """
+    Detection securisee du QuintÃƒÂ©+ :
+    1. Booleens et drapeaux explicites (quintePlus, evenement, grandPrix)
+    2. Types de paris
+    3. Nom et libelle de la course
+    Ne renvoie PAS False prematurely.
+    """
+    if not isinstance(course, dict):
+        return False
+
+    # 1. Champs booleens directs
+    for flag in ("quintePlus", "quinte", "evenement", "grandPrix", "isQuinte"):
+        if course.get(flag) is True:
+            return True
+
+    # 2. Recherche dans les types de paris
+    types_paris = _extraire_types_paris(course)
+    if types_paris:
+        for pari in types_paris:
+            if _texte_contient_quinte(pari):
+                return True
+
+    # 3. Nombre de partants minimum
+    nombre_partants = _nombre_partants(course)
+    if nombre_partants > 0 and nombre_partants < PARTANTS_MINIMUM_QUINTE:
+        return False
+
+    # 4. Libelles de la course
+    champs_identification = (
+        "libelle",
+        "nom",
+        "libelleCourt",
+        "libelleLong",
+        "typeCourse",
+        "conditionModifiee",
+        "statutEvenement",
+    )
+
+    for cle in champs_identification:
+        valeur = course.get(cle)
+        if isinstance(valeur, str) and _texte_contient_quinte(valeur):
+            return True
+
+    return False
 
 
 # =====================================
@@ -759,7 +934,7 @@ def recuperer_participants(date, reunion, course_numero):
 def trouver_quinte_du_jour(date):
     """
     Parcourt les reunions et retourne (programme, reunion, course).
-    Inclus un systeme de secours (fallback R1C1) si aucun QuintÃ©+ n'est Ã©tiquetÃ©.
+    Inclus un systeme de secours (fallback R1C1) si aucun QuintÃƒÂ©+ n'est ÃƒÂ©tiquetÃƒÂ©.
     """
     date = normaliser_date(date)
 
@@ -779,7 +954,7 @@ def trouver_quinte_du_jour(date):
                         if isinstance(course, dict) and _contient_quinte(course):
                             return prog_global, code_r or "R1", course
 
-    # 2. Parcours individuel R1 Ã  R12
+    # 2. Parcours individuel R1 Ãƒ  R12
     premiere_course_fallback = None
 
     for numero_reunion in range(1, 13):
@@ -808,8 +983,11 @@ def trouver_quinte_du_jour(date):
             if _contient_quinte(course):
                 return programme, reunion, course
 
-    # 3. Aucun Quinté explicite : ne pas inventer une course cible.
-    # Le fallback local de api.py reste disponible et inchangé.
+    # 3. Fallback de securite
+    if premiere_course_fallback:
+        print(f"Note : Aucun QuintÃƒÂ©+ explicite trouvÃƒÂ© pour {date}. Utilisation de la course de secours {premiere_course_fallback[1]}")
+        return premiere_course_fallback
+
     return None, None, None
 
 
@@ -830,7 +1008,7 @@ def charger_course_pmu(
             programme, reunion_trouvee, course = trouver_quinte_du_jour(date)
 
             if not course:
-                print("Aucun QuintÃ©+ PMU trouve pour", date)
+                print("Aucun QuintÃƒÂ©+ PMU trouve pour", date)
                 return None
 
             reunion = reunion_trouvee
@@ -923,16 +1101,17 @@ def recuperer_arrivee_pmu(date, reunion, course_numero):
 # =====================================
 
 if __name__ == "__main__":
-    print("AZ Turf Pro - Source PMU (CorrigÃ©)")
-    print("Module chargÃ© correctement.")
+    print("AZ Turf Pro - Source PMU (CorrigÃƒÂ©)")
+    print("Module chargÃƒÂ© correctement.")
 
     date_test = datetime.now().strftime("%d%m%Y")
     resultat = charger_course_pmu(date_test)
 
+    
     if resultat:
-        print("âœ… Connexion PMU disponible !")
-        print("Course trouvÃ©e :", resultat.get("course"))
-        print("RÃ©union/Course :", resultat.get("reunion"), "C" + str(resultat.get("course_numero")))
+        print("Ã¢Å“â€¦ Connexion PMU disponible !")
+        print("Course trouvÃƒÂ©e :", resultat.get("course"))
+        print("RÃƒÂ©union/Course :", resultat.get("reunion"), "C" + str(resultat.get("course_numero")))
         print("Partants :", len(resultat.get("chevaux", [])))
     else:
-        print("âŒ PMU indisponible ou aucune course trouvÃ©e.")
+        print("Ã¢ÂÅ’ PMU indisponible ou aucune course trouvÃƒÂ©e.")
