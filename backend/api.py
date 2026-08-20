@@ -1,3 +1,197 @@
+
+hier 9:38
+
+AZ-Turf-Pro-main (4).zip
+Archive zip
+Examine ce dossier tout entier et fais le point de ton analyse sans toucher au fonctionnement déjà mise en place 
+
+
+AZ-Turf-Pro-main (4)(1).zip
+Archive zip
+
+
+response_1787142309297.json
+Fichier
+
+
+response_1787143153582.json
+Fichier
+
+
+pmu_source.py
+Python
+
+
+response_1787144740462.json
+Fichier
+
+
+response_1787145585467.json
+Fichier
+
+
+AZ-Turf-Pro-main (7).zip
+Archive zip
+
+
+AZ-Turf-Pro-main (6).zip
+Archive zip
+
+
+pmu_source (3).py
+Python
+
+
+AZ-Turf-Pro-main (2).zip
+Archive zip
+Je crois que les bons fichiers se trouve dans ce zip
+
+aujourd’hui 7:46
+
+accueil.js
+JavaScript
+
+index.html
+Fichier
+Examine ces fichiers voir pourquoi l'accueil n'affiche pas 
+
+
+AZ-Turf-Pro-main (8).zip
+Archive zip
+
+
+api.py
+Python
+
+main.py
+Python
+
+Oui. Voici le fichier complet main.py corrigé, basé sur celui du ZIP de référence.
+
+Télécharger main_corrige.py
+
+Modification effectuée
+Une seule correction fonctionnelle a été ajoutée : les routes permettant à FastAPI de servir les fichiers demandés à la racine :
+
+/style.css
+/accueil.js
+/tri-partants.js
+/historique.js
+/modules-az.css
+Le reste de main.py est conservé.
+
+Fichier à remplacer :
+
+backend/main.py
+Ne remplace aucun autre fichier pour le moment. Après déploiement, regarde les logs : nous devons notamment obtenir 200 OK pour style.css, accueil.js et tri-partants.js. 
+
+
+main_corrige.py
+Code
+
+
+Toujours la course du 24 juillet 
+
+Oui. Maintenant on a la preuve de la cause du 24 juillet.
+
+Ce n'est pas main.py.
+
+Dans ton api.py, si PMU échoue, le code fait automatiquement ceci :
+
+course = charger_course_locale()
+puis renvoie courses.json comme "source": "demo". 
+
+
+Et nous avons une réponse réelle enregistrée qui confirme exactement ce qui se passe :
+
+"source": "demo",
+"donnees_demo": true,
+"course": "Prix de Paris",
+"date": "2026-07-24",
+"reunion": "R1",
+"course_numero": "C4"
+
+
+Donc le 24 juillet vient bien des données locales de démonstration, pas de l'API PMU.
+
+Pourquoi PMU n'arrive pas jusqu'à l'accueil ?
+Le api.py demande correctement la date actuelle :
+
+aujourd_hui = datetime.now()
+date_pmu = aujourd_hui.strftime("%d%m%Y")
+puis appelle :
+
+charger_course_pmu(date_pmu)
+
+
+Et pmu_source.py utilise bien cette date pour construire l'URL PMU. 
+
+
+Mais tes logs précédents nous disent que les trois endpoints PMU renvoient HTTP 400.
+
+Donc :
+
+PMU → échec
+      ↓
+api.py → fallback courses.json
+      ↓
+courses.json → 24 juillet
+      ↓
+accueil → affiche 24 juillet
+C'est donc api.py qu'il faut maintenant corriger
+Et je vais appliquer une correction très précise :
+
+si PMU n'est pas disponible, l'API ne doit plus présenter courses.json comme la course actuelle.
+
+Je ne vais pas toucher à pmu_source.py, ni à engine.py, ni à l'accueil.
+
+Le prochain fichier à corriger est donc :
+
+backend/api.py
+avec une modification minimale du fallback.
+
+Je peux te fournir api.py complet corrigé, fichier par fichier comme tu l'as demandé.
+
+
+
+api(1).py
+Python
+
+Oui. Cette fois, api.py complet, basé sur ton fichier actuel, avec une seule correction ciblée.
+
+Correction
+J'ai supprimé le comportement qui faisait :
+
+PMU échoue
+   ↓
+courses.json
+   ↓
+24 juillet
+Désormais :
+
+PMU réussit → course PMU
+PMU échoue  → aucune course retournée
+Ainsi, l'application ne pourra plus afficher silencieusement la course du 24 juillet comme si c'était la course du jour.
+
+Télécharger api_corrige.py
+
+Fichier à remplacer
+backend/api.py
+Rien d'autre pour cette étape.
+
+Après déploiement, envoie-moi le log de /api/analyse. Si PMU retourne toujours 400, nous traiterons ensuite le vrai problème PMU, sans remettre un fallback avec une ancienne course. 
+
+
+api_corrige.py
+Code
+
+
+api.py
+Bibliothèque
+/
+api_corrige.py
+
+
 # =====================================
 # AZ TURF PRO
 # API
@@ -132,37 +326,16 @@ def charger_course():
         )
 
     # =================================
-    # 2. FALLBACK LOCAL
-    # Marque explicitement comme donnee
-    # de demonstration : ne doit jamais
-    # etre presentee comme la course du
-    # jour.
+    # 2. PAS DE FALLBACK SUR COURSES.JSON
+    # Ne jamais afficher une ancienne
+    # course locale comme course du jour.
+    # Si PMU est indisponible, l'API
+    # signale l'indisponibilite.
     # =================================
 
-    try:
-
-        course = charger_course_locale()
-
-        if (
-            course
-            and isinstance(course, dict)
-            and course.get("chevaux")
-        ):
-
-            print(
-                "Source utilisÃ©e : donnÃ©es locales (dÃ©mo)"
-            )
-
-            course["donnees_demo"] = True
-
-            return course, "demo"
-
-    except Exception as erreur:
-
-        print(
-            "Erreur chargement local :",
-            erreur
-        )
+    print(
+        "Aucune course PMU disponible pour la date demandee."
+    )
 
     return None, "none"
 
