@@ -46,6 +46,9 @@ from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
 
 from learning import lire_historique, mettre_a_jour_arrivee
 
+from modules.chatbot_turf import repondre_assistant_turf
+from modules.stats_backtest import calculer_stats_performance, simuler_backtest_filtre
+
 import json
 import os
 from datetime import datetime, timedelta
@@ -594,6 +597,62 @@ def debug_pmu():
             status_code=500,
             detail=f"Erreur debug PMU : {erreur}"
         )
+
+
+
+# =====================================
+# ASSISTANT TURF
+# =====================================
+
+@router.post("/assistant/chat")
+def assistant_chat(payload: dict):
+    """Répond aux questions à partir de l'analyse courante."""
+    question = str(payload.get("question", "")).strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="Question obligatoire.")
+
+    contexte = payload.get("contexte") or {}
+    moteur = contexte.get("moteur")
+
+    if not moteur:
+        base, source = charger_course()
+        if not base:
+            raise HTTPException(
+                status_code=503,
+                detail="Aucune analyse PMU réelle disponible actuellement."
+            )
+        resultat = lancer_analyse(
+            base.get("chevaux", []),
+            info_course={
+                "date": base.get("date"),
+                "reunion": base.get("reunion"),
+                "course_numero": base.get("course_numero"),
+                "hippodrome": base.get("hippodrome"),
+            },
+        )
+        moteur = {
+            "classement": resultat.get("chevaux", []),
+            "tickets": resultat.get("tickets", {}),
+        }
+
+    return repondre_assistant_turf(question, {"moteur": moteur})
+
+
+# =====================================
+# STATISTIQUES / BACKTEST
+# =====================================
+
+@router.post("/stats/backtest")
+def stats_backtest(payload: dict):
+    """Calcule les performances et le backtest sur l'historique fourni ou local."""
+    historique = payload.get("historique")
+    if not isinstance(historique, list) or not historique:
+        historique = lire_historique()
+
+    filtres = payload.get("filtres") or {}
+    resultat = simuler_backtest_filtre(historique, filtres)
+    resultat["performance"] = calculer_stats_performance(historique)
+    return resultat
 
 
 # =====================================
