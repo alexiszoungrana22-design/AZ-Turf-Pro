@@ -1,12 +1,8 @@
-# =====================================
-# AZ TURF PRO - SERVEUR PRINCIPAL (main.py)
-# FastAPI + Routes API + Fichiers Statiques
-# =====================================
-
 from pathlib import Path
-from fastapi import FastAPI
+
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from api import router
@@ -14,111 +10,103 @@ from api import router
 
 app = FastAPI(
     title="AZ Turf Pro API",
-    description="Serveur web et API d'analyse hippique AZ Turf Pro",
-    version="1.0.0"
+    version="1.0"
 )
 
-# =====================================
-# AUTORISATIONS CORS (GitHub Pages, Render, Local)
-# =====================================
+# Autorisation frontend GitHub Pages + Render
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://alexiszoungrana22-design.github.io",
-        "https://az-turf-pro.onrender.com",
-        "http://localhost",
-        "http://localhost:3000",
-        "http://localhost:8000",
-        "http://127.0.0.1:5500",
-        "*"
+        "https://az-turf-pro.onrender.com"
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# =====================================
-# ROUTES API
-# =====================================
+# Routes API
 
 app.include_router(router)
 
-# =====================================
-# CHEMINS DU PROJET ET DÉTECTION RACINE
-# =====================================
+# ==============================
+# Chemins du projet
+# ==============================
 
 BASE_DIR = Path(__file__).resolve().parent
+ROOT_DIR = BASE_DIR.parent
 
-# Détection automatique de la racine du projet (si main.py est dans un sous-dossier ou à la racine)
-if (BASE_DIR / "index.html").exists():
-    ROOT_DIR = BASE_DIR
-else:
-    ROOT_DIR = BASE_DIR.parent
+# ==============================
+# Images
+# ==============================
 
-# =====================================
-# MONTAGE DES DOSSIERS STATIQUES (IMAGES, CSS, JS)
-# =====================================
-
-# Dossier Images
 IMAGES_DIR = ROOT_DIR / "images"
-if not IMAGES_DIR.exists():
-    IMAGES_DIR = BASE_DIR / "images"
 
 if IMAGES_DIR.exists():
     app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 
-# Dossiers CSS et JS
+# ==============================
+# CSS / JS (si prÃ©sents)
+# ==============================
+
 for dossier in ["css", "js"]:
     chemin = ROOT_DIR / dossier
-    if not chemin.exists():
-        chemin = BASE_DIR / dossier
-
     if chemin.exists():
         app.mount(f"/{dossier}", StaticFiles(directory=chemin), name=dossier)
 
-# =====================================
-# ROUTE DE SANTÉ / HEALTHCHECK
-# =====================================
+# ==============================
+# Fichiers frontend Ã  la racine
+# ==============================
+# Le frontend actuel rÃ©fÃ©rence ses CSS/JS/HTML directement Ã  la racine
+# (/style.css, /analyse.js, /historique.js, etc.). Les dossiers /css et /js
+# ne sont donc pas suffisants. Ces routes servent uniquement des fichiers
+# prÃ©sents directement dans ROOT_DIR et bloquent les chemins traversants.
 
-@app.get("/health", tags=["Système"])
-def health_check():
-    return {
-        "status": "OK",
-        "app": "AZ Turf Pro",
-        "message": "Le serveur est en ligne et fonctionnel."
-    }
-
-# =====================================
-# SERVING DE LA PAGE D'ACCUEIL ET PAGES HTML
-# =====================================
-
-@app.get("/", tags=["Frontend"])
-def accueil():
-    index_file = ROOT_DIR / "index.html"
-    if not index_file.exists():
-        index_file = BASE_DIR / "index.html"
-
-    if index_file.exists():
-        return FileResponse(index_file)
-
-    return {
-        "message": "AZ Turf Pro API est opérationnelle.",
-        "status": "OK",
-        "documentation": "/docs"
-    }
+@app.get("/{asset_name}.css")
+def servir_css(asset_name: str):
+    fichier = ROOT_DIR / f"{asset_name}.css"
+    if fichier.is_file() and fichier.parent == ROOT_DIR:
+        return FileResponse(fichier, media_type="text/css")
+    raise HTTPException(status_code=404, detail="CSS introuvable")
 
 
-@app.get("/{page_name}.html", tags=["Frontend"])
+@app.get("/{asset_name}.js")
+def servir_js(asset_name: str):
+    fichier = ROOT_DIR / f"{asset_name}.js"
+    if fichier.is_file() and fichier.parent == ROOT_DIR:
+        return FileResponse(fichier, media_type="application/javascript")
+    raise HTTPException(status_code=404, detail="JavaScript introuvable")
+
+
+@app.get("/{page_name}.html")
 def servir_page_html(page_name: str):
-    fichier_html = ROOT_DIR / f"{page_name}.html"
-    if not fichier_html.exists():
-        fichier_html = BASE_DIR / f"{page_name}.html"
+    fichier = ROOT_DIR / f"{page_name}.html"
+    if fichier.is_file() and fichier.parent == ROOT_DIR:
+        return FileResponse(fichier, media_type="text/html; charset=utf-8")
+    raise HTTPException(status_code=404, detail="Page introuvable")
 
-    if fichier_html.exists():
-        return FileResponse(fichier_html)
 
-    return JSONResponse(
-        status_code=404,
-        content={"message": f"Page '{page_name}.html' introuvable."}
-        )
+# ==============================
+# Frontend statique Ã  la racine
+# ==============================
+# Sert les fichiers frontend rÃ©fÃ©rencÃ©s directement depuis /.
+if ROOT_DIR.exists():
+    app.mount("/_frontend_static", StaticFiles(directory=ROOT_DIR), name="frontend_static")
+
+# ==============================
+# Page d'accueil
+# ==============================
+
+@app.get("/")
+def accueil():
+
+    index = ROOT_DIR / "index.html"
+
+    if index.exists():
+        return FileResponse(index, media_type="text/html; charset=utf-8")
+
+    return {
+        "message": "AZ Turf Pro API",
+        "status": "OK"
+    }
