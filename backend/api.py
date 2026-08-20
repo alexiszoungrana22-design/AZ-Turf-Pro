@@ -813,3 +813,4 @@ def api_analyse_complete(payload: dict):
         "consensus_presse": res_presse.get("consensus", []),
         "impact_meteo": res_meteo.get("impact", "NEUTRE")
     }
+
