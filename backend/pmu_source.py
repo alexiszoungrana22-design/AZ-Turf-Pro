@@ -48,7 +48,15 @@ def normaliser_date(date_val):
 
     # Si format YYYYMMDD (ex: 20260813) -> Convertir en DDMMYYYY (13082026)
     if len(texte) == 8 and (texte.startswith("20") or texte.startswith("19")):
-        return f"{texte[6:8]}{texte[4:6]}{texte[0:4]}"
+        mois_candidat = texte[4:6]
+        jour_candidat = texte[6:8]
+        if (
+            mois_candidat.isdigit()
+            and jour_candidat.isdigit()
+            and 1 <= int(mois_candidat) <= 12
+            and 1 <= int(jour_candidat) <= 31
+        ):
+            return f"{texte[6:8]}{texte[4:6]}{texte[0:4]}"
 
     return texte
 
