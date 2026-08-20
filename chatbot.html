@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AZ Turf Pro - Assistant</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top-header">
+  <div class="brand-zone"><div class="logo">🏇 <span>AZ Turf Pro</span></div></div>
+  <nav class="top-menu">
+    <a href="index.html">🏠 Accueil</a>
+    <a href="analyse.html">📊 Analyse</a>
+    <a href="chatbot.html" class="active">🤖 Assistant</a>
+    <a href="backtest.html">📈 Backtest</a>
+  </nav>
+</header>
+<main class="content">
+<section class="card">
+  <h2>🤖 Assistant AZ Turf Pro</h2>
+  <p>Pose une question sur le favori, le Quinté, les outsiders ou les badges.</p>
+  <div id="chat-log" style="min-height:180px;padding:12px;border:1px solid #ddd;border-radius:10px;margin:12px 0;"></div>
+  <form id="chat-form" style="display:flex;gap:8px;">
+    <input id="chat-question" required placeholder="Ex. Quel est le favori ?" style="flex:1;padding:12px;">
+    <button type="submit">Envoyer</button>
+  </form>
+</section>
+</main>
+<script src="chatbot.js"></script>
+</body>
+</html>
