@@ -40,11 +40,14 @@ from models import (
     ActivationRequest
 )
 
-from pmu_source import charger_course_pmu
+from pmu_source import charger_course_pmu, recuperer_programme, trouver_reunion, trouver_course
 
 from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
 
 from learning import lire_historique, mettre_a_jour_arrivee
+
+from modules.chatbot_turf import repondre_assistant_turf
+from modules.stats_backtest import calculer_stats_performance, simuler_backtest_filtre
 
 import json
 import os
@@ -94,6 +97,52 @@ def _charger_partants_live():
             detail="Les données PMU réelles du jour sont indisponibles actuellement."
         )
     return course
+
+
+
+# =====================================
+# HORAIRE PMU DE LA COURSE
+# =====================================
+
+def _recuperer_horaire_course(course):
+    """Récupère l'heure brute de départ depuis le programme PMU.
+    Le module pmu_source reste inchangé ; on enrichit seulement la réponse API.
+    """
+    if not isinstance(course, dict):
+        return {"depart": "", "arret_des_jeux": ""}
+
+    date = course.get("date")
+    reunion = course.get("reunion")
+    numero = course.get("course_numero")
+    if not date or not reunion or not numero:
+        return {"depart": "", "arret_des_jeux": ""}
+
+    try:
+        programme = recuperer_programme(date, reunion)
+        reunion_data = trouver_reunion(programme, reunion)
+        course_brute = trouver_course(reunion_data, numero)
+        if not isinstance(course_brute, dict):
+            return {"depart": "", "arret_des_jeux": ""}
+
+        def premier(*cles):
+            for cle in cles:
+                valeur = course_brute.get(cle)
+                if valeur not in (None, ""):
+                    return valeur
+            return ""
+
+        depart = premier(
+            "heureDepart", "heureDepartPrevue", "heureDepartCourse",
+            "heure_depart", "heure", "heureDeDepart"
+        )
+        arret = premier(
+            "heureArretDesJeux", "heureArretJeux",
+            "arretDesJeux", "arret_des_jeux"
+        )
+        return {"depart": depart, "arret_des_jeux": arret}
+    except Exception as erreur:
+        print("Horaire PMU indisponible :", erreur)
+        return {"depart": "", "arret_des_jeux": ""}
 
 
 # =====================================
@@ -263,6 +312,12 @@ def analyse():
                     ""
                 ),
 
+            "horaires":
+                _recuperer_horaire_course(course),
+
+            "heure_depart":
+                _recuperer_horaire_course(course).get("depart", ""),
+
             "non_partants":
                 course.get(
                     "non_partants",
@@ -359,6 +414,8 @@ def partants():
             "discipline": course.get("discipline", ""),
             "distance": course.get("distance_course", ""),
             "allocation": course.get("allocation", ""),
+            "horaires": _recuperer_horaire_course(course),
+            "heure_depart": _recuperer_horaire_course(course).get("depart", ""),
             "non_partants": course.get("non_partants", []),
             "partants": len(chevaux),
             "chevaux": chevaux,
@@ -594,6 +651,62 @@ def debug_pmu():
             status_code=500,
             detail=f"Erreur debug PMU : {erreur}"
         )
+
+
+
+# =====================================
+# ASSISTANT TURF
+# =====================================
+
+@router.post("/assistant/chat")
+def assistant_chat(payload: dict):
+    """Répond aux questions à partir de l'analyse courante."""
+    question = str(payload.get("question", "")).strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="Question obligatoire.")
+
+    contexte = payload.get("contexte") or {}
+    moteur = contexte.get("moteur")
+
+    if not moteur:
+        base, source = charger_course()
+        if not base:
+            raise HTTPException(
+                status_code=503,
+                detail="Aucune analyse PMU réelle disponible actuellement."
+            )
+        resultat = lancer_analyse(
+            base.get("chevaux", []),
+            info_course={
+                "date": base.get("date"),
+                "reunion": base.get("reunion"),
+                "course_numero": base.get("course_numero"),
+                "hippodrome": base.get("hippodrome"),
+            },
+        )
+        moteur = {
+            "classement": resultat.get("chevaux", []),
+            "tickets": resultat.get("tickets", {}),
+        }
+
+    return repondre_assistant_turf(question, {"moteur": moteur})
+
+
+# =====================================
+# STATISTIQUES / BACKTEST
+# =====================================
+
+@router.post("/stats/backtest")
+def stats_backtest(payload: dict):
+    """Calcule les performances et le backtest sur l'historique fourni ou local."""
+    historique = payload.get("historique")
+    if not isinstance(historique, list) or not historique:
+        historique = lire_historique()
+
+    filtres = payload.get("filtres") or {}
+    resultat = simuler_backtest_filtre(historique, filtres)
+    resultat["performance"] = calculer_stats_performance(historique)
+    return resultat
 
 
 # =====================================
