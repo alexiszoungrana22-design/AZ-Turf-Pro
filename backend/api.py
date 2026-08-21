@@ -23,7 +23,7 @@
 #    premium, admin) sont strictement inchangees.
 
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
 from engine import lancer_analyse
@@ -55,7 +55,6 @@ from engine import lancer_analyse
 from modules.cotes_history import analyser_tendances_cotes
 from modules.pronos_presse import analyser_consensus_presse
 from modules.meteo_piste import analyser_impact_terrain
-from modules.chatbot_turf import repondre_assistant_turf
 
 router = APIRouter(
     prefix="/api",
@@ -839,67 +838,92 @@ def api_analyse_complete(payload: dict):
 
 
 # =========================================================
-# ASSISTANT CHATBOT AZ TURF PRO
-# Correction : routes presentes dans le backend actif.
+# ASSISTANT CHATBOT — REPONSE JSON + STREAMING SSE
 # =========================================================
+# Routes additives : elles ne modifient aucune route existante.
+# Le frontend chatbot attend des evenements SSE de la forme :
+# data: {"type":"token","text":"..."}
 
-def _assistant_response(payload: dict):
-    question = str((payload or {}).get("question", "")).strip()
-    if not question:
-        raise HTTPException(status_code=400, detail="Question obligatoire.")
 
-    contexte = (payload or {}).get("contexte") or {}
-    moteur = contexte.get("moteur")
+def _contexte_assistant():
+    """Construit le contexte minimal attendu par chatbot_turf."""
+    from modules.chatbot_turf import repondre_assistant_turf
+    course, source = charger_course()
+    if not course:
+        return {}, source
 
-    if not moteur:
-        base, source = charger_course()
-        if not base:
-            raise HTTPException(
-                status_code=503,
-                detail="Aucune analyse PMU réelle disponible actuellement."
-            )
-        resultat = lancer_analyse(
-            base.get("chevaux", []),
-            info_course={
-                "date": base.get("date"),
-                "reunion": base.get("reunion"),
-                "course_numero": base.get("course_numero"),
-                "hippodrome": base.get("hippodrome"),
-                "discipline": base.get("discipline"),
-                "distance": base.get("distance"),
-            },
-        )
-        moteur = {
-            "classement": resultat.get("chevaux", []),
-            "tickets": resultat.get("tickets", {}),
-        }
-
-    return repondre_assistant_turf(question, {"moteur": moteur})
+    chevaux = course.get("chevaux", [])
+    info_course = {
+        "date": course.get("date"),
+        "reunion": course.get("reunion"),
+        "course_numero": course.get("course_numero"),
+        "course": course.get("course", ""),
+        "hippodrome": course.get("hippodrome", ""),
+        "discipline": course.get("discipline", ""),
+        "distance": course.get("distance_course", ""),
+        "heure_depart": course.get("heure_depart", ""),
+    }
+    resultat = lancer_analyse(chevaux, info_course)
+    contexte = {
+        "moteur": {
+            "classement": resultat.get("chevaux", []) if isinstance(resultat, dict) else [],
+            "tickets": resultat.get("tickets", {}) if isinstance(resultat, dict) else {},
+        },
+        "course": info_course,
+        "source": source,
+    }
+    return contexte, source
 
 
 @router.post("/assistant/chat")
 def assistant_chat(payload: dict):
-    """Endpoint classique du chatbot."""
-    return _assistant_response(payload)
+    """Endpoint classique JSON du chatbot."""
+    question = str(payload.get("question", "")).strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="Question vide.")
+
+    try:
+        from modules.chatbot_turf import repondre_assistant_turf
+        contexte, source = _contexte_assistant()
+        resultat = repondre_assistant_turf(question, contexte)
+        return {
+            "status": "success",
+            "question": question,
+            "reponse": resultat.get("reponse", "") if isinstance(resultat, dict) else str(resultat),
+            "source": source,
+        }
+    except HTTPException:
+        raise
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur assistant : {erreur}")
 
 
 @router.post("/assistant/chat/stream")
 def assistant_chat_stream(payload: dict):
-    """Endpoint SSE compatible avec le chatbot amélioré."""
-    resultat = _assistant_response(payload)
-
-    if isinstance(resultat, dict):
-        texte = resultat.get("reponse") or resultat.get("message") or str(resultat)
-    else:
-        texte = str(resultat)
+    """Endpoint SSE attendu par l'interface Chatbot."""
+    question = str(payload.get("question", "")).strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="Question vide.")
 
     def generate():
-        # SSE : envoi par petits blocs pour conserver l'effet streaming.
-        taille = 80
-        for i in range(0, len(texte), taille):
-            bloc = texte[i:i + taille].replace("\r", "")
-            yield f"data: {bloc}\n\n"
-        yield "data: [DONE]\n\n"
+        import json as _json
+        try:
+            from modules.chatbot_turf import repondre_assistant_turf
+            contexte, source = _contexte_assistant()
+            resultat = repondre_assistant_turf(question, contexte)
+            texte = resultat.get("reponse", "") if isinstance(resultat, dict) else str(resultat)
+            if not texte:
+                texte = "Je n'ai pas pu générer de réponse pour cette question."
+
+            # Découpage en petits blocs pour que la bulle s'alimente réellement
+            # au fur et à mesure côté navigateur.
+            for i in range(0, len(texte), 45):
+                bloc = texte[i:i + 45]
+                yield f"data: {_json.dumps({'type': 'token', 'text': bloc}, ensure_ascii=False)}\n\n"
+
+            yield f"data: {_json.dumps({'type': 'done', 'source': source}, ensure_ascii=False)}\n\n"
+        except Exception as erreur:
+            yield f"data: {_json.dumps({'type': 'error', 'message': f'Erreur assistant : {erreur}'}, ensure_ascii=False)}\n\n"
 
     return StreamingResponse(
         generate(),
