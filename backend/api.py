@@ -23,13 +23,14 @@
 #    premium, admin) sont strictement inchangees.
 
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 
 from engine import lancer_analyse
 
 from database import (
     creer_abonnement,
     activer_abonnement,
+    valider_reference_paiement,
     verifier_premium,
     lister_abonnements,
     statistiques_abonnements
@@ -39,6 +40,8 @@ from models import (
     AbonnementRequest,
     ActivationRequest
 )
+
+from security import require_admin
 
 from pmu_source import charger_course_pmu, recuperer_programme, trouver_reunion, trouver_course, trouver_quinte_du_jour
 
@@ -579,58 +582,21 @@ def abonnement(
 def activation_premium(
     activation: ActivationRequest
 ):
-
     abonnement = activer_abonnement(
-
-        activation.telephone,
-
-        activation.reference
-
+        activation.telephone.strip(),
+        activation.reference.strip()
     )
 
     if abonnement is None:
-
         raise HTTPException(
-
-            status_code=404,
-
-            detail=
-                "Aucun abonnement trouvÃƒÂ©"
-
+            status_code=403,
+            detail="Référence non validée ou abonnement introuvable."
         )
-
-    abonnement["date_fin"] = (
-
-        datetime.now()
-
-        +
-
-        timedelta(
-
-            days=int(
-
-                abonnement.get(
-                    "duree",
-                    30
-                )
-
-            )
-
-        )
-
-    ).isoformat()
 
     return {
-
-        "message":
-            "Premium activÃƒÂ©",
-
-        "statut":
-            "ACTIF",
-
-        "date_fin":
-            abonnement["date_fin"]
-
+        "message": "Premium activé",
+        "statut": "ACTIF",
+        "date_fin": abonnement["date_fin"]
     }
 
 
@@ -652,24 +618,37 @@ def premium(
 # ADMIN - ABONNEMENTS
 # =====================================
 
-@router.get("/admin/abonnements")
-def admin_abonnements():
+@router.post("/admin/valider-reference")
+def admin_valider_reference(
+    activation: ActivationRequest,
+    _: bool = Depends(require_admin)
+):
+    abonnement = valider_reference_paiement(
+        activation.telephone.strip(),
+        activation.reference.strip()
+    )
+
+    if abonnement is None:
+        raise HTTPException(status_code=404, detail="Abonnement introuvable.")
 
     return {
-
-        "abonnements":
-            lister_abonnements()
-
+        "message": "Référence de paiement validée. Le client peut maintenant activer son Premium.",
+        "statut": abonnement["statut"]
     }
 
 
-# =====================================
-# ADMIN - STATISTIQUES
-# =====================================
+@router.get("/admin/verification")
+def admin_verification(_: bool = Depends(require_admin)):
+    return {"authenticated": True}
+
+
+@router.get("/admin/abonnements")
+def admin_abonnements(_: bool = Depends(require_admin)):
+    return {"abonnements": lister_abonnements()}
+
 
 @router.get("/admin/statistiques")
-def admin_statistiques():
-
+def admin_statistiques(_: bool = Depends(require_admin)):
     return statistiques_abonnements()
 
 

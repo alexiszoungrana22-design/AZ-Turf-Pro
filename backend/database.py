@@ -215,6 +215,39 @@ def trouver_abonnement(telephone):
 
 
 # =====================================
+# PRE-VALIDER UNE REFERENCE DE PAIEMENT
+# =====================================
+
+def valider_reference_paiement(telephone, reference):
+    telephone = (telephone or "").strip()
+    reference = (reference or "").strip()
+
+    if not telephone or not reference:
+        return None
+
+    abonnement = trouver_abonnement(telephone)
+    if abonnement is None:
+        return None
+
+    conn = connexion()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        UPDATE abonnements
+        SET reference=?, statut=?
+        WHERE telephone=?
+        """,
+        (reference, "REFERENCE_VALIDEE", telephone)
+    )
+    conn.commit()
+    conn.close()
+
+    abonnement["reference"] = reference
+    abonnement["statut"] = "REFERENCE_VALIDEE"
+    return abonnement
+
+
+# =====================================
 # ACTIVER PREMIUM
 # =====================================
 
@@ -222,6 +255,14 @@ def activer_abonnement(telephone, reference):
     abonnement = trouver_abonnement(telephone)
 
     if abonnement is None:
+        return None
+
+    # Une activation publique n'est possible que si la référence a
+    # auparavant été validée côté serveur par l'administrateur.
+    if abonnement.get("statut") != "REFERENCE_VALIDEE":
+        return None
+
+    if not reference or reference.strip() != (abonnement.get("reference") or "").strip():
         return None
 
     duree = int(abonnement.get("duree", 30))
