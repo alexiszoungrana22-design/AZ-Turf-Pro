@@ -1,255 +1,246 @@
 """
-AZ TURF PRO - Assistant conversationnel IA
-v23.4 - moteur de tickets IA independant du moteur AZ Turf Pro.
-
-Le moteur IA utilise uniquement les donnees de la course fournies par PMU
-(cote, forme, regularite, gains, experience, jockey) pour construire ses
-propres scores et combinaisons. Les tickets AZ ne servent qu'a la comparaison.
+AZ TURF PRO - ASSISTANT CONVERSATIONNEL IA
+Moteur autonome PMU : conversation, analyse indépendante, tickets,
+recherche de courses, mémoire et explications.
 """
+from __future__ import annotations
 
+from datetime import datetime, timedelta
 import math
 import re
+from typing import Any
 
 
-def _num(v, default=0.0):
+PMU_KNOWLEDGE = {
+    "quinte": "Le Quinté+ est un pari combiné consistant à trouver les cinq premiers chevaux de la course dans l'ordre ou dans certaines formules selon le type de pari choisi.",
+    "tierce": "Le Tiercé consiste à trouver les trois premiers chevaux, avec une formule dans l'ordre ou désordre selon le pari.",
+    "quarte": "Le Quarté consiste à sélectionner les quatre premiers chevaux, avec différentes formules selon le pari choisi.",
+    "couple": "Le Couplé consiste à associer deux chevaux pour viser les deux premières places selon la formule Gagnant ou Placé.",
+    "simple": "Le Simple permet de jouer un cheval pour la victoire (Gagnant) ou pour une place parmi les chevaux classés (Placé), selon les règles du pari.",
+    "outsider": "Un outsider est un cheval dont la cote est relativement élevée mais dont le profil présente suffisamment d'arguments pour envisager une surprise.",
+    "tocard": "Un tocard est généralement un cheval très délaissé au marché, mais susceptible de créer une grosse surprise.",
+    "cote": "La cote reflète le niveau de confiance implicite du marché. L'assistant la compare à sa propre estimation pour rechercher de la value.",
+    "d4": "D4 signifie déferré des quatre pieds dans le trot. C'est une information d'équipement qui peut être importante, mais elle ne suffit jamais à elle seule pour sélectionner un cheval.",
+    "musique": "La musique résume les dernières performances du cheval. Elle doit être interprétée avec le contexte : niveau des courses, discipline, distance et conditions.",
+}
+
+
+def _num(v: Any, default: float = 0.0) -> float:
     try:
-        if v is None or v == "":
-            return float(default)
         return float(v)
     except (TypeError, ValueError):
-        return float(default)
+        return default
 
 
-def _clamp(v, lo=0.0, hi=10.0):
-    return max(lo, min(hi, float(v)))
+def _positions(cheval: dict) -> list[int]:
+    raw = cheval.get("performances") or cheval.get("musique_brute") or []
+    if isinstance(raw, list):
+        return [int(x) for x in raw if str(x).isdigit() and int(x) > 0]
+    return [int(x) for x in re.findall(r"\d+", str(raw)) if int(x) > 0]
 
 
-def _positions(perfs):
-    if isinstance(perfs, list):
-        out = []
-        for p in perfs:
-            try:
-                n = int(p)
-                if 1 <= n <= 30:
-                    out.append(n)
-            except (TypeError, ValueError):
-                pass
-        return out
-    text = str(perfs or "")
-    nums = []
-    for token in re.findall(r"\d+", text):
-        n = int(token)
-        if 1 <= n <= 30:
-            nums.append(n)
-    return nums
+def _score_forme(c: dict) -> float:
+    positions = _positions(c)
+    if positions:
+        recent = positions[:5]
+        return max(0.0, min(10.0, 10.5 - sum(recent) / len(recent)))
+    return _num(c.get("forme"), 5.0)
 
 
-def _score_form(c):
-    if c.get("forme") is not None:
-        return _clamp(_num(c.get("forme"), 5))
-    pos = _positions(c.get("performances") or c.get("musique_brute"))
-    if not pos:
+def _score_reg(c: dict) -> float:
+    positions = _positions(c)
+    if len(positions) >= 2:
+        vals = positions[:8]
+        avg = sum(vals) / len(vals)
+        sd = math.sqrt(sum((x - avg) ** 2 for x in vals) / len(vals))
+        return max(0.0, min(10.0, 10.0 - sd))
+    return _num(c.get("regularite"), 5.0)
+
+
+def _score_cote(c: dict, all_c: list[dict]) -> float:
+    cote = _num(c.get("cote_brute", c.get("cote")), 0)
+    vals = [_num(x.get("cote_brute", x.get("cote")), 0) for x in all_c]
+    vals = [x for x in vals if x > 0]
+    if not cote or not vals or max(vals) == min(vals):
         return 5.0
-    weights = [1.0, 0.9, 0.8, 0.7, 0.6]
-    vals = []
-    for i, p in enumerate(pos[:5]):
-        vals.append(max(0.0, 11.0 - p) * weights[i])
-    return _clamp(sum(vals) / max(sum(weights[:len(vals)]), 1.0))
+    # Une cote basse augmente la probabilité brute, mais ne domine pas le modèle.
+    return max(0.0, min(10.0, (max(vals) - cote) / (max(vals) - min(vals)) * 10))
 
 
-def _score_regularite(c):
-    if c.get("regularite") is not None:
-        return _clamp(_num(c.get("regularite"), 5))
-    pos = _positions(c.get("performances") or c.get("musique_brute"))
-    if not pos:
-        return 5.0
-    return _clamp(10.0 - (sum(abs(p - 5) for p in pos[:6]) / max(len(pos[:6]), 1)))
+def score_independant(cheval: dict, tous: list[dict]) -> dict:
+    """Score indépendant du classement AZ. Les pondérations sont explicites."""
+    forme = _score_forme(cheval)
+    regularite = _score_reg(cheval)
+    cote_score = _score_cote(cheval, tous)
+    gains = _num(cheval.get("gains_carriere_brute"), 0)
+    gains_vals = [_num(x.get("gains_carriere_brute"), 0) for x in tous]
+    gains_vals = [x for x in gains_vals if x >= 0]
+    gains_score = 5.0 if not gains_vals or max(gains_vals) == min(gains_vals) else (gains - min(gains_vals)) / (max(gains_vals) - min(gains_vals)) * 10
+    experience = max(0.0, min(10.0, _num(cheval.get("experience"), 5)))
+    aptitude = max(0.0, min(10.0, _num(cheval.get("distance"), 5) * 0.6 + _num(cheval.get("terrain"), 5) * 0.4))
+    jockey = max(0.0, min(10.0, _num(cheval.get("jockey_score"), 5)))
 
-
-def _score_cote(c, all_cotes):
-    cote = _num(c.get("cote_brute"), 0)
-    if cote <= 0:
-        return 5.0, cote
-    valid = sorted(x for x in all_cotes if x > 0)
-    if not valid:
-        return 5.0, cote
-    # Score marche: les cotes basses sont favorables, mais on ne laisse
-    # jamais la cote dominer l'algorithme.
-    lo, hi = valid[0], valid[-1]
-    if hi == lo:
-        return 5.0, cote
-    market = 10.0 - ((cote - lo) / (hi - lo)) * 10.0
-    return _clamp(market), cote
-
-
-def _score_value(score, cote):
-    if cote <= 0:
-        return 5.0
-    # Probabilite implicite du modele (softmax simplifiee) x cote.
-    # On cherche la valeur, pas seulement le favori de marche.
-    implied = 1.0 / cote
-    model_prob = max(0.02, min(0.45, score / 22.0))
-    raw = (model_prob / implied) * 5.0
-    return _clamp(raw)
-
-
-def _analyse_chevaux(chevaux):
-    actifs = [c for c in chevaux if isinstance(c, dict) and c.get("numero") is not None]
-    cotes = [_num(c.get("cote_brute"), 0) for c in actifs]
-    resultats = []
-
-    for c in actifs:
-        forme = _score_form(c)
-        regularite = _score_regularite(c)
-        gains = _clamp(_num(c.get("gains"), 5))
-        experience = _clamp(_num(c.get("experience"), 5))
-        jockey = _clamp(_num(c.get("jockey_score"), 5))
-        cote_score, cote = _score_cote(c, cotes)
-
-        # Score IA independant: aucun indice_az / indice_premium / ticket AZ.
-        base = (
-            forme * 0.30
-            + regularite * 0.20
-            + cote_score * 0.15
-            + gains * 0.12
-            + experience * 0.10
-            + jockey * 0.08
-        )
-        value = _score_value(base, cote)
-        score = _clamp(base * 0.85 + value * 0.15)
-
-        resultats.append({
-            "numero": c.get("numero"),
-            "nom": c.get("nom", ""),
-            "cote": cote,
-            "score_ia": round(score, 2),
-            "forme": round(forme, 2),
-            "regularite": round(regularite, 2),
-            "valeur": round(value, 2),
-            "gains": round(gains, 2),
-            "experience": round(experience, 2),
-            "jockey": round(jockey, 2),
-            "performances": c.get("performances") or c.get("musique_brute") or "",
-        })
-
-    resultats.sort(key=lambda x: (x["score_ia"], x["valeur"], x["forme"]), reverse=True)
-    return resultats
-
-
-def construire_ticket_ia(contexte):
-    chevaux = (contexte or {}).get("chevaux", [])
-    scores = _analyse_chevaux(chevaux)
-    if len(scores) < 5:
-        return {"scores": scores, "erreur": "Pas assez de partants exploitables pour construire un Quinté."}
-
-    prudent = scores[:5]
-    # Sixieme cheval de couverture choisi par score, en évitant les doublons.
-    couverture = scores[5:8]
-    ticket_prudent = prudent[:5]
-
-    # Ticket spéculatif: conserve 3 profils solides et ajoute les meilleurs
-    # outsiders >= 10.0, puis complète avec le meilleur score restant.
-    outsiders = [x for x in scores if x["cote"] >= 10.0]
-    spec = prudent[:3]
-    for outsider in outsiders[:2]:
-        if outsider not in spec:
-            spec.append(outsider)
-    for x in scores:
-        if len(spec) >= 5:
-            break
-        if x not in spec:
-            spec.append(x)
-
-    # Sélection IA élargie de 8 chevaux.
-    selection = scores[:8]
+    score = (
+        forme * 0.22 +
+        regularite * 0.14 +
+        aptitude * 0.14 +
+        jockey * 0.10 +
+        gains_score * 0.08 +
+        experience * 0.07 +
+        cote_score * 0.15 +
+        max(0.0, min(10.0, (10.0 - _num(cheval.get("rang"), 10) / max(1, len(tous)) * 10))) * 0.10
+    )
     return {
-        "scores": scores,
-        "base": scores[0],
-        "ticket_prudent": ticket_prudent,
-        "ticket_speculatif": spec[:5],
-        "selection_8": selection,
-        "couverture": couverture[:3],
-        "outsiders": outsiders[:5],
+        "score_ia": round(score, 2),
+        "forme": round(forme, 2),
+        "regularite": round(regularite, 2),
+        "aptitude": round(aptitude, 2),
+        "cote_score": round(cote_score, 2),
+        "gains": round(gains_score, 2),
+        "experience": round(experience, 2),
+        "jockey": round(jockey, 2),
     }
 
 
-def _nums(items):
-    return " - ".join(str(x.get("numero")) for x in items if x.get("numero") is not None)
+def construire_ticket_ia(classement: list[dict], style: str = "equilibre") -> dict:
+    if not classement:
+        return {"selection": [], "base": None, "outsiders": [], "details": []}
+
+    scored = []
+    for c in classement:
+        s = score_independant(c, classement)
+        item = {**c, **s}
+        scored.append(item)
+
+    if style == "speculatif":
+        scored.sort(key=lambda x: (x["score_ia"] + min(_num(x.get("cote_brute", x.get("cote")), 0) / 10, 5)), reverse=True)
+    elif style == "prudent":
+        scored.sort(key=lambda x: x["score_ia"], reverse=True)
+    elif style == "value":
+        scored.sort(key=lambda x: x["score_ia"] - _num(x.get("cote_brute", x.get("cote")), 0) * 0.08, reverse=True)
+    else:
+        scored.sort(key=lambda x: x["score_ia"], reverse=True)
+
+    selection = scored[:5]
+    outsiders = [x for x in scored if _num(x.get("cote_brute", x.get("cote")), 0) >= 10][:3]
+    base = scored[0]
+    details = []
+    for x in selection:
+        details.append(
+            f"N°{x.get('numero')} {x.get('nom')} — score IA {x['score_ia']}/10, forme {x['forme']}/10, régularité {x['regularite']}/10, aptitude {x['aptitude']}/10, cote {x.get('cote_brute', x.get('cote', 'N/D'))}."
+        )
+    return {"selection": selection, "base": base, "outsiders": outsiders, "details": details}
 
 
-def _ticket_complet(ticket):
-    return (
-        f"🎟️ **Ticket IA indépendant**\n"
-        f"• Quinté prudent : **{_nums(ticket['ticket_prudent'])}**\n"
-        f"• Quinté spéculatif : **{_nums(ticket['ticket_speculatif'])}**\n"
-        f"• Sélection élargie : **{_nums(ticket['selection_8'])}**\n"
-        f"• Base IA : **N°{ticket['base']['numero']} {ticket['base']['nom']}**"
-    )
+def _salutation(q: str, prenom: str = "") -> str | None:
+    salutations = ("bonjour", "bonsoir", "salut", "hello", "coucou", "bon matin")
+    if not any(q.startswith(x) or q == x for x in salutations):
+        return None
+    nom = f" {prenom}" if prenom else ""
+    return f"🤖 Bonjour{nom} 👋 Comment allez-vous aujourd'hui ?\n\nJe suis l'Assistant Chatbot AZ Turf Pro. Sur quoi souhaitez-vous qu'on travaille aujourd'hui ? 🏇"
+
+
+def _conversation(q: str) -> str | None:
+    if any(x in q for x in ["je vais bien", "ça va", "ca va", "je vais très bien", "merci ça va", "merci"]):
+        return "😊 Très bien, merci ! Sur quoi souhaitez-vous qu'on travaille aujourd'hui ? Je peux analyser une course, chercher une course à venir, construire un ticket IA, comparer avec AZ Turf Pro ou répondre à une question PMU."
+    if q in {"d'accord", "ok", "okay", "oui", "oui oui", "très bien", "parfait"}:
+        return "👍 Parfait. Que souhaitez-vous faire maintenant : analyser une course, préparer un ticket, chercher une course à venir ou revenir sur une course passée ?"
+    return None
+
+
+def _knowledge(q: str) -> str | None:
+    keys = [
+        ("quinté", "quinte"), ("tiercé", "tierce"), ("quarté", "quarte"),
+        ("couplé", "couple"), ("simple", "simple"), ("outsider", "outsider"),
+        ("tocard", "tocard"), ("cote", "cote"), ("d4", "d4"), ("musique", "musique"),
+    ]
+    for trigger, key in keys:
+        if trigger in q:
+            return f"📘 **PMU — {trigger.title()}**\n\n{PMU_KNOWLEDGE[key]}"
+    return None
 
 
 def repondre_assistant_turf(question: str, contexte_analyse: dict = None) -> dict:
-    q = question.lower().strip()
     contexte = contexte_analyse or {}
+    q = question.lower().strip()
+    historique_pmu = contexte.get("historique_pmu") or []
+
+    if any(k in q for k in ["course passée", "course passee", "course d'hier", "hier", "dernier ticket", "ticket d'hier", "arrivée d'hier", "arrivee d'hier"]):
+        if historique_pmu:
+            h = historique_pmu[-1]
+            course = h.get("course") or {}
+            arrivee = h.get("arrivee")
+            tickets_h = h.get("tickets") or {}
+            texte = (
+                f"🧠 **Dernière course mémorisée**\n\n"
+                f"Course : **{course.get('course', 'Course')}** — {course.get('date', '')} {course.get('reunion', '')}{course.get('course_numero', '')}\n\n"
+                f"🎟️ Ticket enregistré : **{tickets_h if tickets_h else 'non disponible'}**"
+            )
+            if arrivee:
+                texte += f"\n🏁 Arrivée officielle enregistrée : **{' - '.join(map(str, arrivee))}**"
+            else:
+                texte += "\n🏁 Arrivée officielle : **pas encore enregistrée**."
+            return {"status": "success", "question": question, "reponse": texte, "intent": "historique"}
+        return {"status": "success", "question": question, "reponse": "📚 Je n'ai pas encore de course passée mémorisée dans l'historique serveur.", "intent": "historique"}
     moteur = contexte.get("moteur", {})
-    classement_az = moteur.get("classement", [])
-    tickets_az = moteur.get("tickets", {})
-    ticket = construire_ticket_ia(contexte)
+    classement = list(moteur.get("classement", []) or [])
+    tickets = moteur.get("tickets", {}) or {}
+    prenom = str(contexte.get("prenom") or "").strip()
 
-    if ticket.get("erreur"):
-        return {"status": "error", "question": question, "reponse": ticket["erreur"]}
+    response = _salutation(q, prenom) or _conversation(q)
+    if response:
+        return {"status": "success", "question": question, "reponse": response, "intent": "conversation"}
 
-    # Tickets IA independants: cette branche est prioritaire sur les tickets AZ.
-    if any(k in q for k in ["construis ton propre", "indépendamment", "independamment", "ticket ia", "ticket ai", "fais un ticket", "propre quinté"]):
-        reponse = _ticket_complet(ticket) + (
-            "\n\n🧠 Ce ticket est calculé indépendamment du ticket AZ Turf Pro "
-            "à partir de la forme, régularité, cote, valeur, gains, expérience et jockey."
-        )
-    elif "prudent" in q:
-        reponse = f"🛡️ **Ticket IA prudent : {_nums(ticket['ticket_prudent'])}**\nBase : N°{ticket['base']['numero']} {ticket['base']['nom']}"
-    elif any(k in q for k in ["spéculatif", "speculatif", "outsider"]):
-        reponse = f"🔥 **Ticket IA spéculatif : {_nums(ticket['ticket_speculatif'])}**\nOutsiders retenus : {_nums(ticket['outsiders'][:2]) or 'aucun'}"
-    elif any(k in q for k in ["valeur", "value"]):
-        top = sorted(ticket["scores"], key=lambda x: x["valeur"], reverse=True)[:3]
-        reponse = "💰 **Meilleures valeurs IA :**\n" + "\n".join(
-            f"- N°{x['numero']} {x['nom']} — cote {x['cote'] or '?'} — valeur IA {x['valeur']}"
-            for x in top
-        )
-    elif any(k in q for k in ["compare", "az turf pro"]):
-        az = tickets_az.get("gratuit", {}) if isinstance(tickets_az, dict) else {}
-        azq = az.get("quinte", []) if isinstance(az, dict) else []
-        az_nums = _nums(azq) if isinstance(azq, list) else ""
-        reponse = (
-            f"⚔️ **Comparaison**\n\n"
-            f"• Ticket IA indépendant : **{_nums(ticket['ticket_prudent'])}**\n"
-            f"• Ticket AZ Turf Pro : **{az_nums or 'non disponible'}**\n\n"
-            f"L'IA calcule son propre classement avant de comparer les deux sélections."
-        )
-    elif any(k in q for k in ["favori", "coup sur", "meilleure base", "base"]):
-        b = ticket["base"]
-        reponse = f"🎯 **Base IA : N°{b['numero']} {b['nom']}** — score IA **{b['score_ia']}/10**. Forme {b['forme']}, régularité {b['regularite']}, valeur {b['valeur']}."
-    elif any(k in q for k in ["quinté", "quinte", "ticket", "combinaison"]):
-        reponse = _ticket_complet(ticket)
-    elif any(k in q for k in ["outsider", "tocard", "surprise", "pépite", "pepite"]):
-        outs = ticket["outsiders"]
-        if outs:
-            x = outs[0]
-            reponse = f"🔥 **Outsider IA : N°{x['numero']} {x['nom']}** — cote {x['cote']} — score IA {x['score_ia']}/10, valeur {x['valeur']}/10."
-        else:
-            reponse = "Aucun outsider avec cote >= 10 n'a obtenu un score IA suffisant."
-    elif "badge" in q or "signification" in q:
-        reponse = (
-            "🏷️ **Guide des badges AZ Turf Pro**\n"
-            "- **D4** : Déferré des 4 pieds.\n"
-            "- **Duo Chaud 🔥** : signal lié à l'entourage.\n"
-            "- **Spécialiste 🎯** : aptitude détectée.\n"
-            "- **Rachat ⚡** : profil à reconsidérer après une contre-performance."
-        )
-    else:
-        top = ticket["base"]
-        reponse = (
-            f"Je peux construire mon propre ticket à partir des partants PMU. "
-            f"Pour commencer : **{_nums(ticket['ticket_prudent'])}**. "
-            f"Ma base IA est le N°{top['numero']} {top['nom']}."
-        )
+    # Les demandes de ticket/analyse sont prioritaires sur la simple explication du mot "Quinté".
+    if not classement:
+        if any(k in q for k in ["analyse", "ticket", "course", "quinté", "quinte", "favori", "outsider"]):
+            return {"status": "success", "question": question, "reponse": "🏇 Je peux le faire, mais je dois d'abord récupérer les données PMU de la course demandée. Donnez-moi la date, la réunion/course ou dites simplement « analyse la course du jour ». ", "intent": "course"}
 
-    return {"status": "success", "question": question, "reponse": reponse, "ia_ticket": ticket}
+    response = _knowledge(q)
+    if response and not any(k in q for k in ["ticket", "construis", "fais", "analyse", "base", "favori"]):
+        return {"status": "success", "question": question, "reponse": response, "intent": "connaissance_pmu"}
+
+    # Ticket IA indépendant
+    if any(k in q for k in ["mon propre", "propre quinté", "ticket ia", "ticket indépendant", "indépendant d'az", "construis", "fais un ticket", "quinté prudent", "quinte prudent", "spéculatif", "value"]):
+        style = "prudent" if "prudent" in q else "speculatif" if "spéculatif" in q or "speculatif" in q else "value" if "value" in q else "equilibre"
+        ticket = construire_ticket_ia(classement, style)
+        nums = [str(x.get("numero")) for x in ticket["selection"]]
+        out = [f"N°{x.get('numero')} {x.get('nom')} (cote {x.get('cote_brute', x.get('cote', 'N/D'))})" for x in ticket["outsiders"]]
+        reponse = (
+            f"🧠 **Mon ticket IA {style}**\n\n"
+            f"🎟️ **Quinté : {' - '.join(nums)}**\n\n"
+            f"🎯 **Base IA : N°{ticket['base'].get('numero')} {ticket['base'].get('nom')}**\n"
+            f"Indice IA : **{ticket['base'].get('score_ia')}/10**\n\n"
+            f"🔥 **Outsiders détectés :** {', '.join(out) if out else 'aucun profil > cote 10 disponible'}\n\n"
+            "**Pourquoi ?**\n" + "\n".join(f"- {d}" for d in ticket["details"]) +
+            "\n\n⚠️ Cette sélection est indépendante du ticket AZ Turf Pro ; elle repose uniquement sur les facteurs disponibles dans les données de course."
+        )
+        return {"status": "success", "question": question, "reponse": reponse, "intent": "ticket_ia", "ticket_ia": ticket}
+
+    if any(k in q for k in ["favori", "coup sûr", "coup sur", "meilleur cheval", "base"]):
+        top = classement[0]
+        return {"status": "success", "question": question, "reponse": f"🎯 **Base AZ Turf Pro : N°{top.get('numero')} {top.get('nom')}** — Indice AZ {top.get('indice_az')}, Premium {top.get('indice_premium')}. Si vous voulez ma propre base IA, dites « donne-moi ta base indépendamment d'AZ ». ", "intent": "favori"}
+
+    if any(k in q for k in ["outsider", "tocard", "pépite", "pepite"]):
+        ticket = construire_ticket_ia(classement, "value")
+        if ticket["outsiders"]:
+            x = ticket["outsiders"][0]
+            return {"status": "success", "question": question, "reponse": f"🔥 **Outsider IA : N°{x.get('numero')} {x.get('nom')}** — cote {x.get('cote_brute', x.get('cote', 'N/D'))}, score IA {x.get('score_ia')}/10. Je le retiens pour son rapport entre profil et cote, pas simplement parce qu'il est délaissé.", "intent": "outsider"}
+        return {"status": "success", "question": question, "reponse": "Je ne vois pas actuellement de cote suffisamment élevée pour qualifier un profil d'outsider avec les données disponibles.", "intent": "outsider"}
+
+    if any(k in q for k in ["scénario", "scenario", "rythme", "course rapide", "course lente"]):
+        leaders = classement[:3]
+        noms = ", ".join(f"N°{x.get('numero')} {x.get('nom')}" for x in leaders)
+        return {"status": "success", "question": question, "reponse": f"🛣️ **Scénario de base**\n\nJe surveillerais en priorité {noms}. Le scénario exact dépend des profils de départ, de la discipline et des données tactiques disponibles. Je peux construire un scénario prudent et un scénario offensif à partir des partants.", "intent": "scenario"}
+
+    if "badge" in q or "signification" in q:
+        return {"status": "success", "question": question, "reponse": "🏷️ **Badges AZ Turf Pro**\n- **D4** : déferré des 4 pieds.\n- **Duo Chaud 🔥** : signal lié à l'entourage.\n- **Spécialiste 🎯** : aptitude détectée.\n- **Rachat ⚡** : profil à reconsidérer après une contre-performance.", "intent": "badges"}
+
+    if any(k in q for k in ["quinté", "quinte", "ticket", "combinaison"]):
+        ticket = construire_ticket_ia(classement, "equilibre")
+        nums = [str(x.get("numero")) for x in ticket["selection"]]
+        az = (tickets.get("gratuit") or {}).get("quinte", [])
+        az_nums = [str(x.get("numero")) for x in az] if az else []
+        return {"status": "success", "question": question, "reponse": f"🎟️ **Mon Quinté IA : {' - '.join(nums)}**\n\nTicket AZ disponible : **{' - '.join(az_nums) if az_nums else 'non disponible'}**.\n\nJe peux aussi vous donner une version prudente, spéculative ou Value.", "intent": "quinte", "ticket_ia": ticket}
+
+    return {"status": "success", "question": question, "reponse": "🤖 Je peux vous aider sur pratiquement tout ce qui concerne le PMU : courses passées ou à venir, partants, cotes, favoris, outsiders, tickets, scénarios, règles des paris, analyse IA indépendante et comparaison avec AZ Turf Pro. Dites-moi simplement ce que vous cherchez.", "intent": "general_pmu"}
