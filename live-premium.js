@@ -16,13 +16,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Affichage des tickets (Données forcées selon tes besoins)
-    afficherDonneesVIP({
-        quinte: "04 - 09 - 12 - 01 - 07 - 11",
-        champReduit: "04 - 09 - X - 01 - X / 12 - 07 - 11 - 03"
-    });
-    
-    document.getElementById("contenu-premium").classList.remove("zone-masquee");
+    // Les tickets affichés ici proviennent désormais du même ticket
+    // Premium que ticket-premium.js : aucune sélection n'est codée en dur.
+    chargerTicketsPremiumLive();
+
+    const contenuPremium = document.getElementById("contenu-premium");
+    if (contenuPremium) {
+        contenuPremium.classList.remove("zone-masquee");
+    }
 });
 
 async function chargerTableauPartantsLive() {
@@ -53,7 +54,55 @@ function formaterPastilles(texte) {
     return parties.length > 1 ? conv(parties[0]) + " / " + conv(parties[1]) : conv(texte);
 }
 
-function afficherDonneesVIP(data) {
-    document.getElementById("quinte-premium").innerHTML = formaterPastilles(data.quinte);
-    document.getElementById("champ-reduit-premium").innerHTML = formaterPastilles(data.champReduit);
+async function chargerTicketsPremiumLive() {
+    try {
+        const reponse = await fetch(`${API_URL}/api/analyse`, {
+            method: "GET",
+            cache: "no-store",
+            headers: { "Accept": "application/json" }
+        });
+
+        if (!reponse.ok) {
+            throw new Error(`Erreur API analyse : ${reponse.status}`);
+        }
+
+        const data = await reponse.json();
+        const tickets = data && data.tickets && data.tickets.premium
+            ? data.tickets.premium
+            : {};
+
+        const quinte = Array.isArray(tickets.quinte)
+            ? tickets.quinte.map(Number).filter(Number.isFinite).slice(0, 6).join(" - ")
+            : "Non disponible";
+
+        const champ = tickets.champ_reduit && tickets.champ_reduit.format
+            ? tickets.champ_reduit.format
+            : "Non disponible";
+
+        const quinteElement = document.getElementById("quinte-premium");
+        const champElement = document.getElementById("champ-reduit-premium");
+
+        if (quinteElement) {
+            quinteElement.innerHTML = formaterPastilles(quinte);
+        }
+
+        if (champElement) {
+            champElement.innerHTML = formaterPastilles(champ);
+        }
+
+        console.log("AZ Turf Pro : Live Premium alimenté par le ticket Premium API.");
+    } catch (error) {
+        console.error("Erreur chargement ticket Premium live :", error);
+
+        const quinteElement = document.getElementById("quinte-premium");
+        const champElement = document.getElementById("champ-reduit-premium");
+
+        if (quinteElement) {
+            quinteElement.textContent = "Données Premium indisponibles";
+        }
+
+        if (champElement) {
+            champElement.textContent = "Données Premium indisponibles";
+        }
+    }
 }
