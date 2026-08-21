@@ -1,4 +1,5 @@
-const CHAT_STREAM_API = "https://az-turf-pro.onrender.com/api/assistant/chat/stream";
+const CHAT_STREAM_API = "/api/assistant/chat/stream";
+const CHAT_FALLBACK_API = "/api/assistant/chat";
 const HISTORY_KEY = "AZ_TURF_CHAT_HISTORY_V1";
 const MAX_HISTORY = 30;
 
@@ -43,6 +44,29 @@ function readHistory() {
 }
 
 let history = readHistory();
+
+function getUserFirstName() {
+  const candidates = [
+    localStorage.getItem("AZ_TURF_USER_FIRST_NAME"),
+    localStorage.getItem("AZ_TURF_USER_NAME"),
+    sessionStorage.getItem("AZ_TURF_USER_FIRST_NAME"),
+    sessionStorage.getItem("AZ_TURF_USER_NAME")
+  ];
+  for (const value of candidates) {
+    const name = String(value || "").trim();
+    if (name) return name.split(/\\s+/)[0];
+  }
+  return "";
+}
+
+function showWelcomeMessage() {
+  if (!log || history.length) return;
+  const name = getUserFirstName();
+  const greeting = name
+    ? `👋 Bonjour ${name} !\\n\\nJe suis l'**Assistant Chatbot AZ Turf Pro**. Comment puis-je vous aider ?`
+    : `👋 Bonjour !\\n\\nJe suis l'**Assistant Chatbot AZ Turf Pro**. Comment puis-je vous aider ?`;
+  addBubble("assistant", greeting);
+}
 
 function saveHistory() {
   history = history.slice(-MAX_HISTORY);
@@ -133,17 +157,51 @@ async function streamAnswer(question) {
     throw new Error("Cette fonction interactive est réservée aux abonnés Premium ou à l'administrateur.");
   }
 
-  const response = await fetch(CHAT_STREAM_API, {
+  const payload = { question, historique: history.slice(-12) };
+
+  // 1) Endpoint streaming moderne.
+  let response = await fetch(CHAT_STREAM_API, {
     method: "POST",
     headers: auth.headers,
-    body: JSON.stringify({ question, historique: history.slice(-12) })
+    body: JSON.stringify(payload)
   });
+
+  // 2) Compatibilité : si le serveur actuellement déployé ne possède pas
+  //    encore /stream, on utilise automatiquement /assistant/chat.
+  if (response.status === 404) {
+    const fallbackHeaders = { ...auth.headers, "Accept": "application/json" };
+    response = await fetch(CHAT_FALLBACK_API, {
+      method: "POST",
+      headers: fallbackHeaders,
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      let message = "Impossible de contacter l'assistant.";
+      try {
+        const data = await response.json();
+        message = data.detail || data.message || message;
+      } catch (_) {}
+      throw new Error(message);
+    }
+
+    const data = await response.json();
+    const answer =
+      data.answer ||
+      data.response ||
+      data.message ||
+      data.resultat ||
+      (typeof data === "string" ? data : JSON.stringify(data));
+
+    addBubble("assistant", String(answer));
+    return;
+  }
 
   if (!response.ok) {
     let message = "Impossible de contacter l'assistant.";
     try {
       const data = await response.json();
-      message = data.detail || message;
+      message = data.detail || data.message || message;
     } catch (_) {}
     throw new Error(message);
   }
@@ -210,3 +268,4 @@ form?.addEventListener("submit", async event => {
 });
 
 restoreHistory();
+showWelcomeMessage();
