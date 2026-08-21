@@ -892,6 +892,24 @@ def assistant_chat_v241(payload: dict):
 
     # Recherche automatique du Quinté d'une date future lorsque l'utilisateur le demande.
     q = question.lower()
+    # Résultat demandé : tenter de récupérer l'arrivée officielle du Quinté de la veille.
+    if any(k in q for k in ["arrivée d'hier", "arrivee d'hier", "résultat d'hier", "resultat d'hier"]):
+        try:
+            from pmu_source import trouver_quinte_du_jour, recuperer_arrivee_pmu, normaliser_date
+            from datetime import datetime, timedelta
+            date_hier = normaliser_date(datetime.now() - timedelta(days=1))
+            _, r_hier, c_hier = trouver_quinte_du_jour(date_hier)
+            if c_hier:
+                numero_hier = c_hier.get("numOrdre") or c_hier.get("numCourse") or c_hier.get("numero")
+                arrivee = recuperer_arrivee_pmu(date_hier, r_hier, numero_hier)
+                if arrivee:
+                    contexte["arrivee_recherchee"] = (
+                        f"🏁 **Arrivée officielle PMU du {date_hier}**\\n\\n"
+                        f"Course : **{r_hier}C{numero_hier}**\\n\\n"
+                        f"**{' - '.join(map(str, arrivee))}**"
+                    )
+        except Exception as erreur:
+            print("Assistant arrivée hier :", erreur)
     if any(k in q for k in ["demain", "à venir", "a venir", "prochaine course", "prochain quinté", "quinté de demain", "quinte de demain"]):
         from pmu_source import trouver_quinte_du_jour, normaliser_date
         from datetime import datetime, timedelta
@@ -925,6 +943,24 @@ def assistant_chat_stream_v241(payload: dict):
     contexte["prenom"] = payload.get("prenom") or payload.get("nom_utilisateur") or ""
 
     q = question.lower()
+    # Résultat demandé : tenter de récupérer l'arrivée officielle du Quinté de la veille.
+    if any(k in q for k in ["arrivée d'hier", "arrivee d'hier", "résultat d'hier", "resultat d'hier"]):
+        try:
+            from pmu_source import trouver_quinte_du_jour, recuperer_arrivee_pmu, normaliser_date
+            from datetime import datetime, timedelta
+            date_hier = normaliser_date(datetime.now() - timedelta(days=1))
+            _, r_hier, c_hier = trouver_quinte_du_jour(date_hier)
+            if c_hier:
+                numero_hier = c_hier.get("numOrdre") or c_hier.get("numCourse") or c_hier.get("numero")
+                arrivee = recuperer_arrivee_pmu(date_hier, r_hier, numero_hier)
+                if arrivee:
+                    contexte["arrivee_recherchee"] = (
+                        f"🏁 **Arrivée officielle PMU du {date_hier}**\\n\\n"
+                        f"Course : **{r_hier}C{numero_hier}**\\n\\n"
+                        f"**{' - '.join(map(str, arrivee))}**"
+                    )
+        except Exception as erreur:
+            print("Assistant arrivée hier :", erreur)
     if any(k in q for k in ["demain", "à venir", "a venir", "prochaine course", "prochain quinté", "quinté de demain", "quinte de demain"]):
         try:
             from pmu_source import trouver_quinte_du_jour, charger_course_pmu, normaliser_date
