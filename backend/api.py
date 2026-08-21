@@ -681,27 +681,18 @@ def assistant_chat(payload: dict):
                 status_code=503,
                 detail="Aucune analyse PMU rÃ©elle disponible actuellement."
             )
+        info_course = dict(base)
+        # Ne transmettre au chatbot que le contexte de course déjà fourni par la source.
         resultat = lancer_analyse(
             base.get("chevaux", []),
-            info_course={
-                "date": base.get("date"),
-                "reunion": base.get("reunion"),
-                "course_numero": base.get("course_numero"),
-                "hippodrome": base.get("hippodrome"),
-            },
+            info_course=info_course,
         )
         moteur = {
-            "classement": resultat.get("chevaux", []),
+            "classement": resultat.get("classement", []),
+            "chevaux": resultat.get("chevaux", []),
             "tickets": resultat.get("tickets", {}),
-            "course": {
-                "date": base.get("date"),
-                "reunion": base.get("reunion"),
-                "course_numero": base.get("course_numero"),
-                "hippodrome": base.get("hippodrome"),
-                "distance": base.get("distance"),
-                "type_depart": base.get("type_depart"),
-                "terrain": base.get("terrain"),
-            },
+            "lecture_course": (resultat.get("tickets", {}).get("premium", {}) or {}).get("lecture_course", {}),
+            "course": info_course,
         }
 
     return repondre_assistant_turf(question, {"moteur": moteur})
