@@ -1,5 +1,13 @@
 const API = "https://az-turf-pro.onrender.com/api/analyse";
 
+function badgeTendance(cheval){
+    const signal = String(cheval && cheval.signal_marche || "NEUTRE");
+    if(signal.includes("SMART_MONEY")) return '<span title="Gros mouvement d\'argent sur ce cheval">🔥</span>';
+    if(signal.includes("SOUTENU")) return '<span title="Cote en baisse, cheval soutenu">📈</span>';
+    if(signal.includes("DELAISSE")) return '<span title="Cote en hausse, cheval délaissé">📉</span>';
+    return '<span style="color:#cbd5e1;">–</span>';
+}
+
 function enregistrerAnalyseDansHistorique(data){
     if(!data || data.donnees_demo) return;
     try{
@@ -113,7 +121,8 @@ async function chargerAnalyse(){
                 const estNonPartant = nonPartants.has(String(numero)) || cheval.non_partant === true || String(cheval.statut || "").toUpperCase().includes("NON_PARTANT") || String(cheval.statut || "").toUpperCase() === "NP";
                 const styleNP = estNonPartant ? ' style="background:#ffe3e3;color:#b00020;font-weight:700"' : '';
                 const nomAffiche = estNonPartant ? `${nom} <span style="color:#c00020;font-weight:800">— NON PARTANT</span>` : nom;
-                tableau.innerHTML+=`<tr${styleNP}><td><strong>${numero}</strong></td><td>${nomAffiche}</td><td>${jockey}</td><td>${entraineur}</td><td>${cote}</td><td><span class="badge-indice">${indice}</span></td><td>${confiance}</td></tr>`;
+                const tendance = badgeTendance(cheval);
+                tableau.innerHTML+=`<tr${styleNP}><td><strong>${numero}</strong></td><td>${nomAffiche}</td><td>${jockey}</td><td>${entraineur}</td><td>${cote}</td><td><span class="badge-indice">${indice}</span></td><td>${confiance}</td><td>${tendance}</td></tr>`;
             });
         }
 

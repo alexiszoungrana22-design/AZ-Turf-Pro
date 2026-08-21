@@ -12,6 +12,23 @@ const API_PREMIUM =
     "https://az-turf-pro.onrender.com/api/premium/";
 
 
+function badgeTendancePremium(cheval) {
+
+    const signal = String((cheval && cheval.signal_marche) || "NEUTRE");
+    const variation = cheval && cheval.variation_cote_pct;
+    const pct = (typeof variation === "number" && variation !== 0)
+        ? ` (${variation > 0 ? "+" : ""}${variation}%)`
+        : "";
+
+    if (signal.includes("SMART_MONEY")) return `🔥 Smart Money${pct}`;
+    if (signal.includes("SOUTENU")) return `📈 Soutenu${pct}`;
+    if (signal.includes("DELAISSE")) return `📉 Délaissé${pct}`;
+
+    return "– Stable";
+
+}
+
+
 document.addEventListener("DOMContentLoaded", function () {
 
     initialiserBoutonTableau();
@@ -723,7 +740,7 @@ async function chargerTableauLive() {
     tableau.innerHTML = `
         <tr>
             <td
-                colspan="5"
+                colspan="6"
                 style="
                     text-align:center;
                     padding:15px;
@@ -774,7 +791,7 @@ async function chargerTableauLive() {
             tableau.innerHTML = `
                 <tr>
                     <td
-                        colspan="5"
+                        colspan="6"
                         style="
                             text-align:center;
                             padding:15px;
@@ -826,6 +843,10 @@ async function chargerTableauLive() {
                             : "-";
 
 
+                    const tendance =
+                        badgeTendancePremium(cheval);
+
+
                     return `
                         <tr>
 
@@ -853,6 +874,10 @@ async function chargerTableauLive() {
                                 ${confiance}
                             </td>
 
+                            <td style="padding:10px;">
+                                ${tendance}
+                            </td>
+
                         </tr>
                     `;
 
@@ -871,7 +896,7 @@ async function chargerTableauLive() {
         tableau.innerHTML = `
             <tr>
                 <td
-                    colspan="5"
+                    colspan="6"
                     style="
                         text-align:center;
                         padding:15px;
