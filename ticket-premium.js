@@ -42,20 +42,26 @@ document.addEventListener("DOMContentLoaded", function () {
 // 1. DETECTION DU MODE ADMINISTRATEUR
 // ==========================================================
 
-function estAdministrateur() {
+async function estAdministrateur() {
+    const key = sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") || "";
+    if (!key) return false;
 
-    /*
-     * admin.html utilise actuellement :
-     *
-     * AZ_TURF_TELEPHONE = "COMPTE ADMINISTRATEUR"
-     *
-     * On conserve cette logique existante.
-     */
-
-    const telephone =
-        localStorage.getItem("AZ_TURF_TELEPHONE");
-
-    return telephone === "COMPTE ADMINISTRATEUR";
+    try {
+        const reponse = await fetch(
+            "https://az-turf-pro.onrender.com/api/admin/verification",
+            {
+                method: "GET",
+                cache: "no-store",
+                headers: {
+                    "Accept": "application/json",
+                    "X-Admin-Key": key
+                }
+            }
+        );
+        return reponse.ok;
+    } catch (_) {
+        return false;
+    }
 }
 
 
@@ -76,7 +82,7 @@ async function verifierAccesPremium() {
     // ADMINISTRATEUR
     // ------------------------------------------------------
 
-    if (estAdministrateur()) {
+    if (await estAdministrateur()) {
 
         console.log(
             "AZ Turf Pro : accès administrateur direct aux Tickets Premium."
