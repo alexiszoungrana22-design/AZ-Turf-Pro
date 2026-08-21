@@ -72,7 +72,15 @@ def normaliser_date(date_val):
 
     # Si format YYYYMMDD (ex: 20260813) -> Convertir en DDMMYYYY (13082026)
     if len(texte) == 8 and (texte.startswith("20") or texte.startswith("19")):
-        return f"{texte[6:8]}{texte[4:6]}{texte[0:4]}"
+        mois_candidat = texte[4:6]
+        jour_candidat = texte[6:8]
+        if (
+            mois_candidat.isdigit()
+            and jour_candidat.isdigit()
+            and 1 <= int(mois_candidat) <= 12
+            and 1 <= int(jour_candidat) <= 31
+        ):
+            return f"{texte[6:8]}{texte[4:6]}{texte[0:4]}"
 
     return texte
 
@@ -803,6 +811,35 @@ def recuperer_participants(date, reunion, course_numero):
         except Exception:
             continue
     return []
+
+
+# =====================================
+# DETECTION QUINTE+
+# =====================================
+
+def _contient_quinte(course):
+    """Indique si une course PMU est un Quinté+, d'après les paris proposés."""
+    if not isinstance(course, dict):
+        return False
+
+    paris = course.get("paris") or course.get("parisEnLigne") or []
+    if isinstance(paris, list):
+        for pari in paris:
+            if isinstance(pari, dict):
+                type_pari = str(pari.get("typePari") or pari.get("type") or "").upper()
+            else:
+                type_pari = str(pari).upper()
+            if "QUINTE" in type_pari:
+                return True
+
+    texte = str(
+        course.get("specialite")
+        or course.get("libelleCourt")
+        or course.get("libelle")
+        or ""
+    ).upper()
+
+    return "QUINTE" in texte
 
 
 # =====================================
