@@ -26,6 +26,7 @@ from scoring import calculer_score_az
 from ranking import classer_chevaux
 from quinte import generer_tickets_az
 from learning import enregistrer_course
+from race_analyzer import analyser_course_premium, bonus_premium_cheval
 
 
 # =========================================================
@@ -130,7 +131,7 @@ def generer_badges_et_radar(cheval, info_course=None):
 # INDICE PREMIUM
 # =========================================================
 
-def calculer_indice_premium(cheval, info_course=None, discipline="TROT"):
+def calculer_indice_premium(cheval, info_course=None, discipline="TROT", analyse_premium=None):
     """
     Calcule l'Indice Premium AZ Pro.
     """
@@ -251,6 +252,15 @@ def calculer_indice_premium(cheval, info_course=None, discipline="TROT"):
         bonus_smart_money = -6.0
 
     # -----------------------------------------------------
+    # Lecture contextuelle de la course - PREMIUM UNIQUEMENT
+    # -----------------------------------------------------
+
+    bonus_contexte_course = bonus_premium_cheval(
+        analyse_premium,
+        cheval
+    )
+
+    # -----------------------------------------------------
     # Calcul Premium
     # -----------------------------------------------------
 
@@ -264,6 +274,7 @@ def calculer_indice_premium(cheval, info_course=None, discipline="TROT"):
         + bonus_outsider_chaud
         + bonus_expert
         + bonus_smart_money
+        + bonus_contexte_course
     )
 
     return round(
@@ -311,6 +322,13 @@ def lancer_analyse(
             "TROT"
         )
         or "TROT"
+    )
+
+    # Nouvelle couche additive : elle n'alimente que le Premium.
+    # Le classement AZ gratuit et son scoring restent inchangés.
+    analyse_premium = analyser_course_premium(
+        info_course,
+        chevaux
     )
 
 
@@ -437,7 +455,8 @@ def lancer_analyse(
             calculer_indice_premium(
                 copie,
                 info_course=info_course,
-                discipline=discipline
+                discipline=discipline,
+                analyse_premium=analyse_premium
             )
         )
 
@@ -508,6 +527,23 @@ def lancer_analyse(
     tickets = generer_tickets_az(
         classement
     )
+
+    # Les détails de lecture contextuelle sont stockés exclusivement
+    # dans la branche Premium des tickets. Aucun champ nouveau n'est
+    # ajouté au ticket gratuit.
+    premium = tickets.get("premium")
+    if isinstance(premium, dict):
+        profile = analyse_premium.get("profil_course", {})
+        signaux = analyse_premium.get("signaux", {})
+        premium["lecture_course"] = {
+            "profil": profile,
+            "points_forts": signaux.get("points_forts", []),
+            "points_attention": signaux.get("points_attention", []),
+            "methode": (
+                "Lecture contextuelle Premium : parcours + scénario + engagement + entourage + marché, "
+                "sans remplacer l'Indice AZ existant."
+            ),
+        }
 
 
     favori = (

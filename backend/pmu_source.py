@@ -436,6 +436,22 @@ def transformer_participant(
 
     terrain_info = obtenir_terrain(course)
 
+    # Données additives destinées à l'analyse contextuelle Premium.
+    deferre = (
+        participant.get("deferre")
+        or participant.get("deferrage")
+        or participant.get("ferrure")
+        or participant.get("ferrage")
+        or participant.get("shoeing")
+        or ""
+    )
+    corde = (
+        participant.get("corde")
+        or participant.get("numeroCorde")
+        or participant.get("stall")
+        or ""
+    )
+
     return {
         "numero": numero,
         "nom": nom,
@@ -457,6 +473,8 @@ def transformer_participant(
         "cote_matin_brute": cote_matin_brute,
         "gains_carriere_brute": obtenir_gains(participant),
         "musique_brute": musique,
+        "deferre": deferre,
+        "corde": corde,
     }
 
 
@@ -615,6 +633,23 @@ def transformer_course(course, participants):
         or ""
     )
 
+    type_depart = (
+        course.get("type_depart")
+        or course.get("typeDepart")
+        or course.get("mode_depart")
+        or course.get("modeDepart")
+        or course.get("typeDepartLibelle")
+        or ""
+    )
+
+    conditions = (
+        course.get("conditions")
+        or course.get("conditionCourse")
+        or course.get("conditionsCourse")
+        or course.get("libelleConditions")
+        or ""
+    )
+
     return {
         "course": course.get(
             "libelle",
@@ -637,6 +672,8 @@ def transformer_course(course, participants):
             "montantPrix",
             course.get("allocation", ""),
         ),
+        "type_depart": type_depart,
+        "conditions": conditions,
         "chevaux": chevaux,
         "non_partants": non_partants,
         "plus_joues": [],

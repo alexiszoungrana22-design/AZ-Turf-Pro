@@ -200,6 +200,12 @@ def analyse():
                 "reunion": course.get("reunion"),
                 "course_numero": course.get("course_numero"),
                 "hippodrome": course.get("hippodrome"),
+                "discipline": course.get("discipline"),
+                "distance_course": course.get("distance_course"),
+                "allocation": course.get("allocation"),
+                "type_depart": course.get("type_depart"),
+                "conditions": course.get("conditions"),
+                "non_partants": course.get("non_partants", []),
             }
         )
 
