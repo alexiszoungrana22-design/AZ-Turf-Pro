@@ -23,8 +23,7 @@
 #    premium, admin) sont strictement inchangees.
 
 
-from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, HTTPException
 
 from engine import lancer_analyse
 
@@ -49,6 +48,7 @@ from learning import lire_historique, mettre_a_jour_arrivee
 
 import json
 import os
+import re
 from datetime import datetime, timedelta
 
 from engine import lancer_analyse
@@ -836,104 +836,186 @@ def api_analyse_complete(payload: dict):
         "impact_meteo": res_meteo.get("impact", "NEUTRE")
     }
 
-
 # =========================================================
-# ASSISTANT CHATBOT — REPONSE JSON + STREAMING SSE
+# ASSISTANT CHATBOT AUTONOME PMU - EXTENSION ADDITIVE
 # =========================================================
-# Routes additives : elles ne modifient aucune route existante.
-# Le frontend chatbot attend des evenements SSE de la forme :
-# data: {"type":"token","text":"..."}
+from fastapi import Request
+from fastapi.responses import StreamingResponse
+from modules.chatbot_turf import repondre_assistant_turf
+from pmu_source import recuperer_programme, trouver_reunion, trouver_course
 
 
-def _contexte_assistant():
-    """Construit le contexte minimal attendu par chatbot_turf."""
-    from modules.chatbot_turf import repondre_assistant_turf
+def _assistant_authorise(request: Request) -> bool:
+    """Admin via X-Admin-Key ou Premium via token serveur.
+    Aucun secret n'est stocké dans le frontend.
+    """
+    admin_key = os.getenv("AZ_ADMIN_API_KEY", "").strip()
+    premium_token = os.getenv("AZ_TURF_PREMIUM_TOKEN", "").strip()
+    supplied_admin = request.headers.get("X-Admin-Key", "").strip()
+    auth = request.headers.get("Authorization", "")
+    supplied_token = auth[7:].strip() if auth.lower().startswith("bearer ") else ""
+    if admin_key and supplied_admin and supplied_admin == admin_key:
+        return True
+    if premium_token and supplied_token and supplied_token == premium_token:
+        return True
+    return False
+
+
+def _assistant_course_context():
     course, source = charger_course()
     if not course:
-        return {}, source
-
-    chevaux = course.get("chevaux", [])
-    info_course = {
-        "date": course.get("date"),
-        "reunion": course.get("reunion"),
-        "course_numero": course.get("course_numero"),
-        "course": course.get("course", ""),
-        "hippodrome": course.get("hippodrome", ""),
-        "discipline": course.get("discipline", ""),
-        "distance": course.get("distance_course", ""),
-        "heure_depart": course.get("heure_depart", ""),
-    }
-    resultat = lancer_analyse(chevaux, info_course)
-    contexte = {
-        "moteur": {
-            "classement": resultat.get("chevaux", []) if isinstance(resultat, dict) else [],
-            "tickets": resultat.get("tickets", {}) if isinstance(resultat, dict) else {},
+        return {"source": source, "moteur": {}}
+    chevaux = course.get("chevaux", []) or []
+    resultat = lancer_analyse(
+        chevaux,
+        info_course={
+            "date": course.get("date"),
+            "reunion": course.get("reunion"),
+            "course_numero": course.get("course_numero"),
+            "course": course.get("course", ""),
+            "hippodrome": course.get("hippodrome", ""),
+            "discipline": course.get("discipline", ""),
+            "distance": course.get("distance_course", ""),
+            "allocation": course.get("allocation", ""),
+            "heure_depart": course.get("heure_depart", ""),
+            "non_partants": course.get("non_partants", []),
         },
-        # Données de course PMU servant au moteur IA indépendant.
-        # Les tickets AZ restent disponibles uniquement pour la comparaison.
-        "chevaux": chevaux,
-        "course": info_course,
+    )
+    return {
         "source": source,
+        "course": course,
+        "moteur": {
+            "classement": resultat.get("chevaux", []),
+            "tickets": resultat.get("tickets", {}),
+        },
     }
-    return contexte, source
+
+
+def _parse_future_date(question: str):
+    q = question.lower()
+    today = datetime.now().date()
+    if "après-demain" in q or "apres-demain" in q:
+        return today + timedelta(days=2)
+    if "demain" in q:
+        return today + timedelta(days=1)
+    if "aujourd" in q or "du jour" in q:
+        return today
+    jours = {
+        "lundi": 0, "mardi": 1, "mercredi": 2, "jeudi": 3,
+        "vendredi": 4, "samedi": 5, "dimanche": 6,
+    }
+    for nom, cible in jours.items():
+        if nom in q:
+            delta = (cible - today.weekday()) % 7
+            if delta == 0 and "prochain" in q:
+                delta = 7
+            return today + timedelta(days=delta)
+    m = re.search(r"(\d{1,2})[/-](\d{1,2})(?:[/-](\d{4}))?", q)
+    if m:
+        d, mo = int(m.group(1)), int(m.group(2))
+        y = int(m.group(3) or today.year)
+        try:
+            return datetime(y, mo, d).date()
+        except ValueError:
+            return None
+    return None
+
+
+def _rechercher_courses_date(date_obj):
+    date_pmu = date_obj.strftime("%d%m%Y")
+    programme = recuperer_programme(date_pmu)
+    if not programme:
+        return []
+    reunions = programme.get("reunions") or programme.get("programme", {}).get("reunions", [])
+    resultats = []
+    for r in reunions if isinstance(reunions, list) else []:
+        if not isinstance(r, dict):
+            continue
+        rnum = r.get("numOfficiel") or r.get("numReunion") or r.get("numero")
+        code = f"R{rnum}" if rnum else ""
+        for c in r.get("courses", []) if isinstance(r.get("courses"), list) else []:
+            if not isinstance(c, dict):
+                continue
+            numero = c.get("numOrdre") or c.get("numCourse") or c.get("numero")
+            resultats.append({
+                "date": date_obj.isoformat(),
+                "reunion": code,
+                "course_numero": f"C{numero}" if numero else "",
+                "nom": c.get("libelle") or c.get("nom") or "Course",
+                "heure": c.get("heureDepart") or c.get("heure") or c.get("heureDepartPrevue") or "",
+                "partants": c.get("nombreDeclaresPartants") or c.get("nombrePartants") or c.get("nbPartants") or "",
+                "quinte": any("quinte" in str(v).lower() for v in c.values()),
+            })
+    return resultats
 
 
 @router.post("/assistant/chat")
-def assistant_chat(payload: dict):
-    """Endpoint classique JSON du chatbot."""
+def assistant_chat_autonome(payload: dict, request: Request):
+    if not _assistant_authorise(request):
+        raise HTTPException(status_code=401, detail="Assistant réservé aux abonnés Premium ou à l'administrateur.")
     question = str(payload.get("question", "")).strip()
     if not question:
-        raise HTTPException(status_code=400, detail="Question vide.")
+        raise HTTPException(status_code=400, detail="Question obligatoire.")
+    historique = payload.get("historique") or []
+    prenom = str(payload.get("prenom") or "").strip()
 
+    future_date = _parse_future_date(question)
+    if future_date and any(x in question.lower() for x in ["chercher", "cherche", "course", "quinté", "quinte", "prochaine", "demain", "avenir"]):
+        courses = _rechercher_courses_date(future_date)
+        if courses:
+            lignes = [f"- {c['reunion']}{c['course_numero']} — {c['nom']} — départ {c['heure'] or 'heure non publiée'} — {c['partants'] or '?'} partants" for c in courses[:12]]
+            texte = f"📅 **Courses PMU disponibles le {future_date.strftime('%d/%m/%Y')}**\n\n" + "\n".join(lignes)
+            return {"status": "success", "question": question, "reponse": texte, "intent": "recherche_course", "courses": courses}
+        if future_date > datetime.now().date():
+            return {"status": "success", "question": question, "reponse": f"📅 Je ne trouve pas encore de programme PMU exploitable pour le {future_date.strftime('%d/%m/%Y')}. Je ne vais pas inventer une course. Réessayez lorsque le programme sera publié.", "intent": "recherche_course"}
+
+    contexte = _assistant_course_context()
+    contexte["prenom"] = prenom
+    contexte["historique"] = historique[-12:] if isinstance(historique, list) else []
     try:
-        from modules.chatbot_turf import repondre_assistant_turf
-        contexte, source = _contexte_assistant()
-        resultat = repondre_assistant_turf(question, contexte)
-        return {
-            "status": "success",
-            "question": question,
-            "reponse": resultat.get("reponse", "") if isinstance(resultat, dict) else str(resultat),
-            "source": source,
-        }
-    except HTTPException:
-        raise
-    except Exception as erreur:
-        raise HTTPException(status_code=500, detail=f"Erreur assistant : {erreur}")
+        contexte["historique_pmu"] = lire_historique()
+    except Exception:
+        contexte["historique_pmu"] = []
+    result = repondre_assistant_turf(question, contexte)
+    return result
 
 
 @router.post("/assistant/chat/stream")
-def assistant_chat_stream(payload: dict):
-    """Endpoint SSE attendu par l'interface Chatbot."""
+def assistant_chat_stream_autonome(payload: dict, request: Request):
+    if not _assistant_authorise(request):
+        raise HTTPException(status_code=401, detail="Assistant réservé aux abonnés Premium ou à l'administrateur.")
     question = str(payload.get("question", "")).strip()
     if not question:
-        raise HTTPException(status_code=400, detail="Question vide.")
+        raise HTTPException(status_code=400, detail="Question obligatoire.")
+    historique = payload.get("historique") or []
+    prenom = str(payload.get("prenom") or "").strip()
+
+    future_date = _parse_future_date(question)
+    if future_date and any(x in question.lower() for x in ["chercher", "cherche", "course", "quinté", "quinte", "prochaine", "demain", "avenir"]):
+        courses = _rechercher_courses_date(future_date)
+        if courses:
+            text = f"📅 **Courses PMU disponibles le {future_date.strftime('%d/%m/%Y')}**\n\n" + "\n".join(
+                f"- {c['reunion']}{c['course_numero']} — {c['nom']} — départ {c['heure'] or 'heure non publiée'} — {c['partants'] or '?'} partants" for c in courses[:12]
+            )
+        else:
+            text = f"📅 Je ne trouve pas encore de programme PMU exploitable pour le {future_date.strftime('%d/%m/%Y')}. Je ne vais pas inventer une course."
+    else:
+        contexte = _assistant_course_context()
+        contexte["prenom"] = prenom
+        contexte["historique"] = historique[-12:] if isinstance(historique, list) else []
+        try:
+            contexte["historique_pmu"] = lire_historique()
+        except Exception:
+            contexte["historique_pmu"] = []
+        result = repondre_assistant_turf(question, contexte)
+        text = result.get("reponse", "")
 
     def generate():
         import json as _json
-        try:
-            from modules.chatbot_turf import repondre_assistant_turf
-            contexte, source = _contexte_assistant()
-            resultat = repondre_assistant_turf(question, contexte)
-            texte = resultat.get("reponse", "") if isinstance(resultat, dict) else str(resultat)
-            if not texte:
-                texte = "Je n'ai pas pu générer de réponse pour cette question."
+        # Découpage progressif pour un vrai rendu streaming, sans modifier le texte.
+        morceaux = re.findall(r".{1,90}(?:\s|$)", text, flags=re.S) or [text]
+        for morceau in morceaux:
+            yield f"data: {_json.dumps({'type': 'token', 'text': morceau}, ensure_ascii=False)}\n\n"
+        yield "data: {\"type\":\"done\"}\n\n"
 
-            # Découpage en petits blocs pour que la bulle s'alimente réellement
-            # au fur et à mesure côté navigateur.
-            for i in range(0, len(texte), 45):
-                bloc = texte[i:i + 45]
-                yield f"data: {_json.dumps({'type': 'token', 'text': bloc}, ensure_ascii=False)}\n\n"
-
-            yield f"data: {_json.dumps({'type': 'done', 'source': source}, ensure_ascii=False)}\n\n"
-        except Exception as erreur:
-            yield f"data: {_json.dumps({'type': 'error', 'message': f'Erreur assistant : {erreur}'}, ensure_ascii=False)}\n\n"
-
-    return StreamingResponse(
-        generate(),
-        media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",
-        },
-    )
+    return StreamingResponse(generate(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
