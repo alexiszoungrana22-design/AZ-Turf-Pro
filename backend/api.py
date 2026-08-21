@@ -40,7 +40,7 @@ from models import (
     ActivationRequest
 )
 
-from pmu_source import charger_course_pmu, recuperer_programme, trouver_reunion, trouver_course
+from pmu_source import charger_course_pmu, recuperer_programme, trouver_reunion, trouver_course, trouver_quinte_du_jour
 
 from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
 
@@ -143,6 +143,108 @@ def _recuperer_horaire_course(course):
     except Exception as erreur:
         print("Horaire PMU indisponible :", erreur)
         return {"depart": "", "arret_des_jeux": ""}
+
+
+# =====================================
+# QUINTÉ DES PÉRIODES : HIER / JOUR / DEMAIN
+# =====================================
+
+def _nombre_partants_course_brute(course):
+    if not isinstance(course, dict):
+        return 0
+    for cle in ("nombreDeclaresPartants", "nombrePartants", "nbPartants"):
+        valeur = course.get(cle)
+        try:
+            if valeur not in (None, ""):
+                return int(valeur)
+        except (TypeError, ValueError):
+            pass
+    participants = course.get("participants")
+    if isinstance(participants, list):
+        return len(participants)
+    return 0
+
+
+def _resume_quinte_periode(date_obj, periode):
+    """Charge uniquement les métadonnées du Quinté d'une date donnée.
+
+    On réutilise la même détection PMU que la course du jour, sans lancer le
+    moteur AZ ni toucher au ticket Premium/gratuit de /api/analyse.
+    """
+    date_pmu = date_obj.strftime("%d%m%Y")
+    try:
+        _programme, reunion, course = trouver_quinte_du_jour(date_pmu)
+    except Exception as erreur:
+        print(f"Quinté {periode} indisponible :", erreur)
+        return {
+            "periode": periode,
+            "date": date_obj.strftime("%Y-%m-%d"),
+            "disponible": False,
+        }
+
+    if not isinstance(course, dict):
+        return {
+            "periode": periode,
+            "date": date_obj.strftime("%Y-%m-%d"),
+            "disponible": False,
+        }
+
+    def premier(*cles):
+        for cle in cles:
+            valeur = course.get(cle)
+            if valeur not in (None, ""):
+                return valeur
+        return ""
+
+    depart = premier(
+        "heureDepart", "heureDepartPrevue", "heureDepartCourse",
+        "heure_depart", "heure", "heureDeDepart"
+    )
+    date_course = premier("date", "dateCourse") or date_obj.strftime("%Y-%m-%d")
+    numero = premier("numOrdre", "numCourse", "numero")
+    nom = premier("libelle", "nom", "libelleLong", "libelleCourt") or "Quinté+"
+    distance = premier("distance", "distanceCourse", "distanceMetres")
+    hippodrome = course.get("hippodrome") or course.get("hippodromeLibelle") or course.get("hippodromeNom") or ""
+    if isinstance(hippodrome, dict):
+        hippodrome = hippodrome.get("libelleLong") or hippodrome.get("libelleCourt") or hippodrome.get("libelle") or hippodrome.get("nom") or ""
+
+    discipline = course.get("discipline", "")
+    if isinstance(discipline, dict):
+        discipline = discipline.get("libelle") or discipline.get("nom") or ""
+
+    return {
+        "periode": periode,
+        "date": date_course,
+        "reunion": reunion or "",
+        "course_numero": numero,
+        "course": nom,
+        "hippodrome": hippodrome,
+        "discipline": discipline,
+        "distance": distance,
+        "partants": _nombre_partants_course_brute(course),
+        "heure_depart": depart,
+        "horaires": {"depart": depart},
+        "disponible": True,
+        "source": "pmu_live",
+    }
+
+
+@router.get("/quintes-periodes")
+def quintes_periodes():
+    """Retourne les Quinté+ réel d'hier, du jour et de demain.
+
+    Cette route est additive : elle ne modifie pas /api/analyse ni les tickets.
+    """
+    aujourd_hui = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    periodes = {
+        "hier": aujourd_hui - timedelta(days=1),
+        "jour": aujourd_hui,
+        "demain": aujourd_hui + timedelta(days=1),
+    }
+    return {
+        cle: _resume_quinte_periode(date_obj, cle)
+        for cle, date_obj in periodes.items()
+    }
 
 
 # =====================================
