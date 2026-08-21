@@ -106,17 +106,36 @@ clearBtn?.addEventListener("click", () => {
   if (log) log.innerHTML = "";
 });
 
-async function streamAnswer(question) {
+function getAssistantAuthHeaders() {
+  // L'administrateur utilise la même clé que celle enregistrée depuis
+  // l'interface d'administration. Elle reste côté sessionStorage et n'est
+  // jamais exposée dans le code source.
+  const adminKey = sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") || "";
   const token = localStorage.getItem("AZ_TURF_PREMIUM_TOKEN") || "";
-  if (!token) throw new Error("Cette fonction interactive est réservée aux abonnés Premium.");
+
+  const headers = {
+    "Content-Type": "application/json",
+    "Accept": "text/event-stream"
+  };
+
+  if (adminKey) {
+    headers["X-Admin-Key"] = adminKey;
+  } else if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  return { headers, isAdmin: Boolean(adminKey), hasPremiumToken: Boolean(token) };
+}
+
+async function streamAnswer(question) {
+  const auth = getAssistantAuthHeaders();
+  if (!auth.isAdmin && !auth.hasPremiumToken) {
+    throw new Error("Cette fonction interactive est réservée aux abonnés Premium ou à l'administrateur.");
+  }
 
   const response = await fetch(CHAT_STREAM_API, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Accept": "text/event-stream",
-      "Authorization": `Bearer ${token}`
-    },
+    headers: auth.headers,
     body: JSON.stringify({ question, historique: history.slice(-12) })
   });
 
