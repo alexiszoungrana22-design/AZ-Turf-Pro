@@ -1,5 +1,5 @@
-const CHAT_STREAM_API = "/api/assistant/chat/stream";
-const CHAT_FALLBACK_API = "/api/assistant/chat";
+const CHAT_STREAM_API = "https://az-turf-pro.onrender.com/api/assistant/chat/stream";
+const CHAT_FALLBACK_API = "https://az-turf-pro.onrender.com/api/assistant/chat";
 const HISTORY_KEY = "AZ_TURF_CHAT_HISTORY_V1";
 const MAX_HISTORY = 30;
 
