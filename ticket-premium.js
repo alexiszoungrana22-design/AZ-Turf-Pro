@@ -242,7 +242,8 @@ async function chargerTicketsPremium() {
                     method: "GET",
                     cache: "no-store",
                     headers: {
-                        "Accept": "application/json"
+                        "Accept": "application/json",
+                        ...entetesAccesPremium()
                     }
                 }
             );
