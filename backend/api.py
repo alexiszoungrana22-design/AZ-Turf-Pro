@@ -693,6 +693,15 @@ def assistant_chat(payload: dict):
         moteur = {
             "classement": resultat.get("chevaux", []),
             "tickets": resultat.get("tickets", {}),
+            "course": {
+                "date": base.get("date"),
+                "reunion": base.get("reunion"),
+                "course_numero": base.get("course_numero"),
+                "hippodrome": base.get("hippodrome"),
+                "distance": base.get("distance"),
+                "type_depart": base.get("type_depart"),
+                "terrain": base.get("terrain"),
+            },
         }
 
     return repondre_assistant_turf(question, {"moteur": moteur})
