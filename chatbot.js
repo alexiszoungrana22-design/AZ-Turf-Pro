@@ -1,5 +1,4 @@
 const CHAT_STREAM_API = "https://az-turf-pro.onrender.com/api/assistant/chat/stream";
-const CHAT_VERSION = "25";
 const HISTORY_KEY = "AZ_TURF_CHAT_HISTORY_V1";
 const MAX_HISTORY = 30;
 
@@ -41,18 +40,6 @@ function readHistory() {
   } catch (_) {
     return [];
   }
-}
-
-
-function getAssistantName() {
-  const keys = [
-    "AZ_TURF_PRENOM", "AZ_TURF_USER_NAME", "prenom", "firstName", "nom"
-  ];
-  for (const key of keys) {
-    const value = localStorage.getItem(key) || sessionStorage.getItem(key);
-    if (value && /^[\p{L}][\p{L}\s'-]{1,30}$/u.test(value.trim())) return value.trim();
-  }
-  return "";
 }
 
 let history = readHistory();
@@ -149,7 +136,7 @@ async function streamAnswer(question) {
   const response = await fetch(CHAT_STREAM_API, {
     method: "POST",
     headers: auth.headers,
-    body: JSON.stringify({ question, historique: history.slice(-12), prenom: getAssistantName() })
+    body: JSON.stringify({ question, historique: history.slice(-12) })
   });
 
   if (!response.ok) {
@@ -223,9 +210,3 @@ form?.addEventListener("submit", async event => {
 });
 
 restoreHistory();
-
-if (history.length === 0 && log) {
-  const prenom = getAssistantName();
-  const greeting = `🤖 Bonjour${prenom ? " " + prenom : ""} 👋 Comment allez-vous aujourd'hui ?\n\nJe suis l'Assistant Chatbot AZ Turf Pro. Sur quoi souhaitez-vous qu'on travaille aujourd'hui ? 🏇`;
-  addBubble("assistant", greeting);
-}
