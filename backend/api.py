@@ -48,7 +48,6 @@ from learning import lire_historique, mettre_a_jour_arrivee
 
 import json
 import os
-import re
 from datetime import datetime, timedelta
 
 from engine import lancer_analyse
@@ -836,186 +835,117 @@ def api_analyse_complete(payload: dict):
         "impact_meteo": res_meteo.get("impact", "NEUTRE")
     }
 
-# =========================================================
-# ASSISTANT CHATBOT AUTONOME PMU - EXTENSION ADDITIVE
-# =========================================================
-from fastapi import Request
+# =====================================
+# ASSISTANT CHATBOT PMU AUTONOME v24.1
+# =====================================
 from fastapi.responses import StreamingResponse
-from modules.chatbot_turf import repondre_assistant_turf
-from pmu_source import recuperer_programme, trouver_reunion, trouver_course
-
-
-def _assistant_authorise(request: Request) -> bool:
-    """Admin via X-Admin-Key ou Premium via token serveur.
-    Aucun secret n'est stocké dans le frontend.
-    """
-    admin_key = os.getenv("AZ_ADMIN_API_KEY", "").strip()
-    premium_token = os.getenv("AZ_TURF_PREMIUM_TOKEN", "").strip()
-    supplied_admin = request.headers.get("X-Admin-Key", "").strip()
-    auth = request.headers.get("Authorization", "")
-    supplied_token = auth[7:].strip() if auth.lower().startswith("bearer ") else ""
-    if admin_key and supplied_admin and supplied_admin == admin_key:
-        return True
-    if premium_token and supplied_token and supplied_token == premium_token:
-        return True
-    return False
+from chatbot_turf import repondre_assistant_turf
 
 
 def _assistant_course_context():
     course, source = charger_course()
     if not course:
-        return {"source": source, "moteur": {}}
-    chevaux = course.get("chevaux", []) or []
-    resultat = lancer_analyse(
-        chevaux,
-        info_course={
-            "date": course.get("date"),
-            "reunion": course.get("reunion"),
-            "course_numero": course.get("course_numero"),
-            "course": course.get("course", ""),
-            "hippodrome": course.get("hippodrome", ""),
-            "discipline": course.get("discipline", ""),
-            "distance": course.get("distance_course", ""),
-            "allocation": course.get("allocation", ""),
-            "heure_depart": course.get("heure_depart", ""),
-            "non_partants": course.get("non_partants", []),
-        },
-    )
+        return {"source": source, "chevaux": []}
+    chevaux = course.get("chevaux", [])
+    try:
+        moteur = lancer_analyse(
+            chevaux,
+            {
+                "date": course.get("date"),
+                "reunion": course.get("reunion"),
+                "course_numero": course.get("course_numero"),
+                "course": course.get("course", ""),
+                "hippodrome": course.get("hippodrome", ""),
+                "discipline": course.get("discipline", ""),
+                "distance": course.get("distance_course", ""),
+                "heure_depart": course.get("heure_depart", ""),
+            },
+        )
+    except Exception:
+        moteur = {}
     return {
         "source": source,
         "course": course,
-        "moteur": {
-            "classement": resultat.get("chevaux", []),
-            "tickets": resultat.get("tickets", {}),
-        },
+        "chevaux": chevaux,
+        "moteur": moteur,
     }
 
 
-def _parse_future_date(question: str):
-    q = question.lower()
-    today = datetime.now().date()
-    if "après-demain" in q or "apres-demain" in q:
-        return today + timedelta(days=2)
-    if "demain" in q:
-        return today + timedelta(days=1)
-    if "aujourd" in q or "du jour" in q:
-        return today
-    jours = {
-        "lundi": 0, "mardi": 1, "mercredi": 2, "jeudi": 3,
-        "vendredi": 4, "samedi": 5, "dimanche": 6,
-    }
-    for nom, cible in jours.items():
-        if nom in q:
-            delta = (cible - today.weekday()) % 7
-            if delta == 0 and "prochain" in q:
-                delta = 7
-            return today + timedelta(days=delta)
-    m = re.search(r"(\d{1,2})[/-](\d{1,2})(?:[/-](\d{4}))?", q)
-    if m:
-        d, mo = int(m.group(1)), int(m.group(2))
-        y = int(m.group(3) or today.year)
-        try:
-            return datetime(y, mo, d).date()
-        except ValueError:
-            return None
-    return None
-
-
-def _rechercher_courses_date(date_obj):
-    date_pmu = date_obj.strftime("%d%m%Y")
-    programme = recuperer_programme(date_pmu)
-    if not programme:
+def _assistant_historique():
+    try:
+        return list(reversed(lire_historique()))[-20:]
+    except Exception:
         return []
-    reunions = programme.get("reunions") or programme.get("programme", {}).get("reunions", [])
-    resultats = []
-    for r in reunions if isinstance(reunions, list) else []:
-        if not isinstance(r, dict):
-            continue
-        rnum = r.get("numOfficiel") or r.get("numReunion") or r.get("numero")
-        code = f"R{rnum}" if rnum else ""
-        for c in r.get("courses", []) if isinstance(r.get("courses"), list) else []:
-            if not isinstance(c, dict):
-                continue
-            numero = c.get("numOrdre") or c.get("numCourse") or c.get("numero")
-            resultats.append({
-                "date": date_obj.isoformat(),
-                "reunion": code,
-                "course_numero": f"C{numero}" if numero else "",
-                "nom": c.get("libelle") or c.get("nom") or "Course",
-                "heure": c.get("heureDepart") or c.get("heure") or c.get("heureDepartPrevue") or "",
-                "partants": c.get("nombreDeclaresPartants") or c.get("nombrePartants") or c.get("nbPartants") or "",
-                "quinte": any("quinte" in str(v).lower() for v in c.values()),
-            })
-    return resultats
 
 
 @router.post("/assistant/chat")
-def assistant_chat_autonome(payload: dict, request: Request):
-    if not _assistant_authorise(request):
-        raise HTTPException(status_code=401, detail="Assistant réservé aux abonnés Premium ou à l'administrateur.")
+def assistant_chat_v241(payload: dict):
+    """Assistant conversationnel PMU avec analyse IA indépendante."""
     question = str(payload.get("question", "")).strip()
     if not question:
         raise HTTPException(status_code=400, detail="Question obligatoire.")
-    historique = payload.get("historique") or []
-    prenom = str(payload.get("prenom") or "").strip()
-
-    future_date = _parse_future_date(question)
-    if future_date and any(x in question.lower() for x in ["chercher", "cherche", "course", "quinté", "quinte", "prochaine", "demain", "avenir"]):
-        courses = _rechercher_courses_date(future_date)
-        if courses:
-            lignes = [f"- {c['reunion']}{c['course_numero']} — {c['nom']} — départ {c['heure'] or 'heure non publiée'} — {c['partants'] or '?'} partants" for c in courses[:12]]
-            texte = f"📅 **Courses PMU disponibles le {future_date.strftime('%d/%m/%Y')}**\n\n" + "\n".join(lignes)
-            return {"status": "success", "question": question, "reponse": texte, "intent": "recherche_course", "courses": courses}
-        if future_date > datetime.now().date():
-            return {"status": "success", "question": question, "reponse": f"📅 Je ne trouve pas encore de programme PMU exploitable pour le {future_date.strftime('%d/%m/%Y')}. Je ne vais pas inventer une course. Réessayez lorsque le programme sera publié.", "intent": "recherche_course"}
 
     contexte = _assistant_course_context()
-    contexte["prenom"] = prenom
-    contexte["historique"] = historique[-12:] if isinstance(historique, list) else []
-    try:
-        contexte["historique_pmu"] = lire_historique()
-    except Exception:
-        contexte["historique_pmu"] = []
-    result = repondre_assistant_turf(question, contexte)
-    return result
+    contexte["historique_pmu"] = _assistant_historique()
+    contexte["historique_conversation"] = payload.get("historique") or []
+    contexte["prenom"] = payload.get("prenom") or payload.get("nom_utilisateur") or ""
+
+    # Recherche automatique du Quinté d'une date future lorsque l'utilisateur le demande.
+    q = question.lower()
+    if any(k in q for k in ["demain", "à venir", "a venir", "prochaine course", "prochain quinté", "quinté de demain", "quinte de demain"]):
+        from pmu_source import trouver_quinte_du_jour, normaliser_date
+        from datetime import datetime, timedelta
+        target_date = datetime.now() + timedelta(days=1)
+        programme, reunion, course = trouver_quinte_du_jour(normaliser_date(target_date))
+        if course:
+            try:
+                from pmu_source import charger_course_pmu
+                future_course = charger_course_pmu(normaliser_date(target_date), reunion, course.get("numOrdre") or course.get("numCourse") or course.get("numero"))
+                if future_course:
+                    contexte["course"] = future_course
+                    contexte["chevaux"] = future_course.get("chevaux", [])
+                    contexte["source"] = "pmu_live_future"
+            except Exception:
+                pass
+
+    resultat = repondre_assistant_turf(question, contexte)
+    return resultat
 
 
 @router.post("/assistant/chat/stream")
-def assistant_chat_stream_autonome(payload: dict, request: Request):
-    if not _assistant_authorise(request):
-        raise HTTPException(status_code=401, detail="Assistant réservé aux abonnés Premium ou à l'administrateur.")
+def assistant_chat_stream_v241(payload: dict):
+    """Version SSE du chatbot : un bloc de texte puis un événement final."""
     question = str(payload.get("question", "")).strip()
     if not question:
         raise HTTPException(status_code=400, detail="Question obligatoire.")
-    historique = payload.get("historique") or []
-    prenom = str(payload.get("prenom") or "").strip()
 
-    future_date = _parse_future_date(question)
-    if future_date and any(x in question.lower() for x in ["chercher", "cherche", "course", "quinté", "quinte", "prochaine", "demain", "avenir"]):
-        courses = _rechercher_courses_date(future_date)
-        if courses:
-            text = f"📅 **Courses PMU disponibles le {future_date.strftime('%d/%m/%Y')}**\n\n" + "\n".join(
-                f"- {c['reunion']}{c['course_numero']} — {c['nom']} — départ {c['heure'] or 'heure non publiée'} — {c['partants'] or '?'} partants" for c in courses[:12]
-            )
-        else:
-            text = f"📅 Je ne trouve pas encore de programme PMU exploitable pour le {future_date.strftime('%d/%m/%Y')}. Je ne vais pas inventer une course."
-    else:
-        contexte = _assistant_course_context()
-        contexte["prenom"] = prenom
-        contexte["historique"] = historique[-12:] if isinstance(historique, list) else []
+    contexte = _assistant_course_context()
+    contexte["historique_pmu"] = _assistant_historique()
+    contexte["historique_conversation"] = payload.get("historique") or []
+    contexte["prenom"] = payload.get("prenom") or payload.get("nom_utilisateur") or ""
+
+    q = question.lower()
+    if any(k in q for k in ["demain", "à venir", "a venir", "prochaine course", "prochain quinté", "quinté de demain", "quinte de demain"]):
         try:
-            contexte["historique_pmu"] = lire_historique()
-        except Exception:
-            contexte["historique_pmu"] = []
-        result = repondre_assistant_turf(question, contexte)
-        text = result.get("reponse", "")
+            from pmu_source import trouver_quinte_du_jour, charger_course_pmu, normaliser_date
+            from datetime import datetime, timedelta
+            date_future = normaliser_date(datetime.now() + timedelta(days=1))
+            _, reunion, course = trouver_quinte_du_jour(date_future)
+            if course:
+                future_course = charger_course_pmu(date_future, reunion, course.get("numOrdre") or course.get("numCourse") or course.get("numero"))
+                if future_course:
+                    contexte["course"] = future_course
+                    contexte["chevaux"] = future_course.get("chevaux", [])
+                    contexte["source"] = "pmu_live_future"
+        except Exception as erreur:
+            print("Assistant future course :", erreur)
+
+    resultat = repondre_assistant_turf(question, contexte)
+    texte = resultat.get("reponse", "")
 
     def generate():
-        import json as _json
-        # Découpage progressif pour un vrai rendu streaming, sans modifier le texte.
-        morceaux = re.findall(r".{1,90}(?:\s|$)", text, flags=re.S) or [text]
-        for morceau in morceaux:
-            yield f"data: {_json.dumps({'type': 'token', 'text': morceau}, ensure_ascii=False)}\n\n"
-        yield "data: {\"type\":\"done\"}\n\n"
+        import json
+        yield "data: " + json.dumps({"type": "token", "text": texte}, ensure_ascii=False) + "\n\n"
+        yield "data: " + json.dumps({"type": "done"}, ensure_ascii=False) + "\n\n"
 
-    return StreamingResponse(generate(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+    return StreamingResponse(generate(), media_type="text/event-stream")
