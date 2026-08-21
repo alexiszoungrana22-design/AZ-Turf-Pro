@@ -5,14 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AZ Turf Pro - Assistant</title>
 <link rel="stylesheet" href="style.css">
-<style>
-.az-chat-back{display:inline-block;margin:0 0 12px;padding:10px 14px;border:0;border-radius:10px;background:#1e293b;color:#fff;font-weight:800;cursor:pointer}
-.az-chat-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
-.az-chat-action{padding:9px 12px;border:1px solid #cbd5e1;border-radius:999px;background:#f8fafc;color:#0f172a;font-weight:700;cursor:pointer}
-.chat-message.loading{opacity:.65}
-.error-message{color:#b91c1c}
-@media(max-width:700px){.az-chat-actions{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}.az-chat-action{flex:0 0 auto}.az-chat-back{min-height:42px}}
-</style>
 </head>
 <body>
 <header class="top-header">
@@ -26,10 +18,12 @@
 </header>
 <main class="content">
 <section class="card">
+  <button id="chat-back" type="button" aria-label="Retour à la page précédente">← Retour</button>
   <h2>🤖 Assistant AZ Turf Pro</h2>
   <p>Analyse la course, le ticket Premium, les chevaux, les outsiders, les favoris vulnérables et le scénario de course.</p>
+  <div id="quick-actions" style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;"></div>
   <div id="chat-log" style="min-height:180px;padding:12px;border:1px solid #ddd;border-radius:10px;margin:12px 0;"></div>
-  <form id="chat-form" style="display:flex;gap:8px;align-items:center;">
+  <form id="chat-form" style="display:flex;gap:8px;">
     <input id="chat-question" required placeholder="Ex. Quel est le favori ?" style="flex:1;padding:12px;">
     <button type="submit">Envoyer</button>
   </form>
