@@ -346,3 +346,18 @@ th { background: #f1f5f9; font-weight: 700; }
     .top-menu { display: none; }
     .analyse-az-container { flex-direction: column; }
 }
+
+
+/* Heure réelle de départ de la course du jour */
+.heure-depart-course{
+    display:inline-flex;
+    align-items:center;
+    margin-left:8px;
+    padding:4px 8px;
+    border-radius:8px;
+    background:#fff7ed;
+    color:#b45309;
+    font-weight:800;
+    font-size:12px;
+    white-space:nowrap;
+}

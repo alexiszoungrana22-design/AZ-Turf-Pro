@@ -49,6 +49,7 @@ async function chargerAnalyse(){
 
         const data = await response.json();
         enregistrerAnalyseDansHistorique(data);
+        afficherHeureDepartCourse(data);
         afficherChronometre(data);
 
         const chevauxClassement = data.classement || data.chevaux || [];
@@ -193,6 +194,20 @@ function normaliserHeureDepart(valeur){
 // =====================================
 // FONCTION CORRIGÉE DU CHRONOMÈTRE
 // =====================================
+function afficherHeureDepartCourse(data){
+    const zone = document.getElementById("heure-depart-course");
+    if(!zone) return;
+
+    const heureBrute = (data.horaires && data.horaires.depart) || data.heure_depart || data.heure || "";
+    const heure = normaliserHeureDepart(heureBrute);
+    if(!heure){
+        zone.textContent = "Départ : --:--";
+        return;
+    }
+
+    zone.textContent = `Départ : ${String(heure.heures).padStart(2,"0")}:${String(heure.minutes).padStart(2,"0")}`;
+}
+
 function afficherChronometre(data){
     const zone = document.getElementById("mini-countdown");
     if(!zone) return;
