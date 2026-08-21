@@ -1,4 +1,5 @@
 const CHAT_STREAM_API = "https://az-turf-pro.onrender.com/api/assistant/chat/stream";
+const CHAT_VERSION = "25";
 const HISTORY_KEY = "AZ_TURF_CHAT_HISTORY_V1";
 const MAX_HISTORY = 30;
 
@@ -40,6 +41,18 @@ function readHistory() {
   } catch (_) {
     return [];
   }
+}
+
+
+function getAssistantName() {
+  const keys = [
+    "AZ_TURF_PRENOM", "AZ_TURF_USER_NAME", "prenom", "firstName", "nom"
+  ];
+  for (const key of keys) {
+    const value = localStorage.getItem(key) || sessionStorage.getItem(key);
+    if (value && /^[\p{L}][\p{L}\s'-]{1,30}$/u.test(value.trim())) return value.trim();
+  }
+  return "";
 }
 
 let history = readHistory();
@@ -133,13 +146,10 @@ async function streamAnswer(question) {
     throw new Error("Cette fonction interactive est réservée aux abonnés Premium ou à l'administrateur.");
   }
 
-  const assistantBubble = addBubble("assistant", "", false);
-  let answer = "";
-
   const response = await fetch(CHAT_STREAM_API, {
     method: "POST",
     headers: auth.headers,
-    body: JSON.stringify({ question, historique: history.slice(-12) })
+    body: JSON.stringify({ question, historique: history.slice(-12), prenom: getAssistantName() })
   });
 
   if (!response.ok) {
@@ -151,30 +161,27 @@ async function streamAnswer(question) {
     throw new Error(message);
   }
 
-  const contentType = (response.headers.get("content-type") || "").toLowerCase();
+  if (!response.body) throw new Error("Le streaming n'est pas disponible sur ce navigateur.");
 
-  // Sécurité : si le serveur répond directement en JSON, on l'affiche aussi.
-  if (contentType.includes("application/json")) {
-    const data = await response.json();
-    answer = data.reponse || data.response || data.text || data.message || "";
-    assistantBubble.innerHTML = renderMarkdown(answer);
-  } else {
-    if (!response.body) throw new Error("Le streaming n'est pas disponible sur ce navigateur.");
+  const assistantBubble = addBubble("assistant", "", false);
+  let answer = "";
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder("utf-8");
+  let buffer = "";
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder("utf-8");
-    let buffer = "";
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
 
-    const consumeEvent = (event) => {
-      const lines = event.replace(/\r/g, "").split("\n");
-      const dataLines = lines
-        .filter(line => line.startsWith("data:"))
-        .map(line => line.slice(5).trimStart());
-      if (!dataLines.length) return;
+    const events = buffer.split("\n\n");
+    buffer = events.pop() || "";
 
-      const raw = dataLines.join("\n");
+    for (const event of events) {
+      const line = event.split("\n").find(item => item.startsWith("data: "));
+      if (!line) continue;
       let data;
-      try { data = JSON.parse(raw); } catch (_) { return; }
+      try { data = JSON.parse(line.slice(6)); } catch (_) { continue; }
 
       if (data.type === "token") {
         answer += data.text || "";
@@ -183,23 +190,7 @@ async function streamAnswer(question) {
       } else if (data.type === "error") {
         throw new Error(data.message || "Erreur assistant.");
       }
-    };
-
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const events = buffer.split(/\r?\n\r?\n/);
-      buffer = events.pop() || "";
-      for (const event of events) consumeEvent(event);
     }
-
-    buffer += decoder.decode();
-    if (buffer.trim()) consumeEvent(buffer);
-  }
-
-  if (!answer) {
-    throw new Error("Le serveur a répondu sans contenu.");
   }
 
   history.push({ role: "assistant", content: answer });
@@ -232,3 +223,9 @@ form?.addEventListener("submit", async event => {
 });
 
 restoreHistory();
+
+if (history.length === 0 && log) {
+  const prenom = getAssistantName();
+  const greeting = `🤖 Bonjour${prenom ? " " + prenom : ""} 👋 Comment allez-vous aujourd'hui ?\n\nJe suis l'Assistant Chatbot AZ Turf Pro. Sur quoi souhaitez-vous qu'on travaille aujourd'hui ? 🏇`;
+  addBubble("assistant", greeting);
+}
