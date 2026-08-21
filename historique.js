@@ -43,7 +43,10 @@ async function chargerHistorique(){
         if(!r.ok) throw new Error("API historique indisponible");
         const data=await r.json();
         const liste=Array.isArray(data.historique) ? data.historique : [];
-        if(liste.length) return liste.map(normaliserEntree);
+        if(liste.length){
+            try { localStorage.setItem(HISTORIQUE_STORAGE_KEY, JSON.stringify(liste)); } catch(e) {}
+            return liste.map(normaliserEntree);
+        }
     }catch(e){
         console.warn("Historique API indisponible, utilisation locale",e);
     }
