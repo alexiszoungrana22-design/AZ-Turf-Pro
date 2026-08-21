@@ -117,30 +117,46 @@
 </footer>
 
 <script>
-    // 1. Vérification du statut utilisateur local
+    // Statut Premium : source de vérité = serveur, jamais localStorage.
     const phone = localStorage.getItem("AZ_TURF_TELEPHONE") || "Non renseigné";
-    const isPremium = localStorage.getItem("AZ_TURF_PREMIUM_ACTIF") === "true";
-
     document.getElementById("user-phone").innerText = phone;
 
     const statusElem = document.getElementById("user-status");
-    if (isPremium) {
-        statusElem.innerText = "⭐ MEMBRE VIP ACTIF";
-        statusElem.style.backgroundColor = "#dcfce7";
-        statusElem.style.color = "#15803d";
-    } else {
-        statusElem.innerText = "🔒 COMPTE GRATUIT";
-        statusElem.style.backgroundColor = "#fee2e2";
-        statusElem.style.color = "#b91c1c";
+
+    async function chargerStatutCompte() {
+        const token = localStorage.getItem("AZ_TURF_PREMIUM_TOKEN") || "";
+        if (!phone || phone === "Non renseigné" || !token) {
+            statusElem.innerText = "🔒 COMPTE GRATUIT";
+            statusElem.style.backgroundColor = "#fee2e2";
+            statusElem.style.color = "#b91c1c";
+            return;
+        }
+        try {
+            const response = await fetch(
+                "https://az-turf-pro.onrender.com/api/premium/" + encodeURIComponent(phone),
+                { headers: { "Authorization": "Bearer " + token, "Accept": "application/json" }, cache: "no-store" }
+            );
+            const data = await response.json();
+            if (response.ok && data.statut === "ACTIF") {
+                statusElem.innerText = "⭐ MEMBRE VIP ACTIF";
+                statusElem.style.backgroundColor = "#dcfce7";
+                statusElem.style.color = "#15803d";
+            } else {
+                statusElem.innerText = "🔒 COMPTE GRATUIT / EXPIRÉ";
+                statusElem.style.backgroundColor = "#fee2e2";
+                statusElem.style.color = "#b91c1c";
+            }
+        } catch (_) {
+            statusElem.innerText = "⚠️ Statut indisponible";
+            statusElem.style.backgroundColor = "#fef3c7";
+            statusElem.style.color = "#92400e";
+        }
     }
 
-    // 2. Fonction d'accès direct Admin
+    chargerStatutCompte();
+
     function ouvrirModeAdmin() {
-        // Active le statut VIP administrateur automatiquement
-        localStorage.setItem("AZ_TURF_PREMIUM_ACTIF", "true");
-        localStorage.setItem("AZ_TURF_TELEPHONE", "ADMINISTRATEUR");
-        
-        // Redirige vers le tableau de bord
+        // Aucun privilège n'est accordé ici : l'API admin exige la clé serveur.
         window.location.href = "admin.html";
     }
 </script>

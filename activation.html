@@ -183,7 +183,8 @@
                 throw new Error(data.detail || "Erreur lors de l'activation");
             }
 
-            localStorage.setItem("AZ_TURF_PREMIUM_ACTIF", "true");
+            localStorage.setItem("AZ_TURF_PREMIUM_TOKEN", data.access_token);
+            localStorage.setItem("AZ_TURF_TELEPHONE", telephone);
 
             message.innerHTML = "✅ Premium activé avec succès !<br>Accès VIP valable jusqu'au : <strong>" +
                 new Date(data.date_fin).toLocaleDateString("fr-FR") + "</strong>";

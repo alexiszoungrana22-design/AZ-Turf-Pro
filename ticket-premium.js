@@ -5,11 +5,11 @@
 // Données : /api/analyse
 // ==========================================================
 
-const API_ANALYSE =
-    "https://az-turf-pro.onrender.com/api/analyse";
-
-const API_PREMIUM =
+const API_PREMIUM_STATUS =
     "https://az-turf-pro.onrender.com/api/premium/";
+
+const API_PREMIUM_TICKET =
+    "https://az-turf-pro.onrender.com/api/premium/ticket";
 
 
 function badgeTendancePremium(cheval) {
@@ -26,6 +26,15 @@ function badgeTendancePremium(cheval) {
 
     return "– Stable";
 
+}
+
+
+function entetesAccesPremium() {
+    const adminKey = sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") || "";
+    const token = localStorage.getItem("AZ_TURF_PREMIUM_TOKEN") || "";
+    if (adminKey) return { "X-Admin-Key": adminKey };
+    if (token) return { "Authorization": "Bearer " + token };
+    return {};
 }
 
 
@@ -125,13 +134,14 @@ async function verifierAccesPremium() {
     try {
 
         const reponse = await fetch(
-            API_PREMIUM +
+            API_PREMIUM_STATUS +
             encodeURIComponent(telephone),
             {
                 method: "GET",
                 cache: "no-store",
                 headers: {
-                    "Accept": "application/json"
+                    "Accept": "application/json",
+                    ...entetesAccesPremium()
                 }
             }
         );
@@ -227,7 +237,7 @@ async function chargerTicketsPremium() {
 
         const reponse =
             await fetch(
-                API_ANALYSE,
+                API_PREMIUM_TICKET,
                 {
                     method: "GET",
                     cache: "no-store",
@@ -762,7 +772,7 @@ async function chargerTableauLive() {
 
         const reponse =
             await fetch(
-                API_ANALYSE,
+                API_PREMIUM_TICKET,
                 {
                     method: "GET",
                     cache: "no-store",
