@@ -24,6 +24,7 @@
 
 
 from fastapi import APIRouter, HTTPException, Depends, Header
+from fastapi.responses import StreamingResponse
 
 from engine import lancer_analyse
 
@@ -831,6 +832,21 @@ def assistant_chat(payload: dict):
     return repondre_assistant_turf(question, {"moteur": moteur})
 
 
+@router.post("/assistant/chat/stream")
+def assistant_chat_stream(payload: dict):
+    """Compatibilité streaming : réutilise le moteur assistant existant et expose une réponse SSE."""
+    resultat = assistant_chat(payload)
+    texte = str(resultat.get("reponse", ""))
+
+    def generate():
+        yield "event: message\n"
+        yield f"data: {json.dumps({"reponse": texte}, ensure_ascii=False)}\n\n"
+        yield "event: done\n"
+        yield "data: {}\n\n"
+
+    return StreamingResponse(generate(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "Connection": "keep-alive"})
+
+
 # =====================================
 # STATISTIQUES / BACKTEST
 # =====================================
@@ -899,35 +915,14 @@ def historique():
 
         for index, entree in enumerate(entrees):
 
-            if not isinstance(entree, dict):
-                continue
-
-            # Une liste vide signifie "résultat encore inconnu".
-            # L'ancien test `is not None` considérait [] comme déjà traité
-            # et empêchait donc toute récupération ultérieure du résultat PMU.
-            arrivee_existante = entree.get("arrivee")
-            if isinstance(arrivee_existante, (list, tuple)) and len(arrivee_existante) >= 5:
-                continue
-            if arrivee_existante and not isinstance(arrivee_existante, (list, tuple)):
+            if entree.get("arrivee") is not None:
                 continue
 
             info_course = entree.get("course") or {}
-            if not isinstance(info_course, dict):
-                info_course = {}
 
-            # Compatibilité avec les anciennes entrées qui stockaient les
-            # informations de course au niveau racine.
-            date = info_course.get("date") or entree.get("date")
-            reunion = (
-                info_course.get("reunion")
-                or info_course.get("reunion_numero")
-                or entree.get("reunion")
-            )
-            course_numero = (
-                info_course.get("course_numero")
-                or info_course.get("numero_course")
-                or entree.get("course_numero")
-            )
+            date = info_course.get("date")
+            reunion = info_course.get("reunion")
+            course_numero = info_course.get("course_numero")
 
             if not (date and reunion and course_numero):
                 continue
@@ -941,15 +936,11 @@ def historique():
                 )
 
                 if arrivee:
-                    # On normalise avant stockage pour éviter d'afficher des
-                    # objets Python/JSON dans l'historique.
-                    arrivee = [str(x).strip() for x in arrivee if str(x).strip()][:5]
-                    if len(arrivee) >= 5:
-                        mettre_a_jour_arrivee(index, arrivee)
-                        entree["arrivee"] = arrivee
+                    mettre_a_jour_arrivee(index, arrivee)
+                    entree["arrivee"] = arrivee
 
-            except Exception as erreur:
-                print(f"Historique: récupération arrivée impossible ({date} {reunion} {course_numero}): {erreur}")
+            except Exception:
+                pass
 
         return {
             "historique": list(reversed(entrees))
