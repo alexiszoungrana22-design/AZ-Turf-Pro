@@ -1,5 +1,4 @@
 const CHAT_STREAM_API = "https://az-turf-pro.onrender.com/api/assistant/chat/stream";
-const CHAT_FALLBACK_API = "https://az-turf-pro.onrender.com/api/assistant/chat";
 const HISTORY_KEY = "AZ_TURF_CHAT_HISTORY_V1";
 const MAX_HISTORY = 30;
 
@@ -44,29 +43,6 @@ function readHistory() {
 }
 
 let history = readHistory();
-
-function getUserFirstName() {
-  const candidates = [
-    localStorage.getItem("AZ_TURF_USER_FIRST_NAME"),
-    localStorage.getItem("AZ_TURF_USER_NAME"),
-    sessionStorage.getItem("AZ_TURF_USER_FIRST_NAME"),
-    sessionStorage.getItem("AZ_TURF_USER_NAME")
-  ];
-  for (const value of candidates) {
-    const name = String(value || "").trim();
-    if (name) return name.split(/\\s+/)[0];
-  }
-  return "";
-}
-
-function showWelcomeMessage() {
-  if (!log || history.length) return;
-  const name = getUserFirstName();
-  const greeting = name
-    ? `👋 Bonjour ${name} !\\n\\nJe suis l'**Assistant Chatbot AZ Turf Pro**. Comment puis-je vous aider ?`
-    : `👋 Bonjour !\\n\\nJe suis l'**Assistant Chatbot AZ Turf Pro**. Comment puis-je vous aider ?`;
-  addBubble("assistant", greeting);
-}
 
 function saveHistory() {
   history = history.slice(-MAX_HISTORY);
@@ -157,76 +133,48 @@ async function streamAnswer(question) {
     throw new Error("Cette fonction interactive est réservée aux abonnés Premium ou à l'administrateur.");
   }
 
-  const payload = { question, historique: history.slice(-12) };
+  const assistantBubble = addBubble("assistant", "", false);
+  let answer = "";
 
-  // 1) Endpoint streaming moderne.
-  let response = await fetch(CHAT_STREAM_API, {
+  const response = await fetch(CHAT_STREAM_API, {
     method: "POST",
     headers: auth.headers,
-    body: JSON.stringify(payload)
+    body: JSON.stringify({ question, historique: history.slice(-12) })
   });
-
-  // 2) Compatibilité : si le serveur actuellement déployé ne possède pas
-  //    encore /stream, on utilise automatiquement /assistant/chat.
-  if (response.status === 404) {
-    const fallbackHeaders = { ...auth.headers, "Accept": "application/json" };
-    response = await fetch(CHAT_FALLBACK_API, {
-      method: "POST",
-      headers: fallbackHeaders,
-      body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) {
-      let message = "Impossible de contacter l'assistant.";
-      try {
-        const data = await response.json();
-        message = data.detail || data.message || message;
-      } catch (_) {}
-      throw new Error(message);
-    }
-
-    const data = await response.json();
-    const answer =
-      data.answer ||
-      data.response ||
-      data.message ||
-      data.resultat ||
-      (typeof data === "string" ? data : JSON.stringify(data));
-
-    addBubble("assistant", String(answer));
-    return;
-  }
 
   if (!response.ok) {
     let message = "Impossible de contacter l'assistant.";
     try {
       const data = await response.json();
-      message = data.detail || data.message || message;
+      message = data.detail || message;
     } catch (_) {}
     throw new Error(message);
   }
 
-  if (!response.body) throw new Error("Le streaming n'est pas disponible sur ce navigateur.");
+  const contentType = (response.headers.get("content-type") || "").toLowerCase();
 
-  const assistantBubble = addBubble("assistant", "", false);
-  let answer = "";
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder("utf-8");
-  let buffer = "";
+  // Sécurité : si le serveur répond directement en JSON, on l'affiche aussi.
+  if (contentType.includes("application/json")) {
+    const data = await response.json();
+    answer = data.reponse || data.response || data.text || data.message || "";
+    assistantBubble.innerHTML = renderMarkdown(answer);
+  } else {
+    if (!response.body) throw new Error("Le streaming n'est pas disponible sur ce navigateur.");
 
-  while (true) {
-    const { value, done } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let buffer = "";
 
-    const events = buffer.split("\n\n");
-    buffer = events.pop() || "";
+    const consumeEvent = (event) => {
+      const lines = event.replace(/\r/g, "").split("\n");
+      const dataLines = lines
+        .filter(line => line.startsWith("data:"))
+        .map(line => line.slice(5).trimStart());
+      if (!dataLines.length) return;
 
-    for (const event of events) {
-      const line = event.split("\n").find(item => item.startsWith("data: "));
-      if (!line) continue;
+      const raw = dataLines.join("\n");
       let data;
-      try { data = JSON.parse(line.slice(6)); } catch (_) { continue; }
+      try { data = JSON.parse(raw); } catch (_) { return; }
 
       if (data.type === "token") {
         answer += data.text || "";
@@ -235,7 +183,23 @@ async function streamAnswer(question) {
       } else if (data.type === "error") {
         throw new Error(data.message || "Erreur assistant.");
       }
+    };
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const events = buffer.split(/\r?\n\r?\n/);
+      buffer = events.pop() || "";
+      for (const event of events) consumeEvent(event);
     }
+
+    buffer += decoder.decode();
+    if (buffer.trim()) consumeEvent(buffer);
+  }
+
+  if (!answer) {
+    throw new Error("Le serveur a répondu sans contenu.");
   }
 
   history.push({ role: "assistant", content: answer });
@@ -268,4 +232,3 @@ form?.addEventListener("submit", async event => {
 });
 
 restoreHistory();
-showWelcomeMessage();
