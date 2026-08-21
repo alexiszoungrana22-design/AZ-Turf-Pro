@@ -237,6 +237,20 @@ def calculer_indice_premium(cheval, info_course=None, discipline="TROT"):
         bonus_expert += 6.0
 
     # -----------------------------------------------------
+    # Smart Money (variation de cote entre le matin et le direct)
+    # -----------------------------------------------------
+
+    bonus_smart_money = 0.0
+    variation_cote_pct = _float(cheval.get("variation_cote_pct", 0), 0)
+
+    if variation_cote_pct <= -20.0:
+        bonus_smart_money = 14.0
+    elif variation_cote_pct <= -5.0:
+        bonus_smart_money = 6.0
+    elif variation_cote_pct >= 20.0:
+        bonus_smart_money = -6.0
+
+    # -----------------------------------------------------
     # Calcul Premium
     # -----------------------------------------------------
 
@@ -249,6 +263,7 @@ def calculer_indice_premium(cheval, info_course=None, discipline="TROT"):
         + (bonnes_places * 2.0)
         + bonus_outsider_chaud
         + bonus_expert
+        + bonus_smart_money
     )
 
     return round(
