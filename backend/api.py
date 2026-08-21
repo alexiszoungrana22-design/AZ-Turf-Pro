@@ -23,7 +23,7 @@
 #    premium, admin) sont strictement inchangees.
 
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Header
 
 from engine import lancer_analyse
 
@@ -41,7 +41,7 @@ from models import (
     ActivationRequest
 )
 
-from security import require_admin
+from security import require_admin, is_valid_admin_key, create_premium_token, verify_premium_token
 
 from pmu_source import charger_course_pmu, recuperer_programme, trouver_reunion, trouver_course, trouver_quinte_du_jour
 
@@ -254,8 +254,7 @@ def quintes_periodes():
 # ANALYSE AZ TURF
 # =====================================
 
-@router.get("/analyse")
-def analyse():
+def _analyse_complete():
 
     try:
 
@@ -504,6 +503,50 @@ def analyse():
 
 
 # =====================================
+# ANALYSE PUBLIQUE / PREMIUM SECURISEE
+# =====================================
+
+@router.get("/analyse")
+def analyse():
+    """Analyse publique : uniquement les données gratuites."""
+    reponse = _analyse_complete()
+    tickets = reponse.get("tickets", {}) or {}
+    reponse["tickets"] = {
+        "gratuit": tickets.get("gratuit", {})
+    }
+    return reponse
+
+
+def _require_premium_request(authorization: str | None, x_admin_key: str | None) -> dict:
+    # Administrateur : accès Premium autorisé avec la clé serveur.
+    if is_valid_admin_key(x_admin_key):
+        return {"admin": True, "telephone": "ADMINISTRATEUR"}
+
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Accès Premium non autorisé.")
+
+    token = authorization[7:].strip()
+    payload = verify_premium_token(token)
+    telephone = payload.get("telephone", "").strip()
+
+    statut = verifier_premium(telephone)
+    if statut.get("statut") != "ACTIF":
+        raise HTTPException(status_code=403, detail="Abonnement Premium inactif ou expiré.")
+
+    return {"admin": False, "telephone": telephone}
+
+
+@router.get("/premium/ticket")
+def premium_ticket(
+    authorization: str | None = Header(default=None),
+    x_admin_key: str | None = Header(default=None),
+):
+    """Endpoint Premium : tickets complets uniquement après authentification serveur."""
+    _require_premium_request(authorization, x_admin_key)
+    return _analyse_complete()
+
+
+# =====================================
 # PARTANTS PMU LIVE
 # =====================================
 
@@ -593,10 +636,16 @@ def activation_premium(
             detail="Référence non validée ou abonnement introuvable."
         )
 
+    token = create_premium_token(
+        activation.telephone.strip(),
+        abonnement["date_fin"]
+    )
+
     return {
         "message": "Premium activé",
         "statut": "ACTIF",
-        "date_fin": abonnement["date_fin"]
+        "date_fin": abonnement["date_fin"],
+        "access_token": token
     }
 
 
@@ -606,12 +655,15 @@ def activation_premium(
 
 @router.get("/premium/{telephone}")
 def premium(
-    telephone: str
+    telephone: str,
+    authorization: str | None = Header(default=None),
+    x_admin_key: str | None = Header(default=None),
 ):
-
-    return verifier_premium(
-        telephone
-    )
+    """Statut Premium protégé : impossible de sonder arbitrairement un numéro."""
+    acces = _require_premium_request(authorization, x_admin_key)
+    if not acces.get("admin") and acces.get("telephone") != telephone.strip():
+        raise HTTPException(status_code=403, detail="Accès Premium non autorisé pour ce compte.")
+    return verifier_premium(telephone.strip())
 
 
 # =====================================
