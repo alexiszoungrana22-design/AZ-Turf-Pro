@@ -869,6 +869,9 @@ def _contexte_assistant():
             "classement": resultat.get("chevaux", []) if isinstance(resultat, dict) else [],
             "tickets": resultat.get("tickets", {}) if isinstance(resultat, dict) else {},
         },
+        # Données de course PMU servant au moteur IA indépendant.
+        # Les tickets AZ restent disponibles uniquement pour la comparaison.
+        "chevaux": chevaux,
         "course": info_course,
         "source": source,
     }
