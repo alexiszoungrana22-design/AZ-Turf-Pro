@@ -1,4 +1,4 @@
-const CHAT_API = "https://az-turf-pro-1.onrender.com/api/assistant/chat";
+const CHAT_API = "https://az-turf-pro.onrender.com/api/assistant/chat";
 const log = document.getElementById("chat-log");
 const form = document.getElementById("chat-form");
 const input = document.getElementById("chat-question");
