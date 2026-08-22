@@ -1,14 +1,12 @@
-/* AZ Turf Pro — affichage Premium robuste v26
-   Lit désormais /api/premium/ticket (protégé : clé admin ou token Premium
-   valide) au lieu de /api/analyse (public), qui ne renvoie plus que le
-   ticket gratuit côté serveur. Normalise toujours les différentes formes
-   de tickets retournées par le backend.
+/* AZ Turf Pro — affichage Premium robuste v25
+   Ne modifie pas le moteur Premium. Lit /api/analyse et normalise
+   les différentes formes de tickets retournées par le backend.
 */
 (function () {
   "use strict";
 
-  const API = "/api/premium/ticket";
-  const ABS_API = "https://az-turf-pro.onrender.com/api/premium/ticket";
+  const API = "/api/analyse";
+  const ABS_API = "https://az-turf-pro.onrender.com/api/analyse";
 
   function el(id) { return document.getElementById(id); }
 
@@ -184,69 +182,35 @@
     }).join("");
   }
 
-  const ADMIN_KEY_NAMES = ["AZ_TURF_ADMIN_API_KEY", "AZ_TURF_ADMIN_KEY", "ADMIN_API_KEY", "admin_api_key"];
-
-  function getAdminKey() {
-    for (const name of ADMIN_KEY_NAMES) {
-      const v = sessionStorage.getItem(name) || localStorage.getItem(name) || "";
-      if (v.trim()) return v.trim();
-    }
-    return "";
-  }
-
-  function getPremiumToken() {
-    return (
-      localStorage.getItem("AZ_TURF_PREMIUM_TOKEN") ||
-      sessionStorage.getItem("AZ_TURF_PREMIUM_TOKEN") ||
-      ""
-    );
-  }
-
-  function getAuthHeaders() {
-    const adminKey = getAdminKey();
-    if (adminKey) return { "X-Admin-Key": adminKey };
-    const token = getPremiumToken();
-    if (token) return { "Authorization": "Bearer " + token };
-    return null;
-  }
-
-  function setUnlocked(unlocked) {
-    const blocage = el("message-blocage");
-    const contenu = el("contenu-premium");
-    if (blocage) blocage.classList.toggle("zone-masquee", unlocked);
-    if (contenu) contenu.classList.toggle("zone-masquee", !unlocked);
-  }
-
   async function load() {
-    const authHeaders = getAuthHeaders();
-
-    if (!authHeaders) {
-      setUnlocked(false); // Ni clé admin ni token Premium stocké : pas d'appel serveur inutile.
-      return;
-    }
-
     try {
-      const headers = { "Accept": "application/json", ...authHeaders };
-      let response = await fetch(API + "?t=" + Date.now(), { cache: "no-store", headers });
-
-      if (!response.ok && response.status !== 401 && response.status !== 403) {
-        // Même domaine Render : second essai absolu (frontend et API sur
-        // des domaines différents, ex. GitHub Pages + Render).
-        response = await fetch(ABS_API + "?t=" + Date.now(), { cache: "no-store", headers });
-      }
+      const response = await fetch(API + "?t=" + Date.now(), {
+        cache: "no-store",
+        headers: { "Accept": "application/json" }
+      });
 
       if (!response.ok) {
-        // Clé/refus serveur (401/403) ou API indisponible : on reste sur
-        // l'écran de blocage plutôt que d'afficher un faux contenu.
-        setUnlocked(false);
+        // Même domaine Render : second essai absolu.
+        const retry = await fetch(ABS_API + "?t=" + Date.now(), {
+          cache: "no-store",
+          headers: { "Accept": "application/json" }
+        });
+        if (!retry.ok) throw new Error("API analyse indisponible (" + retry.status + ")");
+        render(await retry.json());
         return;
       }
 
-      setUnlocked(true);
       render(await response.json());
     } catch (error) {
       console.error("AZ Premium :", error);
-      setUnlocked(false);
+      put("quinte-premium", "Données Premium indisponibles");
+      put("quarte-premium", "Données Premium indisponibles");
+      put("trio-premium", "Données Premium indisponibles");
+      put("couple-premium", "Données Premium indisponibles");
+      put("champ-reduit-premium", "Données Premium indisponibles");
+      put("derniere-minute-premium", "Données Premium indisponibles");
+      put("analyse-premium", "Impossible de charger l'analyse Premium.");
+      put("message-premium", "Vérifiez la connexion au serveur.");
     }
   }
 

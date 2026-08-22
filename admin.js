@@ -5,6 +5,7 @@
   "use strict";
 
   const KEY_NAMES = [
+    "AZ_ADMIN_API_KEY",
     "AZ_TURF_ADMIN_API_KEY",
     "AZ_TURF_ADMIN_KEY",
     "ADMIN_API_KEY",
