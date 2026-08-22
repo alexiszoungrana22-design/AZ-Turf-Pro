@@ -845,9 +845,15 @@ def api_analyse_complete(payload: dict):
 # =========================================================
 
 def _admin_key_valide(admin_key: str | None) -> bool:
-    expected = os.getenv("AZ_ADMIN_API_KEY", "").strip()
+    """Vérifie la clé admin avec les noms d'environnement compatibles."""
     supplied = (admin_key or "").strip()
-    return bool(expected and supplied and secrets.compare_digest(supplied, expected))
+    if not supplied:
+        return False
+    for name in ("AZ_ADMIN_API_KEY", "AZ_TURF_ADMIN_API_KEY", "ADMIN_API_KEY", "ADMIN_KEY"):
+        expected = os.getenv(name, "").strip()
+        if expected and secrets.compare_digest(supplied, expected):
+            return True
+    return False
 
 
 def _auth_assistant(admin_key: str | None, authorization: str | None) -> str:
@@ -871,6 +877,9 @@ def _auth_assistant(admin_key: str | None, authorization: str | None) -> str:
 def admin_verification(x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")):
     if _admin_key_valide(x_admin_key):
         return {"authorized": True, "role": "admin"}
+    configured = [name for name in ("AZ_ADMIN_API_KEY", "AZ_TURF_ADMIN_API_KEY", "ADMIN_API_KEY", "ADMIN_KEY") if os.getenv(name, "").strip()]
+    if not configured:
+        raise HTTPException(status_code=503, detail="Aucune clé administrateur n'est configurée sur le serveur.")
     raise HTTPException(status_code=401, detail="Clé administrateur invalide.")
 
 
