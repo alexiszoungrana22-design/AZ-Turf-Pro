@@ -256,6 +256,45 @@ def repondre_assistant_turf(question: str, contexte_analyse: Optional[dict] = No
             "\n\n⚠️ L'écart est un indicateur du modèle, pas une probabilité garantie."
         )}
 
+    # Analyse ciblée d'un cheval : "comment tu trouves le 8", "que penses-tu du 8", etc.
+    horse = _find_horse(q, horses)
+    if horse and any(k in q for k in [
+        "comment tu trouves", "que penses", "que pense", "avis sur",
+        "analyse le", "analyse du", "analyse de", "parle-moi du",
+        "parle moi du", "que vaut", "vaut le", "profil du"
+    ]):
+        cote = _cote(horse)
+        score = horse.get("ia_score", _score(horse))
+        forme = _num(horse.get("forme"), 5.0)
+        reg = _num(horse.get("regularite"), 5.0)
+        dist = _num(horse.get("distance"), 5.0)
+        terrain = _num(horse.get("terrain"), 5.0)
+        jockey = _num(horse.get("jockey_score"), 5.0)
+        exp = _num(horse.get("experience"), 5.0)
+        cote_txt = f"{cote:.1f}" if cote is not None else "non disponible"
+        points = []
+        if forme >= 7: points.append("forme récente favorable")
+        elif forme <= 4: points.append("forme récente à surveiller")
+        if reg >= 7: points.append("régularité solide")
+        elif reg <= 4: points.append("régularité perfectible")
+        if dist >= 7: points.append("aptitude au profil de course intéressante")
+        if terrain >= 7: points.append("aptitude au terrain intéressante")
+        if jockey >= 7: points.append("signal positif côté jockey/entourage")
+        if exp >= 7: points.append("bonne expérience")
+        if not points: points.append("profil intermédiaire avec les données actuellement disponibles")
+        lecture = "; ".join(points)
+        return {"status": "success", "intent": "horse_analysis", "reponse": (
+            f"🐎 **Analyse du {_num_name(horse)}**\n\n"
+            f"🧠 Score IA indépendant : **{score}/10**\n"
+            f"📈 Forme : **{forme:.1f}/10** · 🔁 Régularité : **{reg:.1f}/10**\n"
+            f"🛣️ Aptitude : **{dist:.1f}/10** · 🌦️ Terrain : **{terrain:.1f}/10**\n"
+            f"🏇 Jockey/entourage : **{jockey:.1f}/10** · 🎓 Expérience : **{exp:.1f}/10**\n"
+            f"💰 Cote : **{cote_txt}**\n\n"
+            f"**Lecture :** {lecture}.\n\n"
+            "🎯 Je le classe selon les données disponibles, sans utiliser l'indice AZ Turf Pro pour fabriquer son score. "
+            "Si tu veux, je peux aussi le comparer directement à un autre cheval."
+        )}
+
     if "badge" in q:
         return {"status": "success", "intent": "badges", "reponse": (
             "🏷️ **Badges AZ Turf Pro**\n"
