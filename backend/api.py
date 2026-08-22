@@ -517,8 +517,10 @@ def abonnement(
 
 @router.post("/activation")
 def activation_premium(
-    activation: ActivationRequest
+    activation: ActivationRequest,
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
 ):
+    _require_admin(x_admin_key)
 
     abonnement = activer_abonnement(
 
@@ -593,13 +595,12 @@ def premium(
 # =====================================
 
 @router.get("/admin/abonnements")
-def admin_abonnements():
-
+def admin_abonnements(
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
+):
+    _require_admin(x_admin_key)
     return {
-
-        "abonnements":
-            lister_abonnements()
-
+        "abonnements": lister_abonnements()
     }
 
 
@@ -608,8 +609,10 @@ def admin_abonnements():
 # =====================================
 
 @router.get("/admin/statistiques")
-def admin_statistiques():
-
+def admin_statistiques(
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
+):
+    _require_admin(x_admin_key)
     return statistiques_abonnements()
 
 
@@ -844,25 +847,39 @@ def api_analyse_complete(payload: dict):
 # AUTHENTIFICATION ADMIN + ASSISTANT
 # =========================================================
 
-def _admin_key_attendu() -> str:
-    """Retourne la clé administrateur configurée sur le serveur."""
-    for nom in (
+def _admin_expected_key() -> str:
+    # Plusieurs noms sont acceptés pour éviter les décalages entre les
+    # anciennes versions du projet et la variable réellement configurée sur Render.
+    for name in (
         "AZ_ADMIN_API_KEY",
         "AZ_TURF_ADMIN_API_KEY",
         "AZ_TURF_ADMIN_KEY",
         "ADMIN_API_KEY",
         "ADMIN_KEY",
     ):
-        valeur = os.getenv(nom)
-        if valeur and valeur.strip():
-            return valeur.strip()
+        value = os.getenv(name, "").strip()
+        if value:
+            return value
     return ""
 
 
 def _admin_key_valide(admin_key: str | None) -> bool:
-    expected = _admin_key_attendu()
+    expected = _admin_expected_key()
     supplied = (admin_key or "").strip()
     return bool(expected and supplied and secrets.compare_digest(supplied, expected))
+
+
+def _require_admin(admin_key: str | None) -> None:
+    if not _admin_expected_key():
+        raise HTTPException(
+            status_code=503,
+            detail="Aucune clé administrateur n'est configurée sur le serveur Render."
+        )
+    if not _admin_key_valide(admin_key):
+        raise HTTPException(
+            status_code=401,
+            detail="Clé administrateur invalide ou différente de celle configurée sur le serveur."
+        )
 
 
 def _auth_assistant(admin_key: str | None, authorization: str | None) -> str:
@@ -883,29 +900,9 @@ def _auth_assistant(admin_key: str | None, authorization: str | None) -> str:
 
 
 @router.get("/admin/verification")
-def admin_verification(
-    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
-    x_admin_api_key: str | None = Header(default=None, alias="X-Admin-Api-Key"),
-    admin_key: str | None = Header(default=None, alias="Admin-Key"),
-    authorization: str | None = Header(default=None),
-):
-    supplied = x_admin_key or x_admin_api_key or admin_key
-    if not supplied and authorization and authorization.lower().startswith("bearer "):
-        supplied = authorization[7:].strip()
-
-    if _admin_key_valide(supplied):
-        return {"authorized": True, "role": "admin", "message": "Accès administrateur autorisé."}
-
-    if not _admin_key_attendu():
-        raise HTTPException(
-            status_code=503,
-            detail="Aucune clé administrateur n'est configurée sur le serveur Render."
-        )
-
-    raise HTTPException(
-        status_code=401,
-        detail="Clé administrateur invalide : la clé saisie ne correspond pas à celle du serveur."
-    )
+def admin_verification(x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")):
+    _require_admin(x_admin_key)
+    return {"authorized": True, "role": "admin"}
 
 
 def _contexte_assistant():
