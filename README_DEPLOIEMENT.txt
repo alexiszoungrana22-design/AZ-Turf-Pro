@@ -1,17 +1,27 @@
-AZ Turf Pro v24.5 - correctif de structure backend
+AZ TURF PRO v33 — CORRECTION ACCÈS ADMIN
 
-IMPORTANT : ton Render lance : uvicorn main:app ... depuis le dossier backend.
-Le fichier api.py importe chatbot_turf depuis le même dossier backend.
+Fichiers à remplacer :
+- backend/api.py
+- admin.html
+- admin.js
+- chatbot.js
 
-Remplacer dans le dépôt :
-  backend/api.py
-  backend/chatbot_turf.py
-  chatbot.js (si tu veux appliquer aussi le correctif interface)
+Cause corrigée : l'interface d'administration utilisait une vérification séparée alors que le backend n'acceptait qu'un seul nom de variable et les routes d'administration n'étaient pas toutes protégées.
 
-NE PAS mettre chatbot_turf.py à la racine du dépôt.
+Le serveur accepte maintenant, dans cet ordre, une des variables Render :
+AZ_ADMIN_API_KEY
+AZ_TURF_ADMIN_API_KEY
+AZ_TURF_ADMIN_KEY
+ADMIN_API_KEY
+ADMIN_KEY
 
-Après commit/push, Render doit pouvoir importer :
-  from api import router
-  from chatbot_turf import repondre_assistant_turf
+La clé saisie dans admin.html est vérifiée par GET /api/admin/verification avec X-Admin-Key.
+Les statistiques, abonnements et activation utilisent ensuite la même clé.
 
-Contrôle attendu au démarrage : aucune erreur ModuleNotFoundError: No module named 'chatbot_turf'.
+IMPORTANT : il faut configurer UNE de ces variables dans Render avec la clé administrateur réelle. Ne pas mettre la clé secrète dans le code source.
+Après déploiement, vider le cache navigateur/recharger la page admin.
+
+Résultats attendus :
+200 /api/admin/verification si la clé est correcte.
+401 si la clé saisie est différente.
+503 si aucune clé administrateur n'est configurée sur Render.
