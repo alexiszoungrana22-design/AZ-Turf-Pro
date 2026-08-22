@@ -182,7 +182,54 @@
     }).join("");
   }
 
+  const ADMIN_KEY_NAMES = ["AZ_TURF_ADMIN_API_KEY", "AZ_TURF_ADMIN_KEY", "ADMIN_API_KEY", "admin_api_key"];
+
+  function getAdminKey() {
+    for (const name of ADMIN_KEY_NAMES) {
+      const v = sessionStorage.getItem(name) || localStorage.getItem(name) || "";
+      if (v.trim()) return v.trim();
+    }
+    return "";
+  }
+
+  function getPremiumToken() {
+    return (
+      localStorage.getItem("AZ_TURF_PREMIUM_TOKEN") ||
+      sessionStorage.getItem("AZ_TURF_PREMIUM_TOKEN") ||
+      ""
+    );
+  }
+
+  // L'administrateur est authentifié auprès du serveur (même endpoint que
+  // le tableau de bord admin). Un abonné Premium est considéré autorisé
+  // dès qu'un token est présent ; la validité fine reste vérifiée côté
+  // serveur par /api/premium/{telephone} depuis mon-abonnement.html.
+  async function checkAccess() {
+    const adminKey = getAdminKey();
+    if (adminKey) {
+      try {
+        const r = await fetch("/api/admin/verification", {
+          headers: { "X-Admin-Key": adminKey },
+          cache: "no-store"
+        });
+        if (r.ok) return true;
+      } catch (_) { /* on retombe sur la vérification premium ci-dessous */ }
+    }
+    return Boolean(getPremiumToken());
+  }
+
+  function setUnlocked(unlocked) {
+    const blocage = el("message-blocage");
+    const contenu = el("contenu-premium");
+    if (blocage) blocage.classList.toggle("zone-masquee", unlocked);
+    if (contenu) contenu.classList.toggle("zone-masquee", !unlocked);
+  }
+
   async function load() {
+    const autorise = await checkAccess();
+    setUnlocked(autorise);
+    if (!autorise) return; // Reste sur l'écran de blocage, n'appelle pas l'API.
+
     try {
       const response = await fetch(API + "?t=" + Date.now(), {
         cache: "no-store",
