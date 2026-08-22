@@ -1,7 +1,14 @@
 const API_URL = window.location.origin;
 
 function entetesAccesPremium() {
-    const adminKey = sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") || "";
+    const adminKey =
+        sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
+        localStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
+        sessionStorage.getItem("AZ_TURF_ADMIN_KEY") ||
+        localStorage.getItem("AZ_TURF_ADMIN_KEY") ||
+        sessionStorage.getItem("ADMIN_API_KEY") ||
+        localStorage.getItem("ADMIN_API_KEY") ||
+        "";
     const token = localStorage.getItem("AZ_TURF_PREMIUM_TOKEN") || "";
     if (adminKey) return { "X-Admin-Key": adminKey };
     if (token) return { "Authorization": "Bearer " + token };
@@ -11,6 +18,11 @@ function entetesAccesPremium() {
 function accesLocalPremium() {
     return Boolean(
         sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
+        localStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
+        sessionStorage.getItem("AZ_TURF_ADMIN_KEY") ||
+        localStorage.getItem("AZ_TURF_ADMIN_KEY") ||
+        sessionStorage.getItem("ADMIN_API_KEY") ||
+        localStorage.getItem("ADMIN_API_KEY") ||
         localStorage.getItem("AZ_TURF_PREMIUM_TOKEN")
     );
 }
