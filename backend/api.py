@@ -123,7 +123,7 @@ def charger_course():
         ):
 
             print(
-                "Source utilisÃ©e : PMU rÃ©el"
+                "Source utilisée : PMU réel"
             )
 
             return course, "pmu_live"
@@ -154,7 +154,7 @@ def charger_course():
         ):
 
             print(
-                "Source utilisÃ©e : donnÃ©es locales (dÃ©mo)"
+                "Source utilisée : données locales (démo)"
             )
 
             course["donnees_demo"] = True
@@ -230,7 +230,7 @@ def analyse():
     try:
 
         # =================================
-        # 1. CHARGEMENT DES DONNÃ‰ES
+        # 1. CHARGEMENT DES DONNÉES
         # =================================
 
         course, source = charger_course()
@@ -240,7 +240,7 @@ def analyse():
             raise HTTPException(
                 status_code=503,
                 detail=(
-                    "Aucune donnÃ©e de course "
+                    "Aucune donnée de course "
                     "disponible actuellement."
                 )
             )
@@ -259,7 +259,7 @@ def analyse():
             raise HTTPException(
                 status_code=503,
                 detail=(
-                    "Aucun cheval trouvÃ© "
+                    "Aucun cheval trouvé "
                     "dans la course."
                 )
             )
@@ -291,7 +291,7 @@ def analyse():
             dict
         ):
             raise Exception(
-                "RÃ©ponse invalide du moteur AZ"
+                "Réponse invalide du moteur AZ"
             )
 
         classement = resultat.get(
@@ -302,7 +302,7 @@ def analyse():
         if not classement:
 
             raise Exception(
-                "Le moteur AZ n'a retournÃ© "
+                "Le moteur AZ n'a retourné "
                 "aucun classement."
             )
 
@@ -332,17 +332,17 @@ def analyse():
         )
 
         # =================================
-        # 5. RÃ‰PONSE API
+        # 5. RÉPONSE API
         # =================================
 
         reponse = {
 
             "message": (
-                "Analyse AZ Turf terminÃ©e"
+                "Analyse AZ Turf terminée"
                 if not est_demo else
-                "Analyse AZ Turf terminÃ©e "
-                "(donnÃ©es de dÃ©monstration, "
-                "aucune course rÃ©elle "
+                "Analyse AZ Turf terminée "
+                "(données de démonstration, "
+                "aucune course réelle "
                 "disponible actuellement)"
             ),
 
@@ -445,10 +445,10 @@ def analyse():
         if est_demo:
 
             reponse["avertissement"] = (
-                "Ces donnÃ©es sont des donnÃ©es de "
-                "dÃ©monstration figÃ©es et ne "
-                "correspondent pas Ã   une course "
-                "rÃ©elle du jour."
+                "Ces données sont des données de "
+                "démonstration figées et ne "
+                "correspondent pas à une course "
+                "réelle du jour."
             )
 
         return reponse
@@ -493,7 +493,7 @@ def abonnement(
         return {
 
             "message":
-                "Abonnement enregistrÃ©",
+                "Abonnement enregistré",
 
             "abonnement":
                 resultat
@@ -537,7 +537,7 @@ def activation_premium(
             status_code=404,
 
             detail=
-                "Aucun abonnement trouvÃ©"
+                "Aucun abonnement trouvé"
 
         )
 
@@ -565,7 +565,7 @@ def activation_premium(
     return {
 
         "message":
-            "Premium activÃ©",
+            "Premium activé",
 
         "statut":
             "ACTIF",
