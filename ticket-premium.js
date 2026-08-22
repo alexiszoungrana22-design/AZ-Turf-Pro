@@ -1,12 +1,14 @@
-/* AZ Turf Pro — affichage Premium robuste v25
-   Ne modifie pas le moteur Premium. Lit /api/analyse et normalise
-   les différentes formes de tickets retournées par le backend.
+/* AZ Turf Pro — affichage Premium robuste v26
+   Lit désormais /api/premium/ticket (protégé : clé admin ou token Premium
+   valide) au lieu de /api/analyse (public), qui ne renvoie plus que le
+   ticket gratuit côté serveur. Normalise toujours les différentes formes
+   de tickets retournées par le backend.
 */
 (function () {
   "use strict";
 
-  const API = "/api/analyse";
-  const ABS_API = "https://az-turf-pro.onrender.com/api/analyse";
+  const API = "/api/premium/ticket";
+  const ABS_API = "https://az-turf-pro.onrender.com/api/premium/ticket";
 
   function el(id) { return document.getElementById(id); }
 
@@ -200,22 +202,12 @@
     );
   }
 
-  // L'administrateur est authentifié auprès du serveur (même endpoint que
-  // le tableau de bord admin). Un abonné Premium est considéré autorisé
-  // dès qu'un token est présent ; la validité fine reste vérifiée côté
-  // serveur par /api/premium/{telephone} depuis mon-abonnement.html.
-  async function checkAccess() {
+  function getAuthHeaders() {
     const adminKey = getAdminKey();
-    if (adminKey) {
-      try {
-        const r = await fetch("/api/admin/verification", {
-          headers: { "X-Admin-Key": adminKey },
-          cache: "no-store"
-        });
-        if (r.ok) return true;
-      } catch (_) { /* on retombe sur la vérification premium ci-dessous */ }
-    }
-    return Boolean(getPremiumToken());
+    if (adminKey) return { "X-Admin-Key": adminKey };
+    const token = getPremiumToken();
+    if (token) return { "Authorization": "Bearer " + token };
+    return null;
   }
 
   function setUnlocked(unlocked) {
@@ -226,38 +218,35 @@
   }
 
   async function load() {
-    const autorise = await checkAccess();
-    setUnlocked(autorise);
-    if (!autorise) return; // Reste sur l'écran de blocage, n'appelle pas l'API.
+    const authHeaders = getAuthHeaders();
+
+    if (!authHeaders) {
+      setUnlocked(false); // Ni clé admin ni token Premium stocké : pas d'appel serveur inutile.
+      return;
+    }
 
     try {
-      const response = await fetch(API + "?t=" + Date.now(), {
-        cache: "no-store",
-        headers: { "Accept": "application/json" }
-      });
+      const headers = { "Accept": "application/json", ...authHeaders };
+      let response = await fetch(API + "?t=" + Date.now(), { cache: "no-store", headers });
+
+      if (!response.ok && response.status !== 401 && response.status !== 403) {
+        // Même domaine Render : second essai absolu (frontend et API sur
+        // des domaines différents, ex. GitHub Pages + Render).
+        response = await fetch(ABS_API + "?t=" + Date.now(), { cache: "no-store", headers });
+      }
 
       if (!response.ok) {
-        // Même domaine Render : second essai absolu.
-        const retry = await fetch(ABS_API + "?t=" + Date.now(), {
-          cache: "no-store",
-          headers: { "Accept": "application/json" }
-        });
-        if (!retry.ok) throw new Error("API analyse indisponible (" + retry.status + ")");
-        render(await retry.json());
+        // Clé/refus serveur (401/403) ou API indisponible : on reste sur
+        // l'écran de blocage plutôt que d'afficher un faux contenu.
+        setUnlocked(false);
         return;
       }
 
+      setUnlocked(true);
       render(await response.json());
     } catch (error) {
       console.error("AZ Premium :", error);
-      put("quinte-premium", "Données Premium indisponibles");
-      put("quarte-premium", "Données Premium indisponibles");
-      put("trio-premium", "Données Premium indisponibles");
-      put("couple-premium", "Données Premium indisponibles");
-      put("champ-reduit-premium", "Données Premium indisponibles");
-      put("derniere-minute-premium", "Données Premium indisponibles");
-      put("analyse-premium", "Impossible de charger l'analyse Premium.");
-      put("message-premium", "Vérifiez la connexion au serveur.");
+      setUnlocked(false);
     }
   }
 
