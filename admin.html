@@ -133,13 +133,13 @@
     <p>AZ Turf Pro - Administration</p>
 </footer>
 
-<script src="admin.js?v=33"></script>
+<script src="admin.js?v=34"></script>
 
 <script>
-    function actualiserAdmin() {
-        if (typeof chargerStatistiquesAdmin === "function") chargerStatistiquesAdmin();
-        if (typeof chargerAbonnements === "function") chargerAbonnements();
-    }
+    // NE PAS redéfinir actualiserAdmin ici : window.actualiserAdmin est
+    // déjà fourni par admin.js (il revalide la clé côté serveur et
+    // affiche les erreurs d'auth). Le redéfinir ici l'écrasait et
+    // cassait la détection des clés invalides/expirées.
 
     // Accès Premium admin : la clé reste côté session navigateur et
     // sera vérifiée côté serveur par ticket-premium.js.
