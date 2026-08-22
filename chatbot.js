@@ -107,10 +107,14 @@ clearBtn?.addEventListener("click", () => {
 });
 
 function getAssistantAuthHeaders() {
-  // L'administrateur utilise la même clé que celle enregistrée depuis
-  // l'interface d'administration. Elle reste côté sessionStorage et n'est
-  // jamais exposée dans le code source.
-  const adminKey = sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") || "";
+  // L'administrateur peut avoir sa clé dans sessionStorage ou localStorage
+  // selon la page depuis laquelle le chatbot a été ouvert.
+  const adminKey =
+    sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
+    localStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
+    sessionStorage.getItem("AZ_ADMIN_API_KEY") ||
+    localStorage.getItem("AZ_ADMIN_API_KEY") ||
+    "";
   const token = localStorage.getItem("AZ_TURF_PREMIUM_TOKEN") || "";
 
   const headers = {
@@ -127,9 +131,18 @@ function getAssistantAuthHeaders() {
   return { headers, isAdmin: Boolean(adminKey), hasPremiumToken: Boolean(token) };
 }
 
+function isBasicConversation(question) {
+  const q = String(question || "").trim().toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return /^(bonjour|bonsoir|salut|hello|coucou|ca va|je vais bien|je vais bien merci|bien merci|merci|merci beaucoup|ok|daccord|d'accord|super|tres bien|très bien)(\s|[!?.,;:]|$)/.test(q);
+}
+
 async function streamAnswer(question) {
   const auth = getAssistantAuthHeaders();
-  if (!auth.isAdmin && !auth.hasPremiumToken) {
+  // Les échanges de courtoisie restent accessibles sans abonnement.
+  // Les fonctions Premium restent protégées par le serveur/token.
+  const basicConversation = isBasicConversation(question);
+  if (!auth.isAdmin && !auth.hasPremiumToken && !basicConversation) {
     throw new Error("Cette fonction interactive est réservée aux abonnés Premium ou à l'administrateur.");
   }
 
