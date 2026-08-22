@@ -1,18 +1,17 @@
-AZ Turf Pro — correction réelle du chatbot v24.4
+AZ Turf Pro v24.5 - correctif de structure backend
 
-Fichiers à remplacer :
-1. api.py
-2. chatbot_turf.py
-3. chatbot.js
+IMPORTANT : ton Render lance : uvicorn main:app ... depuis le dossier backend.
+Le fichier api.py importe chatbot_turf depuis le même dossier backend.
 
-Corrections :
-- ajout réel des routes POST /api/assistant/chat et /api/assistant/chat/stream
-- accès administrateur via X-Admin-Key avec AZ_ADMIN_API_KEY côté Render
-- génération et vérification d'un access_token Premium lors de l'activation
-- salutations accessibles sans Premium
-- analyse ciblée d'un cheval (ex. « Comment tu trouves le 8 ? »)
-- historique de conversation transmis au moteur
-- récupération PMU conservée
+Remplacer dans le dépôt :
+  backend/api.py
+  backend/chatbot_turf.py
+  chatbot.js (si tu veux appliquer aussi le correctif interface)
 
-Important : sur Render, définir AZ_ADMIN_API_KEY avec la même clé que celle saisie dans l'administration.
-Après remplacement, redéployer le service backend.
+NE PAS mettre chatbot_turf.py à la racine du dépôt.
+
+Après commit/push, Render doit pouvoir importer :
+  from api import router
+  from chatbot_turf import repondre_assistant_turf
+
+Contrôle attendu au démarrage : aucune erreur ModuleNotFoundError: No module named 'chatbot_turf'.
