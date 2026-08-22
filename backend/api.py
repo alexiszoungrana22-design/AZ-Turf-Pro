@@ -587,6 +587,40 @@ def premium(
 
 
 # =====================================
+# ADMIN - VERIFICATION DE LA CLE
+# =====================================
+
+@router.get("/admin/verification")
+def admin_verification(request: Request):
+    """Vérifie la clé administrateur utilisée par le tableau de bord.
+
+    La route existe explicitement pour éviter le 404 du frontend.
+    La clé n'est jamais renvoyée dans la réponse.
+    """
+    configured_admin = _secret_admin()
+    supplied_key = request.headers.get("X-Admin-Key", "").strip()
+
+    if not configured_admin:
+        raise HTTPException(
+            status_code=503,
+            detail="AZ_ADMIN_API_KEY n'est pas configurée sur le serveur."
+        )
+
+    if not supplied_key or not hmac.compare_digest(supplied_key, configured_admin):
+        raise HTTPException(
+            status_code=401,
+            detail="Clé administrateur invalide ou absente."
+        )
+
+    return {
+        "authorized": True,
+        "admin": True,
+        "statut": "ACTIF",
+        "message": "Clé administrateur vérifiée."
+    }
+
+
+# =====================================
 # ADMIN - ABONNEMENTS
 # =====================================
 
