@@ -110,11 +110,11 @@ function getAssistantAuthHeaders() {
   // L'administrateur utilise la même clé que celle enregistrée depuis
   // l'interface d'administration. Elle reste côté sessionStorage et n'est
   // jamais exposée dans le code source.
-  // L'admin peut avoir été authentifié depuis mon-abonnement,
-  // l'interface admin ou une ancienne version de l'application.
   const adminKey =
     sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
     localStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
+    sessionStorage.getItem("AZ_TURF_ADMIN_KEY") ||
+    localStorage.getItem("AZ_TURF_ADMIN_KEY") ||
     sessionStorage.getItem("ADMIN_API_KEY") ||
     localStorage.getItem("ADMIN_API_KEY") ||
     sessionStorage.getItem("admin_api_key") ||
@@ -137,19 +137,13 @@ function getAssistantAuthHeaders() {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  return {
-    headers,
-    isAdmin: Boolean(adminKey),
-    hasPremiumToken: Boolean(token)
-  };
+  return { headers, isAdmin: Boolean(adminKey), hasPremiumToken: Boolean(token) };
 }
 
 async function streamAnswer(question) {
   const auth = getAssistantAuthHeaders();
-  if (!auth.isAdmin && !auth.hasPremiumToken) {
-    throw new Error("Cette fonction interactive est réservée aux abonnés Premium ou à l'administrateur.");
-  }
-
+  // Ne bloque plus localement un administrateur dont la session n'a
+  // pas encore été restaurée : le serveur est la source d'autorité.
   const response = await fetch(CHAT_STREAM_API, {
     method: "POST",
     headers: auth.headers,
