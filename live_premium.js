@@ -1,4 +1,4 @@
-/* AZ Turf Pro — affichage Premium robuste v25
+/* AZ Turf Pro — live Premium robuste v25
    Ne modifie pas le moteur Premium. Lit /api/analyse et normalise
    les différentes formes de tickets retournées par le backend.
 */
