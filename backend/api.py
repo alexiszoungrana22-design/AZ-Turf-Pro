@@ -590,6 +590,35 @@ def premium(
     )
 
 
+@router.get("/premium/ticket")
+def premium_ticket(
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
+    authorization: str | None = Header(default=None),
+):
+    """Retourne les tickets Premium pour l'administrateur authentifié.
+
+    Cette route manquait dans le ZIP fourni alors que ticket-premium.js et
+    live-premium.js l'appelaient explicitement.
+    """
+    _auth_assistant(x_admin_key, authorization)
+
+    contexte = _contexte_assistant()
+    tickets = (contexte.get("moteur") or {}).get("tickets") or {}
+    premium = tickets.get("premium") or {}
+
+    return {
+        "ok": True,
+        "source": contexte.get("source"),
+        "course": contexte.get("course"),
+        "tickets": {"premium": premium},
+        "premium": premium,
+        "message_premium": premium.get(
+            "message_fin",
+            "Tickets Premium générés par AZ Turf Pro."
+        ),
+    }
+
+
 # =====================================
 # ADMIN - ABONNEMENTS
 # =====================================
