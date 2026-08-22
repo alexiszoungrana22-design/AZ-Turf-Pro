@@ -43,9 +43,7 @@ from models import (
     ActivationRequest
 )
 
-from security import create_premium_token, verify_premium_token
-
-from pmu_source import charger_course_pmu, trouver_quinte_du_jour
+from pmu_source import charger_course_pmu
 
 from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
 
@@ -125,7 +123,7 @@ def charger_course():
         ):
 
             print(
-                "Source utilisée : PMU réel"
+                "Source utilisÃ©e : PMU rÃ©el"
             )
 
             return course, "pmu_live"
@@ -156,7 +154,7 @@ def charger_course():
         ):
 
             print(
-                "Source utilisée : données locales (démo)"
+                "Source utilisÃ©e : donnÃ©es locales (dÃ©mo)"
             )
 
             course["donnees_demo"] = True
@@ -171,112 +169,6 @@ def charger_course():
         )
 
     return None, "none"
-
-
-# =====================================
-# QUINTÉ DES PÉRIODES : HIER / JOUR / DEMAIN
-# =====================================
-#
-# Route additive, portée depuis la version racine du projet : elle
-# manquait dans ce fichier (celui réellement importé par backend/main.py),
-# ce qui provoquait un 404 sur /api/quintes-periodes appelé par accueil.js.
-
-def _nombre_partants_course_brute(course):
-    if not isinstance(course, dict):
-        return 0
-    for cle in ("nombreDeclaresPartants", "nombrePartants", "nbPartants"):
-        valeur = course.get(cle)
-        try:
-            if valeur not in (None, ""):
-                return int(valeur)
-        except (TypeError, ValueError):
-            pass
-    participants = course.get("participants")
-    if isinstance(participants, list):
-        return len(participants)
-    return 0
-
-
-def _resume_quinte_periode(date_obj, periode):
-    """Charge uniquement les métadonnées du Quinté d'une date donnée.
-
-    On réutilise la même détection PMU que la course du jour, sans lancer le
-    moteur AZ ni toucher au ticket Premium/gratuit de /api/analyse.
-    """
-    date_pmu = date_obj.strftime("%d%m%Y")
-    try:
-        _programme, reunion, course = trouver_quinte_du_jour(date_pmu)
-    except Exception as erreur:
-        print(f"Quinté {periode} indisponible :", erreur)
-        return {
-            "periode": periode,
-            "date": date_obj.strftime("%Y-%m-%d"),
-            "disponible": False,
-        }
-
-    if not isinstance(course, dict):
-        return {
-            "periode": periode,
-            "date": date_obj.strftime("%Y-%m-%d"),
-            "disponible": False,
-        }
-
-    def premier(*cles):
-        for cle in cles:
-            valeur = course.get(cle)
-            if valeur not in (None, ""):
-                return valeur
-        return ""
-
-    depart = premier(
-        "heureDepart", "heureDepartPrevue", "heureDepartCourse",
-        "heure_depart", "heure", "heureDeDepart"
-    )
-    date_course = premier("date", "dateCourse") or date_obj.strftime("%Y-%m-%d")
-    numero = premier("numOrdre", "numCourse", "numero")
-    nom = premier("libelle", "nom", "libelleLong", "libelleCourt") or "Quinté+"
-    distance = premier("distance", "distanceCourse", "distanceMetres")
-    hippodrome = course.get("hippodrome") or course.get("hippodromeLibelle") or course.get("hippodromeNom") or ""
-    if isinstance(hippodrome, dict):
-        hippodrome = hippodrome.get("libelleLong") or hippodrome.get("libelleCourt") or hippodrome.get("libelle") or hippodrome.get("nom") or ""
-
-    discipline = course.get("discipline", "")
-    if isinstance(discipline, dict):
-        discipline = discipline.get("libelle") or discipline.get("nom") or ""
-
-    return {
-        "periode": periode,
-        "date": date_course,
-        "reunion": reunion or "",
-        "course_numero": numero,
-        "course": nom,
-        "hippodrome": hippodrome,
-        "discipline": discipline,
-        "distance": distance,
-        "partants": _nombre_partants_course_brute(course),
-        "heure_depart": depart,
-        "horaires": {"depart": depart},
-        "disponible": True,
-        "source": "pmu_live",
-    }
-
-
-@router.get("/quintes-periodes")
-def quintes_periodes():
-    """Retourne les Quinté+ réel d'hier, du jour et de demain.
-
-    Cette route est additive : elle ne modifie pas /api/analyse ni les tickets.
-    """
-    aujourd_hui = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-    periodes = {
-        "hier": aujourd_hui - timedelta(days=1),
-        "jour": aujourd_hui,
-        "demain": aujourd_hui + timedelta(days=1),
-    }
-    return {
-        cle: _resume_quinte_periode(date_obj, cle)
-        for cle, date_obj in periodes.items()
-    }
 
 
 # =====================================
@@ -332,15 +224,13 @@ def partants():
 # ANALYSE AZ TURF
 # =====================================
 
-def _analyse_complete():
-    """Calcule l'analyse complète (gratuite + Premium). Fonction interne :
-    non exposée directement, voir /analyse (public, gratuit seulement) et
-    /premium/ticket (protégé, contenu complet) juste après.
-    """
+@router.get("/analyse")
+def analyse():
+
     try:
 
         # =================================
-        # 1. CHARGEMENT DES DONNÉES
+        # 1. CHARGEMENT DES DONNÃ‰ES
         # =================================
 
         course, source = charger_course()
@@ -350,7 +240,7 @@ def _analyse_complete():
             raise HTTPException(
                 status_code=503,
                 detail=(
-                    "Aucune donnée de course "
+                    "Aucune donnÃ©e de course "
                     "disponible actuellement."
                 )
             )
@@ -369,7 +259,7 @@ def _analyse_complete():
             raise HTTPException(
                 status_code=503,
                 detail=(
-                    "Aucun cheval trouvé "
+                    "Aucun cheval trouvÃ© "
                     "dans la course."
                 )
             )
@@ -401,7 +291,7 @@ def _analyse_complete():
             dict
         ):
             raise Exception(
-                "Réponse invalide du moteur AZ"
+                "RÃ©ponse invalide du moteur AZ"
             )
 
         classement = resultat.get(
@@ -412,7 +302,7 @@ def _analyse_complete():
         if not classement:
 
             raise Exception(
-                "Le moteur AZ n'a retourné "
+                "Le moteur AZ n'a retournÃ© "
                 "aucun classement."
             )
 
@@ -442,17 +332,17 @@ def _analyse_complete():
         )
 
         # =================================
-        # 5. RÉPONSE API
+        # 5. RÃ‰PONSE API
         # =================================
 
         reponse = {
 
             "message": (
-                "Analyse AZ Turf terminée"
+                "Analyse AZ Turf terminÃ©e"
                 if not est_demo else
-                "Analyse AZ Turf terminée "
-                "(données de démonstration, "
-                "aucune course réelle "
+                "Analyse AZ Turf terminÃ©e "
+                "(donnÃ©es de dÃ©monstration, "
+                "aucune course rÃ©elle "
                 "disponible actuellement)"
             ),
 
@@ -555,10 +445,10 @@ def _analyse_complete():
         if est_demo:
 
             reponse["avertissement"] = (
-                "Ces données sont des données de "
-                "démonstration figées et ne "
-                "correspondent pas à une course "
-                "réelle du jour."
+                "Ces donnÃ©es sont des donnÃ©es de "
+                "dÃ©monstration figÃ©es et ne "
+                "correspondent pas Ã   une course "
+                "rÃ©elle du jour."
             )
 
         return reponse
@@ -586,58 +476,6 @@ def _analyse_complete():
 
 
 # =====================================
-# ANALYSE PUBLIQUE (GRATUITE UNIQUEMENT)
-# =====================================
-#
-# CORRECTION SÉCURITÉ : /analyse renvoyait auparavant tickets.premium à
-# n'importe qui, sans authentification — le verrouillage Premium n'était
-# que visuel côté frontend. On ne renvoie plus ici que le ticket gratuit ;
-# le contenu Premium complet est désormais servi par /premium/ticket,
-# protégé par clé admin ou token Premium valide.
-
-@router.get("/analyse")
-def analyse():
-    reponse = _analyse_complete()
-    tickets = reponse.get("tickets", {}) or {}
-    reponse["tickets"] = {
-        "gratuit": tickets.get("gratuit", {})
-    }
-    return reponse
-
-
-def _require_premium_request(authorization: str | None, x_admin_key: str | None) -> dict:
-    """Autorise l'administrateur (clé serveur) ou un abonné Premium (jeton
-    signé valide, vérifié en base). Lève 401/403 sinon.
-    """
-    if _admin_key_valide(x_admin_key):
-        return {"admin": True, "telephone": "ADMINISTRATEUR"}
-
-    if not authorization or not authorization.lower().startswith("bearer "):
-        raise HTTPException(status_code=401, detail="Accès Premium non autorisé.")
-
-    token = authorization[7:].strip()
-    payload = verify_premium_token(token)
-    telephone = str(payload.get("telephone", "")).strip()
-
-    statut = verifier_premium(telephone)
-    if statut.get("statut") != "ACTIF":
-        raise HTTPException(status_code=403, detail="Abonnement Premium inactif ou expiré.")
-
-    return {"admin": False, "telephone": telephone}
-
-
-@router.get("/premium/ticket")
-def premium_ticket(
-    authorization: str | None = Header(default=None),
-    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
-):
-    """Contenu complet (gratuit + Premium), uniquement pour un administrateur
-    authentifié ou un abonné Premium avec un jeton valide."""
-    _require_premium_request(authorization, x_admin_key)
-    return _analyse_complete()
-
-
-# =====================================
 # CREATION ABONNEMENT PREMIUM
 # =====================================
 
@@ -655,7 +493,7 @@ def abonnement(
         return {
 
             "message":
-                "Abonnement enregistré",
+                "Abonnement enregistrÃ©",
 
             "abonnement":
                 resultat
@@ -674,48 +512,67 @@ def abonnement(
 
 
 # =====================================
-# ACTIVATION PREMIUM
+# ACTIVATION PREMIUM ADMIN
 # =====================================
-#
-# CORRECTION : cette route exigeait auparavant une clé administrateur
-# (_require_admin), alors qu'elle est appelée par activation.html sans
-# aucun en-tête d'authentification — l'auto-activation d'un abonné après
-# paiement échouait donc systématiquement avec 401. La sécurité réelle
-# vient de la vérification telephone + référence dans activer_abonnement()
-# (base de données), pas d'une clé serveur : un tiers sans référence
-# valide ne peut toujours pas activer un compte.
-#
-# De plus, la réponse ne contenait jamais "access_token", alors que
-# activation.html et mon-abonnement.html l'attendent pour ensuite
-# authentifier l'accès Premium (AZ_TURF_PREMIUM_TOKEN). On génère
-# maintenant ce jeton signé via security.create_premium_token(), déjà
-# présent dans le projet mais jamais utilisé par ce fichier.
 
 @router.post("/activation")
 def activation_premium(
-    activation: ActivationRequest
+    activation: ActivationRequest,
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
 ):
+    _require_admin(x_admin_key)
+
     abonnement = activer_abonnement(
-        activation.telephone.strip(),
-        activation.reference.strip()
+
+        activation.telephone,
+
+        activation.reference
+
     )
 
     if abonnement is None:
+
         raise HTTPException(
+
             status_code=404,
-            detail="Aucun abonnement trouvé ou référence invalide"
+
+            detail=
+                "Aucun abonnement trouvÃ©"
+
         )
 
-    token = create_premium_token(
-        activation.telephone.strip(),
-        abonnement["date_fin"]
-    )
+    abonnement["date_fin"] = (
+
+        datetime.now()
+
+        +
+
+        timedelta(
+
+            days=int(
+
+                abonnement.get(
+                    "duree",
+                    30
+                )
+
+            )
+
+        )
+
+    ).isoformat()
 
     return {
-        "message": "Premium activé",
-        "statut": "ACTIF",
-        "date_fin": abonnement["date_fin"],
-        "access_token": token
+
+        "message":
+            "Premium activÃ©",
+
+        "statut":
+            "ACTIF",
+
+        "date_fin":
+            abonnement["date_fin"]
+
     }
 
 
@@ -990,9 +847,9 @@ def api_analyse_complete(payload: dict):
 # AUTHENTIFICATION ADMIN + ASSISTANT
 # =========================================================
 
-def _admin_expected_key() -> str:
-    # Plusieurs noms sont acceptés pour éviter les décalages entre les
-    # anciennes versions du projet et la variable réellement configurée sur Render.
+def _admin_configured_keys() -> list[str]:
+    """Retourne toutes les clés admin configurées, sans les exposer au client."""
+    keys = []
     for name in (
         "AZ_ADMIN_API_KEY",
         "AZ_TURF_ADMIN_API_KEY",
@@ -1001,15 +858,24 @@ def _admin_expected_key() -> str:
         "ADMIN_KEY",
     ):
         value = os.getenv(name, "").strip()
-        if value:
-            return value
-    return ""
+        if value and value not in keys:
+            keys.append(value)
+    return keys
+
+
+def _admin_expected_key() -> str:
+    """Compatibilité historique : renvoie la première clé configurée."""
+    keys = _admin_configured_keys()
+    return keys[0] if keys else ""
 
 
 def _admin_key_valide(admin_key: str | None) -> bool:
-    expected = _admin_expected_key()
     supplied = (admin_key or "").strip()
-    return bool(expected and supplied and secrets.compare_digest(supplied, expected))
+    if not supplied:
+        return False
+    # IMPORTANT : ne pas bloquer une clé correcte simplement parce qu'une
+    # ancienne variable Render contient encore une ancienne clé.
+    return any(secrets.compare_digest(supplied, expected) for expected in _admin_configured_keys())
 
 
 def _require_admin(admin_key: str | None) -> None:
