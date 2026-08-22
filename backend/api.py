@@ -23,7 +23,7 @@
 #    premium, admin) sont strictement inchangees.
 
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
 from engine import lancer_analyse
 
@@ -48,7 +48,10 @@ from learning import lire_historique, mettre_a_jour_arrivee
 
 import json
 import os
-from datetime import datetime, timedelta
+import base64
+import hashlib
+import hmac
+from datetime import datetime, timedelta, timezone
 
 from engine import lancer_analyse
 from modules.cotes_history import analyser_tendances_cotes
@@ -556,17 +559,16 @@ def activation_premium(
 
     ).isoformat()
 
+    access_token = _creer_token_premium(
+        activation.telephone,
+        abonnement["date_fin"],
+    )
+
     return {
-
-        "message":
-            "Premium activÃ©",
-
-        "statut":
-            "ACTIF",
-
-        "date_fin":
-            abonnement["date_fin"]
-
+        "message": "Premium activé",
+        "statut": "ACTIF",
+        "date_fin": abonnement["date_fin"],
+        "access_token": access_token,
     }
 
 
@@ -836,7 +838,86 @@ def api_analyse_complete(payload: dict):
     }
 
 # =====================================
-# ASSISTANT CHATBOT PMU AUTONOME v24.1
+# AUTHENTIFICATION ASSISTANT
+# =====================================
+
+
+def _secret_admin():
+    return os.getenv("AZ_ADMIN_API_KEY", "").strip()
+
+
+def _secret_token():
+    return os.getenv("AZ_PREMIUM_TOKEN_SECRET", "").strip() or _secret_admin()
+
+
+def _b64url_encode(data: bytes) -> str:
+    return base64.urlsafe_b64encode(data).rstrip(b"=").decode("ascii")
+
+
+def _b64url_decode(value: str) -> bytes:
+    return base64.urlsafe_b64decode(value + "=" * (-len(value) % 4))
+
+
+def _creer_token_premium(telephone: str, date_fin: str) -> str:
+    secret = _secret_token()
+    if not secret:
+        raise HTTPException(
+            status_code=500,
+            detail="AZ_ADMIN_API_KEY doit être configurée sur le serveur pour sécuriser l'accès Premium.",
+        )
+    payload = {
+        "telephone": str(telephone),
+        "exp": date_fin,
+        "iat": datetime.now(timezone.utc).isoformat(),
+    }
+    raw = _b64url_encode(json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
+    sig = hmac.new(secret.encode("utf-8"), raw.encode("ascii"), hashlib.sha256).digest()
+    return raw + "." + _b64url_encode(sig)
+
+
+def _verifier_token_premium(token: str) -> bool:
+    try:
+        secret = _secret_token()
+        if not secret or "." not in token:
+            return False
+        raw, signature = token.split(".", 1)
+        expected = hmac.new(secret.encode("utf-8"), raw.encode("ascii"), hashlib.sha256).digest()
+        if not hmac.compare_digest(_b64url_encode(expected), signature):
+            return False
+        payload = json.loads(_b64url_decode(raw).decode("utf-8"))
+        exp = datetime.fromisoformat(str(payload.get("exp")).replace("Z", "+00:00"))
+        if exp.tzinfo is None:
+            exp = exp.replace(tzinfo=timezone.utc)
+        return datetime.now(timezone.utc) < exp
+    except Exception:
+        return False
+
+
+def _assistant_auth(request: Request) -> bool:
+    admin_key = request.headers.get("X-Admin-Key", "").strip()
+    configured_admin = _secret_admin()
+    if configured_admin and admin_key and hmac.compare_digest(admin_key, configured_admin):
+        return True
+
+    auth = request.headers.get("Authorization", "")
+    if auth.startswith("Bearer "):
+        return _verifier_token_premium(auth[7:].strip())
+
+    return False
+
+
+def _is_public_conversation(question: str) -> bool:
+    q = str(question or "").lower().strip()
+    q = q.replace("’", "'")
+    return q in {
+        "bonjour", "bonsoir", "salut", "hello", "coucou", "hey",
+        "ça va", "ca va", "je vais bien", "je vais bien merci",
+        "bien merci", "merci", "ok", "d'accord", "daccord", "super",
+    }
+
+
+# =====================================
+# ASSISTANT CHATBOT PMU AUTONOME v24.4
 # =====================================
 from fastapi.responses import StreamingResponse
 from chatbot_turf import repondre_assistant_turf
@@ -879,11 +960,13 @@ def _assistant_historique():
 
 
 @router.post("/assistant/chat")
-def assistant_chat_v241(payload: dict):
+def assistant_chat_v241(payload: dict, request: Request):
     """Assistant conversationnel PMU avec analyse IA indépendante."""
     question = str(payload.get("question", "")).strip()
     if not question:
         raise HTTPException(status_code=400, detail="Question obligatoire.")
+    if not _is_public_conversation(question) and not _assistant_auth(request):
+        raise HTTPException(status_code=401, detail="Accès réservé aux abonnés Premium ou à l'administrateur.")
 
     contexte = _assistant_course_context()
     contexte["historique_pmu"] = _assistant_historique()
@@ -931,11 +1014,13 @@ def assistant_chat_v241(payload: dict):
 
 
 @router.post("/assistant/chat/stream")
-def assistant_chat_stream_v241(payload: dict):
+def assistant_chat_stream_v241(payload: dict, request: Request):
     """Version SSE du chatbot : un bloc de texte puis un événement final."""
     question = str(payload.get("question", "")).strip()
     if not question:
         raise HTTPException(status_code=400, detail="Question obligatoire.")
+    if not _is_public_conversation(question) and not _assistant_auth(request):
+        raise HTTPException(status_code=401, detail="Accès réservé aux abonnés Premium ou à l'administrateur.")
 
     contexte = _assistant_course_context()
     contexte["historique_pmu"] = _assistant_historique()
