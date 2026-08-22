@@ -113,7 +113,6 @@ function getAssistantAuthHeaders() {
   const adminKey =
     sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
     localStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
-    localStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
     sessionStorage.getItem("AZ_TURF_ADMIN_KEY") ||
     localStorage.getItem("AZ_TURF_ADMIN_KEY") ||
     sessionStorage.getItem("ADMIN_API_KEY") ||
@@ -143,14 +142,16 @@ function getAssistantAuthHeaders() {
 
 async function streamAnswer(question) {
   const auth = getAssistantAuthHeaders();
+
   if (auth.isAdmin) {
-    const check = await fetch("/api/admin/verification", {
-      headers: {"X-Admin-Key": auth.headers["X-Admin-Key"] || ""},
+    const verification = await fetch("/api/admin/verification", {
+      method: "GET",
+      headers: { "X-Admin-Key": auth.headers["X-Admin-Key"] || "" },
       cache: "no-store"
     });
-    if (!check.ok) {
-      let detail="Clé administrateur refusée par le serveur.";
-      try { detail=(await check.json()).detail || detail; } catch (_) {}
+    if (!verification.ok) {
+      let detail = "Clé administrateur refusée.";
+      try { const data = await verification.json(); detail = data.detail || detail; } catch (_) {}
       throw new Error(detail);
     }
   }
