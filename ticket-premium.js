@@ -5,8 +5,8 @@
 (function () {
   "use strict";
 
-  const API = "/api/premium/ticket";
-  const ABS_API = "https://az-turf-pro.onrender.com/api/premium/ticket";
+  const API = "/api/analyse";
+  const ABS_API = "https://az-turf-pro.onrender.com/api/analyse";
 
   function el(id) { return document.getElementById(id); }
 
@@ -42,18 +42,8 @@
   }
 
   function premiumObject(data) {
-    const candidates = [
-      data?.premium,
-      data?.tickets?.premium,
-      data?.tickets?.Premium,
-      data?.moteur?.tickets?.premium,
-      data?.analyse_moteur?.tickets?.premium,
-      data?.data?.premium,
-      data?.data?.tickets?.premium,
-      data?.result?.premium,
-      data?.result?.tickets?.premium
-    ];
-    return candidates.find(v => v && typeof v === "object" && !Array.isArray(v)) || {};
+    const t = data?.tickets || {};
+    return t.premium || t.Premium || data?.premium || {};
   }
 
   function renderTickets(data) {
@@ -63,41 +53,34 @@
       p.quinte ??
       p.selection_quinte ??
       p.quinte_premium ??
-      p.quintePremium ??
-      data?.quinte;
+      p.quintePremium;
 
     const quarte =
       p.quarte ??
       p.quarte_premium ??
-      p.quartePremium ??
-      data?.quarte;
+      p.quartePremium;
 
     const trio =
       p.trio ??
       p.trio_premium ??
-      p.trioPremium ??
-      data?.trio;
+      p.trioPremium;
 
     const couple =
       p.couple_gagnant_place ??
       p.couple_place ??
       p.couple_gagnant ??
-      p.couple ??
-      data?.couple_gagnant_place;
+      p.couple;
 
     const champ =
       p.champ_reduit ??
       p.champ_reduit_premium ??
-      p.champReduit ??
-      data?.champ_reduit;
+      p.champReduit;
 
     const derniere =
       p.ticket_derniere_minute ??
       p.derniere_minute ??
-      p.derniereMinute ??
-      data?.ticket_derniere_minute;
+      p.derniereMinute;
 
-    put("selection-premium", join(p.selection_quinte ?? data?.selection_quinte, " - "));
     put("quinte-premium", join(quinte));
     put("quarte-premium", join(quarte));
     put("trio-premium", join(trio));
@@ -207,11 +190,12 @@
       });
 
       if (!response.ok) {
+        // Même domaine Render : second essai absolu.
         const retry = await fetch(ABS_API + "?t=" + Date.now(), {
           cache: "no-store",
           headers: { "Accept": "application/json" }
         });
-        if (!retry.ok) throw new Error("API Premium indisponible (" + retry.status + ")");
+        if (!retry.ok) throw new Error("API analyse indisponible (" + retry.status + ")");
         render(await retry.json());
         return;
       }
@@ -231,10 +215,6 @@
   }
 
   function render(data) {
-    const blocage = el("message-blocage");
-    const contenu = el("contenu-premium");
-    if (blocage) blocage.style.display = "none";
-    if (contenu) contenu.classList.remove("zone-masquee");
     renderTickets(data);
     renderPartants(data);
 

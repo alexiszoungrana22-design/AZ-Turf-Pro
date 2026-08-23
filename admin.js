@@ -1,196 +1,658 @@
-/* AZ Turf Pro — Administration v33
- * Authentification serveur unique via X-Admin-Key.
- */
-(function () {
-  "use strict";
+// =====================================
+// AZ TURF PRO
+// ADMIN JS
+// Version 5
+// =====================================
 
-  const KEY_NAMES = [
-    "AZ_ADMIN_API_KEY",
-    "AZ_TURF_ADMIN_API_KEY",
-    "AZ_TURF_ADMIN_KEY",
-    "ADMIN_API_KEY",
-    "admin_api_key"
-  ];
 
-  function getAdminKey() {
-    for (const name of KEY_NAMES) {
-      const v = sessionStorage.getItem(name) || localStorage.getItem(name) || "";
-      if (v.trim()) return v.trim();
-    }
-    return "";
-  }
+const API_BASE =
+"https://az-turf-pro.onrender.com/api";
 
-  function setAdminKey(key) {
-    sessionStorage.setItem("AZ_TURF_ADMIN_API_KEY", key);
-    localStorage.setItem("AZ_TURF_ADMIN_API_KEY", key);
-  }
 
-  function clearAdminKey() {
-    for (const name of KEY_NAMES) {
-      sessionStorage.removeItem(name);
-      localStorage.removeItem(name);
-    }
-  }
+const API_ANALYSE =
+API_BASE + "/analyse";
 
-  function adminHeaders() {
-    const key = getAdminKey();
-    return key ? { "X-Admin-Key": key } : {};
-  }
 
-  async function readResponse(response) {
-    let data = null;
-    try { data = await response.json(); } catch (_) {}
-    if (!response.ok) {
-      throw new Error(data?.detail || `Erreur serveur (${response.status})`);
-    }
-    return data;
-  }
+const API_PREMIUM =
+API_BASE + "/premium";
 
-  async function verifierCleAdmin(key) {
-    const response = await fetch("/api/admin/verification", {
-      method: "GET",
-      headers: { "X-Admin-Key": key },
-      cache: "no-store"
-    });
-    return readResponse(response);
-  }
 
-  window.enregistrerCleAdmin = async function () {
+const API_ACTIVATION =
+API_BASE + "/admin/valider-reference";
+
+
+const API_STATISTIQUES =
+API_BASE + "/admin/statistiques";
+
+
+const API_ABONNEMENTS =
+API_BASE + "/admin/abonnements";
+
+function getAdminKey(){
+    return sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") || "";
+}
+
+function enregistrerCleAdmin(){
     const input = document.getElementById("admin-api-key");
-    const state = document.getElementById("etat-cle-admin");
-    const key = (input?.value || "").trim();
+    const key = input ? input.value.trim() : "";
+    if(!key){ alert("Veuillez saisir la clé administrateur."); return; }
+    sessionStorage.setItem("AZ_TURF_ADMIN_API_KEY", key);
+    if(input) input.value = "";
+    alert("Clé administrateur enregistrée pour cette session.");
+    actualiserAdmin();
+}
 
-    if (!key) {
-      if (state) state.textContent = "⚠️ Saisissez la clé administrateur.";
-      return false;
+function headersAdmin(extra={}){
+    return Object.assign({"X-Admin-Key": getAdminKey()}, extra);
+}
+
+
+
+
+
+document.addEventListener(
+"DOMContentLoaded",
+initialiserAdmin
+);
+
+
+
+
+
+// =====================================
+// INITIALISATION ADMIN
+// =====================================
+
+async function initialiserAdmin(){
+
+    await verifierAPI();
+
+    await chargerStatistiquesAdmin();
+
+    await chargerAbonnements();
+
+}
+
+
+
+
+
+
+
+// =====================================
+// FORMAT DATE
+// =====================================
+
+function formaterDate(date){
+
+    if(!date){
+
+        return "Non définie";
+
     }
 
-    if (state) state.textContent = "⏳ Vérification auprès du serveur…";
 
-    try {
-      await verifierCleAdmin(key);
-      setAdminKey(key);
-      if (state) state.textContent = "✅ Clé administrateur validée par le serveur.";
-      await window.chargerStatistiquesAdmin();
-      await window.chargerAbonnements();
-      return true;
-    } catch (error) {
-      clearAdminKey();
-      if (state) state.textContent = `❌ ${error.message}`;
-      return false;
+    try{
+
+        const d =
+        new Date(date);
+
+
+        return d.toLocaleDateString("fr-FR")
+        +
+        " à "
+        +
+        d.toLocaleTimeString(
+            "fr-FR",
+            {
+                hour:"2 chiffres",
+                minute:"2 chiffres"
+            }
+        );
+
+
+    }catch{
+
+        return date;
+
     }
-  };
 
-  window.chargerStatistiquesAdmin = async function () {
+}
+
+
+
+
+
+
+
+// =====================================
+// VERIFICATION API
+// =====================================
+
+async function verifierAPI(){
+
+
+const etat =
+document.getElementById(
+"etat-api"
+);
+
+
+
+try{
+
+
+const response =
+await fetch(API_ANALYSE);
+
+
+
+if(!response.ok){
+
+throw new Error(
+"API indisponible"
+);
+
+}
+
+
+
+await response.json();
+
+
+
+if(etat){
+
+etat.innerHTML =
+"✅ Connectée";
+
+}
+
+
+
+}
+
+
+
+catch(error){
+
+
+console.error(
+"Erreur API :",
+error
+);
+
+
+
+if(etat){
+
+etat.innerHTML =
+"❌ Hors ligne";
+
+}
+
+
+}
+
+}
+
+
+
+
+
+
+
+// =====================================
+// STATISTIQUES ADMIN
+// =====================================
+
+async function chargerStatistiquesAdmin(){
+
+    const champs = [
+        "total-abonnements",
+        "nombre-premium",
+        "paiements-attente",
+        "abonnements-expire"
+    ];
+
+    const afficher = (valeur) => {
+        champs.forEach((id) => {
+            const element = document.getElementById(id);
+            if (element) element.textContent = valeur;
+        });
+    };
+
     const key = getAdminKey();
-    const apiState = document.getElementById("etat-api");
-    if (!key) {
-      if (apiState) apiState.textContent = "🔒 Clé administrateur requise";
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/admin/statistiques", {
-        headers: adminHeaders(), cache: "no-store"
-      });
-      const data = await readResponse(response);
-      const total = data.total ?? data.total_abonnements ?? data.abonnements ?? 0;
-      const actifs = data.actifs ?? data.premium_actifs ?? data.nombre_premium ?? 0;
-      const attente = data.attente ?? data.paiements_attente ?? data.en_attente ?? 0;
-      const expires = data.expires ?? data.expire ?? data.abonnements_expires ?? 0;
-
-      const put = (id, value) => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = String(value);
-      };
-      put("total-abonnements", typeof total === "number" ? total : (data.abonnements_total ?? 0));
-      put("nombre-premium", actifs);
-      put("paiements-attente", attente);
-      put("abonnements-expire", expires);
-      if (apiState) apiState.textContent = "✅ Administrateur authentifié";
-    } catch (error) {
-      if (apiState) apiState.textContent = `❌ ${error.message}`;
-    }
-  };
-
-  window.chargerAbonnements = async function () {
-    const container = document.getElementById("liste-abonnements");
-    const key = getAdminKey();
-    if (!container || !key) return;
-
-    try {
-      const response = await fetch("/api/admin/abonnements", {
-        headers: adminHeaders(), cache: "no-store"
-      });
-      const data = await readResponse(response);
-      const items = Array.isArray(data) ? data : (data.abonnements || []);
-      if (!items.length) {
-        container.textContent = "Aucun abonnement.";
+    if(!key){
+        afficher("🔐 Clé requise");
         return;
-      }
-      container.innerHTML = items.map((a, i) => {
-        const tel = a.telephone || a.phone || "—";
-        const statut = a.statut || a.status || "—";
-        const ref = a.reference || a.reference_paiement || "—";
-        return `<div style="padding:10px;border-bottom:1px solid #ddd"><b>${i + 1}. ${String(tel)}</b><br>Statut : ${String(statut)}<br>Référence : ${String(ref)}</div>`;
-      }).join("");
-    } catch (error) {
-      container.textContent = `❌ ${error.message}`;
     }
-  };
 
-  window.verifierUtilisateurPremium = async function () {
-    const key = getAdminKey();
-    const tel = (document.getElementById("telephone-premium")?.value || "").trim();
-    const out = document.getElementById("resultat-premium");
-    if (!key) { if (out) out.textContent = "🔒 Clé administrateur requise."; return; }
-    if (!tel) { if (out) out.textContent = "⚠️ Numéro téléphone obligatoire."; return; }
-    try {
-      const r = await fetch(`/api/premium/${encodeURIComponent(tel)}`, { cache: "no-store" });
-      const d = await readResponse(r);
-      if (out) out.textContent = `✅ ${d.statut || d.status || "Abonnement trouvé"}`;
-    } catch (e) { if (out) out.textContent = `❌ ${e.message}`; }
-  };
+    try{
+        const response = await fetch(
+            API_STATISTIQUES,
+            {headers: headersAdmin()}
+        );
 
-  window.activerPremium = async function () {
-    const key = getAdminKey();
-    const telephone = (document.getElementById("activation-telephone")?.value || "").trim();
-    const reference = (document.getElementById("activation-reference")?.value || "").trim();
-    const out = document.getElementById("resultat-activation");
-    if (!key) { if (out) out.textContent = "🔒 Clé administrateur requise."; return; }
-    if (!telephone || !reference) { if (out) out.textContent = "⚠️ Téléphone et référence obligatoires."; return; }
-    try {
-      const r = await fetch("/api/activation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", ...adminHeaders() },
-        body: JSON.stringify({ telephone, reference })
-      });
-      const d = await readResponse(r);
-      if (out) out.textContent = `✅ ${d.message || "Premium activé"}`;
-      await window.chargerStatistiquesAdmin();
-      await window.chargerAbonnements();
-    } catch (e) { if (out) out.textContent = `❌ ${e.message}`; }
-  };
+        let data = {};
+        try { data = await response.json(); } catch (_) {}
 
-  window.actualiserAdmin = async function () {
-    const key = getAdminKey();
-    const state = document.getElementById("etat-cle-admin");
-    if (!key) {
-      if (state) state.textContent = "⚠️ Saisissez d'abord la clé administrateur serveur.";
-      return;
+        if(!response.ok){
+            const message = response.status === 401
+                ? "🔒 Non autorisé"
+                : response.status === 503
+                    ? "⚠️ Clé serveur indisponible"
+                    : "⚠️ Indisponible";
+            afficher(message);
+            console.warn("Statistiques admin refusées:", response.status, data.detail || "");
+            return;
+        }
+
+        afficher("0");
+        document.getElementById("total-abonnements").textContent = Number.isFinite(Number(data.total)) ? data.total : 0;
+        document.getElementById("nombre-premium").textContent = Number.isFinite(Number(data.actifs)) ? data.actifs : 0;
+        document.getElementById("paiements-attente").textContent = Number.isFinite(Number(data.en_attente)) ? data.en_attente : 0;
+        document.getElementById("abonnements-expire").textContent = Number.isFinite(Number(data.expires)) ? data.expires : 0;
+
+    } catch(error){
+        console.error("Erreur statistiques :", error);
+        afficher("⚠️ Erreur");
     }
-    try {
-      await verifierCleAdmin(key);
-      if (state) state.textContent = "✅ Clé administrateur validée par le serveur.";
-      await Promise.all([window.chargerStatistiquesAdmin(), window.chargerAbonnements()]);
-    } catch (e) {
-      clearAdminKey();
-      if (state) state.textContent = `❌ ${e.message}`;
-    }
-  };
+}
 
-  document.addEventListener("DOMContentLoaded", () => {
+
+
+
+
+
+
+// =====================================
+// LISTE ABONNEMENTS
+// =====================================
+
+async function chargerAbonnements(){
+
+    const liste = document.getElementById("liste-abonnements");
     const key = getAdminKey();
-    if (key) window.actualiserAdmin();
-  });
-})();
+
+    if(!key){
+        if(liste) liste.textContent = "🔐 Clé administrateur requise";
+        return;
+    }
+
+    try{
+        const response = await fetch(
+            API_ABONNEMENTS,
+            {headers: headersAdmin()}
+        );
+
+        let data = {};
+        try { data = await response.json(); } catch (_) {}
+
+        if(!response.ok){
+            if(liste){
+                liste.textContent = response.status === 401
+                    ? "🔒 Accès administrateur refusé"
+                    : "⚠️ Données administrateur indisponibles";
+            }
+            return;
+        }
+
+
+
+// La liste est initialisée au début de chargerAbonnements().
+
+
+
+if(!liste){
+
+return;
+
+}
+
+
+
+liste.innerHTML = "";
+
+
+
+if(
+!data.abonnements ||
+data.abonnements.length === 0
+){
+
+
+liste.innerHTML =
+"Aucun abonnement";
+
+
+return;
+
+
+}
+
+
+
+data.abonnements.forEach(
+(abonnement)=>{
+
+
+liste.innerHTML += `
+
+<div class="abonnement">
+
+<p>
+📱 ${abonnement.telephone}
+</p>
+
+<p>
+🎟️ Offre :
+${abonnement.offre}
+</p>
+
+<p>
+Statut :
+<strong>
+${abonnement.statut}
+</strong>
+</p>
+
+<p>
+📅 Fin :
+${formaterDate(abonnement.date_fin)}
+</p>
+
+
+</div>
+
+`;
+
+
+
+}
+
+);
+
+
+
+}
+
+
+
+catch(error){
+
+console.error(
+"Erreur abonnements :",
+error
+);
+
+}
+
+}
+
+
+
+
+
+
+
+
+
+// =====================================
+// VERIFICATION PREMIUM
+// =====================================
+
+async function verifierUtilisateurPremium(){
+
+
+const telephone =
+document.getElementById(
+"telephone-premium"
+).value.trim();
+
+
+
+const resultat =
+document.getElementById(
+"resultat-premium"
+);
+
+
+
+if(!telephone){
+
+
+resultat.innerHTML =
+"⚠️ Veuillez entrer un numéro";
+
+
+return;
+
+}
+
+
+
+
+
+try{
+
+
+const response =
+await fetch(
+
+API_PREMIUM
++
+"/"
++
+encodeURIComponent(telephone)
+
+);
+
+
+
+const data =
+await response.json();
+
+
+
+
+if(response.ok){
+
+
+resultat.innerHTML = `
+
+✅ Statut :
+<strong>${data.statut}</strong>
+
+<br>
+
+📅 Fin :
+${formaterDate(data.date_fin)}
+
+`;
+
+
+
+}else{
+
+
+resultat.innerHTML =
+"❌ Utilisateur introuvable";
+
+
+}
+
+
+
+}
+
+
+
+catch(error){
+
+
+console.error(error);
+
+
+resultat.innerHTML =
+"❌ Erreur connexion API";
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// =====================================
+// ACTIVATION PREMIUM
+// =====================================
+
+async function activerPremium(){
+
+
+
+const telephone =
+document.getElementById(
+"activation-telephone"
+).value.trim();
+
+
+
+const reference =
+document.getElementById(
+"activation-reference"
+).value.trim();
+
+
+
+const resultat =
+document.getElementById(
+"resultat-activation"
+);
+
+
+
+
+
+if(!telephone || !reference){
+
+
+resultat.innerHTML =
+"⚠️ Téléphone et référence obligatoires";
+
+
+return;
+
+}
+
+
+
+
+
+try{
+
+
+
+const response =
+
+await fetch(
+
+API_ACTIVATION,
+
+{
+
+method:"POST",
+
+headers: headersAdmin({"Content-Type":"application/json"}),
+
+
+body:JSON.stringify({
+
+telephone:telephone,
+
+reference:reference
+
+})
+
+
+}
+
+);
+
+
+
+
+
+const data =
+await response.json();
+
+
+
+
+
+if(response.ok){
+
+
+resultat.innerHTML = `
+
+✅ ${data.message}
+
+<br>
+
+Statut :
+${data.statut}
+
+<br>
+
+Fin :
+${formaterDate(data.date_fin)}
+
+`;
+
+
+
+await chargerStatistiquesAdmin();
+
+await chargerAbonnements();
+
+
+
+}else{
+
+
+resultat.innerHTML =
+"❌ Activation impossible";
+
+
+}
+
+
+
+}
+
+
+
+catch(error){
+
+
+console.error(error);
+
+
+resultat.innerHTML =
+"❌ Erreur connexion API";
+
+
+}
+
+
+
+  }
