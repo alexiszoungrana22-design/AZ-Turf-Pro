@@ -172,6 +172,29 @@ def charger_course():
 
 
 # =====================================
+# QUINTE — PERIODES
+# =====================================
+@router.get("/quintes-periodes")
+def quintes_periodes():
+    """Retourne les Quintés disponibles pour hier, aujourd'hui et demain."""
+    aujourd_hui = datetime.now().date()
+    periodes = (("hier", aujourd_hui - timedelta(days=1)), ("aujourd_hui", aujourd_hui), ("demain", aujourd_hui + timedelta(days=1)))
+    resultat = {}
+    for nom, date_obj in periodes:
+        date_pmu = date_obj.strftime("%d%m%Y")
+        try:
+            course = charger_course_pmu(date_pmu)
+        except Exception as erreur:
+            print(f"Erreur PMU {nom} ({date_pmu}) :", erreur)
+            course = None
+        if course and isinstance(course, dict) and course.get("chevaux"):
+            resultat[nom] = {"disponible": True, "source": "pmu_live", "date": course.get("date") or date_pmu, "reunion": course.get("reunion"), "course_numero": course.get("course_numero"), "course": course.get("course", ""), "hippodrome": course.get("hippodrome", ""), "discipline": course.get("discipline", ""), "distance": course.get("distance_course", ""), "heure_depart": course.get("heure_depart", ""), "partants": len(course.get("chevaux", [])), "chevaux": course.get("chevaux", []), "non_partants": course.get("non_partants", [])}
+        else:
+            resultat[nom] = {"disponible": False, "source": "pmu_live", "date": date_pmu, "message": "Aucun Quinté PMU disponible pour cette période."}
+    return {"ok": True, "source": "pmu_live", "periodes": resultat}
+
+
+# =====================================
 # PARTANTS — ROUTE ADDITIVE
 # =====================================
 @router.get("/partants")
