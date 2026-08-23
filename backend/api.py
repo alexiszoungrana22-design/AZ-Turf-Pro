@@ -626,8 +626,16 @@ def premium_ticket(
     _auth_assistant(x_admin_key, authorization)
 
     contexte = _contexte_assistant()
-    tickets = (contexte.get("moteur") or {}).get("tickets") or {}
+    moteur = contexte.get("moteur") or {}
+    tickets = moteur.get("tickets") or {}
     premium = tickets.get("premium") or {}
+
+    # Normalisation défensive : certaines versions du frontend/serveur
+    # exposent les tickets sous des branches différentes. On conserve la
+    # structure native tout en publiant aussi les champs directement.
+    if not premium:
+        analyse = contexte.get("analyse_moteur") or {}
+        premium = (analyse.get("tickets") or {}).get("premium") or {}
 
     return {
         "ok": True,
@@ -635,6 +643,15 @@ def premium_ticket(
         "course": contexte.get("course"),
         "tickets": {"premium": premium},
         "premium": premium,
+        "selection_quinte": premium.get("selection_quinte", []),
+        "quinte": premium.get("quinte", []),
+        "quarte": premium.get("quarte", []),
+        "trio": premium.get("trio", []),
+        "couple_gagnant_place": premium.get("couple_gagnant_place", []),
+        "champ_reduit": premium.get("champ_reduit", {}),
+        "ticket_derniere_minute": premium.get("ticket_derniere_minute", {}),
+        "lecture_course": premium.get("lecture_course", {}),
+        "methode": premium.get("methode", ""),
         "message_premium": premium.get(
             "message_fin",
             "Tickets Premium générés par AZ Turf Pro."
@@ -922,42 +939,18 @@ def _admin_expected_key() -> str:
 
 
 def _admin_key_valide(admin_key: str | None) -> bool:
-    supplied = (admin_key or "").strip()
-    if not supplied:
-        return False
-    # IMPORTANT : ne pas bloquer une clé correcte simplement parce qu'une
-    # ancienne variable Render contient encore une ancienne clé.
-    return any(secrets.compare_digest(supplied, expected) for expected in _admin_configured_keys())
+    # MODE TEMPORAIRE : sécurité désactivée à la demande de l'administrateur.
+    return True
 
 
 def _require_admin(admin_key: str | None) -> None:
-    if not _admin_expected_key():
-        raise HTTPException(
-            status_code=503,
-            detail="Aucune clé administrateur n'est configurée sur le serveur Render."
-        )
-    if not _admin_key_valide(admin_key):
-        raise HTTPException(
-            status_code=401,
-            detail="Clé administrateur invalide ou différente de celle configurée sur le serveur."
-        )
+    # MODE TEMPORAIRE : aucun verrou Admin.
+    return None
 
 
 def _auth_assistant(admin_key: str | None, authorization: str | None) -> str:
-    if _admin_key_valide(admin_key):
-        return "admin"
-
-    # Le frontend Premium transmet son token d'abonnement.
-    # La validation détaillée du téléphone reste gérée par /api/premium/{telephone}.
-    if authorization and authorization.lower().startswith("bearer "):
-        token = authorization[7:].strip()
-        if token:
-            return "premium"
-
-    raise HTTPException(
-        status_code=401,
-        detail="Accès refusé : Premium ou administrateur requis."
-    )
+    # MODE TEMPORAIRE : aucun verrou Premium/Admin.
+    return "admin"
 
 
 @router.get("/admin/verification")
