@@ -133,7 +133,7 @@
     <p>AZ Turf Pro - Administration</p>
 </footer>
 
-<script src="admin.js?v=38"></script>
+<script src="admin.js?v=39"></script>
 
 <script>
     // NE PAS redéfinir actualiserAdmin ici : window.actualiserAdmin est
@@ -144,11 +144,13 @@
     // Accès Premium admin : la clé reste côté session navigateur et
     // sera vérifiée côté serveur par ticket-premium.js.
     function accederVIPAdmin() {
-        const key = sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") || "";
-        if (!key) {
-            alert("Saisissez et enregistrez d'abord la clé administrateur serveur.");
+        const token = sessionStorage.getItem("AZ_TURF_ADMIN_SESSION") || "";
+        if (!token) {
+            alert("Validez d'abord la clé administrateur serveur.");
             return;
         }
+        window.location.href = "ticket-premium.html";
+    }
         window.location.href = "ticket-premium.html";
     }
 </script>

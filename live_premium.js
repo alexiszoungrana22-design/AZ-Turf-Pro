@@ -1,12 +1,12 @@
-/* AZ Turf Pro — affichage Premium sécurisé v39
+/* AZ Turf Pro — live Premium robuste v25
    Ne modifie pas le moteur Premium. Lit /api/analyse et normalise
    les différentes formes de tickets retournées par le backend.
 */
 (function () {
   "use strict";
 
-  const API = "/api/premium/ticket";
-  const ABS_API = "https://az-turf-pro.onrender.com/api/premium/ticket";
+  const API = "/api/analyse";
+  const ABS_API = "https://az-turf-pro.onrender.com/api/analyse";
 
   function el(id) { return document.getElementById(id); }
 
@@ -183,38 +183,34 @@
   }
 
   async function load() {
-    const block=el("message-blocage");
-    const content=el("contenu-premium");
-    const adminSession=sessionStorage.getItem("AZ_TURF_ADMIN_SESSION")||"";
-    const premiumToken=localStorage.getItem("AZ_TURF_PREMIUM_TOKEN")||sessionStorage.getItem("AZ_TURF_PREMIUM_TOKEN")||"";
-    const headers={"Accept":"application/json"};
-    if(adminSession) headers["X-Admin-Session"]=adminSession;
-    else if(premiumToken) headers["Authorization"]=`Bearer ${premiumToken}`;
+    try {
+      const response = await fetch(API + "?t=" + Date.now(), {
+        cache: "no-store",
+        headers: { "Accept": "application/json" }
+      });
 
-    try{
-      if(!adminSession && !premiumToken) throw new Error("Accès Premium indisponible");
-      const response=await fetch(API+"?t="+Date.now(),{cache:"no-store",headers});
-      if(!response.ok){
-        if(response.status===401){sessionStorage.removeItem("AZ_TURF_ADMIN_SESSION");throw new Error("Session Premium non autorisée ou expirée.");}
-        throw new Error("API Premium indisponible ("+response.status+")");
+      if (!response.ok) {
+        // Même domaine Render : second essai absolu.
+        const retry = await fetch(ABS_API + "?t=" + Date.now(), {
+          cache: "no-store",
+          headers: { "Accept": "application/json" }
+        });
+        if (!retry.ok) throw new Error("API analyse indisponible (" + retry.status + ")");
+        render(await retry.json());
+        return;
       }
-      const data=await response.json();
-      render(data);
-      if(block)block.style.display="none";
-      if(content)content.style.display="block";
-      document.body.dataset.premiumRole=adminSession?"admin":"premium";
-    }catch(error){
-      console.error("AZ Premium :",error);
-      if(block)block.style.display="block";
-      if(content)content.style.display="none";
-      put("quinte-premium","Accès Premium indisponible");
-      put("quarte-premium","Accès Premium indisponible");
-      put("trio-premium","Accès Premium indisponible");
-      put("couple-premium","Accès Premium indisponible");
-      put("champ-reduit-premium","Accès Premium indisponible");
-      put("derniere-minute-premium","Accès Premium indisponible");
-      put("analyse-premium","Connexion Premium requise.");
-      put("message-premium",error.message||"Vérifiez votre accès Premium.");
+
+      render(await response.json());
+    } catch (error) {
+      console.error("AZ Premium :", error);
+      put("quinte-premium", "Données Premium indisponibles");
+      put("quarte-premium", "Données Premium indisponibles");
+      put("trio-premium", "Données Premium indisponibles");
+      put("couple-premium", "Données Premium indisponibles");
+      put("champ-reduit-premium", "Données Premium indisponibles");
+      put("derniere-minute-premium", "Données Premium indisponibles");
+      put("analyse-premium", "Impossible de charger l'analyse Premium.");
+      put("message-premium", "Vérifiez la connexion au serveur.");
     }
   }
 
