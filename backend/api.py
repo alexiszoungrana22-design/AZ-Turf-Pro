@@ -23,7 +23,10 @@
 #    premium, admin) sont strictement inchangees.
 
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header
+from fastapi.responses import StreamingResponse
+import secrets
+import asyncio
 
 from engine import lancer_analyse
 
@@ -45,6 +48,7 @@ from pmu_source import charger_course_pmu
 from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
 
 from learning import lire_historique, mettre_a_jour_arrivee
+from modules.chatbot_turf import repondre_assistant_turf
 
 import json
 import os
@@ -835,153 +839,152 @@ def api_analyse_complete(payload: dict):
         "impact_meteo": res_meteo.get("impact", "NEUTRE")
     }
 
-# =====================================
-# ASSISTANT CHATBOT PMU AUTONOME v24.1
-# =====================================
-from fastapi.responses import StreamingResponse
-from chatbot_turf import repondre_assistant_turf
+
+# =========================================================
+# AUTHENTIFICATION ADMIN + ASSISTANT
+# =========================================================
+
+def _admin_key_valide(admin_key: str | None) -> bool:
+    expected = os.getenv("AZ_ADMIN_API_KEY", "").strip()
+    supplied = (admin_key or "").strip()
+    return bool(expected and supplied and secrets.compare_digest(supplied, expected))
 
 
-def _assistant_course_context():
+def _auth_assistant(admin_key: str | None, authorization: str | None) -> str:
+    if _admin_key_valide(admin_key):
+        return "admin"
+
+    # Le frontend Premium transmet son token d'abonnement.
+    # La validation détaillée du téléphone reste gérée par /api/premium/{telephone}.
+    if authorization and authorization.lower().startswith("bearer "):
+        token = authorization[7:].strip()
+        if token:
+            return "premium"
+
+    raise HTTPException(
+        status_code=401,
+        detail="Accès refusé : Premium ou administrateur requis."
+    )
+
+
+@router.get("/admin/verification")
+def admin_verification(x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")):
+    if _admin_key_valide(x_admin_key):
+        return {"authorized": True, "role": "admin"}
+    raise HTTPException(status_code=401, detail="Clé administrateur invalide.")
+
+
+def _contexte_assistant():
     course, source = charger_course()
     if not course:
-        return {"source": source, "chevaux": []}
+        raise HTTPException(status_code=503, detail="Aucune course disponible.")
+
     chevaux = course.get("chevaux", [])
-    try:
-        moteur = lancer_analyse(
-            chevaux,
-            {
-                "date": course.get("date"),
-                "reunion": course.get("reunion"),
-                "course_numero": course.get("course_numero"),
-                "course": course.get("course", ""),
-                "hippodrome": course.get("hippodrome", ""),
-                "discipline": course.get("discipline", ""),
-                "distance": course.get("distance_course", ""),
-                "heure_depart": course.get("heure_depart", ""),
-            },
-        )
-    except Exception:
-        moteur = {}
+    if not chevaux:
+        raise HTTPException(status_code=503, detail="Aucun partant disponible.")
+
+    resultat = lancer_analyse(
+        chevaux,
+        info_course={
+            "date": course.get("date"),
+            "reunion": course.get("reunion"),
+            "course_numero": course.get("course_numero"),
+            "course": course.get("course", ""),
+            "hippodrome": course.get("hippodrome", ""),
+            "discipline": course.get("discipline", ""),
+            "distance": course.get("distance_course", ""),
+            "allocation": course.get("allocation", ""),
+            "heure_depart": course.get("heure_depart", ""),
+            "horaires": course.get("horaires", {}),
+            "non_partants": course.get("non_partants", []),
+            "plus_joues": course.get("plus_joues", []),
+        }
+    )
+
     return {
-        "source": source,
+        "moteur": {
+            "classement": resultat.get("chevaux", []),
+            "tickets": resultat.get("tickets", {}),
+        },
         "course": course,
-        "chevaux": chevaux,
-        "moteur": moteur,
+        "source": source,
     }
 
 
-def _assistant_historique():
-    try:
-        return list(reversed(lire_historique()))[-20:]
-    except Exception:
-        return []
-
-
 @router.post("/assistant/chat")
-def assistant_chat_v241(payload: dict):
-    """Assistant conversationnel PMU avec analyse IA indépendante."""
+def assistant_chat(
+    payload: dict,
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
+    authorization: str | None = Header(default=None),
+):
+    _auth_assistant(x_admin_key, authorization)
+
     question = str(payload.get("question", "")).strip()
     if not question:
         raise HTTPException(status_code=400, detail="Question obligatoire.")
 
-    contexte = _assistant_course_context()
-    contexte["historique_pmu"] = _assistant_historique()
-    contexte["historique_conversation"] = payload.get("historique") or []
-    contexte["prenom"] = payload.get("prenom") or payload.get("nom_utilisateur") or ""
-
-    # Recherche automatique du Quinté d'une date future lorsque l'utilisateur le demande.
-    q = question.lower()
-    # Résultat demandé : tenter de récupérer l'arrivée officielle du Quinté de la veille.
-    if any(k in q for k in ["arrivée d'hier", "arrivee d'hier", "résultat d'hier", "resultat d'hier"]):
-        try:
-            from pmu_source import trouver_quinte_du_jour, recuperer_arrivee_pmu, normaliser_date
-            from datetime import datetime, timedelta
-            date_hier = normaliser_date(datetime.now() - timedelta(days=1))
-            _, r_hier, c_hier = trouver_quinte_du_jour(date_hier)
-            if c_hier:
-                numero_hier = c_hier.get("numOrdre") or c_hier.get("numCourse") or c_hier.get("numero")
-                arrivee = recuperer_arrivee_pmu(date_hier, r_hier, numero_hier)
-                if arrivee:
-                    contexte["arrivee_recherchee"] = (
-                        f"🏁 **Arrivée officielle PMU du {date_hier}**\\n\\n"
-                        f"Course : **{r_hier}C{numero_hier}**\\n\\n"
-                        f"**{' - '.join(map(str, arrivee))}**"
-                    )
-        except Exception as erreur:
-            print("Assistant arrivée hier :", erreur)
-    if any(k in q for k in ["demain", "à venir", "a venir", "prochaine course", "prochain quinté", "quinté de demain", "quinte de demain"]):
-        from pmu_source import trouver_quinte_du_jour, normaliser_date
-        from datetime import datetime, timedelta
-        target_date = datetime.now() + timedelta(days=1)
-        programme, reunion, course = trouver_quinte_du_jour(normaliser_date(target_date))
-        if course:
-            try:
-                from pmu_source import charger_course_pmu
-                future_course = charger_course_pmu(normaliser_date(target_date), reunion, course.get("numOrdre") or course.get("numCourse") or course.get("numero"))
-                if future_course:
-                    contexte["course"] = future_course
-                    contexte["chevaux"] = future_course.get("chevaux", [])
-                    contexte["source"] = "pmu_live_future"
-            except Exception:
-                pass
-
-    resultat = repondre_assistant_turf(question, contexte)
-    return resultat
+    contexte = _contexte_assistant()
+    return repondre_assistant_turf(question, contexte)
 
 
 @router.post("/assistant/chat/stream")
-def assistant_chat_stream_v241(payload: dict):
-    """Version SSE du chatbot : un bloc de texte puis un événement final."""
+async def assistant_chat_stream(
+    payload: dict,
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
+    authorization: str | None = Header(default=None),
+):
+    _auth_assistant(x_admin_key, authorization)
+
     question = str(payload.get("question", "")).strip()
     if not question:
         raise HTTPException(status_code=400, detail="Question obligatoire.")
 
-    contexte = _assistant_course_context()
-    contexte["historique_pmu"] = _assistant_historique()
-    contexte["historique_conversation"] = payload.get("historique") or []
-    contexte["prenom"] = payload.get("prenom") or payload.get("nom_utilisateur") or ""
+    historique = payload.get("historique") or []
 
-    q = question.lower()
-    # Résultat demandé : tenter de récupérer l'arrivée officielle du Quinté de la veille.
-    if any(k in q for k in ["arrivée d'hier", "arrivee d'hier", "résultat d'hier", "resultat d'hier"]):
+    async def generate():
         try:
-            from pmu_source import trouver_quinte_du_jour, recuperer_arrivee_pmu, normaliser_date
-            from datetime import datetime, timedelta
-            date_hier = normaliser_date(datetime.now() - timedelta(days=1))
-            _, r_hier, c_hier = trouver_quinte_du_jour(date_hier)
-            if c_hier:
-                numero_hier = c_hier.get("numOrdre") or c_hier.get("numCourse") or c_hier.get("numero")
-                arrivee = recuperer_arrivee_pmu(date_hier, r_hier, numero_hier)
-                if arrivee:
-                    contexte["arrivee_recherchee"] = (
-                        f"🏁 **Arrivée officielle PMU du {date_hier}**\\n\\n"
-                        f"Course : **{r_hier}C{numero_hier}**\\n\\n"
-                        f"**{' - '.join(map(str, arrivee))}**"
-                    )
-        except Exception as erreur:
-            print("Assistant arrivée hier :", erreur)
-    if any(k in q for k in ["demain", "à venir", "a venir", "prochaine course", "prochain quinté", "quinté de demain", "quinte de demain"]):
-        try:
-            from pmu_source import trouver_quinte_du_jour, charger_course_pmu, normaliser_date
-            from datetime import datetime, timedelta
-            date_future = normaliser_date(datetime.now() + timedelta(days=1))
-            _, reunion, course = trouver_quinte_du_jour(date_future)
-            if course:
-                future_course = charger_course_pmu(date_future, reunion, course.get("numOrdre") or course.get("numCourse") or course.get("numero"))
-                if future_course:
-                    contexte["course"] = future_course
-                    contexte["chevaux"] = future_course.get("chevaux", [])
-                    contexte["source"] = "pmu_live_future"
-        except Exception as erreur:
-            print("Assistant future course :", erreur)
+            contexte = _contexte_assistant()
+            # Le moteur actuel produit une réponse complète ; on la transmet
+            # progressivement pour conserver l'interface SSE sans inventer de texte.
+            resultat = repondre_assistant_turf(question, contexte)
+            texte = str(resultat.get("reponse", ""))
+            if not texte:
+                texte = "Je n'ai pas de réponse disponible actuellement."
 
-    resultat = repondre_assistant_turf(question, contexte)
-    texte = resultat.get("reponse", "")
+            for morceau in re.split(r"(\s+)", texte):
+                if morceau:
+                    import json as _json
+                    yield "data: " + _json.dumps(
+                        {"type": "token", "text": morceau},
+                        ensure_ascii=False
+                    ) + "\n\n"
+                    await asyncio.sleep(0)
 
-    def generate():
-        import json
-        yield "data: " + json.dumps({"type": "token", "text": texte}, ensure_ascii=False) + "\n\n"
-        yield "data: " + json.dumps({"type": "done"}, ensure_ascii=False) + "\n\n"
+            import json as _json
+            yield "data: " + _json.dumps(
+                {"type": "done"},
+                ensure_ascii=False
+            ) + "\n\n"
 
-    return StreamingResponse(generate(), media_type="text/event-stream")
+        except HTTPException as exc:
+            import json as _json
+            yield "data: " + _json.dumps(
+                {"type": "error", "message": exc.detail},
+                ensure_ascii=False
+            ) + "\n\n"
+        except Exception as exc:
+            import json as _json
+            yield "data: " + _json.dumps(
+                {"type": "error", "message": f"Erreur assistant : {exc}"},
+                ensure_ascii=False
+            ) + "\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )

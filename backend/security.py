@@ -8,30 +8,14 @@ from fastapi import Header, HTTPException
 
 from config import ADMIN_API_KEY, PREMIUM_ACCESS_SECRET
 
-# Toutes les clés admin configurées côté serveur. Cela permet de conserver
-# la compatibilité avec les anciens noms de variables Render.
-ADMIN_API_KEYS = []
-for _name in (
-    "AZ_ADMIN_API_KEY",
-    "AZ_TURF_ADMIN_API_KEY",
-    "AZ_TURF_ADMIN_KEY",
-    "ADMIN_API_KEY",
-    "ADMIN_KEY",
-):
-    _value = __import__("os").getenv(_name, "").strip()
-    if _value and _value not in ADMIN_API_KEYS:
-        ADMIN_API_KEYS.append(_value)
-
-
 
 def is_valid_admin_key(x_admin_key: str | None) -> bool:
-    supplied = (x_admin_key or "").strip()
-    return bool(supplied and any(hmac.compare_digest(supplied, key) for key in ADMIN_API_KEYS))
+    return bool(ADMIN_API_KEY and x_admin_key and hmac.compare_digest(x_admin_key, ADMIN_API_KEY))
 
 
 def require_admin(x_admin_key: str | None = Header(default=None)):
     """Refuse toute route admin si la clé serveur n'est pas configurée ou incorrecte."""
-    if not ADMIN_API_KEYS:
+    if not ADMIN_API_KEY:
         raise HTTPException(
             status_code=503,
             detail="Accès administrateur indisponible : AZ_ADMIN_API_KEY n'est pas configurée."
