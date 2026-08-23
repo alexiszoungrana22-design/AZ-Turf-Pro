@@ -106,17 +106,51 @@ clearBtn?.addEventListener("click", () => {
   if (log) log.innerHTML = "";
 });
 
+function getAssistantAuthHeaders() {
+  // L'administrateur peut avoir sa clé dans sessionStorage ou localStorage
+  // selon la page depuis laquelle le chatbot a été ouvert.
+  const adminKey =
+    sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
+    localStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
+    sessionStorage.getItem("AZ_ADMIN_API_KEY") ||
+    localStorage.getItem("AZ_ADMIN_API_KEY") ||
+    "";
+  const token = localStorage.getItem("AZ_TURF_PREMIUM_TOKEN") || "";
+
+  const headers = {
+    "Content-Type": "application/json",
+    "Accept": "text/event-stream"
+  };
+
+  if (adminKey) {
+    headers["X-Admin-Key"] = adminKey;
+  } else if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  return { headers, isAdmin: Boolean(adminKey), hasPremiumToken: Boolean(token) };
+}
+
+function isBasicConversation(question) {
+  const q = String(question || "").trim().toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return /^(bonjour|bonsoir|salut|hello|coucou|ca va|je vais bien|je vais bien merci|bien merci|merci|merci beaucoup|ok|daccord|d'accord|super|tres bien|très bien)(\s|[!?.,;:]|$)/.test(q);
+}
 
 async function streamAnswer(question) {
+  const auth = getAssistantAuthHeaders();
+  // Les échanges de courtoisie restent accessibles sans abonnement.
+  // Les fonctions Premium restent protégées par le serveur/token.
+  const basicConversation = isBasicConversation(question);
+  if (!auth.isAdmin && !auth.hasPremiumToken && !basicConversation) {
+    throw new Error("Cette fonction interactive est réservée aux abonnés Premium ou à l'administrateur.");
+  }
+
   const response = await fetch(CHAT_STREAM_API, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Accept": "text/event-stream"
-    },
+    headers: auth.headers,
     body: JSON.stringify({ question, historique: history.slice(-12) })
   });
-
 
   if (!response.ok) {
     let message = "Impossible de contacter l'assistant.";
