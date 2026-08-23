@@ -1,14 +1,7 @@
 const API_URL = window.location.origin;
 
 function entetesAccesPremium() {
-    const adminKey =
-        sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
-        localStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
-        sessionStorage.getItem("AZ_TURF_ADMIN_KEY") ||
-        localStorage.getItem("AZ_TURF_ADMIN_KEY") ||
-        sessionStorage.getItem("ADMIN_API_KEY") ||
-        localStorage.getItem("ADMIN_API_KEY") ||
-        "";
+    const adminKey = sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") || "";
     const token = localStorage.getItem("AZ_TURF_PREMIUM_TOKEN") || "";
     if (adminKey) return { "X-Admin-Key": adminKey };
     if (token) return { "Authorization": "Bearer " + token };
@@ -18,11 +11,6 @@ function entetesAccesPremium() {
 function accesLocalPremium() {
     return Boolean(
         sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
-        localStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
-        sessionStorage.getItem("AZ_TURF_ADMIN_KEY") ||
-        localStorage.getItem("AZ_TURF_ADMIN_KEY") ||
-        sessionStorage.getItem("ADMIN_API_KEY") ||
-        localStorage.getItem("ADMIN_API_KEY") ||
         localStorage.getItem("AZ_TURF_PREMIUM_TOKEN")
     );
 }
@@ -44,9 +32,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const contenuPremium = document.getElementById("contenu-premium");
+    if (!accesLocalPremium()) {
+        if (contenuPremium) contenuPremium.classList.add("zone-masquee");
+        if (btnTableau) btnTableau.disabled = true;
+        return;
+    }
+
     chargerTicketsPremiumLive();
-    if (contenuPremium) contenuPremium.classList.remove("zone-masquee");
-    if (btnTableau) btnTableau.disabled = false;
+
+    if (contenuPremium) {
+        contenuPremium.classList.remove("zone-masquee");
+    }
 });
 
 async function chargerTableauPartantsLive() {

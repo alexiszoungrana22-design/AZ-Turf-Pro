@@ -106,49 +106,17 @@ clearBtn?.addEventListener("click", () => {
   if (log) log.innerHTML = "";
 });
 
-function getAssistantAuthHeaders() {
-  // L'administrateur utilise la même clé que celle enregistrée depuis
-  // l'interface d'administration. Elle reste côté sessionStorage et n'est
-  // jamais exposée dans le code source.
-  const adminKey =
-    sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
-    localStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
-    sessionStorage.getItem("AZ_TURF_ADMIN_KEY") ||
-    localStorage.getItem("AZ_TURF_ADMIN_KEY") ||
-    sessionStorage.getItem("ADMIN_API_KEY") ||
-    localStorage.getItem("ADMIN_API_KEY") ||
-    sessionStorage.getItem("admin_api_key") ||
-    localStorage.getItem("admin_api_key") ||
-    "";
-
-  const token =
-    localStorage.getItem("AZ_TURF_PREMIUM_TOKEN") ||
-    sessionStorage.getItem("AZ_TURF_PREMIUM_TOKEN") ||
-    "";
-
-  const headers = {
-    "Content-Type": "application/json",
-    "Accept": "text/event-stream"
-  };
-
-  if (adminKey) {
-    headers["X-Admin-Key"] = adminKey;
-  } else if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
-
-  return { headers, isAdmin: Boolean(adminKey), hasPremiumToken: Boolean(token) };
-}
 
 async function streamAnswer(question) {
-  const auth = getAssistantAuthHeaders();
-  // Ne bloque plus localement un administrateur dont la session n'a
-  // pas encore été restaurée : le serveur est la source d'autorité.
   const response = await fetch(CHAT_STREAM_API, {
     method: "POST",
-    headers: auth.headers,
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "text/event-stream"
+    },
     body: JSON.stringify({ question, historique: history.slice(-12) })
   });
+
 
   if (!response.ok) {
     let message = "Impossible de contacter l'assistant.";
