@@ -44,17 +44,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const contenuPremium = document.getElementById("contenu-premium");
-    if (!accesLocalPremium()) {
-        if (contenuPremium) contenuPremium.classList.add("zone-masquee");
-        if (btnTableau) btnTableau.disabled = true;
-        return;
-    }
-
     chargerTicketsPremiumLive();
-
-    if (contenuPremium) {
-        contenuPremium.classList.remove("zone-masquee");
-    }
+    if (contenuPremium) contenuPremium.classList.remove("zone-masquee");
+    if (btnTableau) btnTableau.disabled = false;
 });
 
 async function chargerTableauPartantsLive() {

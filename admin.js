@@ -84,11 +84,6 @@
   window.chargerStatistiquesAdmin = async function () {
     const key = getAdminKey();
     const apiState = document.getElementById("etat-api");
-    if (!key) {
-      if (apiState) apiState.textContent = "🔒 Clé administrateur requise";
-      return;
-    }
-
     try {
       const response = await fetch("/api/admin/statistiques", {
         headers: adminHeaders(), cache: "no-store"
@@ -116,7 +111,7 @@
   window.chargerAbonnements = async function () {
     const container = document.getElementById("liste-abonnements");
     const key = getAdminKey();
-    if (!container || !key) return;
+    if (!container) return;
 
     try {
       const response = await fetch("/api/admin/abonnements", {
@@ -143,7 +138,6 @@
     const key = getAdminKey();
     const tel = (document.getElementById("telephone-premium")?.value || "").trim();
     const out = document.getElementById("resultat-premium");
-    if (!key) { if (out) out.textContent = "🔒 Clé administrateur requise."; return; }
     if (!tel) { if (out) out.textContent = "⚠️ Numéro téléphone obligatoire."; return; }
     try {
       const r = await fetch(`/api/premium/${encodeURIComponent(tel)}`, { cache: "no-store" });
@@ -157,7 +151,6 @@
     const telephone = (document.getElementById("activation-telephone")?.value || "").trim();
     const reference = (document.getElementById("activation-reference")?.value || "").trim();
     const out = document.getElementById("resultat-activation");
-    if (!key) { if (out) out.textContent = "🔒 Clé administrateur requise."; return; }
     if (!telephone || !reference) { if (out) out.textContent = "⚠️ Téléphone et référence obligatoires."; return; }
     try {
       const r = await fetch("/api/activation", {
@@ -175,13 +168,9 @@
   window.actualiserAdmin = async function () {
     const key = getAdminKey();
     const state = document.getElementById("etat-cle-admin");
-    if (!key) {
-      if (state) state.textContent = "⚠️ Saisissez d'abord la clé administrateur serveur.";
-      return;
-    }
     try {
       await verifierCleAdmin(key);
-      if (state) state.textContent = "✅ Clé administrateur validée par le serveur.";
+      if (state) state.textContent = "✅ Accès administrateur ouvert (sécurité désactivée).";
       await Promise.all([window.chargerStatistiquesAdmin(), window.chargerAbonnements()]);
     } catch (e) {
       clearAdminKey();

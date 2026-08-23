@@ -234,6 +234,10 @@
   }
 
   function render(data) {
+    const blocage = el("message-blocage");
+    const contenu = el("contenu-premium");
+    if (blocage) blocage.style.display = "none";
+    if (contenu) contenu.classList.remove("zone-masquee");
     renderTickets(data);
     renderPartants(data);
 
