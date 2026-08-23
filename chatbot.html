@@ -3,28 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AZ Turf Pro - Assistant Premium</title>
+<title>AZ Turf Pro - Assistant</title>
 <link rel="stylesheet" href="style.css">
-<style>
-.chatbot-card{max-width:900px;margin:0 auto;padding:18px}
-.chatbot-toolbar{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
-.chatbot-toolbar button,#chat-back{border:0;border-radius:10px;padding:9px 13px;cursor:pointer}
-#chat-back{background:#e5e7eb;color:#111827}
-#chat-clear{background:#fee2e2;color:#991b1b}
-#quick-actions{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
-.chat-chip{border:1px solid #cbd5e1;background:#f8fafc;color:#0f172a;border-radius:999px;padding:9px 12px;cursor:pointer;font-weight:600}
-.chat-chip:active{transform:translateY(1px)}
-#chat-log{min-height:280px;max-height:62vh;overflow:auto;padding:14px;border:1px solid #cbd5e1;border-radius:14px;background:#f8fafc;margin:12px 0}
-.chat-bubble{max-width:88%;padding:11px 14px;margin:9px 0;border-radius:14px;line-height:1.55;overflow-wrap:anywhere}
-.user-bubble{margin-left:auto;background:#e0f2fe;color:#0f172a}
-.assistant-bubble{margin-right:auto;background:#fff;color:#172033;border:1px solid #e2e8f0}
-.chat-bubble strong{font-weight:800}.chat-bubble code{background:#e2e8f0;padding:2px 5px;border-radius:5px}
-.chat-bubble ul{margin:6px 0 6px 20px}.chat-bubble h3,.chat-bubble h4{margin:6px 0}
-#chat-form{display:flex;gap:8px}.chat-input{flex:1;padding:13px;border:1px solid #94a3b8;border-radius:12px;font-size:16px}
-#chat-form button{border:0;border-radius:12px;padding:12px 18px;background:#f59e0b;color:white;font-weight:800;cursor:pointer}
-#chat-form button:disabled{opacity:.6;cursor:not-allowed}
-.chat-note{font-size:13px;color:#64748b}
-</style>
 </head>
 <body>
 <header class="top-header">
@@ -32,27 +12,21 @@
   <nav class="top-menu">
     <a href="index.html">🏠 Accueil</a>
     <a href="analyse.html">📊 Analyse</a>
-    <a href="chatbot.html" class="active">🤖 Assistant Chatbot</a>
+    <a href="chatbot.html" class="active">🤖 Assistant</a>
     <a href="backtest.html">📈 Backtest</a>
   </nav>
 </header>
 <main class="content">
-<section class="card chatbot-card">
-  <div class="chatbot-toolbar">
-    <button id="chat-back" type="button">← Retour</button>
-    <button id="chat-clear" type="button">🗑️ Nouvelle conversation</button>
-  </div>
-  <h2>🤖 Assistant Chatbot AZ Turf Pro</h2>
-  <p>Assistant conversationnel Premium avec réponse progressive, historique local, Markdown et suggestions rapides.</p>
-  <p class="chat-note">🔐 La nouvelle interface interactive utilise l'accès Premium sécurisé côté serveur.</p>
-  <div id="quick-actions"></div>
-  <div id="chat-log" aria-live="polite"></div>
-  <form id="chat-form">
-    <input id="chat-question" class="chat-input" required autocomplete="off" placeholder="Ex. Quel est le favori ?">
+<section class="card">
+  <h2>🤖 Assistant AZ Turf Pro</h2>
+  <p>Pose une question sur le favori, le Quinté, les outsiders ou les badges.</p>
+  <div id="chat-log" style="min-height:180px;padding:12px;border:1px solid #ddd;border-radius:10px;margin:12px 0;"></div>
+  <form id="chat-form" style="display:flex;gap:8px;">
+    <input id="chat-question" required placeholder="Ex. Quel est le favori ?" style="flex:1;padding:12px;">
     <button type="submit">Envoyer</button>
   </form>
 </section>
 </main>
-<script src="chatbot.js?v=5"></script>
+<script src="chatbot.js"></script>
 </body>
 </html>
