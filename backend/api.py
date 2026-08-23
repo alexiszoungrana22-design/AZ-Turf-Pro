@@ -23,7 +23,10 @@
 #    premium, admin) sont strictement inchangees.
 
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header
+from fastapi.responses import StreamingResponse
+import secrets
+import asyncio
 
 from engine import lancer_analyse
 
@@ -45,6 +48,7 @@ from pmu_source import charger_course_pmu
 from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
 
 from learning import lire_historique, mettre_a_jour_arrivee
+from modules.chatbot_turf import repondre_assistant_turf
 
 import json
 import os
@@ -513,8 +517,10 @@ def abonnement(
 
 @router.post("/activation")
 def activation_premium(
-    activation: ActivationRequest
+    activation: ActivationRequest,
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
 ):
+    _require_admin(x_admin_key)
 
     abonnement = activer_abonnement(
 
@@ -589,13 +595,12 @@ def premium(
 # =====================================
 
 @router.get("/admin/abonnements")
-def admin_abonnements():
-
+def admin_abonnements(
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
+):
+    _require_admin(x_admin_key)
     return {
-
-        "abonnements":
-            lister_abonnements()
-
+        "abonnements": lister_abonnements()
     }
 
 
@@ -604,8 +609,10 @@ def admin_abonnements():
 # =====================================
 
 @router.get("/admin/statistiques")
-def admin_statistiques():
-
+def admin_statistiques(
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
+):
+    _require_admin(x_admin_key)
     return statistiques_abonnements()
 
 
@@ -834,3 +841,190 @@ def api_analyse_complete(payload: dict):
         "consensus_presse": res_presse.get("consensus", []),
         "impact_meteo": res_meteo.get("impact", "NEUTRE")
     }
+
+
+# =========================================================
+# AUTHENTIFICATION ADMIN + ASSISTANT
+# =========================================================
+
+def _admin_configured_keys() -> list[str]:
+    """Retourne toutes les clés admin configurées, sans les exposer au client."""
+    keys = []
+    for name in (
+        "AZ_ADMIN_API_KEY",
+        "AZ_TURF_ADMIN_API_KEY",
+        "AZ_TURF_ADMIN_KEY",
+        "ADMIN_API_KEY",
+        "ADMIN_KEY",
+    ):
+        value = os.getenv(name, "").strip()
+        if value and value not in keys:
+            keys.append(value)
+    return keys
+
+
+def _admin_expected_key() -> str:
+    """Compatibilité historique : renvoie la première clé configurée."""
+    keys = _admin_configured_keys()
+    return keys[0] if keys else ""
+
+
+def _admin_key_valide(admin_key: str | None) -> bool:
+    supplied = (admin_key or "").strip()
+    if not supplied:
+        return False
+    # IMPORTANT : ne pas bloquer une clé correcte simplement parce qu'une
+    # ancienne variable Render contient encore une ancienne clé.
+    return any(secrets.compare_digest(supplied, expected) for expected in _admin_configured_keys())
+
+
+def _require_admin(admin_key: str | None) -> None:
+    if not _admin_expected_key():
+        raise HTTPException(
+            status_code=503,
+            detail="Aucune clé administrateur n'est configurée sur le serveur Render."
+        )
+    if not _admin_key_valide(admin_key):
+        raise HTTPException(
+            status_code=401,
+            detail="Clé administrateur invalide ou différente de celle configurée sur le serveur."
+        )
+
+
+def _auth_assistant(admin_key: str | None, authorization: str | None) -> str:
+    if _admin_key_valide(admin_key):
+        return "admin"
+
+    # Le frontend Premium transmet son token d'abonnement.
+    # La validation détaillée du téléphone reste gérée par /api/premium/{telephone}.
+    if authorization and authorization.lower().startswith("bearer "):
+        token = authorization[7:].strip()
+        if token:
+            return "premium"
+
+    raise HTTPException(
+        status_code=401,
+        detail="Accès refusé : Premium ou administrateur requis."
+    )
+
+
+@router.get("/admin/verification")
+def admin_verification(x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")):
+    _require_admin(x_admin_key)
+    return {"authorized": True, "role": "admin"}
+
+
+def _contexte_assistant():
+    course, source = charger_course()
+    if not course:
+        raise HTTPException(status_code=503, detail="Aucune course disponible.")
+
+    chevaux = course.get("chevaux", [])
+    if not chevaux:
+        raise HTTPException(status_code=503, detail="Aucun partant disponible.")
+
+    resultat = lancer_analyse(
+        chevaux,
+        info_course={
+            "date": course.get("date"),
+            "reunion": course.get("reunion"),
+            "course_numero": course.get("course_numero"),
+            "course": course.get("course", ""),
+            "hippodrome": course.get("hippodrome", ""),
+            "discipline": course.get("discipline", ""),
+            "distance": course.get("distance_course", ""),
+            "allocation": course.get("allocation", ""),
+            "heure_depart": course.get("heure_depart", ""),
+            "horaires": course.get("horaires", {}),
+            "non_partants": course.get("non_partants", []),
+            "plus_joues": course.get("plus_joues", []),
+        }
+    )
+
+    return {
+        "moteur": {
+            "classement": resultat.get("chevaux", []),
+            "tickets": resultat.get("tickets", {}),
+        },
+        "course": course,
+        "source": source,
+    }
+
+
+@router.post("/assistant/chat")
+def assistant_chat(
+    payload: dict,
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
+    authorization: str | None = Header(default=None),
+):
+    _auth_assistant(x_admin_key, authorization)
+
+    question = str(payload.get("question", "")).strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="Question obligatoire.")
+
+    contexte = _contexte_assistant()
+    return repondre_assistant_turf(question, contexte)
+
+
+@router.post("/assistant/chat/stream")
+async def assistant_chat_stream(
+    payload: dict,
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
+    authorization: str | None = Header(default=None),
+):
+    _auth_assistant(x_admin_key, authorization)
+
+    question = str(payload.get("question", "")).strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="Question obligatoire.")
+
+    historique = payload.get("historique") or []
+
+    async def generate():
+        try:
+            contexte = _contexte_assistant()
+            # Le moteur actuel produit une réponse complète ; on la transmet
+            # progressivement pour conserver l'interface SSE sans inventer de texte.
+            resultat = repondre_assistant_turf(question, contexte)
+            texte = str(resultat.get("reponse", ""))
+            if not texte:
+                texte = "Je n'ai pas de réponse disponible actuellement."
+
+            for morceau in re.split(r"(\s+)", texte):
+                if morceau:
+                    import json as _json
+                    yield "data: " + _json.dumps(
+                        {"type": "token", "text": morceau},
+                        ensure_ascii=False
+                    ) + "\n\n"
+                    await asyncio.sleep(0)
+
+            import json as _json
+            yield "data: " + _json.dumps(
+                {"type": "done"},
+                ensure_ascii=False
+            ) + "\n\n"
+
+        except HTTPException as exc:
+            import json as _json
+            yield "data: " + _json.dumps(
+                {"type": "error", "message": exc.detail},
+                ensure_ascii=False
+            ) + "\n\n"
+        except Exception as exc:
+            import json as _json
+            yield "data: " + _json.dumps(
+                {"type": "error", "message": f"Erreur assistant : {exc}"},
+                ensure_ascii=False
+            ) + "\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
