@@ -1,4 +1,4 @@
-/* AZ Turf Pro — Administration v33
+/* AZ Turf Pro — Administration v38
  * Authentification serveur unique via X-Admin-Key.
  */
 (function () {
