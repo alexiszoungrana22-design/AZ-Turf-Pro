@@ -1,9 +1,0 @@
-fastapi
-uvicorn[standard]
-pydantic
-python-multipart
-psycopg2-binary
-requests
-pdfplumber
-beautifulsoup4==4.12.3
-httpx==0.27.0
