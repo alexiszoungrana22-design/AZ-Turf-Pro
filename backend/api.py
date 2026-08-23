@@ -58,6 +58,7 @@ from engine import lancer_analyse
 from modules.cotes_history import analyser_tendances_cotes
 from modules.pronos_presse import analyser_consensus_presse
 from modules.meteo_piste import analyser_impact_terrain
+from security import (configured_admin_keys, is_valid_admin_key, require_admin, create_admin_session, verify_admin_session, verify_premium_token)
 
 router = APIRouter(
     prefix="/api",
@@ -541,9 +542,10 @@ def abonnement(
 @router.post("/activation")
 def activation_premium(
     activation: ActivationRequest,
-    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
+    x_admin_session: str | None = Header(default=None, alias="X-Admin-Session")
 ):
-    _require_admin(x_admin_key)
+    require_admin(x_admin_key, x_admin_session)
 
     abonnement = activer_abonnement(
 
@@ -616,6 +618,7 @@ def premium(
 @router.get("/premium/ticket")
 def premium_ticket(
     x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
+    x_admin_session: str | None = Header(default=None, alias="X-Admin-Session"),
     authorization: str | None = Header(default=None),
 ):
     """Retourne les tickets Premium pour l'administrateur authentifié.
@@ -623,7 +626,7 @@ def premium_ticket(
     Cette route manquait dans le ZIP fourni alors que ticket-premium.js et
     live-premium.js l'appelaient explicitement.
     """
-    _auth_assistant(x_admin_key, authorization)
+    _auth_assistant(x_admin_key, authorization, x_admin_session)
 
     contexte = _contexte_assistant()
     tickets = (contexte.get("moteur") or {}).get("tickets") or {}
@@ -648,9 +651,10 @@ def premium_ticket(
 
 @router.get("/admin/abonnements")
 def admin_abonnements(
-    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
+    x_admin_session: str | None = Header(default=None, alias="X-Admin-Session"),
 ):
-    _require_admin(x_admin_key)
+    require_admin(x_admin_key, x_admin_session)
     return {
         "abonnements": lister_abonnements()
     }
@@ -662,9 +666,10 @@ def admin_abonnements(
 
 @router.get("/admin/statistiques")
 def admin_statistiques(
-    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
+    x_admin_session: str | None = Header(default=None, alias="X-Admin-Session"),
 ):
-    _require_admin(x_admin_key)
+    require_admin(x_admin_key, x_admin_session)
     return statistiques_abonnements()
 
 
@@ -899,71 +904,36 @@ def api_analyse_complete(payload: dict):
 # AUTHENTIFICATION ADMIN + ASSISTANT
 # =========================================================
 
-def _admin_configured_keys() -> list[str]:
-    """Retourne toutes les clés admin configurées, sans les exposer au client."""
-    keys = []
-    for name in (
-        "AZ_ADMIN_API_KEY",
-        "AZ_TURF_ADMIN_API_KEY",
-        "AZ_TURF_ADMIN_KEY",
-        "ADMIN_API_KEY",
-        "ADMIN_KEY",
-    ):
-        value = os.getenv(name, "").strip()
-        if value and value not in keys:
-            keys.append(value)
-    return keys
-
-
-def _admin_expected_key() -> str:
-    """Compatibilité historique : renvoie la première clé configurée."""
-    keys = _admin_configured_keys()
-    return keys[0] if keys else ""
-
-
 def _admin_key_valide(admin_key: str | None) -> bool:
-    supplied = (admin_key or "").strip()
-    if not supplied:
-        return False
-    # IMPORTANT : ne pas bloquer une clé correcte simplement parce qu'une
-    # ancienne variable Render contient encore une ancienne clé.
-    return any(secrets.compare_digest(supplied, expected) for expected in _admin_configured_keys())
+    return is_valid_admin_key(admin_key)
 
 
-def _require_admin(admin_key: str | None) -> None:
-    if not _admin_expected_key():
-        raise HTTPException(
-            status_code=503,
-            detail="Aucune clé administrateur n'est configurée sur le serveur Render."
-        )
-    if not _admin_key_valide(admin_key):
-        raise HTTPException(
-            status_code=401,
-            detail="Clé administrateur invalide ou différente de celle configurée sur le serveur."
-        )
-
-
-def _auth_assistant(admin_key: str | None, authorization: str | None) -> str:
-    if _admin_key_valide(admin_key):
+def _auth_assistant(
+    admin_key: str | None,
+    authorization: str | None,
+    admin_session: str | None = None,
+) -> str:
+    if verify_admin_session(admin_session) or _admin_key_valide(admin_key):
         return "admin"
-
-    # Le frontend Premium transmet son token d'abonnement.
-    # La validation détaillée du téléphone reste gérée par /api/premium/{telephone}.
     if authorization and authorization.lower().startswith("bearer "):
-        token = authorization[7:].strip()
-        if token:
-            return "premium"
-
-    raise HTTPException(
-        status_code=401,
-        detail="Accès refusé : Premium ou administrateur requis."
-    )
+        verify_premium_token(authorization[7:].strip())
+        return "premium"
+    raise HTTPException(status_code=401, detail="Accès refusé : Premium ou administrateur requis.")
 
 
 @router.get("/admin/verification")
-def admin_verification(x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")):
-    _require_admin(x_admin_key)
-    return {"authorized": True, "role": "admin"}
+def admin_verification(
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
+    x_admin_session: str | None = Header(default=None, alias="X-Admin-Session"),
+):
+    if verify_admin_session(x_admin_session):
+        return {"authorized": True, "role": "admin", "session_valid": True}
+    if not configured_admin_keys():
+        raise HTTPException(status_code=503, detail="Aucune clé administrateur n'est configurée sur le serveur.")
+    if not is_valid_admin_key(x_admin_key):
+        raise HTTPException(status_code=401, detail="Clé administrateur invalide.")
+    session_token, exp = create_admin_session()
+    return {"authorized": True, "role": "admin", "session_token": session_token, "expires_at": exp}
 
 
 def _contexte_assistant():
@@ -1007,9 +977,10 @@ def _contexte_assistant():
 def assistant_chat(
     payload: dict,
     x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
+    x_admin_session: str | None = Header(default=None, alias="X-Admin-Session"),
     authorization: str | None = Header(default=None),
 ):
-    _auth_assistant(x_admin_key, authorization)
+    _auth_assistant(x_admin_key, authorization, x_admin_session)
 
     question = str(payload.get("question", "")).strip()
     if not question:
@@ -1023,9 +994,10 @@ def assistant_chat(
 async def assistant_chat_stream(
     payload: dict,
     x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
+    x_admin_session: str | None = Header(default=None, alias="X-Admin-Session"),
     authorization: str | None = Header(default=None),
 ):
-    _auth_assistant(x_admin_key, authorization)
+    _auth_assistant(x_admin_key, authorization, x_admin_session)
 
     question = str(payload.get("question", "")).strip()
     if not question:
