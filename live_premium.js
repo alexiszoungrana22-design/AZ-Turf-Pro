@@ -1,12 +1,12 @@
-/* AZ Turf Pro — affichage Premium robuste v25
+/* AZ Turf Pro — live Premium robuste v25
    Ne modifie pas le moteur Premium. Lit /api/analyse et normalise
    les différentes formes de tickets retournées par le backend.
 */
 (function () {
   "use strict";
 
-  const API = "/api/premium/ticket";
-  const ABS_API = "https://az-turf-pro.onrender.com/api/premium/ticket";
+  const API = "/api/analyse";
+  const ABS_API = "https://az-turf-pro.onrender.com/api/analyse";
 
   function el(id) { return document.getElementById(id); }
 
@@ -184,35 +184,16 @@
 
   async function load() {
     try {
-      const headers = { "Accept": "application/json" };
-      const adminKey =
-        sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
-        localStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
-        sessionStorage.getItem("AZ_TURF_ADMIN_KEY") ||
-        localStorage.getItem("AZ_TURF_ADMIN_KEY") ||
-        sessionStorage.getItem("ADMIN_API_KEY") ||
-        localStorage.getItem("ADMIN_API_KEY") ||
-        sessionStorage.getItem("admin_api_key") ||
-        localStorage.getItem("admin_api_key") ||
-        "";
-      const token =
-        localStorage.getItem("AZ_TURF_PREMIUM_TOKEN") ||
-        sessionStorage.getItem("AZ_TURF_PREMIUM_TOKEN") ||
-        "";
-
-      if (adminKey) headers["X-Admin-Key"] = adminKey;
-      else if (token) headers["Authorization"] = `Bearer ${token}`;
-
       const response = await fetch(API + "?t=" + Date.now(), {
         cache: "no-store",
-        headers
+        headers: { "Accept": "application/json" }
       });
 
       if (!response.ok) {
         // Même domaine Render : second essai absolu.
         const retry = await fetch(ABS_API + "?t=" + Date.now(), {
           cache: "no-store",
-          headers
+          headers: { "Accept": "application/json" }
         });
         if (!retry.ok) throw new Error("API analyse indisponible (" + retry.status + ")");
         render(await retry.json());
