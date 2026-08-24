@@ -1,1 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activation Premium - AZ Turf Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .card { 
+            background-color: #ffffff; 
+            color: #1e293b; 
+            border-radius: 12px; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+        }
+        .input-premium { 
+            width: 100%; 
+            padding: 14px; 
+            border: 2px solid #cbd5e1; 
+            border-radius: 10px; 
+            font-size: 16px; 
+            box-sizing: border-box; 
+            background-color: #ffffff; 
+            color: #000000; 
+            margin-top: 8px; 
+        }
+        .input-premium:focus { 
+            border-color: #d97706; 
+            outline: none; 
+        }
+        .btn-action { 
+            width: 100%; 
+            padding: 16px; 
+            background: linear-gradient(135deg, #f59e0b, #d97706); 
+            color: #ffffff; 
+            border: none; 
+            font-weight: bold; 
+            font-size: 17px; 
+            border-radius: 10px; 
+            cursor: pointer; 
+        }
+        .methode-paiement {
+            background-color: #f8fafc;
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="top-header">
+    <div class="logo">
+        🏇 <span>AZ Turf Pro</span>
+    </div>
+
+    <nav class="top-menu">
+        <a href="index.html">🏠 Accueil</a>
+        <a href="analyse.html">📊 Analyse</a>
+        <a href="ticket-premium.html">🎟️ Ticket VIP</a>
+        <a href="mon-abonnement.html">🔑 Compte</a>
+    </nav>
+</header>
+
+<main class="content">
+
+    <!-- EN-TÊTE PAGE -->
+    <section class="card">
+        <h1 style="color: #0f172a; margin-bottom: 8px;">🏆 Activation Premium</h1>
+        <p style="color: #4b5563; font-size: 14px;">Finalisez l'activation de votre abonnement AZ Turf Pro en 2 étapes simple.</p>
+    </section>
+
+    <!-- ÉTAPE 1 : NUMÉROS DE DÉPÔT -->
+    <section class="card" style="border-left: 5px solid #f59e0b;">
+        <h2 style="color: #0f172a; font-size: 18px; margin-bottom: 10px;">💳 Étape 1 : Effectuez votre dépôt</h2>
+        <p style="color: #4b5563; font-size: 14px; margin-bottom: 15px;">
+            Envoyez le montant de votre abonnement sur l'un de nos comptes officiels ci-dessous :
+        </p>
+
+        <!-- ORANGE MONEY -->
+        <div class="methode-paiement">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <strong style="color: #d97706; font-size: 16px;">🟠 Orange Money</strong>
+                <span style="font-size: 12px; background: #feefc3; color: #b45309; padding: 2px 8px; border-radius: 12px; font-weight: bold;">Dépôt direct</span>
+            </div>
+            <!-- REMPLACE LE NUMÉRO CI-DESSOUS PAR TON VRAI NUMÉRO ORANGE MONEY -->
+            <span style="font-size: 20px; font-weight: 900; color: #000000; display: block; margin-top: 6px; letter-spacing: 1px;">
+                +226 56 22 13 51
+            </span>
+        </div>
+
+        <!-- MOOV MONEY -->
+        <div class="methode-paiement" style="margin-bottom: 0;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <strong style="color: #0284c7; font-size: 16px;">🔵 Moov Money</strong>
+                <span style="font-size: 12px; background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 12px; font-weight: bold;">Dépôt direct</span>
+            </div>
+            <!-- REMPLACE LE NUMÉRO CI-DESSOUS PAR TON VRAI NUMÉRO MOOV MONEY -->
+            <span style="font-size: 20px; font-weight: 900; color: #000000; display: block; margin-top: 6px; letter-spacing: 1px;">
+                +226 73 62 93 28  
+            </span>
+        </div>
+    </section>
+
+    <!-- ÉTAPE 2 : VALIDER LA RÉFÉRENCE -->
+    <section class="card">
+        <h2 style="color: #0f172a; font-size: 18px; margin-bottom: 12px;">🔖 Étape 2 : Validez votre accès</h2>
+
+        <p style="margin-bottom: 5px; color: #4b5563; font-size: 14px;">Numéro associé à ce téléphone :</p>
+        <strong id="telephone-affiche" style="font-size: 18px; color: #0f172a;">Chargement...</strong>
+
+        <div style="margin-top: 20px;">
+            <label for="reference" style="display: block; font-weight: bold; color: #0f172a; font-size: 14px;">
+                Référence de la transaction (reçue par SMS) :
+            </label>
+            <input id="reference" type="text" placeholder="Ex : OM12345678 ou MP98765432" class="input-premium">
+        </div>
+    </section>
+
+    <!-- BOUTON D'ACTION -->
+    <section class="card" style="text-align: center;">
+        <button id="activer-premium" class="btn-action">
+            ✅ Valider et Activer mon Premium
+        </button>
+
+        <p id="message" style="margin-top: 15px; font-weight: bold; font-size: 15px;"></p>
+    </section>
+
+</main>
+
+<footer class="bottom-menu">
+    <a href="index.html">🏠 Accueil</a>
+    <a href="analyse.html">📊 Analyse</a>
+    <a href="ticket-premium.html">🎟️ Ticket VIP</a>
+    <a href="mon-abonnement.html">🔑 Compte</a>
+</footer>
+
+<script>
+    const API_URL = "https://az-turf-pro.onrender.com/api/activation";
+    const telephone = localStorage.getItem("AZ_TURF_TELEPHONE");
+
+    const affichage = document.getElementById("telephone-affiche");
+    const message = document.getElementById("message");
+
+    if (telephone) {
+        affichage.innerHTML = telephone;
+    } else {
+        affichage.innerHTML = "<span style='color: #dc2626;'>Aucun numéro enregistré</span>";
+    }
+
+    document.getElementById("activer-premium").onclick = async function () {
+        const reference = document.getElementById("reference").value.trim();
+
+        if (!telephone) {
+            message.innerHTML = "❌ Numéro introuvable. Veuillez d'abord saisir votre téléphone.";
+            message.style.color = "#dc2626";
+            return;
+        }
+
+        if (!reference) {
+            message.innerHTML = "❌ Veuillez copier-coller la référence reçue par SMS.";
+            message.style.color = "#dc2626";
+            return;
+        }
+
+        message.innerHTML = "⏳ Vérification de votre référence...";
+        message.style.color = "#d97706";
+
+        try {
+            const reponse = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ telephone: telephone, reference: reference })
+            });
+
+            const data = await reponse.json();
+
+            if (!reponse.ok) {
+                throw new Error(data.detail || "Erreur lors de l'activation");
+            }
+
+            localStorage.setItem("AZ_TURF_PREMIUM_TOKEN", data.access_token);
+            localStorage.setItem("AZ_TURF_TELEPHONE", telephone);
+
+            message.innerHTML = "✅ Premium activé avec succès !<br>Accès VIP valable jusqu'au : <strong>" +
+                new Date(data.date_fin).toLocaleDateString("fr-FR") + "</strong>";
+            message.style.color = "#16a34a";
+
+            setTimeout(() => {
+                window.location.href = "ticket-premium.html";
+            }, 2000);
+
+        } catch (error) {
+            message.innerHTML = "❌ " + error.message;
+            message.style.color = "#dc2626";
+        }
+    };
+</script>
+
+</body>
+</html>
