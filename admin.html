@@ -30,6 +30,11 @@
     <section class="course-card">
         <h2>📊 Tableau de bord administrateur</h2>
         <p>Gestion et suivi de la plateforme AZ Turf Pro</p>
+        <div style="margin-top:12px;">
+            <label for="admin-api-key">Clé administrateur serveur :</label>
+            <input type="password" id="admin-api-key" autocomplete="off" placeholder="AZ_ADMIN_API_KEY" style="margin-left:8px;max-width:320px;">
+            <button type="button" class="btn-vip" onclick="enregistrerCleAdmin()">🔐 Enregistrer la clé</button>
+        <p id="etat-cle-admin" style="margin-top:8px;">Clé non enregistrée.</p>
 
         <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px;">
             <button class="btn-vip" onclick="actualiserAdmin()">
@@ -128,21 +133,28 @@
     <p>AZ Turf Pro - Administration</p>
 </footer>
 
-<script src="admin.js"></script>
+<script src="admin.js?v=35"></script>
 
 <script>
-    function actualiserAdmin() {
-        if (typeof chargerStatistiquesAdmin === "function") chargerStatistiquesAdmin();
-        if (typeof chargerAbonnements === "function") chargerAbonnements();
-    }
+    // NE PAS redéfinir actualiserAdmin ici : window.actualiserAdmin est
+    // déjà fourni par admin.js (il revalide la clé côté serveur et
+    // affiche les erreurs d'auth). Le redéfinir ici l'écrasait et
+    // cassait la détection des clés invalides/expirées.
 
-    // FONCTION POUR DÉBLOQUER LES TICKETS EN MODE ADMIN
+    // Accès Premium admin : la clé reste côté session navigateur et
+    // sera vérifiée côté serveur par ticket-premium.js.
     function accederVIPAdmin() {
-        localStorage.setItem("AZ_TURF_PREMIUM_ACTIF", "true");
-        localStorage.setItem("AZ_TURF_TELEPHONE", "COMPTE ADMINISTRATEUR");
+        const key = sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") || "";
+        if (!key) {
+            alert("Saisissez et enregistrez d'abord la clé administrateur serveur.");
+            return;
+        }
         window.location.href = "ticket-premium.html";
     }
 </script>
+
+
+
 
 </body>
 </html>
