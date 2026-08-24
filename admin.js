@@ -196,7 +196,8 @@ try{
 
 const response =
 await fetch(
-API_STATISTIQUES
+API_STATISTIQUES,
+{ headers: window.AZAuth.authHeaders() }
 );
 
 
@@ -263,7 +264,8 @@ try{
 
 const response =
 await fetch(
-API_ABONNEMENTS
+API_ABONNEMENTS,
+{ headers: window.AZAuth.authHeaders() }
 );
 
 
@@ -489,6 +491,39 @@ resultat.innerHTML =
 
 
 // =====================================
+// VALIDATION PAIEMENT (avant activation)
+// =====================================
+
+async function validerPaiement(){
+  const telephone = document.getElementById("validation-telephone").value.trim();
+  const reference = document.getElementById("validation-reference").value.trim();
+  const resultat = document.getElementById("resultat-validation");
+
+  if (!telephone || !reference) {
+    resultat.innerHTML = "⚠️ Téléphone et référence obligatoires";
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      API_BASE + "/admin/valider-paiement?telephone=" + encodeURIComponent(telephone) + "&reference=" + encodeURIComponent(reference),
+      { method: "POST", headers: window.AZAuth.authHeaders() }
+    );
+    const data = await response.json();
+
+    if (!response.ok) {
+      resultat.innerHTML = "❌ " + (data.detail || "Erreur de validation");
+      return;
+    }
+
+    resultat.innerHTML = "✅ Paiement validé. Le client peut maintenant activer avec cette référence.";
+  } catch (erreur) {
+    resultat.innerHTML = "❌ Erreur réseau : " + erreur.message;
+  }
+}
+
+
+// =====================================
 // ACTIVATION PREMIUM
 // =====================================
 
@@ -551,7 +586,8 @@ method:"POST",
 headers:{
 
 "Content-Type":
-"application/json"
+"application/json",
+...window.AZAuth.authHeaders()
 
 },
 

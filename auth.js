@@ -9,6 +9,16 @@
   const KEY_ADMIN = "AZ_TURF_ADMIN_KEY";       // sessionStorage — effacée à la fermeture de l'onglet
   const KEY_PREMIUM = "AZ_TURF_PREMIUM_TOKEN"; // localStorage — jeton signé par le serveur (voir security.py)
 
+  // MODE DEV LOCAL UNIQUEMENT — ne s'active jamais en production.
+  // Permet de continuer à construire l'app sans être bloqué par la
+  // clé admin/premium pendant que tu es en localhost.
+  // ⚠️ N'a AUCUN effet sur ton domaine Render réel : les utilisateurs
+  // et les vrais abonnés ne sont jamais concernés par ceci.
+  function estEnLocal() {
+    const h = global.location && global.location.hostname;
+    return h === "localhost" || h === "127.0.0.1" || h === "";
+  }
+
   function getAdminKey() {
     return sessionStorage.getItem(KEY_ADMIN) || "";
   }
@@ -27,10 +37,12 @@
   }
 
   function hasAccess() {
+    if (estEnLocal()) return true;
     return Boolean(getAdminKey() || getPremiumToken());
   }
 
   function isAdmin() {
+    if (estEnLocal()) return true;
     return Boolean(getAdminKey());
   }
 

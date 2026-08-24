@@ -90,6 +90,22 @@
             <p id="resultat-premium">Aucune vérification</p>
         </div>
 
+        <!-- VALIDATION PAIEMENT (étape 1 : avant activation) -->
+        <div class="box premium">
+            <h2>💰 Valider un paiement reçu</h2>
+            <p style="margin-top: 10px;">Téléphone utilisateur :</p>
+            <input type="text" id="validation-telephone" placeholder="Numéro téléphone">
+
+            <p style="margin-top: 10px;">Référence reçue (Orange/Moov/Wave) :</p>
+            <input type="text" id="validation-reference" placeholder="Référence paiement">
+
+            <button class="btn-vip" onclick="validerPaiement()">
+                💰 Confirmer réception du paiement
+            </button>
+
+            <p id="resultat-validation">Aucune validation</p>
+        </div>
+
         <!-- ACTIVATION PREMIUM -->
         <div class="box premium">
             <h2>⚡ Activation Premium</h2>
