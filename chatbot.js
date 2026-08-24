@@ -17,8 +17,6 @@ function escapeHtml(value) {
     .replace(/'/g, "&#039;");
 }
 
-// Markdown volontairement limité et sécurisé : aucun HTML fourni par le serveur
-// n'est exécuté dans le navigateur.
 function renderMarkdown(value) {
   let html = escapeHtml(value);
   html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
@@ -94,7 +92,6 @@ function addQuickChip(icon, question) {
   ["🏷️", "Explique les badges"]
 ].forEach(([icon, q]) => addQuickChip(icon, q));
 
-// Retour conservé.
 document.getElementById("chat-back")?.addEventListener("click", () => {
   if (window.history.length > 1) window.history.back();
   else window.location.href = "index.html";
@@ -107,56 +104,21 @@ clearBtn?.addEventListener("click", () => {
 });
 
 function getAssistantAuthHeaders() {
-  // L'administrateur utilise la même clé que celle enregistrée depuis
-  // l'interface d'administration. Elle reste côté sessionStorage et n'est
-  // jamais exposée dans le code source.
-  const adminKey =
-    sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
-    localStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
-    sessionStorage.getItem("AZ_TURF_ADMIN_KEY") ||
-    localStorage.getItem("AZ_TURF_ADMIN_KEY") ||
-    sessionStorage.getItem("ADMIN_API_KEY") ||
-    localStorage.getItem("ADMIN_API_KEY") ||
-    sessionStorage.getItem("admin_api_key") ||
-    localStorage.getItem("admin_api_key") ||
-    "";
-
-  const token =
-    localStorage.getItem("AZ_TURF_PREMIUM_TOKEN") ||
-    sessionStorage.getItem("AZ_TURF_PREMIUM_TOKEN") ||
-    "";
-
   const headers = {
     "Content-Type": "application/json",
-    "Accept": "text/event-stream"
+    "Accept": "text/event-stream",
+    ...window.AZAuth.authHeaders()
   };
 
-  if (adminKey) {
-    headers["X-Admin-Key"] = adminKey;
-  } else if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
-
-  return { headers, isAdmin: Boolean(adminKey), hasPremiumToken: Boolean(token) };
+  return {
+    headers,
+    isAdmin: window.AZAuth.isAdmin(),
+    hasPremiumToken: Boolean(window.AZAuth.getPremiumToken())
+  };
 }
 
 async function streamAnswer(question) {
   const auth = getAssistantAuthHeaders();
-
-  if (auth.isAdmin) {
-    const verification = await fetch("/api/admin/verification", {
-      method: "GET",
-      headers: { "X-Admin-Key": auth.headers["X-Admin-Key"] || "" },
-      cache: "no-store"
-    });
-    if (!verification.ok) {
-      let detail = "Clé administrateur refusée.";
-      try { const data = await verification.json(); detail = data.detail || detail; } catch (_) {}
-      throw new Error(detail);
-    }
-  }
-  // Ne bloque plus localement un administrateur dont la session n'a
-  // pas encore été restaurée : le serveur est la source d'autorité.
   const response = await fetch(CHAT_STREAM_API, {
     method: "POST",
     headers: auth.headers,
@@ -234,4 +196,3 @@ form?.addEventListener("submit", async event => {
 });
 
 restoreHistory();
-      
