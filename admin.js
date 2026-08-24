@@ -49,9 +49,13 @@ async function initialiserAdmin(){
 
     await verifierAPI();
 
-    await chargerStatistiquesAdmin();
-
-    await chargerAbonnements();
+    // Les statistiques/abonnements exigent la clé admin : on ne les
+    // charge qu'après connexion (voir connexionAdmin() dans admin.html),
+    // ou immédiatement si une session admin est déjà active.
+    if (window.AZAuth && window.AZAuth.isAdmin()) {
+        await chargerStatistiquesAdmin();
+        await chargerAbonnements();
+    }
 
 }
 
