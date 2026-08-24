@@ -8,6 +8,21 @@
   const API = "/api/analyse";
   const ABS_API = "https://az-turf-pro.onrender.com/api/analyse";
 
+  function accesLocalPremium() {
+    return Boolean(
+      sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
+      localStorage.getItem("AZ_TURF_PREMIUM_TOKEN")
+    );
+  }
+
+  function entetesAccesPremium() {
+    const adminKey = sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") || "";
+    const token = localStorage.getItem("AZ_TURF_PREMIUM_TOKEN") || "";
+    if (adminKey) return { "X-Admin-Key": adminKey };
+    if (token) return { "Authorization": "Bearer " + token };
+    return {};
+  }
+
   function el(id) { return document.getElementById(id); }
 
   function put(id, value, fallback = "Indisponible") {
@@ -186,14 +201,14 @@
     try {
       const response = await fetch(API + "?t=" + Date.now(), {
         cache: "no-store",
-        headers: { "Accept": "application/json" }
+        headers: { "Accept": "application/json", ...entetesAccesPremium() }
       });
 
       if (!response.ok) {
         // Même domaine Render : second essai absolu.
         const retry = await fetch(ABS_API + "?t=" + Date.now(), {
           cache: "no-store",
-          headers: { "Accept": "application/json" }
+          headers: { "Accept": "application/json", ...entetesAccesPremium() }
         });
         if (!retry.ok) throw new Error("API analyse indisponible (" + retry.status + ")");
         render(await retry.json());
@@ -225,6 +240,21 @@
     put("meta-partants", data.partants || "");
   }
 
-  document.addEventListener("DOMContentLoaded", load);
+  function initAcces() {
+    const messageBlocage = el("message-blocage");
+    const contenuPremium = el("contenu-premium");
+
+    if (!accesLocalPremium()) {
+      if (contenuPremium) contenuPremium.classList.add("zone-masquee");
+      if (messageBlocage) messageBlocage.style.display = "";
+      return;
+    }
+
+    if (messageBlocage) messageBlocage.style.display = "none";
+    if (contenuPremium) contenuPremium.classList.remove("zone-masquee");
+    load();
+  }
+
+  document.addEventListener("DOMContentLoaded", initAcces);
   window.azPremiumReload = load;
 })();
