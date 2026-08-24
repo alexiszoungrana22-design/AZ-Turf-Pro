@@ -62,7 +62,7 @@ function formaterPastilles(texte) {
 
 async function chargerTicketsPremiumLive() {
     try {
-        const reponse = await fetch(`${API_URL}/api/premium/ticket`, {
+        const reponse = await fetch(`${API_URL}/api/analyse`, {
             method: "GET",
             cache: "no-store",
             headers: { "Accept": "application/json", ...window.AZAuth.authHeaders() }

@@ -20,6 +20,7 @@
   function nums(value) {
     if (Array.isArray(value)) {
       return value.map(v => {
+        if (Array.isArray(v)) return v.join("-");
         if (v && typeof v === "object") return v.numero ?? v.numPmu ?? v.num ?? v.nom ?? "";
         return v;
       }).filter(v => v !== "");
@@ -83,6 +84,10 @@
     put("quinte-premium", join(quinte));
     put("quarte-premium", join(quarte));
     put("trio-premium", join(trio));
+
+    // "Sélection Premium du jour" — jusqu'à 8 chevaux (selection_quinte).
+    const selectionJour = p.selection_quinte ?? p.selection ?? quinte;
+    put("selection-premium", join(selectionJour));
 
     if (couple && typeof couple === "object" && !Array.isArray(couple)) {
       const gagnant = nums(couple.gagnant || couple.couple_gagnant || couple.selection);
