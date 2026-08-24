@@ -957,8 +957,6 @@ def assistant_chat(
     x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
     authorization: str | None = Header(default=None),
 ):
-    _auth_assistant(x_admin_key, authorization)
-
     question = str(payload.get("question", "")).strip()
     if not question:
         raise HTTPException(status_code=400, detail="Question obligatoire.")
@@ -973,8 +971,6 @@ async def assistant_chat_stream(
     x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
     authorization: str | None = Header(default=None),
 ):
-    _auth_assistant(x_admin_key, authorization)
-
     question = str(payload.get("question", "")).strip()
     if not question:
         raise HTTPException(status_code=400, detail="Question obligatoire.")
