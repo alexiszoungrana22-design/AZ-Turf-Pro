@@ -142,6 +142,19 @@ function getAssistantAuthHeaders() {
 
 async function streamAnswer(question) {
   const auth = getAssistantAuthHeaders();
+
+  if (auth.isAdmin) {
+    const verification = await fetch("/api/admin/verification", {
+      method: "GET",
+      headers: { "X-Admin-Key": auth.headers["X-Admin-Key"] || "" },
+      cache: "no-store"
+    });
+    if (!verification.ok) {
+      let detail = "Clé administrateur refusée.";
+      try { const data = await verification.json(); detail = data.detail || detail; } catch (_) {}
+      throw new Error(detail);
+    }
+  }
   // Ne bloque plus localement un administrateur dont la session n'a
   // pas encore été restaurée : le serveur est la source d'autorité.
   const response = await fetch(CHAT_STREAM_API, {

@@ -30,6 +30,11 @@
     <section class="course-card">
         <h2>📊 Tableau de bord administrateur</h2>
         <p>Gestion et suivi de la plateforme AZ Turf Pro</p>
+        <div style="margin-top:12px;">
+            <label for="admin-api-key">Clé administrateur serveur :</label>
+            <input type="password" id="admin-api-key" autocomplete="off" placeholder="AZ_ADMIN_API_KEY" style="margin-left:8px;max-width:320px;">
+            <button type="button" class="btn-vip" onclick="enregistrerCleAdmin()">🔐 Enregistrer la clé</button>
+        <p id="etat-cle-admin" style="margin-top:8px;">Clé non enregistrée.</p>
 
         <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px;">
             <button class="btn-vip" onclick="actualiserAdmin()">
@@ -136,12 +141,39 @@
         if (typeof chargerAbonnements === "function") chargerAbonnements();
     }
 
-    // FONCTION POUR DÉBLOQUER LES TICKETS EN MODE ADMIN
+    // Accès Premium admin : la clé reste côté session navigateur et
+    // sera vérifiée côté serveur par ticket-premium.js.
     function accederVIPAdmin() {
-        localStorage.setItem("AZ_TURF_PREMIUM_ACTIF", "true");
-        localStorage.setItem("AZ_TURF_TELEPHONE", "COMPTE ADMINISTRATEUR");
+        const key = sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") || "";
+        if (!key) {
+            alert("Saisissez et enregistrez d'abord la clé administrateur serveur.");
+            return;
+        }
         window.location.href = "ticket-premium.html";
     }
+</script>
+
+
+<script>
+function enregistrerCleAdmin() {
+  const input=document.getElementById("admin-api-key");
+  const key=(input?.value||"").trim();
+  const state=document.getElementById("etat-cle-admin");
+  if(!key){ if(state) state.textContent="⚠️ Saisissez la clé administrateur."; return; }
+  sessionStorage.setItem("AZ_TURF_ADMIN_API_KEY",key);
+  localStorage.setItem("AZ_TURF_ADMIN_API_KEY",key);
+  if(state) state.textContent="⏳ Vérification de la clé...";
+  fetch("/api/admin/verification",{headers:{"X-Admin-Key":key},cache:"no-store"})
+    .then(async r=>{
+      if(r.ok){ if(state) state.textContent="✅ Clé administrateur validée par le serveur."; }
+      else { sessionStorage.removeItem("AZ_TURF_ADMIN_API_KEY"); localStorage.removeItem("AZ_TURF_ADMIN_API_KEY"); let d="Clé administrateur refusée."; try{d=(await r.json()).detail||d;}catch(_){} if(state) state.textContent="❌ "+d; }
+    }).catch(()=>{if(state) state.textContent="⚠️ Serveur indisponible pour la vérification.";});
+}
+function accederVIPAdmin(){
+  const key=sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY")||localStorage.getItem("AZ_TURF_ADMIN_API_KEY")||"";
+  if(!key){alert("Saisissez et enregistrez d'abord la clé administrateur serveur.");return;}
+  window.location.href="chatbot.html";
+}
 </script>
 
 </body>
