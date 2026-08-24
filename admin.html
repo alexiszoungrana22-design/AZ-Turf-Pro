@@ -30,13 +30,15 @@
     <section class="course-card">
         <h2>📊 Tableau de bord administrateur</h2>
         <p>Gestion et suivi de la plateforme AZ Turf Pro</p>
-        <div style="margin-top:12px;">
-            <label for="admin-api-key">Clé administrateur serveur :</label>
-            <input type="password" id="admin-api-key" autocomplete="off" placeholder="AZ_ADMIN_API_KEY" style="margin-left:8px;max-width:320px;">
-            <button type="button" class="btn-vip" onclick="enregistrerCleAdmin()">🔐 Enregistrer la clé</button>
-        <p id="etat-cle-admin" style="margin-top:8px;">Clé non enregistrée.</p>
 
-        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px;">
+        <!-- CONNEXION ADMIN -->
+        <div id="admin-login" style="margin-top: 15px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <input type="password" id="admin-key-input" placeholder="Clé administrateur" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc;">
+            <button class="btn-vip" onclick="connexionAdmin()">🔐 Se connecter</button>
+            <span id="admin-login-message"></span>
+        </div>
+
+        <div id="admin-actions" style="display: none; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px;">
             <button class="btn-vip" onclick="actualiserAdmin()">
                 🔄 Actualiser les données
             </button>
@@ -44,6 +46,10 @@
             <!-- BOUTON ACCÈS DIRECT ADMIN -->
             <button class="btn-vip" onclick="accederVIPAdmin()" style="background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #ffffff;">
                 👑 Voir les Tickets VIP (Accès Admin)
+            </button>
+
+            <button class="btn-vip" onclick="deconnexionAdmin()" style="background: #6b7280; color: #fff;">
+                🚪 Déconnexion
             </button>
         </div>
     </section>
@@ -133,6 +139,7 @@
     <p>AZ Turf Pro - Administration</p>
 </footer>
 
+<script src="auth.js"></script>
 <script src="admin.js"></script>
 
 <script>
@@ -141,39 +148,43 @@
         if (typeof chargerAbonnements === "function") chargerAbonnements();
     }
 
-    // Accès Premium admin : la clé reste côté session navigateur et
-    // sera vérifiée côté serveur par ticket-premium.js.
-    function accederVIPAdmin() {
-        const key = sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") || "";
+    function majAffichageConnexion() {
+        const connecte = window.AZAuth.isAdmin();
+        document.getElementById("admin-login").style.display = connecte ? "none" : "flex";
+        document.getElementById("admin-actions").style.display = connecte ? "flex" : "none";
+    }
+
+    async function connexionAdmin() {
+        const msg = document.getElementById("admin-login-message");
+        const key = document.getElementById("admin-key-input").value.trim();
         if (!key) {
-            alert("Saisissez et enregistrez d'abord la clé administrateur serveur.");
+            msg.textContent = "⚠️ Entrez la clé administrateur.";
             return;
         }
+        msg.textContent = "Vérification...";
+        const ok = await window.AZAuth.loginAdmin(key);
+        if (ok) {
+            msg.textContent = "";
+            majAffichageConnexion();
+            actualiserAdmin();
+        } else {
+            msg.textContent = "❌ Clé incorrecte.";
+        }
+    }
+
+    function deconnexionAdmin() {
+        window.AZAuth.clearAccess();
+        majAffichageConnexion();
+    }
+
+    // FONCTION POUR ACCÉDER AUX TICKETS VIP EN MODE ADMIN
+    // (L'accès est déjà validé par window.AZAuth.loginAdmin ci-dessus ;
+    //  cette fonction se contente de rediriger vers la page Premium.)
+    function accederVIPAdmin() {
         window.location.href = "ticket-premium.html";
     }
-</script>
 
-
-<script>
-function enregistrerCleAdmin() {
-  const input=document.getElementById("admin-api-key");
-  const key=(input?.value||"").trim();
-  const state=document.getElementById("etat-cle-admin");
-  if(!key){ if(state) state.textContent="⚠️ Saisissez la clé administrateur."; return; }
-  sessionStorage.setItem("AZ_TURF_ADMIN_API_KEY",key);
-  localStorage.setItem("AZ_TURF_ADMIN_API_KEY",key);
-  if(state) state.textContent="⏳ Vérification de la clé...";
-  fetch("/api/admin/verification",{headers:{"X-Admin-Key":key},cache:"no-store"})
-    .then(async r=>{
-      if(r.ok){ if(state) state.textContent="✅ Clé administrateur validée par le serveur."; }
-      else { sessionStorage.removeItem("AZ_TURF_ADMIN_API_KEY"); localStorage.removeItem("AZ_TURF_ADMIN_API_KEY"); let d="Clé administrateur refusée."; try{d=(await r.json()).detail||d;}catch(_){} if(state) state.textContent="❌ "+d; }
-    }).catch(()=>{if(state) state.textContent="⚠️ Serveur indisponible pour la vérification.";});
-}
-function accederVIPAdmin(){
-  const key=sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY")||localStorage.getItem("AZ_TURF_ADMIN_API_KEY")||"";
-  if(!key){alert("Saisissez et enregistrez d'abord la clé administrateur serveur.");return;}
-  window.location.href="chatbot.html";
-}
+    document.addEventListener("DOMContentLoaded", majAffichageConnexion);
 </script>
 
 </body>

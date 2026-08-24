@@ -18,7 +18,7 @@ API_BASE + "/premium";
 
 
 const API_ACTIVATION =
-API_BASE + "/admin/valider-reference";
+API_BASE + "/activation";
 
 
 const API_STATISTIQUES =
@@ -27,24 +27,6 @@ API_BASE + "/admin/statistiques";
 
 const API_ABONNEMENTS =
 API_BASE + "/admin/abonnements";
-
-function getAdminKey(){
-    return sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") || "";
-}
-
-function enregistrerCleAdmin(){
-    const input = document.getElementById("admin-api-key");
-    const key = input ? input.value.trim() : "";
-    if(!key){ alert("Veuillez saisir la clé administrateur."); return; }
-    sessionStorage.setItem("AZ_TURF_ADMIN_API_KEY", key);
-    if(input) input.value = "";
-    alert("Clé administrateur enregistrée pour cette session.");
-    actualiserAdmin();
-}
-
-function headersAdmin(extra={}){
-    return Object.assign({"X-Admin-Key": getAdminKey()}, extra);
-}
 
 
 
@@ -208,56 +190,59 @@ etat.innerHTML =
 
 async function chargerStatistiquesAdmin(){
 
-    const champs = [
-        "total-abonnements",
-        "nombre-premium",
-        "paiements-attente",
-        "abonnements-expire"
-    ];
 
-    const afficher = (valeur) => {
-        champs.forEach((id) => {
-            const element = document.getElementById(id);
-            if (element) element.textContent = valeur;
-        });
-    };
+try{
 
-    const key = getAdminKey();
-    if(!key){
-        afficher("🔐 Clé requise");
-        return;
-    }
 
-    try{
-        const response = await fetch(
-            API_STATISTIQUES,
-            {headers: headersAdmin()}
-        );
+const response =
+await fetch(
+API_STATISTIQUES
+);
 
-        let data = {};
-        try { data = await response.json(); } catch (_) {}
 
-        if(!response.ok){
-            const message = response.status === 401
-                ? "🔒 Non autorisé"
-                : response.status === 503
-                    ? "⚠️ Clé serveur indisponible"
-                    : "⚠️ Indisponible";
-            afficher(message);
-            console.warn("Statistiques admin refusées:", response.status, data.detail || "");
-            return;
-        }
 
-        afficher("0");
-        document.getElementById("total-abonnements").textContent = Number.isFinite(Number(data.total)) ? data.total : 0;
-        document.getElementById("nombre-premium").textContent = Number.isFinite(Number(data.actifs)) ? data.actifs : 0;
-        document.getElementById("paiements-attente").textContent = Number.isFinite(Number(data.en_attente)) ? data.en_attente : 0;
-        document.getElementById("abonnements-expire").textContent = Number.isFinite(Number(data.expires)) ? data.expires : 0;
+const data =
+await response.json();
 
-    } catch(error){
-        console.error("Erreur statistiques :", error);
-        afficher("⚠️ Erreur");
-    }
+
+
+if(document.getElementById("total-abonnements"))
+document.getElementById("total-abonnements").innerHTML =
+data.total;
+
+
+
+if(document.getElementById("nombre-premium"))
+document.getElementById("nombre-premium").innerHTML =
+data.actifs;
+
+
+
+if(document.getElementById("paiements-attente"))
+document.getElementById("paiements-attente").innerHTML =
+data.en_attente;
+
+
+
+if(document.getElementById("abonnements-expire"))
+document.getElementById("abonnements-expire").innerHTML =
+data.expires;
+
+
+
+}
+
+
+
+catch(error){
+
+console.error(
+"Erreur statistiques :",
+error
+);
+
+}
+
 }
 
 
@@ -272,35 +257,26 @@ async function chargerStatistiquesAdmin(){
 
 async function chargerAbonnements(){
 
-    const liste = document.getElementById("liste-abonnements");
-    const key = getAdminKey();
 
-    if(!key){
-        if(liste) liste.textContent = "🔐 Clé administrateur requise";
-        return;
-    }
+try{
 
-    try{
-        const response = await fetch(
-            API_ABONNEMENTS,
-            {headers: headersAdmin()}
-        );
 
-        let data = {};
-        try { data = await response.json(); } catch (_) {}
-
-        if(!response.ok){
-            if(liste){
-                liste.textContent = response.status === 401
-                    ? "🔒 Accès administrateur refusé"
-                    : "⚠️ Données administrateur indisponibles";
-            }
-            return;
-        }
+const response =
+await fetch(
+API_ABONNEMENTS
+);
 
 
 
-// La liste est initialisée au début de chargerAbonnements().
+const data =
+await response.json();
+
+
+
+const liste =
+document.getElementById(
+"liste-abonnements"
+);
 
 
 
@@ -572,7 +548,12 @@ API_ACTIVATION,
 
 method:"POST",
 
-headers: headersAdmin({"Content-Type":"application/json"}),
+headers:{
+
+"Content-Type":
+"application/json"
+
+},
 
 
 body:JSON.stringify({

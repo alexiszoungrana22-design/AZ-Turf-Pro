@@ -9,7 +9,6 @@
   const ABS_API = "https://az-turf-pro.onrender.com/api/analyse";
 
   function el(id) { return document.getElementById(id); }
-
   function put(id, value, fallback = "Indisponible") {
     const node = el(id);
     if (!node) return;
@@ -186,14 +185,14 @@
     try {
       const response = await fetch(API + "?t=" + Date.now(), {
         cache: "no-store",
-        headers: { "Accept": "application/json" }
+        headers: { "Accept": "application/json", ...window.AZAuth.authHeaders() }
       });
 
       if (!response.ok) {
         // Même domaine Render : second essai absolu.
         const retry = await fetch(ABS_API + "?t=" + Date.now(), {
           cache: "no-store",
-          headers: { "Accept": "application/json" }
+          headers: { "Accept": "application/json", ...window.AZAuth.authHeaders() }
         });
         if (!retry.ok) throw new Error("API analyse indisponible (" + retry.status + ")");
         render(await retry.json());
@@ -225,6 +224,21 @@
     put("meta-partants", data.partants || "");
   }
 
-  document.addEventListener("DOMContentLoaded", load);
+  function initAcces() {
+    const messageBlocage = el("message-blocage");
+    const contenuPremium = el("contenu-premium");
+
+    if (!window.AZAuth.hasAccess()) {
+      if (contenuPremium) contenuPremium.classList.add("zone-masquee");
+      if (messageBlocage) messageBlocage.style.display = "";
+      return;
+    }
+
+    if (messageBlocage) messageBlocage.style.display = "none";
+    if (contenuPremium) contenuPremium.classList.remove("zone-masquee");
+    load();
+  }
+
+  document.addEventListener("DOMContentLoaded", initAcces);
   window.azPremiumReload = load;
 })();

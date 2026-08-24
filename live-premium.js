@@ -1,20 +1,5 @@
 const API_URL = window.location.origin;
 
-function entetesAccesPremium() {
-    const adminKey = sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") || "";
-    const token = localStorage.getItem("AZ_TURF_PREMIUM_TOKEN") || "";
-    if (adminKey) return { "X-Admin-Key": adminKey };
-    if (token) return { "Authorization": "Bearer " + token };
-    return {};
-}
-
-function accesLocalPremium() {
-    return Boolean(
-        sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
-        localStorage.getItem("AZ_TURF_PREMIUM_TOKEN")
-    );
-}
-
 document.addEventListener("DOMContentLoaded", () => {
     const btnTableau = document.getElementById("btn-toggle-tableau");
     const conteneurTableau = document.getElementById("conteneur-tableau");
@@ -32,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const contenuPremium = document.getElementById("contenu-premium");
-    if (!accesLocalPremium()) {
+    if (!window.AZAuth.hasAccess()) {
         if (contenuPremium) contenuPremium.classList.add("zone-masquee");
         if (btnTableau) btnTableau.disabled = true;
         return;
@@ -50,7 +35,7 @@ async function chargerTableauPartantsLive() {
     tbody.innerHTML = "<tr><td colspan='5'>Chargement...</td></tr>";
     try {
         const res = await fetch(`${API_URL}/api/partants`, {
-            headers: { "Accept": "application/json", ...entetesAccesPremium() }
+            headers: { "Accept": "application/json", ...window.AZAuth.authHeaders() }
         });
         const data = await res.json();
         tbody.innerHTML = "";
@@ -80,7 +65,7 @@ async function chargerTicketsPremiumLive() {
         const reponse = await fetch(`${API_URL}/api/premium/ticket`, {
             method: "GET",
             cache: "no-store",
-            headers: { "Accept": "application/json", ...entetesAccesPremium() }
+            headers: { "Accept": "application/json", ...window.AZAuth.authHeaders() }
         });
 
         if (!reponse.ok) {
