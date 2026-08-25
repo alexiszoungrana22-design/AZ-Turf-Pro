@@ -27,14 +27,12 @@ from fastapi import APIRouter, HTTPException, Header
 from fastapi.responses import StreamingResponse
 import secrets
 import asyncio
-import re
 
 from engine import lancer_analyse
 
 from database import (
     creer_abonnement,
     activer_abonnement,
-    valider_reference_paiement,
     verifier_premium,
     lister_abonnements,
     statistiques_abonnements
@@ -60,6 +58,7 @@ from engine import lancer_analyse
 from modules.cotes_history import analyser_tendances_cotes
 from modules.pronos_presse import analyser_consensus_presse
 from modules.meteo_piste import analyser_impact_terrain
+from modules.stats_backtest import calculer_stats_performance, simuler_backtest_filtre
 
 router = APIRouter(
     prefix="/api",
@@ -519,11 +518,10 @@ def abonnement(
 
 @router.post("/activation")
 def activation_premium(
-    activation: ActivationRequest
+    activation: ActivationRequest,
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
 ):
-    # Auto-service : la vraie protection est déjà dans activer_abonnement,
-    # qui n'active que si un admin a préalablement validé cette référence
-    # exacte via /admin/valider-paiement. Aucune clé admin requise ici.
+    _require_admin(x_admin_key)
 
     abonnement = activer_abonnement(
 
@@ -851,9 +849,19 @@ def api_analyse_complete(payload: dict):
 # =========================================================
 
 def _admin_configured_keys() -> list[str]:
-    """Retourne la clé admin configurée sur le serveur (une seule source de vérité)."""
-    value = os.getenv("AZ_ADMIN_API_KEY", "").strip()
-    return [value] if value else []
+    """Retourne toutes les clés admin configurées, sans les exposer au client."""
+    keys = []
+    for name in (
+        "AZ_ADMIN_API_KEY",
+        "AZ_TURF_ADMIN_API_KEY",
+        "AZ_TURF_ADMIN_KEY",
+        "ADMIN_API_KEY",
+        "ADMIN_KEY",
+    ):
+        value = os.getenv(name, "").strip()
+        if value and value not in keys:
+            keys.append(value)
+    return keys
 
 
 def _admin_expected_key() -> str:
@@ -907,27 +915,6 @@ def admin_verification(x_admin_key: str | None = Header(default=None, alias="X-A
     return {"authorized": True, "role": "admin"}
 
 
-@router.post("/admin/valider-paiement")
-def admin_valider_paiement(
-    telephone: str,
-    reference: str,
-    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
-):
-    """L'admin confirme avoir reçu ce paiement (Orange/Moov/Wave, vérifié
-    manuellement pour l'instant). Le client peut ensuite activer lui-même
-    via /activation en resaisissant la même référence exacte."""
-    _require_admin(x_admin_key)
-
-    abonnement = valider_reference_paiement(telephone, reference)
-    if abonnement is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Aucun abonnement en attente trouvé pour ce numéro."
-        )
-
-    return {"message": "Référence validée. Le client peut maintenant activer.", "abonnement": abonnement}
-
-
 def _contexte_assistant():
     course, source = charger_course()
     if not course:
@@ -955,6 +942,25 @@ def _contexte_assistant():
         }
     )
 
+    info_course = {
+        "date": course.get("date"),
+        "reunion": course.get("reunion"),
+        "course_numero": course.get("course_numero"),
+        "course": course.get("course", ""),
+        "hippodrome": course.get("hippodrome", ""),
+        "discipline": course.get("discipline", ""),
+        "distance": course.get("distance_course", ""),
+        "allocation": course.get("allocation", ""),
+        "heure_depart": course.get("heure_depart", ""),
+        "horaires": course.get("horaires", {}),
+        "non_partants": course.get("non_partants", []),
+        "plus_joues": course.get("plus_joues", []),
+    }
+
+    tendances = analyser_tendances_cotes({"chevaux": chevaux})
+    presse = analyser_consensus_presse({"info_course": info_course, "chevaux": chevaux})
+    meteo = analyser_impact_terrain({"info_course": info_course})
+
     return {
         "moteur": {
             "classement": resultat.get("chevaux", []),
@@ -962,6 +968,10 @@ def _contexte_assistant():
         },
         "course": course,
         "source": source,
+        "cotes": tendances,
+        "presse": presse,
+        "meteo": meteo,
+        "partants": chevaux,
     }
 
 
@@ -971,11 +981,14 @@ def assistant_chat(
     x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
     authorization: str | None = Header(default=None),
 ):
+    _auth_assistant(x_admin_key, authorization)
+
     question = str(payload.get("question", "")).strip()
     if not question:
         raise HTTPException(status_code=400, detail="Question obligatoire.")
 
     contexte = _contexte_assistant()
+    contexte["historique"] = payload.get("historique") or []
     return repondre_assistant_turf(question, contexte)
 
 
@@ -985,6 +998,8 @@ async def assistant_chat_stream(
     x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
     authorization: str | None = Header(default=None),
 ):
+    _auth_assistant(x_admin_key, authorization)
+
     question = str(payload.get("question", "")).strip()
     if not question:
         raise HTTPException(status_code=400, detail="Question obligatoire.")
@@ -994,6 +1009,7 @@ async def assistant_chat_stream(
     async def generate():
         try:
             contexte = _contexte_assistant()
+            contexte["historique"] = historique
             # Le moteur actuel produit une réponse complète ; on la transmet
             # progressivement pour conserver l'interface SSE sans inventer de texte.
             resultat = repondre_assistant_turf(question, contexte)
