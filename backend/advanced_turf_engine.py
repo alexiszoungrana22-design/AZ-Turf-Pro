@@ -42,7 +42,7 @@ class AZTurfAdvancedEngine:
     def calculer_jauge_risque(self, classement: list) -> dict:
         """Module 4 : Indice de risque chiffré (1 à 5) pour qualifier la course"""
         if not classement or len(classement) < 3:
-            return {"niveau": 3, label": "Moyen / Incertain"}
+            return {"niveau": 3, "label": "Moyen / Incertain"}
         
         # Logique de calcul basée sur l'écart d'indice AZ entre le 1er et le 3ème
         top1 = float(classement[0].get("indice_az", 50))
