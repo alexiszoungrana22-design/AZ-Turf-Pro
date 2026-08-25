@@ -27,6 +27,7 @@ from fastapi import APIRouter, HTTPException, Header
 from fastapi.responses import StreamingResponse
 import secrets
 import asyncio
+import re
 
 from engine import lancer_analyse
 
@@ -981,8 +982,8 @@ def assistant_chat(
     x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
     authorization: str | None = Header(default=None),
 ):
-    _auth_assistant(x_admin_key, authorization)
-
+    # Chatbot public : aucune authentification Premium/Admin requise.
+    # Les routes Premium/Admin restent inchangées.
     question = str(payload.get("question", "")).strip()
     if not question:
         raise HTTPException(status_code=400, detail="Question obligatoire.")
@@ -998,8 +999,8 @@ async def assistant_chat_stream(
     x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
     authorization: str | None = Header(default=None),
 ):
-    _auth_assistant(x_admin_key, authorization)
-
+    # Chatbot public : aucune authentification Premium/Admin requise.
+    # Les routes Premium/Admin restent inchangées.
     question = str(payload.get("question", "")).strip()
     if not question:
         raise HTTPException(status_code=400, detail="Question obligatoire.")
