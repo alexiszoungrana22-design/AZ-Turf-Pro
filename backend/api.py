@@ -226,6 +226,16 @@ def partants():
 # ANALYSE AZ TURF
 # =====================================
 
+@router.get("/version")
+def version():
+    """Petit indicateur pour vérifier facilement, depuis un navigateur,
+    quelle version du code est réellement déployée sur ce serveur."""
+    return {
+        "version": "az-turf-pro-securite-v8-chatbot-ia",
+        "chatbot": "modules/chatbot_turf.py — moteur IA (Claude/OpenAI + repli mots-clés)",
+    }
+
+
 @router.get("/analyse")
 def analyse():
 
@@ -975,8 +985,9 @@ def assistant_chat(
     if not question:
         raise HTTPException(status_code=400, detail="Question obligatoire.")
 
+    historique = payload.get("historique") or []
     contexte = _contexte_assistant()
-    return repondre_assistant_turf(question, contexte)
+    return repondre_assistant_turf(question, contexte, historique)
 
 
 @router.post("/assistant/chat/stream")
@@ -994,9 +1005,9 @@ async def assistant_chat_stream(
     async def generate():
         try:
             contexte = _contexte_assistant()
-            # Le moteur actuel produit une réponse complète ; on la transmet
-            # progressivement pour conserver l'interface SSE sans inventer de texte.
-            resultat = repondre_assistant_turf(question, contexte)
+            # Le moteur (IA ou repli) produit une réponse complète ; on la
+            # transmet progressivement pour conserver l'interface SSE.
+            resultat = repondre_assistant_turf(question, contexte, historique)
             texte = str(resultat.get("reponse", ""))
             if not texte:
                 texte = "Je n'ai pas de réponse disponible actuellement."
