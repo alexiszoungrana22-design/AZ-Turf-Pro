@@ -144,7 +144,8 @@ def _appeler_claude(system_prompt: str, messages: list, question: str) -> str:
         json=payload,
         timeout=TIMEOUT_SECONDES,
     )
-    reponse.raise_for_status()
+    if reponse.status_code >= 400:
+        raise RuntimeError(f"Claude {reponse.status_code} : {reponse.text[:500]}")
     data = reponse.json()
     morceaux = [b.get("text", "") for b in data.get("content", []) if b.get("type") == "text"]
     texte = "".join(morceaux).strip()
@@ -173,7 +174,8 @@ def _appeler_openai(system_prompt: str, messages: list, question: str) -> str:
         json=payload,
         timeout=TIMEOUT_SECONDES,
     )
-    reponse.raise_for_status()
+    if reponse.status_code >= 400:
+        raise RuntimeError(f"OpenAI {reponse.status_code} : {reponse.text[:500]}")
     data = reponse.json()
     texte = (data.get("choices") or [{}])[0].get("message", {}).get("content", "").strip()
     if not texte:
