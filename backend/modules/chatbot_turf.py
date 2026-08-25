@@ -1,4 +1,4 @@
-"""AZ TURF PRO — Assistant conversationnel IA & Mémoire Avancée
+AZ TURF PRO — Assistant conversationnel IA & Mémoire Avancée
 Un pronostiqueur hippique et analyste, pas un chatbot à commandes :
 la question est envoyée telle quelle à un modèle de langage (Claude ou
 OpenAI), avec le contexte complet de la course et l'historique des archives,
@@ -35,7 +35,7 @@ TIMEOUT_SECONDES = 25
 MEMOIRE_COURSES_ARCHIVES = {}
 
 def archiver_course_passee(id_course: str, contexte_course: dict, arrivee_officielle: list) -> dict:
-    """Enregistre une course terminée dans la mémoire à long terme de l'assistant."""
+    """Enregistre une course terminée dans la mémoire à long terme de l'assistant"""
     if not id_course:
         id_course = f"COURSE_{datetime.now().strftime('%Y%m%d_%H%M')}"
     
