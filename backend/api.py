@@ -231,7 +231,7 @@ def version():
     """Petit indicateur pour vérifier facilement, depuis un navigateur,
     quelle version du code est réellement déployée sur ce serveur."""
     return {
-        "version": "az-turf-pro-securite-v8-chatbot-ia",
+        "version": "v13-erreur-detaillee",
         "chatbot": "modules/chatbot_turf.py — moteur IA (Claude/OpenAI + repli mots-clés)",
     }
 
