@@ -23,7 +23,7 @@ ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
 AI_PROVIDER = os.getenv("AI_PROVIDER", "anthropic").strip().lower()
 
-CLAUDE_MODEL = "claude-sonnet-4-5"
+CLAUDE_MODEL = "claude-sonnet-5"
 OPENAI_MODEL = "gpt-4o-mini"
 
 TIMEOUT_SECONDES = 25
