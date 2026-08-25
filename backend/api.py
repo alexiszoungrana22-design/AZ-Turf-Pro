@@ -916,7 +916,7 @@ def api_analyse_complete(payload: dict):
     }
 
 
-# =========================================================
+    # =========================================================
 # AUTHENTIFICATION ADMIN + ASSISTANT
 # =========================================================
 
@@ -936,8 +936,6 @@ def _admin_key_valide(admin_key: str | None) -> bool:
     supplied = (admin_key or "").strip()
     if not supplied:
         return False
-    # IMPORTANT : ne pas bloquer une clé correcte simplement parce qu'une
-    # ancienne variable Render contient encore une ancienne clé.
     return any(secrets.compare_digest(supplied, expected) for expected in _admin_configured_keys())
 
 
@@ -952,50 +950,6 @@ def _require_admin(admin_key: str | None) -> None:
             status_code=401,
             detail="Clé administrateur invalide ou différente de celle configurée sur le serveur."
         )
-
-
-def _auth_assistant(admin_key: str | None, authorization: str | None) -> str:
-    if _admin_key_valide(admin_key):
-        return "admin"
-
-    # Le frontend Premium transmet son token d'abonnement.
-    # La validation détaillée du téléphone reste gérée par /api/premium/{telephone}.
-    if authorization and authorization.lower().startswith("bearer "):
-        token = authorization[7:].strip()
-        if token:
-            return "premium"
-
-    raise HTTPException(
-        status_code=401,
-        detail="Accès refusé : Premium ou administrateur requis."
-    )
-
-
-@router.get("/admin/verification")
-def admin_verification(x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")):
-    _require_admin(x_admin_key)
-    return {"authorized": True, "role": "admin"}
-
-
-@router.post("/admin/valider-paiement")
-def admin_valider_paiement(
-    telephone: str,
-    reference: str,
-    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
-):
-    """L'admin confirme avoir reçu ce paiement (Orange/Moov/Wave, vérifié
-    manuellement pour l'instant). Le client peut ensuite activer lui-même
-    via /activation en resaisissant la même référence exacte."""
-    _require_admin(x_admin_key)
-
-    abonnement = valider_reference_paiement(telephone, reference)
-    if abonnement is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Aucun abonnement en attente trouvé pour ce numéro."
-        )
-
-    return {"message": "Référence validée. Le client peut maintenant activer.", "abonnement": abonnement}
 
 
 def _contexte_assistant():
@@ -1025,9 +979,6 @@ def _contexte_assistant():
         }
     )
 
-    # Enrichissement optionnel France Galop (courses de galop
-    # uniquement). Best-effort, jamais bloquant : si indisponible,
-    # le contexte reste identique à avant, rien n'est cassé.
     complement_galop = None
     try:
         from france_galop_source import obtenir_complement_france_galop
@@ -1047,12 +998,18 @@ def _contexte_assistant():
         "complement_france_galop": complement_galop,
     }
 
+
+# =========================================================
+# ENDPOINTS CHATBOT UNIFIÉS ET PROPRES
+# =========================================================
+
 @router.post("/assistant/chat")
 def assistant_chat(
     payload: dict,
     x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
     authorization: str | None = Header(default=None),
 ):
+    """Endpoint standard pour le chat (réponse JSON globale)."""
     question = str(payload.get("question", "")).strip()
     if not question:
         raise HTTPException(status_code=400, detail="Question obligatoire.")
@@ -1062,17 +1019,13 @@ def assistant_chat(
     return repondre_assistant_turf(question, contexte, historique)
 
 
-# CORRECTION : On ajoute le slash final optionnel sur les deux routes 
-# pour éviter que FastAPI ne rejette la requête en 404 (Not Found)
-@router.post("/chatbot/stream")
-@router.post("/chatbot/stream/")
 @router.post("/assistant/chat/stream")
-@router.post("/assistant/chat/stream/")
 async def assistant_chat_stream(
     payload: dict,
     x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
     authorization: str | None = Header(default=None),
 ):
+    """Endpoint unique en streaming (SSE) pour le chatbot."""
     question = str(payload.get("question", "")).strip()
     if not question:
         raise HTTPException(status_code=400, detail="Question obligatoire.")
@@ -1123,4 +1076,4 @@ async def assistant_chat_stream(
             "Connection": "keep-alive",
             "X-Accel-Buffering": "no",
         },
-)
+        )
