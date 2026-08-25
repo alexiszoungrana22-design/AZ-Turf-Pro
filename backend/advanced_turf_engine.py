@@ -11,7 +11,7 @@ class AZTurfAdvancedEngine:
         terrain = info_course.get("terrain_label", "Bon").lower()
         indice = float(info_course.get("penetrometrie", 3.0))
         
-        impact = "Conditions idéales pour tous les profil de chevaux."
+        impact = "Conditions idéales pour tous les profils de chevaux."
         avantage = "Chevaux polyvalents."
         
         if indice >= 4.2 or "lourd" in terrain:
@@ -30,7 +30,7 @@ class AZTurfAdvancedEngine:
 
     def detecter_smart_money(self, cotes_live: dict) -> dict:
         """Module 2 : Détection des coups de poker via les mouvements de cotes de dernière minute"""
-        chutes_importantes = cotes_live.get("chutes_cotes", [4]) # Ex: le N°4 voit sa cote chuter massivement
+        chutes_importantes = cotes_live.get("chutes_cotes", [4])
         delelaissements = cotes_live.get("delelaissements", [12])
         
         return {
@@ -44,7 +44,6 @@ class AZTurfAdvancedEngine:
         if not classement or len(classement) < 3:
             return {"niveau": 3, "label": "Moyen / Incertain"}
         
-        # Logique de calcul basée sur l'écart d'indice AZ entre le 1er et le 3ème
         top1 = float(classement[0].get("indice_az", 50))
         top3 = float(classement[2].get("indice_az", 30))
         ecart = top1 - top3
@@ -70,22 +69,20 @@ class AZTurfAdvancedEngine:
     def gerer_memoire_et_interaction(self, user_id: str, question: str, contexte_base: dict) -> str:
         """Module 3 : Gestion de la mémoire de session pour affiner les tickets en continu"""
         if user_id not in self.sessions_memoire:
-            self.sessions_memoire[user_id] = {"historique_questions": [], dernier_ticket_suggere": []}
+            self.sessions_memoire[user_id] = {"historique_questions": [], "dernier_ticket_suggere": []}
         
         session = self.sessions_memoire[user_id]
         session["historique_questions"].append(question)
         
         q = question.lower()
         
-        # Si l'utilisateur demande d'ajuster le ticket précédent (ex: "enlève le favori" ou "mets le 7 à la place")
         if "enlève" in q or "retire" in q or "change" in q or "et si" in q:
             reponse = (
                 f"🧠 **Mémoire Contextuelle Active** :\n"
                 f"J'ai pris en compte ton ajustement par rapport à notre échange précédent. "
-                f"La combinaison a été recalculée en écarte-ment le paramètre contesté pour optimiser ton nouveau pari."
+                f"La combinaison a été recalculée en écartant le paramètre contesté pour optimiser ton nouveau pari."
             )
         else:
-            # Analyse standard enrichie par les modules 1, 2 et 4
             meteo = self.analyser_terrain_meteo(contexte_base.get("course", {}))
             smart = self.detecter_smart_money(contexte_base.get("live", {}))
             risque = self.calculer_jauge_risque(contexte_base.get("moteur", {}).get("classement", []))
