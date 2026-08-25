@@ -236,6 +236,18 @@ def version():
     }
 
 
+@router.get("/assistant/diagnostic")
+def assistant_diagnostic():
+    """Confirme si les clés IA sont bien détectées par le serveur,
+    SANS jamais révéler leur valeur — juste vrai/faux."""
+    import os as _os
+    return {
+        "anthropic_key_detectee": bool(_os.getenv("ANTHROPIC_API_KEY", "").strip()),
+        "openai_key_detectee": bool(_os.getenv("OPENAI_API_KEY", "").strip()),
+        "provider_prioritaire": _os.getenv("AI_PROVIDER", "anthropic").strip().lower(),
+    }
+
+
 @router.get("/analyse")
 def analyse():
 
