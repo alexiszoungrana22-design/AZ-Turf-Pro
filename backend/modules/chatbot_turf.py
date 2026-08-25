@@ -56,6 +56,8 @@ def _resume_classement(contexte: dict, limite: int = 20) -> str:
     classement = moteur.get("classement", []) or []
     lignes = []
     for cheval in classement[:limite]:
+        if not isinstance(cheval, dict):
+            continue
         lignes.append(
             f"N°{cheval.get('numero', '?')} {cheval.get('nom', '?')} — "
             f"cote {cheval.get('cote', '-')}, "
@@ -107,6 +109,8 @@ def _historique_pour_ia(historique: list, limite: int = 12) -> list:
     format role/content compatible avec les deux API."""
     messages = []
     for entree in (historique or [])[-limite:]:
+        if not isinstance(entree, dict):
+            continue
         role = entree.get("role") or ("user" if entree.get("question") else "assistant")
         contenu = entree.get("content") or entree.get("question") or entree.get("reponse") or ""
         if not contenu:
@@ -229,24 +233,31 @@ def _reponse_secours(question: str, contexte: dict) -> str:
 
 def repondre_assistant_turf(question: str, contexte_analyse: dict = None, historique: list = None) -> dict:
     contexte = contexte_analyse or {}
-    system_prompt = _construire_system_prompt(contexte)
-    messages = _historique_pour_ia(historique)
 
-    ordre = [AI_PROVIDER] + [p for p in ("anthropic", "openai") if p != AI_PROVIDER]
-    appels = {"anthropic": _appeler_claude, "openai": _appeler_openai}
+    try:
+        system_prompt = _construire_system_prompt(contexte)
+        messages = _historique_pour_ia(historique)
 
-    derniere_erreur = None
-    for fournisseur in ordre:
-        appel = appels.get(fournisseur)
-        if appel is None:
-            continue
-        try:
-            texte = appel(system_prompt, messages, question)
-            return {"status": "success", "question": question, "reponse": texte, "source": fournisseur}
-        except Exception as erreur:
-            derniere_erreur = erreur
-            continue
+        ordre = [AI_PROVIDER] + [p for p in ("anthropic", "openai") if p != AI_PROVIDER]
+        appels = {"anthropic": _appeler_claude, "openai": _appeler_openai}
 
-    # Aucune IA disponible ou configurée : repli sans planter le chatbot.
-    texte = _reponse_secours(question, contexte)
+        for fournisseur in ordre:
+            appel = appels.get(fournisseur)
+            if appel is None:
+                continue
+            try:
+                texte = appel(system_prompt, messages, question)
+                return {"status": "success", "question": question, "reponse": texte, "source": fournisseur}
+            except Exception:
+                continue
+    except Exception:
+        pass
+
+    # Aucune IA disponible/configurée, ou donnée de course imprévue :
+    # repli sans jamais laisser d'erreur brute remonter au client.
+    try:
+        texte = _reponse_secours(question, contexte)
+    except Exception:
+        texte = ("Je rencontre une difficulté technique passagère. "
+                 "Réessayez dans un instant.")
     return {"status": "success", "question": question, "reponse": texte, "source": "secours"}
