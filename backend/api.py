@@ -1002,7 +1002,8 @@ def assistant_chat(
     return repondre_assistant_turf(question, contexte, historique)
 
 
-@router.post("/assistant/chat/stream")
+@router.post("/chatbot/stream")
+@router.post("/assistant/chat/stream")  # ancien nom conservé pour compatibilité
 async def assistant_chat_stream(
     payload: dict,
     x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
