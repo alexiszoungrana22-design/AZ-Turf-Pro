@@ -1047,7 +1047,6 @@ def _contexte_assistant():
         "complement_france_galop": complement_galop,
     }
 
-
 @router.post("/assistant/chat")
 def assistant_chat(
     payload: dict,
@@ -1063,8 +1062,12 @@ def assistant_chat(
     return repondre_assistant_turf(question, contexte, historique)
 
 
+# CORRECTION : On ajoute le slash final optionnel sur les deux routes 
+# pour éviter que FastAPI ne rejette la requête en 404 (Not Found)
 @router.post("/chatbot/stream")
-@router.post("/assistant/chat/stream")  # ancien nom conservé pour compatibilité
+@router.post("/chatbot/stream/")
+@router.post("/assistant/chat/stream")
+@router.post("/assistant/chat/stream/")
 async def assistant_chat_stream(
     payload: dict,
     x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
@@ -1079,8 +1082,6 @@ async def assistant_chat_stream(
     async def generate():
         try:
             contexte = _contexte_assistant()
-            # Le moteur (IA ou repli) produit une réponse complète ; on la
-            # transmet progressivement pour conserver l'interface SSE.
             resultat = repondre_assistant_turf(question, contexte, historique)
             texte = str(resultat.get("reponse", ""))
             if not texte:
@@ -1122,4 +1123,4 @@ async def assistant_chat_stream(
             "Connection": "keep-alive",
             "X-Accel-Buffering": "no",
         },
-    )
+)
