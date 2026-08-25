@@ -1,4 +1,4 @@
-AZ TURF PRO — Assistant conversationnel IA & Mémoire Avancée
+"""AZ TURF PRO — Assistant conversationnel IA & Mémoire Avancée
 Un pronostiqueur hippique et analyste, pas un chatbot à commandes :
 la question est envoyée telle quelle à un modèle de langage (Claude ou
 OpenAI), avec le contexte complet de la course et l'historique des archives,
