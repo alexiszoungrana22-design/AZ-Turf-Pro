@@ -248,6 +248,36 @@ def assistant_diagnostic():
     }
 
 
+@router.get("/assistant/diagnostic/test")
+def assistant_diagnostic_test():
+    """Tente un VRAI appel à chaque IA configurée et renvoie soit la
+    réponse, soit le message d'erreur exact — pour diagnostiquer en un
+    clic depuis un navigateur, sans accès aux logs serveur."""
+    from modules.chatbot_turf import _appeler_claude, _appeler_openai, ANTHROPIC_API_KEY, OPENAI_API_KEY
+
+    resultats = {}
+
+    if ANTHROPIC_API_KEY:
+        try:
+            texte = _appeler_claude("Réponds juste 'OK' si tu me reçois.", [], "Test")
+            resultats["anthropic"] = {"succes": True, "reponse": texte}
+        except Exception as erreur:
+            resultats["anthropic"] = {"succes": False, "erreur": str(erreur)}
+    else:
+        resultats["anthropic"] = {"succes": False, "erreur": "Clé non configurée."}
+
+    if OPENAI_API_KEY:
+        try:
+            texte = _appeler_openai("Réponds juste 'OK' si tu me reçois.", [], "Test")
+            resultats["openai"] = {"succes": True, "reponse": texte}
+        except Exception as erreur:
+            resultats["openai"] = {"succes": False, "erreur": str(erreur)}
+    else:
+        resultats["openai"] = {"succes": False, "erreur": "Clé non configurée."}
+
+    return resultats
+
+
 @router.get("/analyse")
 def analyse():
 
