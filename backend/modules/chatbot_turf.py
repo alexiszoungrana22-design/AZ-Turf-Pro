@@ -48,6 +48,11 @@ def _resume_course(contexte: dict) -> str:
     non_partants = course.get("non_partants") or []
     if non_partants:
         lignes.append(f"Non-partants : {', '.join(str(n) for n in non_partants)}")
+
+    complement_galop = (contexte or {}).get("complement_france_galop")
+    if complement_galop:
+        lignes.append(str(complement_galop))
+
     return "\n".join(lignes)
 
 
