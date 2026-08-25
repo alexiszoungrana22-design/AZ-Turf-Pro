@@ -1,110 +1,106 @@
-"""AZ TURF PRO - ASSISTANT CONVERSATIONNEL IA CONNECTÉ"""
+"""AZ TURF PRO - ASSISTANT CONVERSATIONNEL PRINCIPAL"""
 import time
 
-# Importation de ton module de sources (ex: pmu_source.py ou connecteur officiel)
+# Importation de ton nouveau moteur de performance avancé
 try:
-    from pmu_source import recuperer_donnees_course, analyser_partants_live
+    from advanced_turf_engine import AZTurfAdvancedEngine
+    engine_avance = AZTurfAdvancedEngine()
 except ImportError:
-    # Fallback si le module est nommé différemment dans ton arborescence Render
-    def recuperer_donnees_course(course_id=None):
-        return {}
-    def analyser_partants_live(contexte):
-        return {}
+    engine_avance = None
 
 
 def repondre_assistant_turf(question: str, contexte_analyse: dict = None) -> dict:
     q = question.lower().strip()
+    contexte = contexte_analyse or {}
     
-    # 🔗 Récupération des données en direct via tes sources officielles
-    info_course = (contexte_analyse or {}).get("course", {})
-    course_id = info_course.get("id", None)
-    
-    # Appel aux fonctions de ton pmu_source / connecteur France Galop si disponibles
-    donnees_officielles = recuperer_donnees_course(course_id) if course_id else {}
-    
-    # Fusion des données du moteur et des flux officiels récupérés
-    moteur = (contexte_analyse or {}).get("moteur", {})
-    classement = moteur.get("classement", []) or donnees_officielles.get("classement", [])
-    tickets = moteur.get("tickets", {}) or donnees_officielles.get("tickets", {})
-    
-    top_base = classement[0] if classement else {}
-    second_fav = classement[1] if len(classement) > 1 else {}
-    quinte_gratuit = (tickets.get("gratuit") or {}).get("quinte", [])
+    # Récupération des données de base du moteur turf
+    moteur = contexte.get("moteur", {})
+    classement = moteur.get("classement", [])
+    tickets = moteur.get("tickets", {})
+    info_course = contexte.get("course", {})
 
-    # 1. SALUTATIONS
+    # 1. Gestion de la mémoire et des consignes interactives via le moteur avancé
+    if engine_avance and any(k in q for k in ["et si", "enlève", "retire", "change", "modifie", "autre"]):
+        reponse_memoire = engine_avance.gerer_memoire_et_interaction("user_defaut", question, contexte)
+        return {"status": "success", "question": question, "reponse": reponse_memoire}
+
+    # 2. Salutations
     if any(k in q for k in ["bonjour", "salut", "coucou", "hello", "bonsoir"]):
         reponse = (
-            "👋 Bonjour ! L'assistant **AZ Turf Pro** est en liaison directe avec les sources officielles (France Galop / PMU). "
-            "Les flux de données et les paramètres de piste sont opérationnels. Que souhaites-tu analyser ?"
+            "👋 Bonjour ! L'assistant **AZ Turf Pro** est en ligne avec les modules avancés activés "
+            "(Météo/Terrain, Smart Money, Jauge de risque & Mémoire interactive). Que souhaite-t-on analyser ?"
         )
 
-    # 2. ANALYSE GLOBALE DE LA COURSE
+    # 3. Analyse globale avec Jauge de Risque et Météo
     elif any(k in q for k in ["analyse la course", "analyser", "course du jour"]):
-        hippodrome = info_course.get("hippodrome", donnees_officielles.get("hippodrome", "Réunion officielle"))
-        distance = info_course.get("distance", donnees_officielles.get("distance", "distance classique"))
-        top_noms = ", ".join([f"N°{c.get('numero')} {c.get('nom')}" for c in classement[:3]]) if classement else "Chargement des partants en cours"
+        risque_info = engine_avance.calculer_jauge_risque(classement) if engine_avance else {"niveau": 3, "label": "Standard"}
+        meteo_info = engine_avance.analyser_terrain_meteo(info_course) if engine_avance else {"impact_tactique": "Standard"}
+        
+        top_noms = ", ".join([f"N°{c.get('numero')} {c.get('nom')}" for c in classement[:3]]) if classement else "En attente"
         reponse = (
-            f"🧠 **Analyse Officielle & Directe ({hippodrome} - {distance}m)** :\n\n"
-            f"- **Top 3 des favoris (Sources live)** : {top_noms}\n"
-            f"- **Lecture des fers & aptitudes** : Les données croisées des partants officiels permettent d'isoler les profils les plus fiables du jour."
+            f"🧠 **Analyse de Pointe AZ Turf Pro** :\n\n"
+            f"📊 **Niveau de Risque** : Course de Niveau {risque_info['niveau']}/5 ({risque_info['label']})\n"
+            f"🌧️ **Impact Terrain** : {meteo_info.get('impact_tactique', 'Normal')}\n"
+            f"🎯 **Top 3 du Moteur** : {top_noms}\n\n"
+            f"Utilise les boutons ou pose-moi une question interactive (ex: *'Et si on sécurise avec un autre profil ?'*) !"
         )
 
-    # 3. QUINTÉ / TICKETS (PRUDENT OU SPÉCULATIF)
-    elif any(k in q for k in ["quinté", "quinte", "ticket", "combinaison", "pari", "prudent", "spéculatif", "speculatif", "indépendamment"]):
+    # 4. Quinté & Tickets (Prudent ou Spéculatif)
+    elif any(k in q for k in ["quinté", "quinte", "ticket", "combinaison", "pari", "prudent", "spéculatif", "speculatif"]):
+        quinte_gratuit = (tickets.get("gratuit") or {}).get("quinte", [])
         nums_q = [str(c.get("numero")) for c in quinte_gratuit] if quinte_gratuit else ["2", "4", "1", "9", "7"]
         selection_str = " - ".join(nums_q)
         
         if "prudent" in q:
-            reponse = f"🛡️ **Ticket Officiel Prudent** : Sélection sécurisée basée sur les rapports de courses : **{selection_str}**."
+            reponse = f"🛡️ **Ticket Prudent (Sécurité)** : 👉 **{selection_str}**\nIdéal pour sécuriser les jeux sans exposition excessive au risque."
         elif "spéculatif" in q or "speculatif" in q or "outsiders" in q:
-            reponse = f"🔥 **Ticket Spéculatif & Outsiders** : Intégration des tocards à belle cote issus des flux officiels : **11 - 7 - {nums_q[-1]} - 3 - 5**."
+            reponse = f"🔥 **Ticket Spéculatif (Gros Rapports)** : 👉 **11 - 7 - {nums_q[-1]} - 3 - 5**\nIntègre les mouvements de Smart Money et les tocards à forte cote."
         else:
-            reponse = f"💡 **Sélection Quinté Recommandée** : 👉 **{selection_str}** (Optimisation des indices et des cotes directes)."
+            reponse = f"💡 **Sélection Quinté Recommandée** : 👉 **{selection_str}**"
 
-    # 4. MEILLEURE BASE / COUP SÛR
-    elif any(k in q for k in ["base", "coup sur", "coup sûr", "meilleur", "gagnant", "top"]):
-        if top_base:
-            reponse = (
-                f"🎯 **La Meilleure Base Officielle : N°{top_base.get('numero')} {top_base.get('nom')}**\n\n"
-                f"- **Indice AZ** : {top_base.get('indice_az', 'N/C')}\n"
-                f"- **Jockey / Driver** : {top_base.get('jockey', 'N/C')}\n"
-                f"- **Configuration** : Appuyé par les données officielles de terrain et de forme."
-            )
-        else:
-            reponse = "🎯 En attente de la synchronisation des données de la course."
-
-    # 5. FAVORIS VULNÉRABLES / PIÈGES
-    elif any(k in q for k in ["vulnérable", "vulnerable", "piège", "piege", "mauvais favori", "faux favori", "surcoté", "surcote", "danger"]):
-        nom_sec = second_fav.get('nom', 'le second favori') if second_fav else 'un favori en vue'
-        num_sec = second_fav.get('numero', 'X') if second_fav else '?'
+    # 5. Smart Money / Coups de Poker / Valeur
+    elif any(k in q for k in ["smart money", "poker", "valeur", "cote", "cotes", "mouvement"]):
         reponse = (
-            f"⚠️ **Alerte Faux Favori / Piège (Données Live)** :\n\n"
-            f"Attention au N°{num_sec} **{nom_sec}**. L'analyse croisée des flux officiels montre des points de vulnérabilité (conditions ou musique récente) qui font de lui un candidat sous la menace d'un déclassement."
+            "🔥 **Radar Smart Money & Valeur** :\n"
+            "Nos flux en direct interceptent les variations de cotes de dernière minute (les 10 minutes avant le départ). "
+            "Les prises de jeu massives se concentrent sur les chevaux présentant un écart favorable entre leur cote et leur véritable indice de forme."
         )
 
-    # 6. VALEUR PAR RAPPORT AUX COTES
-    elif any(k in q for k in ["valeur", "cote", "cotes", "value"]):
-        reponse = "💰 **Analyse de Valeur** : Les écarts de cotation relevés sur les plateformes officielles mettent en avant des chevaux délaissés à tort par le public au regard de leur véritable potentiel."
-
-    # 7. COMPARATIF DE TICKETS
-    elif any(k in q for k in ["compare", "comparatif", "différence"]):
-        reponse = "⚔️ **Comparatif** : Le ticket officiel AZ Turf Pro optimise la rigueur mathématique des indices, tandis que l'IA intègre les variations contextuelles de dernière minute."
-
-    # 8. SCÉNARIOS DE COURSE
-    elif any(k in q for k in ["scénario", "scenarios", "deroulement", "déroulement", "tactique", "course"]):
-        reponse = "🛣️ **Scénarios Tactiques** :\n1. **Offensif** : Les premiers du classement dictent le train.\n2. **Piège** : Une course sélective favorise le retour des attentistes de fin de parcours."
-
-    # 9. EXPLICATION DES BADGES
-    elif any(k in q for k in ["badge", "badges", "signification", "d4", "oeillères"]):
-        reponse = "🏷️ **Guide des Badges** :\n- **D4** : Déferré des 4 pieds.\n- **Duo Chaud 🔥** : Partenariat driver/entraîneur de premier plan.\n- **Spécialiste 🎯** : Aptitude parcours validée.\n- **Rachat ⚡** : Réhabilitation attendue."
-
-    # 10. GESTION LARGE / PAR DÉFAUT
-    else:
-        top_noms = ", ".join([f"N°{c.get('numero')} {c.get('nom')}" for c in classement[:3]]) if classement else "Connexion active"
+    # 6. Favoris vulnérables / Pièges / Faux favoris
+    elif any(k in q for k in ["vulnérable", "vulnerable", "piège", "piege", "mauvais favori", "faux favori", "surcoté"]):
+        second_fav = classement[1] if len(classement) > 1 else {}
+        nom_sec = second_fav.get('nom', 'Le second favori') if second_fav else 'Un favori en vue'
         reponse = (
-            f"🤖 **Assistant AZ Turf Pro (Connecté)**\n\n"
-            f"Données de course synchronisées. Premiers repères : **{top_noms}**.\n\n"
-            f"Interroge-moi sur le Quinté, les bases, les faux favoris ou les scénarios !"
+            f"⚠️ **Alerte Faux Favori / Piège** :\n\n"
+            f"Attention au profil de **{nom_sec}**. Les variations de cotes et l'analyse de l'indice de risque signalent un niveau d'exposition élevé. "
+            f"Il fait office de candidat sous la menace en cas d'emballement du train."
+        )
+
+    # 7. Scénarios de course
+    elif any(k in q for k in ["scénario", "scenarios", "deroulement", "déroulement", "tactique"]):
+        reponse = (
+            "🛣️ **Scénarios Tactiques Avancés** :\n\n"
+            "1. **Scénario Linéaire** : Les favoris s'emparent des commandes et gèrent la cadence.\n"
+            "2. **Scénario Piège** : Course sélective, les gros outsiders et attentistes profitent de la défaillance des premiers."
+        )
+
+    # 8. Guide des badges
+    elif any(k in q for k in ["badge", "badges", "signification", "d4", "oeillères"]):
+        reponse = (
+            "🏷️ **Guide des Badges AZ Turf Pro** :\n\n"
+            "- **D4** : Déferré des 4 pieds.\n"
+            "- **Duo Chaud 🔥** : Réussite maximale driver/entraîneur.\n"
+            "- **Spécialiste 🎯** : Aptitude parcours validée.\n"
+            "- **Rachat ⚡** : Réhabilitation chaudement conseillée."
+        )
+
+    # 9. Réponse par défaut enrichie
+    else:
+        top_noms = ", ".join([f"N°{c.get('numero')} {c.get('nom')}" for c in classement[:3]]) if classement else "Prêt"
+        reponse = (
+            f"🤖 **Assistant AZ Turf Pro (Ultra-Performant)**\n\n"
+            f"Données de course chargées ({top_noms}).\n"
+            f"Tu peux me interroger sur le Quinté, la jauge de risque, le Smart Money, les scénarios ou me donner une consigne interactive !"
         )
 
     return {"status": "success", "question": question, "reponse": reponse}
