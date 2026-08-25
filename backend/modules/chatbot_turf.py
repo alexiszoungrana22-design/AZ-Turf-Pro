@@ -13,7 +13,7 @@ Configuration (variables d'environnement, sur Render → Environment) :
 Si aucune des deux clés n'est configurée, ou si les deux appels échouent
 (réseau, quota...), l'assistant retombe sur un moteur de secours intelligent
 et élargi capable de fouiller dans les archives et d'analyser les performances.
-"""[cite: 10]
+[cite: 10]
 
 import os
 import json
