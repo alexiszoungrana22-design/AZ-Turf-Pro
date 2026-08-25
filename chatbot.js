@@ -1,4 +1,6 @@
-const CHAT_STREAM_API = "https://az-turf-pro.onrender.com/api/chatbot/stream";
+// CORRECTION : On utilise un chemin relatif absolu. 
+// Le navigateur comprendra automatiquement qu'il faut interroger ton domaine Render.
+const CHAT_STREAM_API = "/api/chatbot/stream";
 const HISTORY_KEY = "AZ_TURF_CHAT_HISTORY_V1";
 const MAX_HISTORY = 30;
 
@@ -17,8 +19,6 @@ function escapeHtml(value) {
     .replace(/'/g, "&#039;");
 }
 
-// Markdown volontairement limité et sécurisé : aucun HTML fourni par le serveur
-// n'est exécuté dans le navigateur.
 function renderMarkdown(value) {
   let html = escapeHtml(value);
   html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
@@ -94,7 +94,6 @@ function addQuickChip(icon, question) {
   ["🏷️", "Explique les badges"]
 ].forEach(([icon, q]) => addQuickChip(icon, q));
 
-// Retour conservé.
 document.getElementById("chat-back")?.addEventListener("click", () => {
   if (window.history.length > 1) window.history.back();
   else window.location.href = "index.html";
@@ -107,24 +106,21 @@ clearBtn?.addEventListener("click", () => {
 });
 
 function getAssistantAuthHeaders() {
-  // Point de vérité unique : voir auth.js (window.AZAuth).
+  // Point de vérité unique
   const headers = {
     "Content-Type": "application/json",
-    "Accept": "text/event-stream",
-    ...window.AZAuth.authHeaders()
+    "Accept": "text/event-stream"
   };
-
-  return {
-    headers,
-    isAdmin: window.AZAuth.isAdmin(),
-    hasPremiumToken: Boolean(window.AZAuth.getPremiumToken())
-  };
+  // Sécurisation : on vérifie si window.AZAuth existe bien avant de l'appeler
+  if (window.AZAuth && typeof window.AZAuth.authHeaders === "function") {
+      Object.assign(headers, window.AZAuth.authHeaders());
+  }
+  return { headers };
 }
 
 async function streamAnswer(question) {
   const auth = getAssistantAuthHeaders();
-  // Ne bloque plus localement un administrateur dont la session n'a
-  // pas encore été restaurée : le serveur est la source d'autorité.
+  
   const response = await fetch(CHAT_STREAM_API, {
     method: "POST",
     headers: auth.headers,
