@@ -465,4 +465,285 @@ def _rafraichir_cotes_pmu_direct(course_reference: dict) -> str | None:
             tendance = cheval.get("tendance_cote") or cheval.get("tendance") or "-"
             lignes.append(
                 f"N°{cheval.get('numero', '?')} {cheval.get('nom', '?')} : "
-                f"cote actuelle {cheval.get('cote', '-')} (tendance {
+                f"cote actuelle {cheval.get('cote', '-')} (tendance {tendance})"
+            )
+        if not lignes:
+            return None
+
+        return "[Cotes PMU.fr rafraîchies en direct]\n" + "\n".join(lignes)
+    except Exception:
+        return None
+
+
+def _extraire_tickets(tickets: dict) -> dict:
+    """Normalise la structure RÉELLE de tickets renvoyée par
+    quinte.py (generer_tickets_az), documentée ici une bonne fois
+    pour toutes pour éviter les erreurs de structure récurrentes :
+
+    tickets = {
+      "gratuit": {
+        "quinte": [7 numéros],
+        "deux_sur_quatre": [4 numéros],
+        "couple_place": [2 numéros],
+      },
+      "premium": {
+        "selection_quinte": [8 numéros],
+        "quinte": [6 numéros],
+        "quarte": [5 numéros],
+        "trio": [3 numéros],
+        "couple_gagnant_place": [[a,b],[a,c],[b,c]],
+        "champ_reduit": {"format", "bases", "complements", "disponible"},
+        "ticket_derniere_minute": {"selection", "joker", "format"},
+      }
+    }
+    Tous les numéros sont des CHAÎNES BRUTES (pas des objets/dicts).
+    """
+    tickets = tickets or {}
+    gratuit = tickets.get("gratuit") or {}
+    premium = tickets.get("premium") or {}
+
+    def _liste(valeur):
+        return valeur if isinstance(valeur, list) else []
+
+    return {
+        "quinte_gratuit": _liste(gratuit.get("quinte")),
+        "deux_sur_quatre": _liste(gratuit.get("deux_sur_quatre")),
+        "couple_place_gratuit": _liste(gratuit.get("couple_place")),
+        "selection_quinte_premium": _liste(premium.get("selection_quinte")),
+        "quinte_premium": _liste(premium.get("quinte")),
+        "quarte_premium": _liste(premium.get("quarte")),
+        "trio_premium": _liste(premium.get("trio")),
+        "couple_gagnant_place": _liste(premium.get("couple_gagnant_place")),
+        "champ_reduit": premium.get("champ_reduit") if isinstance(premium.get("champ_reduit"), dict) else {},
+        "derniere_minute": premium.get("ticket_derniere_minute") if isinstance(premium.get("ticket_derniere_minute"), dict) else {},
+    }
+
+
+def _reponse_secours(question: str, contexte: dict) -> str:
+    import re as _re
+
+    q = question.lower().strip()
+    moteur = (contexte or {}).get("moteur", {})
+    classement = moteur.get("classement", [])
+    tickets = moteur.get("tickets", {})
+    course = (contexte or {}).get("course", {}) or {}
+
+    # --- Recherche indépendante en direct : cotes/dernière minute ---
+    if any(k in q for k in ["cote a boug", "cote a change", "evolution", "évolution", "en direct", "temps réel", "temps reel", "à jour", "a jour", "actualise", "actualisé"]):
+        rafraichi = _rafraichir_cotes_pmu_direct(course)
+        if rafraichi:
+            return "🔄 " + rafraichi
+        return ("Je n'ai pas pu récupérer une mise à jour en direct depuis PMU.fr à "
+                "l'instant. Voici les dernières données connues à la place.\n\n"
+                + _analyser_favori(classement))
+
+    # --- Analyse rétrospective : dernière course, arrivée réelle ---
+    if any(k in q for k in ["ça a marché", "ca a marche", "résultat", "resultat", "arrivée", "arrivee", "pourquoi ça n'a pas marché", "pourquoi ca n'a pas marche", "course précédente", "course precedente", "dernière course", "derniere course", "bilan"]):
+        analyse = _analyser_historique()
+        if analyse:
+            return analyse
+        return ("Aucune course passée avec une arrivée connue n'est disponible pour "
+                "le moment — soit aucune analyse précédente n'a été enregistrée, soit "
+                "l'arrivée officielle n'a pas encore pu être récupérée.")
+
+    # --- Limite connue : course de demain ---
+    if "demain" in q and any(k in q for k in ["course", "analyse", "analyser"]):
+        return ("Je ne peux pas encore analyser la course de demain — cette "
+                "fonctionnalité dépend d'une donnée supplémentaire non encore "
+                "branchée (le programme PMU du lendemain). Je peux en revanche "
+                "analyser la course du jour en cours, ou revenir sur les "
+                "précédentes avec leur résultat réel.")
+
+    # --- Recherche indépendante en direct : terrain/piste (France Galop) ---
+    if any(k in q for k in ["terrain", "piste", "état du sol", "etat du sol", "souple", "lourd", "bon terrain"]):
+        try:
+            from france_galop_source import obtenir_complement_france_galop
+            complement = obtenir_complement_france_galop(course.get("hippodrome", ""), course.get("discipline", ""))
+        except Exception:
+            complement = None
+        if complement:
+            return "🔄 " + complement
+        return ("Je n'ai pas d'information à jour sur l'état du terrain pour cette "
+                "course pour le moment.")
+
+    # --- Salutations ---
+    if any(k in q for k in ["bonjour", "salut", "bonsoir", "hello", "coucou"]):
+        return ("👋 Bonjour ! Je suis AZ Turf Pro, votre pronostiqueur hippique. "
+                "Je peux analyser le favori, repérer les favoris vulnérables, "
+                "comparer deux chevaux, proposer des scénarios de course, "
+                "expliquer la position d'un cheval précis, donner le meilleur "
+                "duo ou la sélection Quinté. Posez votre question !")
+
+    # --- Comparaison de deux chevaux, ex. "compare le 3 et le 7" ---
+    numeros_cites = _re.findall(r"\b(\d{1,2})\b", q)
+    if len(numeros_cites) >= 2 and any(k in q for k in ["compar", " ou ", "vs", "mieux que", "contre"]):
+        return _comparer_chevaux(classement, numeros_cites[0], numeros_cites[1])
+
+    # --- Favoris vulnérables ---
+    if any(k in q for k in ["vulnérable", "vulnerable", "fragile", "battable", "renverser", "se méfier", "se mefier", "méfier"]):
+        return _analyser_vulnerables(classement)
+
+    # --- Scénarios de course ---
+    if "scénario" in q or "scenario" in q:
+        return _generer_scenarios(classement)
+
+    # --- Statistiques précises d'un cheval : jockey, musique, gains, corde... ---
+    if numeros_cites and any(k in q for k in ["jockey", "driver", "entraineur", "entraîneur", "musique", "forme", "gains", "corde", "ferrage", "déferré", "deferre", "âge", "age", "fiche", "stat", "monte", "pilote", "qui monte"]):
+        cheval = _trouver_cheval(classement, numeros_cites[0])
+        if cheval:
+            return _fiche_cheval(cheval)
+        return f"Je ne trouve pas le numéro {numeros_cites[0]} dans le classement de cette course."
+
+    # --- Cheval précis, ex. "pourquoi enlever/exclure le 4 ?" ---
+    if numeros_cites and any(k in q for k in ["pourquoi", "enlever", "exclure", "éliminer", "eliminer", "sortir", "numero", "numéro", "cheval", "n°"]):
+        numero = numeros_cites[0]
+        cheval = _trouver_cheval(classement, numero)
+        if cheval:
+            rang = classement.index(cheval) + 1
+            if rang <= 3:
+                jugement = "Il fait partie du trio de tête — un choix cohérent."
+            else:
+                jugement = "Son indice est nettement en retrait par rapport aux chevaux devant lui, ce qui justifie sa position."
+            return (
+                f"N°{numero} **{cheval.get('nom')}** est classé **{rang}ᵉ** par AZ Turf Pro "
+                f"(Indice AZ {cheval.get('indice_az', '-')}, cote {cheval.get('cote', '-')}). "
+                f"{jugement}"
+            )
+        return f"Je ne trouve pas le numéro {numero} dans le classement de cette course."
+
+    tk = _extraire_tickets(tickets)
+
+    # --- Meilleur duo / couplé gagnant-placé ---
+    if any(k in q for k in ["duo", "couple", "couplé", "gagnant placé", "gagnant/placé"]):
+        if tk["couple_gagnant_place"]:
+            paire = tk["couple_gagnant_place"][0]
+            if isinstance(paire, list) and len(paire) >= 2:
+                return f"🤝 **Meilleur duo (Couplé Gagnant/Placé Premium)** : N°{paire[0]} - N°{paire[1]}."
+        if len(tk["couple_place_gratuit"]) >= 2:
+            return f"🤝 **Meilleur duo conseillé** : N°{tk['couple_place_gratuit'][0]} - N°{tk['couple_place_gratuit'][1]}."
+        if len(classement) >= 2:
+            a, b = classement[0], classement[1]
+            return f"🤝 **Meilleur duo (top 2 du classement)** : N°{a.get('numero')} {a.get('nom')} et N°{b.get('numero')} {b.get('nom')}."
+        return "Aucun duo ne peut être calculé pour le moment."
+
+    # --- Quarté ---
+    if "quarté" in q or "quarte" in q:
+        if tk["quarte_premium"]:
+            return "🎯 **Quarté Premium conseillé** : " + " - ".join(tk["quarte_premium"])
+        return "Aucun Quarté disponible pour le moment."
+
+    # --- Trio ---
+    if "trio" in q:
+        if tk["trio_premium"]:
+            return "🎯 **Trio Premium conseillé** : " + " - ".join(tk["trio_premium"])
+        return "Aucun Trio disponible pour le moment."
+
+    # --- Champ réduit ---
+    if "champ réduit" in q or "champ reduit" in q:
+        champ = tk["champ_reduit"]
+        if champ.get("disponible") and champ.get("format"):
+            return f"🔒 **Champ réduit Premium** : {champ['format']}"
+        return "Le champ réduit n'est pas disponible pour cette course (trop peu de partants analysés)."
+
+    # --- Dernière minute / joker ---
+    if any(k in q for k in ["dernière minute", "derniere minute", "joker"]):
+        derniere = tk["derniere_minute"]
+        if derniere.get("selection"):
+            texte = "⚡ **Ticket Dernière Minute** : " + " - ".join(derniere["selection"])
+            if derniere.get("joker"):
+                texte += f" (Joker : N°{derniere['joker']})"
+            return texte
+        return "Aucun ticket Dernière Minute disponible pour le moment."
+
+    # --- Avis général sur la course ---
+    if any(k in q for k in ["comment tu trouve", "comment tu vois", "avis sur cette course", "ton avis", "que penses-tu", "analyse de la course", "analyse moi", "analyse cette course"]):
+        if not classement:
+            return "Aucune analyse de course n'est disponible pour le moment."
+        nb = len(classement)
+        return (
+            f"📊 Sur les {nb} partants : {_analyser_favori(classement)}\n\n"
+            f"{_analyser_vulnerables(classement)}"
+        )
+
+    if any(k in q for k in ["favori", "coup sur", "meilleur", "gagnant", "top"]):
+        return _analyser_favori(classement)
+
+    if any(k in q for k in ["quinté", "quinte", "ticket", "combinaison"]):
+        if any(k in q for k in ["demain", "hier"]):
+            return ("Le choix du Quinté d'un autre jour (hier/demain) n'est pas "
+                    "encore disponible — cette fonctionnalité dépend d'une donnée "
+                    "supplémentaire non encore branchée. Je peux en revanche vous "
+                    "donner le Quinté du jour en cours.")
+        if "premium" in q and tk["quinte_premium"]:
+            return "💎 **Quinté Premium conseillé** : " + " - ".join(tk["quinte_premium"])
+        if tk["quinte_gratuit"]:
+            return "💡 **Ticket Quinté Conseillé** : " + " - ".join(tk["quinte_gratuit"])
+        return "Aucune combinaison Quinté disponible pour le moment."
+
+    if any(k in q for k in ["outsider", "tocard", "surprise", "pépite", "pepite"]):
+        outsiders = [c for c in classement if float(c.get("cote", 0) or 0) >= 10.0]
+        if outsiders:
+            c = outsiders[0]
+            return f"🔥 **Outsider à surveiller** : N°{c.get('numero')} **{c.get('nom')}** (Cote : {c.get('cote')})."
+        return "Aucun outsider n'a été repéré avec un niveau de confiance suffisant."
+
+    if "badge" in q or "signification" in q:
+        return ("🏷️ **Guide des Badges** :\n- **D4** : Déferré des 4 pieds.\n"
+                "- **Duo Chaud 🔥** : Jockey & entraîneur en réussite.\n"
+                "- **Spécialiste 🎯** : aptitude détectée.\n"
+                "- **Rachat ⚡** : profil à reconsidérer.")
+
+    return ("Je n'ai pas identifié votre demande. Je peux : donner le favori, "
+            "repérer les favoris vulnérables, comparer deux chevaux "
+            "(ex. \"compare le 3 et le 7\"), proposer des scénarios, "
+            "expliquer un cheval précis (fiche complète, jockey, musique, "
+            "forme, corde...), donner le meilleur duo, le Quinté, Quarté, "
+            "Trio, le champ réduit, le ticket Dernière Minute, les "
+            "outsiders ou les badges AZ Turf Pro.")
+
+
+# =====================================
+# POINT D'ENTRÉE — MODE AUTONOME AZ TURF PRO
+# =====================================
+
+def repondre_assistant_turf(question: str, contexte_analyse: dict = None, historique: list = None) -> dict:
+    """
+    Assistant conversationnel AZ Turf Pro autonome.
+
+    IMPORTANT : aucune API Claude/OpenAI n'est appelée ici.
+    La réponse est construite exclusivement à partir :
+      - du contexte de course transmis par le moteur AZ ;
+      - des tickets générés ;
+      - des données PMU réel déjà disponibles ;
+      - des compléments France Galop disponibles ;
+      - de l'historique des courses du projet.
+    """
+    contexte = contexte_analyse or {}
+    question = str(question or "").strip()
+
+    if not question:
+        return {
+            "status": "success",
+            "question": "",
+            "reponse": "Posez-moi une question sur la course, un cheval, le Quinté, les cotes ou les résultats.",
+            "source": "moteur_az_autonome",
+        }
+
+    try:
+        texte = _reponse_secours(question, contexte)
+    except Exception as exc:
+        # Ne jamais exposer la trace technique au client.
+        print(f"[CHATBOT AZ] erreur moteur autonome : {type(exc).__name__}: {exc}")
+        texte = (
+            "Je rencontre une difficulté technique dans l'analyse locale de cette course. "
+            "Vérifiez que le classement AZ et les tickets ont bien été transmis au chatbot."
+        )
+
+    print("[CHATBOT AZ] mode autonome actif — aucune IA externe utilisée")
+
+    return {
+        "status": "success",
+        "question": question,
+        "reponse": texte,
+        "source": "moteur_az_autonome",
+    }
