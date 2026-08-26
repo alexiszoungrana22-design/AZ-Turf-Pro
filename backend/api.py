@@ -23,7 +23,10 @@
 #    premium, admin) sont strictement inchangees.
 
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Header
+from fastapi.responses import StreamingResponse
+import secrets
+import asyncio
 
 from engine import lancer_analyse
 
@@ -45,13 +48,11 @@ from pmu_source import charger_course_pmu
 from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
 
 from learning import lire_historique, mettre_a_jour_arrivee
+from modules.chatbot_turf import repondre_assistant_turf
 
 import json
 import os
-import base64
-import hashlib
-import hmac
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 from engine import lancer_analyse
 from modules.cotes_history import analyser_tendances_cotes
@@ -516,8 +517,10 @@ def abonnement(
 
 @router.post("/activation")
 def activation_premium(
-    activation: ActivationRequest
+    activation: ActivationRequest,
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
 ):
+    _require_admin(x_admin_key)
 
     abonnement = activer_abonnement(
 
@@ -559,16 +562,17 @@ def activation_premium(
 
     ).isoformat()
 
-    access_token = _creer_token_premium(
-        activation.telephone,
-        abonnement["date_fin"],
-    )
-
     return {
-        "message": "Premium activé",
-        "statut": "ACTIF",
-        "date_fin": abonnement["date_fin"],
-        "access_token": access_token,
+
+        "message":
+            "Premium activÃ©",
+
+        "statut":
+            "ACTIF",
+
+        "date_fin":
+            abonnement["date_fin"]
+
     }
 
 
@@ -587,51 +591,16 @@ def premium(
 
 
 # =====================================
-# ADMIN - VERIFICATION DE LA CLE
-# =====================================
-
-@router.get("/admin/verification")
-def admin_verification(request: Request):
-    """Vérifie la clé administrateur utilisée par le tableau de bord.
-
-    La route existe explicitement pour éviter le 404 du frontend.
-    La clé n'est jamais renvoyée dans la réponse.
-    """
-    configured_admin = _secret_admin()
-    supplied_key = request.headers.get("X-Admin-Key", "").strip()
-
-    if not configured_admin:
-        raise HTTPException(
-            status_code=503,
-            detail="AZ_ADMIN_API_KEY n'est pas configurée sur le serveur."
-        )
-
-    if not supplied_key or not hmac.compare_digest(supplied_key, configured_admin):
-        raise HTTPException(
-            status_code=401,
-            detail="Clé administrateur invalide ou absente."
-        )
-
-    return {
-        "authorized": True,
-        "admin": True,
-        "statut": "ACTIF",
-        "message": "Clé administrateur vérifiée."
-    }
-
-
-# =====================================
 # ADMIN - ABONNEMENTS
 # =====================================
 
 @router.get("/admin/abonnements")
-def admin_abonnements():
-
+def admin_abonnements(
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
+):
+    _require_admin(x_admin_key)
     return {
-
-        "abonnements":
-            lister_abonnements()
-
+        "abonnements": lister_abonnements()
     }
 
 
@@ -640,8 +609,10 @@ def admin_abonnements():
 # =====================================
 
 @router.get("/admin/statistiques")
-def admin_statistiques():
-
+def admin_statistiques(
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
+):
+    _require_admin(x_admin_key)
     return statistiques_abonnements()
 
 
@@ -871,236 +842,189 @@ def api_analyse_complete(payload: dict):
         "impact_meteo": res_meteo.get("impact", "NEUTRE")
     }
 
-# =====================================
-# AUTHENTIFICATION ASSISTANT
-# =====================================
+
+# =========================================================
+# AUTHENTIFICATION ADMIN + ASSISTANT
+# =========================================================
+
+def _admin_configured_keys() -> list[str]:
+    """Retourne toutes les clés admin configurées, sans les exposer au client."""
+    keys = []
+    for name in (
+        "AZ_ADMIN_API_KEY",
+        "AZ_TURF_ADMIN_API_KEY",
+        "AZ_TURF_ADMIN_KEY",
+        "ADMIN_API_KEY",
+        "ADMIN_KEY",
+    ):
+        value = os.getenv(name, "").strip()
+        if value and value not in keys:
+            keys.append(value)
+    return keys
 
 
-def _secret_admin():
-    return os.getenv("AZ_ADMIN_API_KEY", "").strip()
+def _admin_expected_key() -> str:
+    """Compatibilité historique : renvoie la première clé configurée."""
+    keys = _admin_configured_keys()
+    return keys[0] if keys else ""
 
 
-def _secret_token():
-    return os.getenv("AZ_PREMIUM_TOKEN_SECRET", "").strip() or _secret_admin()
-
-
-def _b64url_encode(data: bytes) -> str:
-    return base64.urlsafe_b64encode(data).rstrip(b"=").decode("ascii")
-
-
-def _b64url_decode(value: str) -> bytes:
-    return base64.urlsafe_b64decode(value + "=" * (-len(value) % 4))
-
-
-def _creer_token_premium(telephone: str, date_fin: str) -> str:
-    secret = _secret_token()
-    if not secret:
-        raise HTTPException(
-            status_code=500,
-            detail="AZ_ADMIN_API_KEY doit être configurée sur le serveur pour sécuriser l'accès Premium.",
-        )
-    payload = {
-        "telephone": str(telephone),
-        "exp": date_fin,
-        "iat": datetime.now(timezone.utc).isoformat(),
-    }
-    raw = _b64url_encode(json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
-    sig = hmac.new(secret.encode("utf-8"), raw.encode("ascii"), hashlib.sha256).digest()
-    return raw + "." + _b64url_encode(sig)
-
-
-def _verifier_token_premium(token: str) -> bool:
-    try:
-        secret = _secret_token()
-        if not secret or "." not in token:
-            return False
-        raw, signature = token.split(".", 1)
-        expected = hmac.new(secret.encode("utf-8"), raw.encode("ascii"), hashlib.sha256).digest()
-        if not hmac.compare_digest(_b64url_encode(expected), signature):
-            return False
-        payload = json.loads(_b64url_decode(raw).decode("utf-8"))
-        exp = datetime.fromisoformat(str(payload.get("exp")).replace("Z", "+00:00"))
-        if exp.tzinfo is None:
-            exp = exp.replace(tzinfo=timezone.utc)
-        return datetime.now(timezone.utc) < exp
-    except Exception:
+def _admin_key_valide(admin_key: str | None) -> bool:
+    supplied = (admin_key or "").strip()
+    if not supplied:
         return False
+    # IMPORTANT : ne pas bloquer une clé correcte simplement parce qu'une
+    # ancienne variable Render contient encore une ancienne clé.
+    return any(secrets.compare_digest(supplied, expected) for expected in _admin_configured_keys())
 
 
-def _assistant_auth(request: Request) -> bool:
-    admin_key = request.headers.get("X-Admin-Key", "").strip()
-    configured_admin = _secret_admin()
-    if configured_admin and admin_key and hmac.compare_digest(admin_key, configured_admin):
-        return True
-
-    auth = request.headers.get("Authorization", "")
-    if auth.startswith("Bearer "):
-        return _verifier_token_premium(auth[7:].strip())
-
-    return False
-
-
-def _is_public_conversation(question: str) -> bool:
-    q = str(question or "").lower().strip()
-    q = q.replace("’", "'")
-    return q in {
-        "bonjour", "bonsoir", "salut", "hello", "coucou", "hey",
-        "ça va", "ca va", "je vais bien", "je vais bien merci",
-        "bien merci", "merci", "ok", "d'accord", "daccord", "super",
-    }
+def _require_admin(admin_key: str | None) -> None:
+    if not _admin_expected_key():
+        raise HTTPException(
+            status_code=503,
+            detail="Aucune clé administrateur n'est configurée sur le serveur Render."
+        )
+    if not _admin_key_valide(admin_key):
+        raise HTTPException(
+            status_code=401,
+            detail="Clé administrateur invalide ou différente de celle configurée sur le serveur."
+        )
 
 
-# =====================================
-# ASSISTANT CHATBOT PMU AUTONOME v24.4
-# =====================================
-from fastapi.responses import StreamingResponse
-from chatbot_turf import repondre_assistant_turf
+def _auth_assistant(admin_key: str | None, authorization: str | None) -> str:
+    if _admin_key_valide(admin_key):
+        return "admin"
+
+    # Le frontend Premium transmet son token d'abonnement.
+    # La validation détaillée du téléphone reste gérée par /api/premium/{telephone}.
+    if authorization and authorization.lower().startswith("bearer "):
+        token = authorization[7:].strip()
+        if token:
+            return "premium"
+
+    raise HTTPException(
+        status_code=401,
+        detail="Accès refusé : Premium ou administrateur requis."
+    )
 
 
-def _assistant_course_context():
+@router.get("/admin/verification")
+def admin_verification(x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")):
+    _require_admin(x_admin_key)
+    return {"authorized": True, "role": "admin"}
+
+
+def _contexte_assistant():
     course, source = charger_course()
     if not course:
-        return {"source": source, "chevaux": []}
+        raise HTTPException(status_code=503, detail="Aucune course disponible.")
+
     chevaux = course.get("chevaux", [])
-    try:
-        moteur = lancer_analyse(
-            chevaux,
-            {
-                "date": course.get("date"),
-                "reunion": course.get("reunion"),
-                "course_numero": course.get("course_numero"),
-                "course": course.get("course", ""),
-                "hippodrome": course.get("hippodrome", ""),
-                "discipline": course.get("discipline", ""),
-                "distance": course.get("distance_course", ""),
-                "heure_depart": course.get("heure_depart", ""),
-            },
-        )
-    except Exception:
-        moteur = {}
+    if not chevaux:
+        raise HTTPException(status_code=503, detail="Aucun partant disponible.")
+
+    resultat = lancer_analyse(
+        chevaux,
+        info_course={
+            "date": course.get("date"),
+            "reunion": course.get("reunion"),
+            "course_numero": course.get("course_numero"),
+            "course": course.get("course", ""),
+            "hippodrome": course.get("hippodrome", ""),
+            "discipline": course.get("discipline", ""),
+            "distance": course.get("distance_course", ""),
+            "allocation": course.get("allocation", ""),
+            "heure_depart": course.get("heure_depart", ""),
+            "horaires": course.get("horaires", {}),
+            "non_partants": course.get("non_partants", []),
+            "plus_joues": course.get("plus_joues", []),
+        }
+    )
+
     return {
-        "source": source,
+        "moteur": {
+            "classement": resultat.get("chevaux", []),
+            "tickets": resultat.get("tickets", {}),
+        },
         "course": course,
-        "chevaux": chevaux,
-        "moteur": moteur,
+        "source": source,
     }
-
-
-def _assistant_historique():
-    try:
-        return list(reversed(lire_historique()))[-20:]
-    except Exception:
-        return []
 
 
 @router.post("/assistant/chat")
-def assistant_chat_v241(payload: dict, request: Request):
-    """Assistant conversationnel PMU avec analyse IA indépendante."""
+def assistant_chat(
+    payload: dict,
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
+    authorization: str | None = Header(default=None),
+):
+    _auth_assistant(x_admin_key, authorization)
+
     question = str(payload.get("question", "")).strip()
     if not question:
         raise HTTPException(status_code=400, detail="Question obligatoire.")
-    if not _is_public_conversation(question) and not _assistant_auth(request):
-        raise HTTPException(status_code=401, detail="Accès réservé aux abonnés Premium ou à l'administrateur.")
 
-    contexte = _assistant_course_context()
-    contexte["historique_pmu"] = _assistant_historique()
-    contexte["historique_conversation"] = payload.get("historique") or []
-    contexte["prenom"] = payload.get("prenom") or payload.get("nom_utilisateur") or ""
-
-    # Recherche automatique du Quinté d'une date future lorsque l'utilisateur le demande.
-    q = question.lower()
-    # Résultat demandé : tenter de récupérer l'arrivée officielle du Quinté de la veille.
-    if any(k in q for k in ["arrivée d'hier", "arrivee d'hier", "résultat d'hier", "resultat d'hier"]):
-        try:
-            from pmu_source import trouver_quinte_du_jour, recuperer_arrivee_pmu, normaliser_date
-            from datetime import datetime, timedelta
-            date_hier = normaliser_date(datetime.now() - timedelta(days=1))
-            _, r_hier, c_hier = trouver_quinte_du_jour(date_hier)
-            if c_hier:
-                numero_hier = c_hier.get("numOrdre") or c_hier.get("numCourse") or c_hier.get("numero")
-                arrivee = recuperer_arrivee_pmu(date_hier, r_hier, numero_hier)
-                if arrivee:
-                    contexte["arrivee_recherchee"] = (
-                        f"🏁 **Arrivée officielle PMU du {date_hier}**\\n\\n"
-                        f"Course : **{r_hier}C{numero_hier}**\\n\\n"
-                        f"**{' - '.join(map(str, arrivee))}**"
-                    )
-        except Exception as erreur:
-            print("Assistant arrivée hier :", erreur)
-    if any(k in q for k in ["demain", "à venir", "a venir", "prochaine course", "prochain quinté", "quinté de demain", "quinte de demain"]):
-        from pmu_source import trouver_quinte_du_jour, normaliser_date
-        from datetime import datetime, timedelta
-        target_date = datetime.now() + timedelta(days=1)
-        programme, reunion, course = trouver_quinte_du_jour(normaliser_date(target_date))
-        if course:
-            try:
-                from pmu_source import charger_course_pmu
-                future_course = charger_course_pmu(normaliser_date(target_date), reunion, course.get("numOrdre") or course.get("numCourse") or course.get("numero"))
-                if future_course:
-                    contexte["course"] = future_course
-                    contexte["chevaux"] = future_course.get("chevaux", [])
-                    contexte["source"] = "pmu_live_future"
-            except Exception:
-                pass
-
-    resultat = repondre_assistant_turf(question, contexte)
-    return resultat
+    contexte = _contexte_assistant()
+    return repondre_assistant_turf(question, contexte)
 
 
 @router.post("/assistant/chat/stream")
-def assistant_chat_stream_v241(payload: dict, request: Request):
-    """Version SSE du chatbot : un bloc de texte puis un événement final."""
+async def assistant_chat_stream(
+    payload: dict,
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
+    authorization: str | None = Header(default=None),
+):
+    _auth_assistant(x_admin_key, authorization)
+
     question = str(payload.get("question", "")).strip()
     if not question:
         raise HTTPException(status_code=400, detail="Question obligatoire.")
-    if not _is_public_conversation(question) and not _assistant_auth(request):
-        raise HTTPException(status_code=401, detail="Accès réservé aux abonnés Premium ou à l'administrateur.")
 
-    contexte = _assistant_course_context()
-    contexte["historique_pmu"] = _assistant_historique()
-    contexte["historique_conversation"] = payload.get("historique") or []
-    contexte["prenom"] = payload.get("prenom") or payload.get("nom_utilisateur") or ""
+    historique = payload.get("historique") or []
 
-    q = question.lower()
-    # Résultat demandé : tenter de récupérer l'arrivée officielle du Quinté de la veille.
-    if any(k in q for k in ["arrivée d'hier", "arrivee d'hier", "résultat d'hier", "resultat d'hier"]):
+    async def generate():
         try:
-            from pmu_source import trouver_quinte_du_jour, recuperer_arrivee_pmu, normaliser_date
-            from datetime import datetime, timedelta
-            date_hier = normaliser_date(datetime.now() - timedelta(days=1))
-            _, r_hier, c_hier = trouver_quinte_du_jour(date_hier)
-            if c_hier:
-                numero_hier = c_hier.get("numOrdre") or c_hier.get("numCourse") or c_hier.get("numero")
-                arrivee = recuperer_arrivee_pmu(date_hier, r_hier, numero_hier)
-                if arrivee:
-                    contexte["arrivee_recherchee"] = (
-                        f"🏁 **Arrivée officielle PMU du {date_hier}**\\n\\n"
-                        f"Course : **{r_hier}C{numero_hier}**\\n\\n"
-                        f"**{' - '.join(map(str, arrivee))}**"
-                    )
-        except Exception as erreur:
-            print("Assistant arrivée hier :", erreur)
-    if any(k in q for k in ["demain", "à venir", "a venir", "prochaine course", "prochain quinté", "quinté de demain", "quinte de demain"]):
-        try:
-            from pmu_source import trouver_quinte_du_jour, charger_course_pmu, normaliser_date
-            from datetime import datetime, timedelta
-            date_future = normaliser_date(datetime.now() + timedelta(days=1))
-            _, reunion, course = trouver_quinte_du_jour(date_future)
-            if course:
-                future_course = charger_course_pmu(date_future, reunion, course.get("numOrdre") or course.get("numCourse") or course.get("numero"))
-                if future_course:
-                    contexte["course"] = future_course
-                    contexte["chevaux"] = future_course.get("chevaux", [])
-                    contexte["source"] = "pmu_live_future"
-        except Exception as erreur:
-            print("Assistant future course :", erreur)
+            contexte = _contexte_assistant()
+            # Le moteur actuel produit une réponse complète ; on la transmet
+            # progressivement pour conserver l'interface SSE sans inventer de texte.
+            resultat = repondre_assistant_turf(question, contexte)
+            texte = str(resultat.get("reponse", ""))
+            if not texte:
+                texte = "Je n'ai pas de réponse disponible actuellement."
 
-    resultat = repondre_assistant_turf(question, contexte)
-    texte = resultat.get("reponse", "")
+            for morceau in re.split(r"(\s+)", texte):
+                if morceau:
+                    import json as _json
+                    yield "data: " + _json.dumps(
+                        {"type": "token", "text": morceau},
+                        ensure_ascii=False
+                    ) + "\n\n"
+                    await asyncio.sleep(0)
 
-    def generate():
-        import json
-        yield "data: " + json.dumps({"type": "token", "text": texte}, ensure_ascii=False) + "\n\n"
-        yield "data: " + json.dumps({"type": "done"}, ensure_ascii=False) + "\n\n"
+            import json as _json
+            yield "data: " + _json.dumps(
+                {"type": "done"},
+                ensure_ascii=False
+            ) + "\n\n"
 
-    return StreamingResponse(generate(), media_type="text/event-stream")
+        except HTTPException as exc:
+            import json as _json
+            yield "data: " + _json.dumps(
+                {"type": "error", "message": exc.detail},
+                ensure_ascii=False
+            ) + "\n\n"
+        except Exception as exc:
+            import json as _json
+            yield "data: " + _json.dumps(
+                {"type": "error", "message": f"Erreur assistant : {exc}"},
+                ensure_ascii=False
+            ) + "\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
