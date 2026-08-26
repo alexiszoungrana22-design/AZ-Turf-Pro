@@ -16,11 +16,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Les tickets affichés ici proviennent désormais du même ticket
-    // Premium que ticket-premium.js : aucune sélection n'est codée en dur.
+    const contenuPremium = document.getElementById("contenu-premium");
+    if (!window.AZAuth.hasAccess()) {
+        if (contenuPremium) contenuPremium.classList.add("zone-masquee");
+        if (btnTableau) btnTableau.disabled = true;
+        return;
+    }
+
     chargerTicketsPremiumLive();
 
-    const contenuPremium = document.getElementById("contenu-premium");
     if (contenuPremium) {
         contenuPremium.classList.remove("zone-masquee");
     }
@@ -30,7 +34,9 @@ async function chargerTableauPartantsLive() {
     const tbody = document.getElementById("all-horses");
     tbody.innerHTML = "<tr><td colspan='5'>Chargement...</td></tr>";
     try {
-        const res = await fetch(`${API_URL}/api/partants`);
+        const res = await fetch(`${API_URL}/api/partants`, {
+            headers: { "Accept": "application/json", ...window.AZAuth.authHeaders() }
+        });
         const data = await res.json();
         tbody.innerHTML = "";
         data.forEach(c => {
@@ -59,7 +65,7 @@ async function chargerTicketsPremiumLive() {
         const reponse = await fetch(`${API_URL}/api/analyse`, {
             method: "GET",
             cache: "no-store",
-            headers: { "Accept": "application/json" }
+            headers: { "Accept": "application/json", ...window.AZAuth.authHeaders() }
         });
 
         if (!reponse.ok) {
