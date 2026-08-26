@@ -1,8 +1,8 @@
-"""AZ TURF PRO — Assistant conversationnel IA & Mémoire Avancée
+"""AZ TURF PRO — Assistant conversationnel IA
 Un pronostiqueur hippique et analyste, pas un chatbot à commandes :
 la question est envoyée telle quelle à un modèle de langage (Claude ou
-OpenAI), avec le contexte complet de la course et l'historique des archives,
-pour un vrai raisonnement et une conversation naturelle sur n'importe quelle formulation.
+OpenAI), avec le contexte complet de la course, pour un vrai raisonnement
+et une conversation naturelle sur n'importe quelle formulation.
 
 Configuration (variables d'environnement, sur Render → Environment) :
   ANTHROPIC_API_KEY   clé Claude (prioritaire par défaut)
@@ -11,14 +11,13 @@ Configuration (variables d'environnement, sur Render → Environment) :
   AI_PROVIDER         "anthropic" (défaut) ou "openai"
 
 Si aucune des deux clés n'est configurée, ou si les deux appels échouent
-(réseau, quota...), l'assistant retombe sur un moteur de secours intelligent
-et élargi capable de fouiller dans les archives et d'analyser les performances.
-[cite: 10]
+(réseau, quota...), l'assistant retombe sur une réponse minimale par
+mots-clés pour ne jamais laisser le client sans réponse.
+"""
 
 import os
 import json
 import httpx
-from datetime import datetime
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
@@ -28,59 +27,6 @@ CLAUDE_MODEL = "claude-sonnet-5"
 OPENAI_MODEL = "gpt-4o-mini"
 
 TIMEOUT_SECONDES = 25
-
-# =====================================
-# MÉMOIRE PERSISTANTE DES COURSES PASSÉES
-# =====================================
-MEMOIRE_COURSES_ARCHIVES = {}
-
-def archiver_course_passee(id_course: str, contexte_course: dict, arrivee_officielle: list) -> dict:
-    """Enregistre une course terminée dans la mémoire à long terme de l'assistant"""
-    if not id_course:
-        id_course = f"COURSE_{datetime.now().strftime('%Y%m%d_%H%M')}"
-    
-    MEMOIRE_COURSES_ARCHIVES[id_course] = {
-        "id_course": id_course,
-        "date_archivage": datetime.now().isoformat(),
-        "contexte": contexte_course,
-        "arrivee_officielle": [str(x) for x in arrivee_officielle]
-    }
-    return {
-        "status": "success",
-        "message": f"Course {id_course} archivée avec succès dans la mémoire.",
-        "total_archives": len(MEMOIRE_COURSES_ARCHIVES)
-    }
-
-def rechercher_memoire_historique(requete: str) -> str:
-    """Permet à l'assistant de fouiller dans les courses passées."""
-    if not MEMOIRE_COURSES_ARCHIVES:
-        return "Aucune course passée n'est actuellement enregistrée dans ma mémoire d'archives."
-
-    requete = requete.lower()
-    matches = []
-
-    for cid, data in MEMOIRE_COURSES_ARCHIVES.items():
-        course_info = data.get("contexte", {}).get("course", {})
-        hippodrome = str(course_info.get("hippodrome", "")).lower()
-        date_c = str(course_info.get("date", "")).lower()
-        
-        if requete in cid.lower() or requete in hippodrome or requete in date_c or requete in "toutes":
-            matches.append(data)
-
-    if not matches:
-        return f"Je n'ai trouvé aucune archive correspondant à '{requete}' dans mes mémoires."
-
-    reponses = []
-    for m in matches[-3:]:
-        c_info = m["contexte"].get("course", {})
-        arrivee = ", ".join(m["arrivee_officielle"])
-        reponses.append(
-            f"• **{c_info.get('hippodrome', 'Hippodrome inconnu')}** du {c_info.get('date', 'date inconnue')} "
-            f"(R{c_info.get('reunion', '?')}C{c_info.get('course_numero', '?')}) — "
-            f"**Arrivée officielle** : [ {arrivee} ]"
-        )
-
-    return "🧠 **Archives & Souvenirs de courses** :\n" + "\n".join(reponses)
 
 
 # =====================================
@@ -134,7 +80,9 @@ def _resume_classement(contexte: dict, limite: int = 20) -> str:
         )
         if confiance is not None:
             ligne += f", confiance {confiance}%"
-        ligne += f" | musique : {cheval.get('musique_brute', '-')}"
+        ligne += (
+            f" | musique : {cheval.get('musique_brute', '-')}"
+        )
         if forme is not None:
             ligne += f" (forme {forme}/10"
             if regularite is not None:
@@ -159,28 +107,40 @@ def _resume_tickets(contexte: dict) -> str:
 
 
 def _construire_system_prompt(contexte: dict) -> str:
-    # Intégration de la mémoire des courses passées dans le prompt de l'IA
-    memoire_recente = ""
-    if MEMOIRE_COURSES_ARCHIVES:
-        memoire_recente = "\n=== COURSES PASSÉES EN MÉMOIRE ===\n"
-        for cid, data in list(MEMOIRE_COURSES_ARCHIVES.items())[-3:]:
-            c_inf = data.get("contexte", {}).get("course", {})
-            memoire_recente += f"- {c_inf.get('hippodrome', 'Piste')} ({c_inf.get('date', '-')}) | Arrivée : {', '.join(data.get('arrivee_officielle', []))}\n"
-
     return (
         "Tu es AZ Turf Pro, un pronostiqueur hippique professionnel, "
         "reconnu et confiant, qui échange avec les abonnés d'une "
-        "application de pronostics Quinté+. Tu possèdes une mémoire avancée "
-        "des courses actuelles et passées.\n\n"
+        "application de pronostics Quinté+. Tu n'es pas un menu de "
+        "commandes : tu comprends et réponds naturellement à n'importe "
+        "quelle question, même formulée différemment de ce qui est prévu, "
+        "et tu maîtrises toutes les statistiques disponibles (cotes, "
+        "tendances de cote, indices AZ et Premium, driver/jockey, "
+        "entraîneur, musique, forme, régularité, corde, ferrage, gains "
+        "carrière).\n\n"
         "Règles :\n"
         "- Réponds en français, avec l'assurance d'un vrai professionnel "
-        "du turf qui connaît sa course sur le bout des doigts.\n"
-        "- Appuie-toi sur les données de course et sur les archives passées si l'utilisateur y fait référence.\n"
-        "- Utilise activement toutes les statistiques à ta disposition (cotes, smart money, indices AZ, musique, driver, ferrage).\n\n"
-        f"{memoire_recente}\n"
-        "=== DONNÉES DE LA COURSE ACTUELLE ===\n"
+        "du turf qui connaît sa course sur le bout des doigts — direct, "
+        "net, sans formules d'hésitation inutiles (\"je pense que\", "
+        "\"peut-être\" à éviter sauf incertitude réelle sur la donnée).\n"
+        "- Appuie-toi uniquement sur les données de course fournies "
+        "ci-dessous. N'invente jamais de cote, de nom de cheval, de "
+        "jockey ou de résultat qui n'y figure pas.\n"
+        "- Si une information précise demandée n'est pas dans les "
+        "données (ex. un historique détaillé non fourni), dis-le "
+        "honnêtement plutôt que de l'inventer — mais formule ça comme "
+        "une limite ponctuelle, pas comme une excuse générale.\n"
+        "- Utilise activement TOUTES les statistiques à ta disposition : "
+        "la musique et la forme récente, le driver, l'entraîneur, la "
+        "corde, le ferrage, les tendances de cote (argent qui rentre ou "
+        "sort) sont autant d'arguments à mobiliser, pas seulement "
+        "l'indice AZ brut.\n"
+        "- Argumente, compare, nuance, donne un vrai avis tranché "
+        "d'analyste — pas seulement réciter des chiffres.\n"
+        "- Reste concis (quelques phrases ou un court paragraphe), sauf "
+        "si la question demande explicitement plus de détail.\n\n"
+        "=== DONNÉES DE LA COURSE ===\n"
         f"{_resume_course(contexte)}\n\n"
-        "=== CLASSEMENT AZ TURF PRO ===\n"
+        "=== CLASSEMENT AZ TURF PRO (toutes statistiques disponibles) ===\n"
         f"{_resume_classement(contexte)}\n\n"
         "=== TICKETS GÉNÉRÉS ===\n"
         f"{_resume_tickets(contexte)}\n"
@@ -188,6 +148,8 @@ def _construire_system_prompt(contexte: dict) -> str:
 
 
 def _historique_pour_ia(historique: list, limite: int = 12) -> list:
+    """Normalise l'historique envoyé par le frontend (chatbot.js) vers un
+    format role/content compatible avec les deux API."""
     messages = []
     for entree in (historique or [])[-limite:]:
         if not isinstance(entree, dict):
@@ -202,7 +164,7 @@ def _historique_pour_ia(historique: list, limite: int = 12) -> list:
 
 
 # =====================================
-# APPELS AUX MODÈLES (CLAUDE / OPENAI)
+# APPELS AUX MODÈLES
 # =====================================
 
 def _appeler_claude(system_prompt: str, messages: list, question: str) -> str:
@@ -265,7 +227,11 @@ def _appeler_openai(system_prompt: str, messages: list, question: str) -> str:
 
 
 # =====================================
-# MOTEUR D'ANALYSE LOCAL & MÉMOIRE
+# REPLI SANS IA (aucune clé configurée / échec des deux appels)
+# =====================================
+
+# =====================================
+# MOTEUR D'ANALYSE RÉEL (raisonnement sur les données, sans IA externe)
 # =====================================
 
 def _indice(cheval: dict) -> float:
@@ -274,20 +240,132 @@ def _indice(cheval: dict) -> float:
     except (TypeError, ValueError):
         return 0.0
 
+
 def _cote(cheval: dict) -> float:
     try:
         return float(cheval.get("cote") or 0)
     except (TypeError, ValueError):
         return 0.0
 
+
 def _trouver_cheval(classement: list, numero: str):
     return next((c for c in classement if str(c.get("numero")) == str(numero)), None)
+
 
 def _analyser_favori(classement: list) -> str:
     if not classement:
         return "Aucune analyse de course n'est disponible pour le moment."
     top = classement[0]
-    return f"🎯 **Favori AZ Turf Pro** : N°{top.get('numero')} **{top.get('nom')}** (Indice AZ {top.get('indice_az', '-')}, cote {top.get('cote', '-')})."
+    ecart = None
+    if len(classement) >= 2:
+        ecart = round(_indice(top) - _indice(classement[1]), 2)
+
+    if ecart is not None and ecart >= 5:
+        confiance = "Il se détache nettement du reste du peloton — un favori solide."
+    elif ecart is not None and ecart >= 1.5:
+        confiance = "Il devance ses poursuivants avec une marge correcte, mais sans être hors de portée."
+    elif ecart is not None:
+        confiance = f"L'écart avec le N°{classement[1].get('numero')} n'est que de {ecart} points — course ouverte, ce favori peut être renversé."
+    else:
+        confiance = "Seul cheval réellement analysé sur cette course."
+
+    return (
+        f"🎯 **Favori AZ Turf Pro** : N°{top.get('numero')} **{top.get('nom')}** "
+        f"(Indice AZ {top.get('indice_az', '-')}, cote {top.get('cote', '-')}). {confiance}"
+    )
+
+
+def _analyser_vulnerables(classement: list) -> str:
+    if len(classement) < 2:
+        return "Pas assez de chevaux analysés pour juger d'une vulnérabilité."
+
+    vulnerables = []
+    for i, cheval in enumerate(classement[:5]):
+        if i == len(classement) - 1:
+            continue
+        suivant = classement[i + 1]
+        ecart = _indice(cheval) - _indice(suivant)
+        cote_elevee = _cote(cheval) >= 6
+        if ecart < 1.5 or cote_elevee:
+            raisons = []
+            if ecart < 1.5:
+                raisons.append(f"talonné de près par le N°{suivant.get('numero')} (écart de {round(ecart, 2)} pts)")
+            if cote_elevee:
+                raisons.append(f"une cote qui reste élevée ({cheval.get('cote')})")
+            vulnerables.append(f"- N°{cheval.get('numero')} **{cheval.get('nom')}** : {', '.join(raisons)}.")
+
+    if not vulnerables:
+        return "Aucun favori ne semble particulièrement vulnérable sur cette course — le classement paraît net."
+    return "⚠️ **Favoris à surveiller** :\n" + "\n".join(vulnerables)
+
+
+def _comparer_chevaux(classement: list, num_a: str, num_b: str) -> str:
+    a = _trouver_cheval(classement, num_a)
+    b = _trouver_cheval(classement, num_b)
+    if not a or not b:
+        manquant = num_a if not a else num_b
+        return f"Je ne trouve pas le numéro {manquant} dans le classement de cette course."
+
+    rang_a = classement.index(a) + 1
+    rang_b = classement.index(b) + 1
+    diff = round(_indice(a) - _indice(b), 2)
+
+    if diff > 0:
+        verdict = f"N°{num_a} **{a.get('nom')}** ressort devant, avec {abs(diff)} points d'indice AZ de plus (rang {rang_a} vs {rang_b})."
+    elif diff < 0:
+        verdict = f"N°{num_b} **{b.get('nom')}** ressort devant, avec {abs(diff)} points d'indice AZ de plus (rang {rang_b} vs {rang_a})."
+    else:
+        verdict = "Les deux chevaux sont à égalité d'indice — un vrai coin de table."
+
+    return (
+        f"**N°{num_a} {a.get('nom')}** (indice {a.get('indice_az', '-')}, cote {a.get('cote', '-')}) "
+        f"vs **N°{num_b} {b.get('nom')}** (indice {b.get('indice_az', '-')}, cote {b.get('cote', '-')}) : {verdict}"
+    )
+
+
+def _generer_scenarios(classement: list) -> str:
+    if len(classement) < 3:
+        return "Pas assez de chevaux analysés pour construire des scénarios."
+
+    favori, second, troisieme = classement[0], classement[1], classement[2]
+    outsiders = [c for c in classement if _cote(c) >= 10]
+    outsider = outsiders[0] if outsiders else classement[-1]
+
+    return (
+        "🛤️ **Deux scénarios possibles** :\n\n"
+        f"**Scénario logique** : le favori N°{favori.get('numero')} **{favori.get('nom')}** confirme sa "
+        f"place, devant N°{second.get('numero')} **{second.get('nom')}** et N°{troisieme.get('numero')} "
+        f"**{troisieme.get('nom')}** — un ordre proche du classement AZ Turf Pro.\n\n"
+        f"**Scénario surprise** : N°{outsider.get('numero')} **{outsider.get('nom')}** "
+        f"(cote {outsider.get('cote', '-')}) crée la sensation et vient bousculer le favori, "
+        "profitant d'un faux rythme ou d'une méforme du leader."
+    )
+
+
+def _fiche_cheval(cheval: dict) -> str:
+    driver = cheval.get("driver") or cheval.get("conducteur") or cheval.get("pilote") or cheval.get("jockey") or "-"
+    forme = cheval.get("forme")
+    regularite = cheval.get("regularite")
+    tendance = cheval.get("tendance_cote") or cheval.get("tendance") or "-"
+
+    fiche = (
+        f"**N°{cheval.get('numero')} {cheval.get('nom')}** — "
+        f"{cheval.get('age', '-')} ans, {cheval.get('sexe', '-')}\n"
+        f"- Jockey/Driver : {driver}\n"
+        f"- Entraîneur : {cheval.get('entraineur', '-')}\n"
+        f"- Cote : {cheval.get('cote', '-')} (tendance {tendance}) | Indice AZ : {cheval.get('indice_az', '-')} | "
+        f"Indice Premium : {cheval.get('indice_premium', '-')}\n"
+        f"- Musique (forme récente) : {cheval.get('musique_brute', '-')}"
+    )
+    if forme is not None:
+        fiche += f" — forme {forme}/10"
+        if regularite is not None:
+            fiche += f", régularité {regularite}/10"
+    fiche += (
+        f"\n- Gains de carrière : {cheval.get('gains', cheval.get('gains_carriere_brute', '-'))}\n"
+        f"- Corde : {cheval.get('corde', '-')} | Ferrage : {cheval.get('deferre', '-')}"
+    )
+    return fiche
 
 
 def _reponse_secours(question: str, contexte: dict) -> str:
@@ -296,29 +374,109 @@ def _reponse_secours(question: str, contexte: dict) -> str:
     q = question.lower().strip()
     moteur = (contexte or {}).get("moteur", {})
     classement = moteur.get("classement", [])
-
-    # --- Gestion de la mémoire et des courses passées ---
-    if any(k in q for k in ["rappelle", "souviens", "historique", "precedente", "précédente", "archives", "course passée"]):
-        return rechercher_memoire_historique(q)
+    tickets = moteur.get("tickets", {})
+    course = (contexte or {}).get("course", {}) or {}
 
     # --- Salutations ---
     if any(k in q for k in ["bonjour", "salut", "bonsoir", "hello", "coucou"]):
-        return ("👋 Bonjour ! Je suis AZ Turf Pro. J'ai en mémoire nos analyses de courses "
-                "et je peux décortiquer les partants du jour, comparer les cotes ou fouiller dans nos archives. Que souhaitez-vous faire ?")
+        return ("👋 Bonjour ! Je suis AZ Turf Pro, votre pronostiqueur hippique. "
+                "Je peux analyser le favori, repérer les favoris vulnérables, "
+                "comparer deux chevaux, proposer des scénarios de course, "
+                "expliquer la position d'un cheval précis, donner le meilleur "
+                "duo ou la sélection Quinté. Posez votre question !")
 
+    # --- Comparaison de deux chevaux, ex. "compare le 3 et le 7" ---
     numeros_cites = _re.findall(r"\b(\d{1,2})\b", q)
-    
-    # --- Analyse d'un cheval précis ---
-    if numeros_cites and any(k in q for k in ["jockey", "driver", "entraineur", "musique", "forme", "gains", "corde", "ferrage"]):
+    if len(numeros_cites) >= 2 and any(k in q for k in ["compar", " ou ", "vs", "mieux que", "contre"]):
+        return _comparer_chevaux(classement, numeros_cites[0], numeros_cites[1])
+
+    # --- Favoris vulnérables ---
+    if any(k in q for k in ["vulnérable", "vulnerable", "fragile", "battable", "renverser", "se méfier", "se mefier", "méfier"]):
+        return _analyser_vulnerables(classement)
+
+    # --- Scénarios de course ---
+    if "scénario" in q or "scenario" in q:
+        return _generer_scenarios(classement)
+
+    # --- Statistiques précises d'un cheval : jockey, musique, gains, corde... ---
+    if numeros_cites and any(k in q for k in ["jockey", "driver", "entraineur", "entraîneur", "musique", "forme", "gains", "corde", "ferrage", "déferré", "deferre", "âge", "age", "fiche", "stat", "monte", "pilote", "qui monte"]):
         cheval = _trouver_cheval(classement, numeros_cites[0])
         if cheval:
-            return f"📋 **Fiche N°{cheval.get('numero')} {cheval.get('nom')}** — Driver : {cheval.get('driver', '-')} | Cote : {cheval.get('cote', '-')} | Indice AZ : {cheval.get('indice_az', '-')}"
+            return _fiche_cheval(cheval)
+        return f"Je ne trouve pas le numéro {numeros_cites[0]} dans le classement de cette course."
 
-    if any(k in q for k in ["favori", "coup sur", "base"]):
+    # --- Cheval précis, ex. "pourquoi enlever/exclure le 4 ?" ---
+    if numeros_cites and any(k in q for k in ["pourquoi", "enlever", "exclure", "éliminer", "eliminer", "sortir", "numero", "numéro", "cheval", "n°"]):
+        numero = numeros_cites[0]
+        cheval = _trouver_cheval(classement, numero)
+        if cheval:
+            rang = classement.index(cheval) + 1
+            if rang <= 3:
+                jugement = "Il fait partie du trio de tête — un choix cohérent."
+            else:
+                jugement = "Son indice est nettement en retrait par rapport aux chevaux devant lui, ce qui justifie sa position."
+            return (
+                f"N°{numero} **{cheval.get('nom')}** est classé **{rang}ᵉ** par AZ Turf Pro "
+                f"(Indice AZ {cheval.get('indice_az', '-')}, cote {cheval.get('cote', '-')}). "
+                f"{jugement}"
+            )
+        return f"Je ne trouve pas le numéro {numero} dans le classement de cette course."
+
+    # --- Meilleur duo / couplé ---
+    if any(k in q for k in ["duo", "couple", "couplé", "gagnant placé", "gagnant/placé"]):
+        couple = (tickets.get("gratuit") or {}).get("couple_gagnant_place") or (tickets.get("gratuit") or {}).get("couple_place")
+        if couple:
+            premiere = couple[0] if isinstance(couple, list) and couple else couple
+            if isinstance(premiere, list):
+                return f"🤝 **Meilleur duo conseillé** : N°{premiere[0]} - N°{premiere[1]}."
+        if len(classement) >= 2:
+            a, b = classement[0], classement[1]
+            return f"🤝 **Meilleur duo (top 2 du classement)** : N°{a.get('numero')} {a.get('nom')} et N°{b.get('numero')} {b.get('nom')}."
+        return "Aucun duo ne peut être calculé pour le moment."
+
+    # --- Avis général sur la course ---
+    if any(k in q for k in ["comment tu trouve", "comment tu vois", "avis sur cette course", "ton avis", "que penses-tu", "analyse de la course", "analyse moi", "analyse cette course"]):
+        if not classement:
+            return "Aucune analyse de course n'est disponible pour le moment."
+        nb = len(classement)
+        return (
+            f"📊 Sur les {nb} partants : {_analyser_favori(classement)}\n\n"
+            f"{_analyser_vulnerables(classement)}"
+        )
+
+    if any(k in q for k in ["favori", "coup sur", "meilleur", "gagnant", "top"]):
         return _analyser_favori(classement)
 
-    return ("🧠 Je suis configuré pour analyser vos courses en direct et me souvenir des sessions passées. "
-            "Posez-moi une question sur un partant, un comparatif ou demandez-moi de fouiller dans nos archives !")
+    if any(k in q for k in ["quinté", "quinte", "ticket", "combinaison"]):
+        if any(k in q for k in ["demain", "hier"]):
+            return ("Le choix du Quinté d'un autre jour (hier/demain) n'est pas "
+                    "encore disponible — cette fonctionnalité dépend d'une donnée "
+                    "supplémentaire non encore branchée. Je peux en revanche vous "
+                    "donner le Quinté du jour en cours.")
+        quinte = (tickets.get("gratuit") or {}).get("quinte", [])
+        if quinte:
+            nums = [str(c.get("numero")) for c in quinte]
+            return "💡 **Ticket Quinté Conseillé** : " + " - ".join(nums)
+        return "Aucune combinaison Quinté disponible pour le moment."
+
+    if any(k in q for k in ["outsider", "tocard", "surprise", "pépite", "pepite"]):
+        outsiders = [c for c in classement if float(c.get("cote", 0) or 0) >= 10.0]
+        if outsiders:
+            c = outsiders[0]
+            return f"🔥 **Outsider à surveiller** : N°{c.get('numero')} **{c.get('nom')}** (Cote : {c.get('cote')})."
+        return "Aucun outsider n'a été repéré avec un niveau de confiance suffisant."
+
+    if "badge" in q or "signification" in q:
+        return ("🏷️ **Guide des Badges** :\n- **D4** : Déferré des 4 pieds.\n"
+                "- **Duo Chaud 🔥** : Jockey & entraîneur en réussite.\n"
+                "- **Spécialiste 🎯** : aptitude détectée.\n"
+                "- **Rachat ⚡** : profil à reconsidérer.")
+
+    return ("Je n'ai pas identifié votre demande. Je peux : donner le favori, "
+            "repérer les favoris vulnérables, comparer deux chevaux "
+            "(ex. \"compare le 3 et le 7\"), proposer des scénarios, "
+            "expliquer un cheval précis, donner le meilleur duo, la "
+            "sélection Quinté, les outsiders ou les badges AZ Turf Pro.")
 
 
 # =====================================
@@ -347,8 +505,11 @@ def repondre_assistant_turf(question: str, contexte_analyse: dict = None, histor
     except Exception:
         pass
 
+    # Aucune IA disponible/configurée, ou donnée de course imprévue :
+    # repli sans jamais laisser d'erreur brute remonter au client.
     try:
         texte = _reponse_secours(question, contexte)
     except Exception:
-        texte = "Je rencontre une difficulté technique passagère. Réessayez dans un instant."
+        texte = ("Je rencontre une difficulté technique passagère. "
+                 "Réessayez dans un instant.")
     return {"status": "success", "question": question, "reponse": texte, "source": "secours"}
