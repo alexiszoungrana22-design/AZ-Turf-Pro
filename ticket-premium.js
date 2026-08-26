@@ -9,6 +9,7 @@
   const ABS_API = "https://az-turf-pro.onrender.com/api/analyse";
 
   function el(id) { return document.getElementById(id); }
+
   function put(id, value, fallback = "Indisponible") {
     const node = el(id);
     if (!node) return;
@@ -20,7 +21,6 @@
   function nums(value) {
     if (Array.isArray(value)) {
       return value.map(v => {
-        if (Array.isArray(v)) return v.join("-");
         if (v && typeof v === "object") return v.numero ?? v.numPmu ?? v.num ?? v.nom ?? "";
         return v;
       }).filter(v => v !== "");
@@ -84,10 +84,6 @@
     put("quinte-premium", join(quinte));
     put("quarte-premium", join(quarte));
     put("trio-premium", join(trio));
-
-    // "Sélection Premium du jour" — jusqu'à 8 chevaux (selection_quinte).
-    const selectionJour = p.selection_quinte ?? p.selection ?? quinte;
-    put("selection-premium", join(selectionJour));
 
     if (couple && typeof couple === "object" && !Array.isArray(couple)) {
       const gagnant = nums(couple.gagnant || couple.couple_gagnant || couple.selection);
@@ -190,14 +186,14 @@
     try {
       const response = await fetch(API + "?t=" + Date.now(), {
         cache: "no-store",
-        headers: { "Accept": "application/json", ...window.AZAuth.authHeaders() }
+        headers: { "Accept": "application/json" }
       });
 
       if (!response.ok) {
         // Même domaine Render : second essai absolu.
         const retry = await fetch(ABS_API + "?t=" + Date.now(), {
           cache: "no-store",
-          headers: { "Accept": "application/json", ...window.AZAuth.authHeaders() }
+          headers: { "Accept": "application/json" }
         });
         if (!retry.ok) throw new Error("API analyse indisponible (" + retry.status + ")");
         render(await retry.json());
@@ -229,21 +225,6 @@
     put("meta-partants", data.partants || "");
   }
 
-  function initAcces() {
-    const messageBlocage = el("message-blocage");
-    const contenuPremium = el("contenu-premium");
-
-    if (!window.AZAuth.hasAccess()) {
-      if (contenuPremium) contenuPremium.classList.add("zone-masquee");
-      if (messageBlocage) messageBlocage.style.display = "";
-      return;
-    }
-
-    if (messageBlocage) messageBlocage.style.display = "none";
-    if (contenuPremium) contenuPremium.classList.remove("zone-masquee");
-    load();
-  }
-
-  document.addEventListener("DOMContentLoaded", initAcces);
+  document.addEventListener("DOMContentLoaded", load);
   window.azPremiumReload = load;
 })();
