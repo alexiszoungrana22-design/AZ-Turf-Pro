@@ -27,14 +27,12 @@ from fastapi import APIRouter, HTTPException, Header
 from fastapi.responses import StreamingResponse
 import secrets
 import asyncio
-import re
 
 from engine import lancer_analyse
 
 from database import (
     creer_abonnement,
     activer_abonnement,
-    valider_reference_paiement,
     verifier_premium,
     lister_abonnements,
     statistiques_abonnements
@@ -225,76 +223,6 @@ def partants():
 # =====================================
 # ANALYSE AZ TURF
 # =====================================
-
-@router.get("/version")
-def version():
-    """Petit indicateur pour vérifier facilement, depuis un navigateur,
-    quelle version du code est réellement déployée sur ce serveur."""
-    return {
-        "version": "v13-erreur-detaillee",
-        "chatbot": "modules/chatbot_turf.py — moteur IA (Claude/OpenAI + repli mots-clés)",
-    }
-
-
-@router.get("/assistant/diagnostic")
-def assistant_diagnostic():
-    """Confirme si les clés IA sont bien détectées par le serveur,
-    SANS jamais révéler leur valeur — juste vrai/faux."""
-    import os as _os
-    return {
-        "anthropic_key_detectee": bool(_os.getenv("ANTHROPIC_API_KEY", "").strip()),
-        "openai_key_detectee": bool(_os.getenv("OPENAI_API_KEY", "").strip()),
-        "provider_prioritaire": _os.getenv("AI_PROVIDER", "anthropic").strip().lower(),
-    }
-
-
-@router.get("/diagnostic/france-galop")
-def diagnostic_france_galop():
-    """Teste EN DIRECT le module France Galop (scraping best-effort,
-    non garanti). Permet de vérifier depuis un navigateur si ça
-    fonctionne réellement contre le site, sans risque pour le reste
-    de l'application (échec silencieux garanti par le module)."""
-    from france_galop_source import obtenir_complement_france_galop
-    resultat = obtenir_complement_france_galop("Longchamp", "GALOP")
-    return {
-        "resultat": resultat,
-        "succes": resultat is not None,
-        "note": ("Rien n'a pu être récupéré — le module a échoué "
-                 "silencieusement comme prévu, rien n'est cassé "
-                 "ailleurs dans l'app." if resultat is None else
-                 "Le scraping fonctionne."),
-    }
-
-
-@router.get("/assistant/diagnostic/test")
-def assistant_diagnostic_test():
-    """Tente un VRAI appel à chaque IA configurée et renvoie soit la
-    réponse, soit le message d'erreur exact — pour diagnostiquer en un
-    clic depuis un navigateur, sans accès aux logs serveur."""
-    from modules.chatbot_turf import _appeler_claude, _appeler_openai, ANTHROPIC_API_KEY, OPENAI_API_KEY
-
-    resultats = {}
-
-    if ANTHROPIC_API_KEY:
-        try:
-            texte = _appeler_claude("Réponds juste 'OK' si tu me reçois.", [], "Test")
-            resultats["anthropic"] = {"succes": True, "reponse": texte}
-        except Exception as erreur:
-            resultats["anthropic"] = {"succes": False, "erreur": str(erreur)}
-    else:
-        resultats["anthropic"] = {"succes": False, "erreur": "Clé non configurée."}
-
-    if OPENAI_API_KEY:
-        try:
-            texte = _appeler_openai("Réponds juste 'OK' si tu me reçois.", [], "Test")
-            resultats["openai"] = {"succes": True, "reponse": texte}
-        except Exception as erreur:
-            resultats["openai"] = {"succes": False, "erreur": str(erreur)}
-    else:
-        resultats["openai"] = {"succes": False, "erreur": "Clé non configurée."}
-
-    return resultats
-
 
 @router.get("/analyse")
 def analyse():
@@ -591,9 +519,6 @@ def abonnement(
 def activation_premium(
     activation: ActivationRequest
 ):
-    # Auto-service : la vraie protection est déjà dans activer_abonnement,
-    # qui n'active que si un admin a préalablement validé cette référence
-    # exacte via /admin/valider-paiement. Aucune clé admin requise ici.
 
     abonnement = activer_abonnement(
 
@@ -668,12 +593,13 @@ def premium(
 # =====================================
 
 @router.get("/admin/abonnements")
-def admin_abonnements(
-    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
-):
-    _require_admin(x_admin_key)
+def admin_abonnements():
+
     return {
-        "abonnements": lister_abonnements()
+
+        "abonnements":
+            lister_abonnements()
+
     }
 
 
@@ -682,10 +608,8 @@ def admin_abonnements(
 # =====================================
 
 @router.get("/admin/statistiques")
-def admin_statistiques(
-    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
-):
-    _require_admin(x_admin_key)
+def admin_statistiques():
+
     return statistiques_abonnements()
 
 
@@ -920,49 +844,71 @@ def api_analyse_complete(payload: dict):
 # AUTHENTIFICATION ADMIN + ASSISTANT
 # =========================================================
 
-def _admin_configured_keys() -> list[str]:
-    """Retourne la clé admin configurée sur le serveur (une seule source de vérité)."""
-    value = os.getenv("AZ_ADMIN_API_KEY", "").strip()
-    return [value] if value else []
+# =========================================================
+# AUTHENTIFICATION ADMIN ROBUSTE
+# =========================================================
+# Une seule valeur secrète doit être configurée dans Render.
+# Plusieurs noms sont acceptés afin d'éviter le verrouillage
+# lorsque le nom de variable a changé entre deux versions.
+_ADMIN_ENV_NAMES = (
+    "AZ_ADMIN_API_KEY",
+    "AZ_TURF_ADMIN_API_KEY",
+    "AZ_TURF_ADMIN_KEY",
+    "ADMIN_API_KEY",
+    "ADMIN_KEY",
+)
 
 
-def _admin_expected_key() -> str:
-    """Compatibilité historique : renvoie la première clé configurée."""
-    keys = _admin_configured_keys()
-    return keys[0] if keys else ""
+def _admin_expected_keys() -> list[str]:
+    valeurs = []
+    for nom in _ADMIN_ENV_NAMES:
+        valeur = os.getenv(nom, "").strip()
+        if valeur and valeur not in valeurs:
+            valeurs.append(valeur)
+    return valeurs
 
 
 def _admin_key_valide(admin_key: str | None) -> bool:
     supplied = (admin_key or "").strip()
     if not supplied:
         return False
-    # IMPORTANT : ne pas bloquer une clé correcte simplement parce qu'une
-    # ancienne variable Render contient encore une ancienne clé.
-    return any(secrets.compare_digest(supplied, expected) for expected in _admin_configured_keys())
+
+    for expected in _admin_expected_keys():
+        if secrets.compare_digest(supplied, expected):
+            return True
+    return False
 
 
-def _require_admin(admin_key: str | None) -> None:
-    if not _admin_expected_key():
-        raise HTTPException(
-            status_code=503,
-            detail="Aucune clé administrateur n'est configurée sur le serveur Render."
-        )
-    if not _admin_key_valide(admin_key):
-        raise HTTPException(
-            status_code=401,
-            detail="Clé administrateur invalide ou différente de celle configurée sur le serveur."
-        )
+def _admin_key_depuis_requete(
+    x_admin_key: str | None,
+    x_admin_api_key: str | None,
+    admin_key: str | None,
+    authorization: str | None,
+) -> str:
+    # Compatibilité avec les variantes de frontend déjà déployées.
+    for valeur in (x_admin_key, x_admin_api_key, admin_key):
+        if valeur and valeur.strip():
+            return valeur.strip()
+
+    # Certains clients utilisent Authorization: Bearer <clé-admin>.
+    if authorization and authorization.lower().startswith("bearer "):
+        return authorization[7:].strip()
+
+    return ""
 
 
 def _auth_assistant(admin_key: str | None, authorization: str | None) -> str:
+    # La clé administrateur est testée avant le token Premium.
     if _admin_key_valide(admin_key):
         return "admin"
 
-    # Le frontend Premium transmet son token d'abonnement.
-    # La validation détaillée du téléphone reste gérée par /api/premium/{telephone}.
     if authorization and authorization.lower().startswith("bearer "):
-        token = authorization[7:].strip()
-        if token:
+        bearer = authorization[7:].strip()
+        if _admin_key_valide(bearer):
+            return "admin"
+
+        # Le frontend Premium transmet son token d'abonnement.
+        if bearer:
             return "premium"
 
     raise HTTPException(
@@ -972,30 +918,36 @@ def _auth_assistant(admin_key: str | None, authorization: str | None) -> str:
 
 
 @router.get("/admin/verification")
-def admin_verification(x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")):
-    _require_admin(x_admin_key)
-    return {"authorized": True, "role": "admin"}
-
-
-@router.post("/admin/valider-paiement")
-def admin_valider_paiement(
-    telephone: str,
-    reference: str,
-    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
+def admin_verification(
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
+    x_admin_api_key: str | None = Header(default=None, alias="X-Admin-Api-Key"),
+    admin_key: str | None = Header(default=None, alias="Admin-Key"),
+    authorization: str | None = Header(default=None),
 ):
-    """L'admin confirme avoir reçu ce paiement (Orange/Moov/Wave, vérifié
-    manuellement pour l'instant). Le client peut ensuite activer lui-même
-    via /activation en resaisissant la même référence exacte."""
-    _require_admin(x_admin_key)
+    supplied = _admin_key_depuis_requete(
+        x_admin_key,
+        x_admin_api_key,
+        admin_key,
+        authorization,
+    )
 
-    abonnement = valider_reference_paiement(telephone, reference)
-    if abonnement is None:
+    if not _admin_expected_keys():
         raise HTTPException(
-            status_code=404,
-            detail="Aucun abonnement en attente trouvé pour ce numéro."
+            status_code=503,
+            detail="Aucune clé administrateur n'est configurée sur le serveur."
         )
 
-    return {"message": "Référence validée. Le client peut maintenant activer.", "abonnement": abonnement}
+    if _admin_key_valide(supplied):
+        return {
+            "authorized": True,
+            "role": "admin",
+            "message": "Accès administrateur validé."
+        }
+
+    raise HTTPException(
+        status_code=401,
+        detail="Clé administrateur invalide."
+    )
 
 
 def _contexte_assistant():
@@ -1025,18 +977,6 @@ def _contexte_assistant():
         }
     )
 
-    # Enrichissement optionnel France Galop (courses de galop
-    # uniquement). Best-effort, jamais bloquant : si indisponible,
-    # le contexte reste identique à avant, rien n'est cassé.
-    complement_galop = None
-    try:
-        from france_galop_source import obtenir_complement_france_galop
-        complement_galop = obtenir_complement_france_galop(
-            course.get("hippodrome", ""), course.get("discipline", "")
-        )
-    except Exception:
-        complement_galop = None
-
     return {
         "moteur": {
             "classement": resultat.get("chevaux", []),
@@ -1044,7 +984,6 @@ def _contexte_assistant():
         },
         "course": course,
         "source": source,
-        "complement_france_galop": complement_galop,
     }
 
 
@@ -1052,23 +991,36 @@ def _contexte_assistant():
 def assistant_chat(
     payload: dict,
     x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
+    x_admin_api_key: str | None = Header(default=None, alias="X-Admin-Api-Key"),
+    admin_key: str | None = Header(default=None, alias="Admin-Key"),
     authorization: str | None = Header(default=None),
 ):
+    supplied = _admin_key_depuis_requete(
+        x_admin_key, x_admin_api_key, admin_key, authorization
+    )
+    _auth_assistant(supplied, authorization)
+
     question = str(payload.get("question", "")).strip()
     if not question:
         raise HTTPException(status_code=400, detail="Question obligatoire.")
 
-    historique = payload.get("historique") or []
     contexte = _contexte_assistant()
-    return repondre_assistant_turf(question, contexte, historique)
+    return repondre_assistant_turf(question, contexte)
 
 
-@router.post("/chatbot/stream")
+@router.post("/assistant/chat/stream")
 async def assistant_chat_stream(
     payload: dict,
     x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
+    x_admin_api_key: str | None = Header(default=None, alias="X-Admin-Api-Key"),
+    admin_key: str | None = Header(default=None, alias="Admin-Key"),
     authorization: str | None = Header(default=None),
 ):
+    supplied = _admin_key_depuis_requete(
+        x_admin_key, x_admin_api_key, admin_key, authorization
+    )
+    _auth_assistant(supplied, authorization)
+
     question = str(payload.get("question", "")).strip()
     if not question:
         raise HTTPException(status_code=400, detail="Question obligatoire.")
@@ -1078,9 +1030,9 @@ async def assistant_chat_stream(
     async def generate():
         try:
             contexte = _contexte_assistant()
-            # Le moteur (IA ou repli) produit une réponse complète ; on la
-            # transmet progressivement pour conserver l'interface SSE.
-            resultat = repondre_assistant_turf(question, contexte, historique)
+            # Le moteur actuel produit une réponse complète ; on la transmet
+            # progressivement pour conserver l'interface SSE sans inventer de texte.
+            resultat = repondre_assistant_turf(question, contexte)
             texte = str(resultat.get("reponse", ""))
             if not texte:
                 texte = "Je n'ai pas de réponse disponible actuellement."

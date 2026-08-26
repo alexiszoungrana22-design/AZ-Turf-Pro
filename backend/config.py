@@ -1,11 +1,10 @@
-APP_NAME = "AZ Turf Pro"
+import os
 
+APP_NAME = "AZ Turf Pro"
 VERSION = "1.0"
 
-# Dossier utilisé par le module export_pdf.py pour enregistrer les PDF générés.
-# Le chemin est relatif au dossier backend, quel que soit le répertoire
-# depuis lequel Uvicorn démarre l'application.
-from pathlib import Path
-
-BASE_DIR = Path(__file__).resolve().parent
-EXPORT_DIR = BASE_DIR / "exports"
+# Secret d'administration fourni uniquement par l'environnement serveur.
+# Ne jamais mettre cette valeur dans le frontend ou dans Git.
+ADMIN_API_KEY = os.getenv("AZ_ADMIN_API_KEY", "").strip()
+# Secret de signature des jetons d'accès Premium. Obligatoire côté serveur.
+PREMIUM_ACCESS_SECRET = os.getenv("AZ_PREMIUM_ACCESS_SECRET", "").strip()
