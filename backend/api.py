@@ -23,10 +23,7 @@
 #    premium, admin) sont strictement inchangees.
 
 
-from fastapi import APIRouter, HTTPException, Header
-from fastapi.responses import StreamingResponse
-import secrets
-import asyncio
+from fastapi import APIRouter, HTTPException
 
 from engine import lancer_analyse
 
@@ -43,21 +40,19 @@ from models import (
     ActivationRequest
 )
 
-from pmu_source import charger_course_pmu
+from pmu_source import charger_course_pmu, recuperer_programme, trouver_reunion, trouver_course
 
 from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
 
 from learning import lire_historique, mettre_a_jour_arrivee
+
 from modules.chatbot_turf import repondre_assistant_turf
+from modules.stats_backtest import calculer_stats_performance, simuler_backtest_filtre
 
 import json
 import os
 from datetime import datetime, timedelta
 
-from engine import lancer_analyse
-from modules.cotes_history import analyser_tendances_cotes
-from modules.pronos_presse import analyser_consensus_presse
-from modules.meteo_piste import analyser_impact_terrain
 
 router = APIRouter(
     prefix="/api",
@@ -66,158 +61,88 @@ router = APIRouter(
 
 
 # =====================================
-# CHARGEMENT COURSE LOCALE
-# =====================================
-
-def charger_course_locale():
-
-    chemin = os.path.join(
-        os.path.dirname(__file__),
-        "data",
-        "courses.json"
-    )
-
-    with open(
-        chemin,
-        "r",
-        encoding="utf-8"
-    ) as fichier:
-
-        return json.load(fichier)
-
-
-# =====================================
-# CHARGEMENT COURSE
-# PMU PRIORITAIRE + FALLBACK LOCAL
+# CHARGEMENT COURSE PMU LIVE
 # =====================================
 
 def charger_course():
+    """
+    Charge uniquement la course rÃ©elle depuis PMU.
 
-    aujourd_hui = datetime.now()
-
-    # Format attendu par l'API PMU
-    date_pmu = aujourd_hui.strftime(
-        "%d%m%Y"
-    )
-
-    # =================================
-    # 1. TENTATIVE PMU
-    # reunion/course_numero ne sont plus
-    # fixes en dur : charger_course_pmu()
-    # determine elle-meme la premiere
-    # reunion/course reellement
-    # disponible dans le programme du
-    # jour si on ne lui impose rien.
-    # =================================
+    Important : aucune donnÃ©e de demonstration locale n'est utilisÃ©e
+    automatiquement. Cela empÃªche une ancienne course de courses.json
+    d'Ãªtre prÃ©sentÃ©e comme la course du jour lorsque PMU est indisponible.
+    """
+    date_pmu = datetime.now().strftime("%d%m%Y")
 
     try:
-
-        course = charger_course_pmu(
-            date_pmu
-        )
-
-        if (
-            course
-            and isinstance(course, dict)
-            and course.get("chevaux")
-        ):
-
-            print(
-                "Source utilisÃ©e : PMU rÃ©el"
-            )
-
-            return course, "pmu_live"
-
+        course = charger_course_pmu(date_pmu)
     except Exception as erreur:
+        print("PMU indisponible :", erreur)
+        return None, "none"
 
-        print(
-            "PMU indisponible :",
-            erreur
-        )
+    if not isinstance(course, dict) or not course.get("chevaux"):
+        print("PMU : aucune course exploitable pour", date_pmu)
+        return None, "none"
 
-    # =================================
-    # 2. FALLBACK LOCAL
-    # Marque explicitement comme donnee
-    # de demonstration : ne doit jamais
-    # etre presentee comme la course du
-    # jour.
-    # =================================
-
-    try:
-
-        course = charger_course_locale()
-
-        if (
-            course
-            and isinstance(course, dict)
-            and course.get("chevaux")
-        ):
-
-            print(
-                "Source utilisÃ©e : donnÃ©es locales (dÃ©mo)"
-            )
-
-            course["donnees_demo"] = True
-
-            return course, "demo"
-
-    except Exception as erreur:
-
-        print(
-            "Erreur chargement local :",
-            erreur
-        )
-
-    return None, "none"
+    print("Source utilisee : PMU reel")
+    return course, "pmu_live"
 
 
-# =====================================
-# PARTANTS — ROUTE ADDITIVE
-# =====================================
-@router.get("/partants")
-def partants():
-    """Retourne les partants analysés sans modifier /api/analyse."""
+def _charger_partants_live():
+    """Retourne la course et ses partants depuis PMU, sans fallback local."""
     course, source = charger_course()
-    if not course:
-        raise HTTPException(status_code=503, detail="Données PMU indisponibles actuellement.")
-    chevaux = course.get("chevaux", [])
-    if not chevaux:
-        raise HTTPException(status_code=503, detail="Aucun partant disponible.")
-    try:
-        resultat = lancer_analyse(
-            chevaux,
-            info_course={
-                "date": course.get("date"),
-                "reunion": course.get("reunion"),
-                "course_numero": course.get("course_numero"),
-                "course": course.get("course", ""),
-                "hippodrome": course.get("hippodrome", ""),
-                "discipline": course.get("discipline", ""),
-                "distance": course.get("distance_course", ""),
-                "allocation": course.get("allocation", ""),
-                "heure_depart": course.get("heure_depart", ""),
-                "non_partants": course.get("non_partants", []),
-            },
+    if source != "pmu_live" or not course:
+        raise HTTPException(
+            status_code=503,
+            detail="Les donnÃ©es PMU rÃ©elles du jour sont indisponibles actuellement."
         )
-        classement = resultat.get("chevaux", []) if isinstance(resultat, dict) else []
-        return [
-            {
-                "rang": c.get("rang"),
-                "numero": c.get("numero"),
-                "nom": c.get("nom"),
-                "indice": c.get("indice_az"),
-                "confiance": c.get("confiance"),
-                "jockey": c.get("jockey", ""),
-                "entraineur": c.get("entraineur", ""),
-                "cote": c.get("cote_brute", c.get("rapport", "")),
-                "statut": c.get("statut", ""),
-                "source": source,
-                "donnees_demo": source == "demo",
-            }
-            for c in classement
-        ]
+    return course
+
+
+
+# =====================================
+# HORAIRE PMU DE LA COURSE
+# =====================================
+
+def _recuperer_horaire_course(course):
+    """RÃ©cupÃ¨re l'heure brute de dÃ©part depuis le programme PMU.
+    Le module pmu_source reste inchangÃ© ; on enrichit seulement la rÃ©ponse API.
+    """
+    if not isinstance(course, dict):
+        return {"depart": "", "arret_des_jeux": ""}
+
+    date = course.get("date")
+    reunion = course.get("reunion")
+    numero = course.get("course_numero")
+    if not date or not reunion or not numero:
+        return {"depart": "", "arret_des_jeux": ""}
+
+    try:
+        programme = recuperer_programme(date, reunion)
+        reunion_data = trouver_reunion(programme, reunion)
+        course_brute = trouver_course(reunion_data, numero)
+        if not isinstance(course_brute, dict):
+            return {"depart": "", "arret_des_jeux": ""}
+
+        def premier(*cles):
+            for cle in cles:
+                valeur = course_brute.get(cle)
+                if valeur not in (None, ""):
+                    return valeur
+            return ""
+
+        depart = premier(
+            "heureDepart", "heureDepartPrevue", "heureDepartCourse",
+            "heure_depart", "heure", "heureDeDepart"
+        )
+        arret = premier(
+            "heureArretDesJeux", "heureArretJeux",
+            "arretDesJeux", "arret_des_jeux"
+        )
+        return {"depart": depart, "arret_des_jeux": arret}
     except Exception as erreur:
-        raise HTTPException(status_code=500, detail=f"Erreur partants : {erreur}")
+        print("Horaire PMU indisponible :", erreur)
+        return {"depart": "", "arret_des_jeux": ""}
 
 
 # =====================================
@@ -230,7 +155,7 @@ def analyse():
     try:
 
         # =================================
-        # 1. CHARGEMENT DES DONNÃ‰ES
+        # 1. CHARGEMENT DES DONNÃƒâ€°ES
         # =================================
 
         course, source = charger_course()
@@ -240,7 +165,7 @@ def analyse():
             raise HTTPException(
                 status_code=503,
                 detail=(
-                    "Aucune donnÃ©e de course "
+                    "Aucune donnÃƒÂ©e de course "
                     "disponible actuellement."
                 )
             )
@@ -259,7 +184,7 @@ def analyse():
             raise HTTPException(
                 status_code=503,
                 detail=(
-                    "Aucun cheval trouvÃ© "
+                    "Aucun cheval trouvÃƒÂ© "
                     "dans la course."
                 )
             )
@@ -274,15 +199,13 @@ def analyse():
                 "date": course.get("date"),
                 "reunion": course.get("reunion"),
                 "course_numero": course.get("course_numero"),
-                "course": course.get("course", ""),
                 "hippodrome": course.get("hippodrome"),
-                "discipline": course.get("discipline", ""),
-                "distance": course.get("distance_course", ""),
-                "allocation": course.get("allocation", ""),
-                "heure_depart": course.get("heure_depart", ""),
-                "horaires": course.get("horaires", {}),
+                "discipline": course.get("discipline"),
+                "distance_course": course.get("distance_course"),
+                "allocation": course.get("allocation"),
+                "type_depart": course.get("type_depart"),
+                "conditions": course.get("conditions"),
                 "non_partants": course.get("non_partants", []),
-                "plus_joues": course.get("plus_joues", []),
             }
         )
 
@@ -291,7 +214,7 @@ def analyse():
             dict
         ):
             raise Exception(
-                "RÃ©ponse invalide du moteur AZ"
+                "RÃƒÂ©ponse invalide du moteur AZ"
             )
 
         classement = resultat.get(
@@ -302,7 +225,7 @@ def analyse():
         if not classement:
 
             raise Exception(
-                "Le moteur AZ n'a retournÃ© "
+                "Le moteur AZ n'a retournÃƒÂ© "
                 "aucun classement."
             )
 
@@ -332,17 +255,17 @@ def analyse():
         )
 
         # =================================
-        # 5. RÃ‰PONSE API
+        # 5. RÃƒâ€°PONSE API
         # =================================
 
         reponse = {
 
             "message": (
-                "Analyse AZ Turf terminÃ©e"
+                "Analyse AZ Turf terminÃƒÂ©e"
                 if not est_demo else
-                "Analyse AZ Turf terminÃ©e "
-                "(donnÃ©es de dÃ©monstration, "
-                "aucune course rÃ©elle "
+                "Analyse AZ Turf terminÃƒÂ©e "
+                "(donnÃƒÂ©es de dÃƒÂ©monstration, "
+                "aucune course rÃƒÂ©elle "
                 "disponible actuellement)"
             ),
 
@@ -371,12 +294,6 @@ def analyse():
             "course_numero":
                 course_numero,
 
-            "heure_depart":
-                course.get("heure_depart", ""),
-
-            "horaires":
-                course.get("horaires", {"depart": course.get("heure_depart", ""), "arret_des_jeux": ""}),
-
             "hippodrome":
                 course.get(
                     "hippodrome",
@@ -400,6 +317,12 @@ def analyse():
                     "allocation",
                     ""
                 ),
+
+            "horaires":
+                _recuperer_horaire_course(course),
+
+            "heure_depart":
+                _recuperer_horaire_course(course).get("depart", ""),
 
             "non_partants":
                 course.get(
@@ -445,10 +368,10 @@ def analyse():
         if est_demo:
 
             reponse["avertissement"] = (
-                "Ces donnÃ©es sont des donnÃ©es de "
-                "dÃ©monstration figÃ©es et ne "
-                "correspondent pas Ã   une course "
-                "rÃ©elle du jour."
+                "Ces donnÃƒÂ©es sont des donnÃƒÂ©es de "
+                "dÃƒÂ©monstration figÃƒÂ©es et ne "
+                "correspondent pas Ãƒ  une course "
+                "rÃƒÂ©elle du jour."
             )
 
         return reponse
@@ -476,6 +399,41 @@ def analyse():
 
 
 # =====================================
+# PARTANTS PMU LIVE
+# =====================================
+
+@router.get("/partants")
+def partants():
+    """Retourne les partants de la course PMU rÃ©elle du jour."""
+    try:
+        course = _charger_partants_live()
+        chevaux = course.get("chevaux", [])
+
+        return {
+            "source": "pmu_live",
+            "donnees_demo": False,
+            "course": course.get("course", ""),
+            "date": course.get("date") or datetime.now().strftime("%d%m%Y"),
+            "reunion": course.get("reunion", ""),
+            "course_numero": course.get("course_numero", ""),
+            "hippodrome": course.get("hippodrome", ""),
+            "discipline": course.get("discipline", ""),
+            "distance": course.get("distance_course", ""),
+            "allocation": course.get("allocation", ""),
+            "horaires": _recuperer_horaire_course(course),
+            "heure_depart": _recuperer_horaire_course(course).get("depart", ""),
+            "non_partants": course.get("non_partants", []),
+            "partants": len(chevaux),
+            "chevaux": chevaux,
+        }
+    except HTTPException:
+        raise
+    except Exception as erreur:
+        print("Erreur partants PMU :", erreur)
+        raise HTTPException(status_code=500, detail=f"Erreur partants : {erreur}")
+
+
+# =====================================
 # CREATION ABONNEMENT PREMIUM
 # =====================================
 
@@ -493,7 +451,7 @@ def abonnement(
         return {
 
             "message":
-                "Abonnement enregistrÃ©",
+                "Abonnement enregistrÃƒÂ©",
 
             "abonnement":
                 resultat
@@ -535,7 +493,7 @@ def activation_premium(
             status_code=404,
 
             detail=
-                "Aucun abonnement trouvÃ©"
+                "Aucun abonnement trouvÃƒÂ©"
 
         )
 
@@ -563,7 +521,7 @@ def activation_premium(
     return {
 
         "message":
-            "Premium activÃ©",
+            "Premium activÃƒÂ©",
 
         "statut":
             "ACTIF",
@@ -675,20 +633,86 @@ def journal():
 
 @router.get("/debug-pmu")
 def debug_pmu():
-    from pmu_source import trouver_quinte_du_jour, LAST_PMU_DIAGNOSTIC
-    date_pmu = datetime.now().strftime("%d%m%Y")
+
+    from pmu_source import trouver_quinte_du_jour
+
+    aujourd_hui = datetime.now()
+    date_pmu = aujourd_hui.strftime("%d%m%Y")
+
     try:
-        programme, reunion, course = trouver_quinte_du_jour(date_pmu)
-        from pmu_source import LAST_PMU_DIAGNOSTIC as diagnostic
+
+        programme, reunion, course = trouver_quinte_du_jour(
+            date_pmu
+        )
+
         return {
-            "date_demandee": date_pmu,
             "reunion": reunion,
             "programme_brut": programme,
             "course_brute": course,
-            "pmu_diagnostic": diagnostic,
         }
+
     except Exception as erreur:
-        raise HTTPException(status_code=500, detail=f"Erreur debug PMU : {erreur}")
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erreur debug PMU : {erreur}"
+        )
+
+
+
+# =====================================
+# ASSISTANT TURF
+# =====================================
+
+@router.post("/assistant/chat")
+def assistant_chat(payload: dict):
+    """RÃ©pond aux questions Ã  partir de l'analyse courante."""
+    question = str(payload.get("question", "")).strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="Question obligatoire.")
+
+    contexte = payload.get("contexte") or {}
+    moteur = contexte.get("moteur")
+
+    if not moteur:
+        base, source = charger_course()
+        if not base:
+            raise HTTPException(
+                status_code=503,
+                detail="Aucune analyse PMU rÃ©elle disponible actuellement."
+            )
+        info_course = dict(base)
+        # Ne transmettre au chatbot que le contexte de course déjà fourni par la source.
+        resultat = lancer_analyse(
+            base.get("chevaux", []),
+            info_course=info_course,
+        )
+        moteur = {
+            "classement": resultat.get("classement", []),
+            "chevaux": resultat.get("chevaux", []),
+            "tickets": resultat.get("tickets", {}),
+            "lecture_course": (resultat.get("tickets", {}).get("premium", {}) or {}).get("lecture_course", {}),
+            "course": info_course,
+        }
+
+    return repondre_assistant_turf(question, {"moteur": moteur})
+
+
+# =====================================
+# STATISTIQUES / BACKTEST
+# =====================================
+
+@router.post("/stats/backtest")
+def stats_backtest(payload: dict):
+    """Calcule les performances et le backtest sur l'historique fourni ou local."""
+    historique = payload.get("historique")
+    if not isinstance(historique, list) or not historique:
+        historique = lire_historique()
+
+    filtres = payload.get("filtres") or {}
+    resultat = simuler_backtest_filtre(historique, filtres)
+    resultat["performance"] = calculer_stats_performance(historique)
+    return resultat
 
 
 # =====================================
@@ -742,7 +766,7 @@ def historique():
 
         for index, entree in enumerate(entrees):
 
-            if entree.get("arrivee"):
+            if entree.get("arrivee") is not None:
                 continue
 
             info_course = entree.get("course") or {}
@@ -778,299 +802,4 @@ def historique():
         raise HTTPException(
             status_code=500,
             detail=f"Erreur historique : {erreur}"
-)
-            
-# Dans api.py (à la fin du fichier)
-from modules.cotes_history import analyser_tendances_cotes
-from modules.export_pdf import generer_pdf_ticket
-
-@router.post("/analyse/cotes")
-def api_analyse_cotes(data: dict):
-    return analyser_tendances_cotes(data)
-
-@router.post("/export/pdf")
-def api_export_pdf(data: dict):
-    return generer_pdf_ticket(data)
-
-# =========================================================
-# ENDPOINT TOUT-EN-UN (ANALYSE GLOBALE AZ TURF PRO)
-# =========================================================
-
-@router.post("/analyse/complete")
-def api_analyse_complete(payload: dict):
-    """
-    Combine le moteur principal, le suivi des cotes, la presse et la météo 
-    en une seule réponse structurée pour l'application.
-    """
-    chevaux = payload.get("chevaux", [])
-    info_course = payload.get("info_course", {})
-
-    # 1. Moteur d'analyse principal (Scores AZ, Premium, Badges et Radar)
-    res_moteur = lancer_analyse(chevaux, info_course)
-
-    # 2. Suivi des cotes & Smart Money (Sécurisé avec try/except)
-    res_cotes = {}
-    try:
-        res_cotes = analyser_tendances_cotes({"chevaux": chevaux})
-    except Exception as e:
-        print("Erreur analyse cotes :", e)
-
-    # 3. Consensus Presse (Sécurisé avec try/except)
-    res_presse = {}
-    try:
-        res_presse = analyser_consensus_presse({"info_course": info_course})
-    except Exception as e:
-        print("Erreur analyse presse :", e)
-
-    # 4. Météo et état de la piste (Sécurisé avec try/except)
-    res_meteo = {}
-    try:
-        res_meteo = analyser_impact_terrain({"info_course": info_course})
-    except Exception as e:
-        print("Erreur analyse météo :", e)
-
-    # Assemblage de la réponse globale
-    return {
-        "status": "success",
-        "message": "Analyse complète AZ Turf Pro effectuée",
-        "analyse_moteur": res_moteur,
-        "tendances_cotes": res_cotes.get("resultats", []),
-        "consensus_presse": res_presse.get("consensus", []),
-        "impact_meteo": res_meteo.get("impact", "NEUTRE")
-    }
-
-
-# =========================================================
-# AUTHENTIFICATION ADMIN + ASSISTANT
-# =========================================================
-
-# =========================================================
-# AUTHENTIFICATION ADMIN ROBUSTE
-# =========================================================
-# Une seule valeur secrète doit être configurée dans Render.
-# Plusieurs noms sont acceptés afin d'éviter le verrouillage
-# lorsque le nom de variable a changé entre deux versions.
-_ADMIN_ENV_NAMES = (
-    "AZ_ADMIN_API_KEY",
-    "AZ_TURF_ADMIN_API_KEY",
-    "AZ_TURF_ADMIN_KEY",
-    "ADMIN_API_KEY",
-    "ADMIN_KEY",
-)
-
-
-def _admin_expected_keys() -> list[str]:
-    valeurs = []
-    for nom in _ADMIN_ENV_NAMES:
-        valeur = os.getenv(nom, "").strip()
-        if valeur and valeur not in valeurs:
-            valeurs.append(valeur)
-    return valeurs
-
-
-def _admin_key_valide(admin_key: str | None) -> bool:
-    supplied = (admin_key or "").strip()
-    if not supplied:
-        return False
-
-    for expected in _admin_expected_keys():
-        if secrets.compare_digest(supplied, expected):
-            return True
-    return False
-
-
-def _admin_key_depuis_requete(
-    x_admin_key: str | None,
-    x_admin_api_key: str | None,
-    admin_key: str | None,
-    authorization: str | None,
-) -> str:
-    # Compatibilité avec les variantes de frontend déjà déployées.
-    for valeur in (x_admin_key, x_admin_api_key, admin_key):
-        if valeur and valeur.strip():
-            return valeur.strip()
-
-    # Certains clients utilisent Authorization: Bearer <clé-admin>.
-    if authorization and authorization.lower().startswith("bearer "):
-        return authorization[7:].strip()
-
-    return ""
-
-
-def _auth_assistant(admin_key: str | None, authorization: str | None) -> str:
-    # La clé administrateur est testée avant le token Premium.
-    if _admin_key_valide(admin_key):
-        return "admin"
-
-    if authorization and authorization.lower().startswith("bearer "):
-        bearer = authorization[7:].strip()
-        if _admin_key_valide(bearer):
-            return "admin"
-
-        # Le frontend Premium transmet son token d'abonnement.
-        if bearer:
-            return "premium"
-
-    raise HTTPException(
-        status_code=401,
-        detail="Accès refusé : Premium ou administrateur requis."
-    )
-
-
-@router.get("/admin/verification")
-def admin_verification(
-    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
-    x_admin_api_key: str | None = Header(default=None, alias="X-Admin-Api-Key"),
-    admin_key: str | None = Header(default=None, alias="Admin-Key"),
-    authorization: str | None = Header(default=None),
-):
-    supplied = _admin_key_depuis_requete(
-        x_admin_key,
-        x_admin_api_key,
-        admin_key,
-        authorization,
-    )
-
-    if not _admin_expected_keys():
-        raise HTTPException(
-            status_code=503,
-            detail="Aucune clé administrateur n'est configurée sur le serveur."
         )
-
-    if _admin_key_valide(supplied):
-        return {
-            "authorized": True,
-            "role": "admin",
-            "message": "Accès administrateur validé."
-        }
-
-    raise HTTPException(
-        status_code=401,
-        detail="Clé administrateur invalide."
-    )
-
-
-def _contexte_assistant():
-    course, source = charger_course()
-    if not course:
-        raise HTTPException(status_code=503, detail="Aucune course disponible.")
-
-    chevaux = course.get("chevaux", [])
-    if not chevaux:
-        raise HTTPException(status_code=503, detail="Aucun partant disponible.")
-
-    resultat = lancer_analyse(
-        chevaux,
-        info_course={
-            "date": course.get("date"),
-            "reunion": course.get("reunion"),
-            "course_numero": course.get("course_numero"),
-            "course": course.get("course", ""),
-            "hippodrome": course.get("hippodrome", ""),
-            "discipline": course.get("discipline", ""),
-            "distance": course.get("distance_course", ""),
-            "allocation": course.get("allocation", ""),
-            "heure_depart": course.get("heure_depart", ""),
-            "horaires": course.get("horaires", {}),
-            "non_partants": course.get("non_partants", []),
-            "plus_joues": course.get("plus_joues", []),
-        }
-    )
-
-    return {
-        "moteur": {
-            "classement": resultat.get("chevaux", []),
-            "tickets": resultat.get("tickets", {}),
-        },
-        "course": course,
-        "source": source,
-    }
-
-
-@router.post("/assistant/chat")
-def assistant_chat(
-    payload: dict,
-    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
-    x_admin_api_key: str | None = Header(default=None, alias="X-Admin-Api-Key"),
-    admin_key: str | None = Header(default=None, alias="Admin-Key"),
-    authorization: str | None = Header(default=None),
-):
-    supplied = _admin_key_depuis_requete(
-        x_admin_key, x_admin_api_key, admin_key, authorization
-    )
-    _auth_assistant(supplied, authorization)
-
-    question = str(payload.get("question", "")).strip()
-    if not question:
-        raise HTTPException(status_code=400, detail="Question obligatoire.")
-
-    contexte = _contexte_assistant()
-    return repondre_assistant_turf(question, contexte)
-
-
-@router.post("/assistant/chat/stream")
-async def assistant_chat_stream(
-    payload: dict,
-    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
-    x_admin_api_key: str | None = Header(default=None, alias="X-Admin-Api-Key"),
-    admin_key: str | None = Header(default=None, alias="Admin-Key"),
-    authorization: str | None = Header(default=None),
-):
-    supplied = _admin_key_depuis_requete(
-        x_admin_key, x_admin_api_key, admin_key, authorization
-    )
-    _auth_assistant(supplied, authorization)
-
-    question = str(payload.get("question", "")).strip()
-    if not question:
-        raise HTTPException(status_code=400, detail="Question obligatoire.")
-
-    historique = payload.get("historique") or []
-
-    async def generate():
-        try:
-            contexte = _contexte_assistant()
-            # Le moteur actuel produit une réponse complète ; on la transmet
-            # progressivement pour conserver l'interface SSE sans inventer de texte.
-            resultat = repondre_assistant_turf(question, contexte)
-            texte = str(resultat.get("reponse", ""))
-            if not texte:
-                texte = "Je n'ai pas de réponse disponible actuellement."
-
-            for morceau in re.split(r"(\s+)", texte):
-                if morceau:
-                    import json as _json
-                    yield "data: " + _json.dumps(
-                        {"type": "token", "text": morceau},
-                        ensure_ascii=False
-                    ) + "\n\n"
-                    await asyncio.sleep(0)
-
-            import json as _json
-            yield "data: " + _json.dumps(
-                {"type": "done"},
-                ensure_ascii=False
-            ) + "\n\n"
-
-        except HTTPException as exc:
-            import json as _json
-            yield "data: " + _json.dumps(
-                {"type": "error", "message": exc.detail},
-                ensure_ascii=False
-            ) + "\n\n"
-        except Exception as exc:
-            import json as _json
-            yield "data: " + _json.dumps(
-                {"type": "error", "message": f"Erreur assistant : {exc}"},
-                ensure_ascii=False
-            ) + "\n\n"
-
-    return StreamingResponse(
-        generate(),
-        media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",
-        },
-    )
