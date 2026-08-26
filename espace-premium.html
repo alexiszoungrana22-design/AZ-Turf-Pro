@@ -65,8 +65,8 @@
             </div>
 
             <div class="form-group">
-                <label for="code-input">Référence de paiement :</label>
-                <input type="text" id="code-input" class="form-control" placeholder="Sera demandée à l'étape suivante" style="text-transform: uppercase;" disabled>
+                <label for="code-input">Code VIP reçu :</label>
+                <input type="text" id="code-input" class="form-control" placeholder="Entrez votre code VIP" style="text-transform: uppercase;" required>
             </div>
 
             <button type="submit" class="btn-action">✅ Débloquer mes Tickets VIP</button>
@@ -85,9 +85,13 @@
 </footer>
 
 <script>
+    // LISTE DES CODES VIP VALIDES (Tu peux modifier ou ajouter des codes ici)
+    const CODES_VALIDES = ["AZ2026", "VIP777", "TURF88", "PRO2026"];
+
     document.addEventListener("DOMContentLoaded", () => {
         const form = document.getElementById("form-activation");
         const inputTel = document.getElementById("telephone-input");
+        const inputCode = document.getElementById("code-input");
         const messageAlerte = document.getElementById("message-alerte");
 
         // Pré-remplir le numéro s'il existe déjà
@@ -98,17 +102,27 @@
             e.preventDefault();
 
             let tel = inputTel.value.replace(/\s+/g, '').trim();
+            let codeSaisi = inputCode.value.trim().toUpperCase();
 
             if (tel.length < 8) {
                 afficherMessage("Veuillez entrer un numéro de téléphone valide.", "error");
                 return;
             }
 
-            // L'activation Premium est désormais vérifiée par le serveur
-            // (référence de paiement) sur la page dédiée — plus de code VIP
-            // codé en clair côté client.
-            localStorage.setItem("AZ_TURF_TELEPHONE", tel);
-            window.location.href = "activation.html";
+            // Vérification si le code est dans la liste autorisée
+            if (CODES_VALIDES.includes(codeSaisi)) {
+                // Sauvegarde de l'accès VIP dans la mémoire du téléphone
+                localStorage.setItem("AZ_TURF_TELEPHONE", tel);
+                localStorage.setItem("AZ_TURF_PREMIUM_ACTIF", "true");
+
+                afficherMessage("🎉 Code VIP Valide ! Accès débloqué...", "success");
+
+                setTimeout(() => {
+                    window.location.href = "ticket-premium.html";
+                }, 1200);
+            } else {
+                afficherMessage("❌ Code VIP incorrect ou expiré.", "error");
+            }
         });
 
         function afficherMessage(texte, type) {
