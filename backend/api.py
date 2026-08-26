@@ -23,13 +23,14 @@
 #    premium, admin) sont strictement inchangees.
 
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends, Header
 
 from engine import lancer_analyse
 
 from database import (
     creer_abonnement,
     activer_abonnement,
+    valider_reference_paiement,
     verifier_premium,
     lister_abonnements,
     statistiques_abonnements
@@ -40,7 +41,9 @@ from models import (
     ActivationRequest
 )
 
-from pmu_source import charger_course_pmu, recuperer_programme, trouver_reunion, trouver_course
+from security import require_admin, is_valid_admin_key, create_premium_token, verify_premium_token
+
+from pmu_source import charger_course_pmu, recuperer_programme, trouver_reunion, trouver_course, trouver_quinte_du_jour
 
 from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
 
@@ -146,11 +149,112 @@ def _recuperer_horaire_course(course):
 
 
 # =====================================
+# QUINTÉ DES PÉRIODES : HIER / JOUR / DEMAIN
+# =====================================
+
+def _nombre_partants_course_brute(course):
+    if not isinstance(course, dict):
+        return 0
+    for cle in ("nombreDeclaresPartants", "nombrePartants", "nbPartants"):
+        valeur = course.get(cle)
+        try:
+            if valeur not in (None, ""):
+                return int(valeur)
+        except (TypeError, ValueError):
+            pass
+    participants = course.get("participants")
+    if isinstance(participants, list):
+        return len(participants)
+    return 0
+
+
+def _resume_quinte_periode(date_obj, periode):
+    """Charge uniquement les métadonnées du Quinté d'une date donnée.
+
+    On réutilise la même détection PMU que la course du jour, sans lancer le
+    moteur AZ ni toucher au ticket Premium/gratuit de /api/analyse.
+    """
+    date_pmu = date_obj.strftime("%d%m%Y")
+    try:
+        _programme, reunion, course = trouver_quinte_du_jour(date_pmu)
+    except Exception as erreur:
+        print(f"Quinté {periode} indisponible :", erreur)
+        return {
+            "periode": periode,
+            "date": date_obj.strftime("%Y-%m-%d"),
+            "disponible": False,
+        }
+
+    if not isinstance(course, dict):
+        return {
+            "periode": periode,
+            "date": date_obj.strftime("%Y-%m-%d"),
+            "disponible": False,
+        }
+
+    def premier(*cles):
+        for cle in cles:
+            valeur = course.get(cle)
+            if valeur not in (None, ""):
+                return valeur
+        return ""
+
+    depart = premier(
+        "heureDepart", "heureDepartPrevue", "heureDepartCourse",
+        "heure_depart", "heure", "heureDeDepart"
+    )
+    date_course = premier("date", "dateCourse") or date_obj.strftime("%Y-%m-%d")
+    numero = premier("numOrdre", "numCourse", "numero")
+    nom = premier("libelle", "nom", "libelleLong", "libelleCourt") or "Quinté+"
+    distance = premier("distance", "distanceCourse", "distanceMetres")
+    hippodrome = course.get("hippodrome") or course.get("hippodromeLibelle") or course.get("hippodromeNom") or ""
+    if isinstance(hippodrome, dict):
+        hippodrome = hippodrome.get("libelleLong") or hippodrome.get("libelleCourt") or hippodrome.get("libelle") or hippodrome.get("nom") or ""
+
+    discipline = course.get("discipline", "")
+    if isinstance(discipline, dict):
+        discipline = discipline.get("libelle") or discipline.get("nom") or ""
+
+    return {
+        "periode": periode,
+        "date": date_course,
+        "reunion": reunion or "",
+        "course_numero": numero,
+        "course": nom,
+        "hippodrome": hippodrome,
+        "discipline": discipline,
+        "distance": distance,
+        "partants": _nombre_partants_course_brute(course),
+        "heure_depart": depart,
+        "horaires": {"depart": depart},
+        "disponible": True,
+        "source": "pmu_live",
+    }
+
+
+@router.get("/quintes-periodes")
+def quintes_periodes():
+    """Retourne les Quinté+ réel d'hier, du jour et de demain.
+
+    Cette route est additive : elle ne modifie pas /api/analyse ni les tickets.
+    """
+    aujourd_hui = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    periodes = {
+        "hier": aujourd_hui - timedelta(days=1),
+        "jour": aujourd_hui,
+        "demain": aujourd_hui + timedelta(days=1),
+    }
+    return {
+        cle: _resume_quinte_periode(date_obj, cle)
+        for cle, date_obj in periodes.items()
+    }
+
+
+# =====================================
 # ANALYSE AZ TURF
 # =====================================
 
-@router.get("/analyse")
-def analyse():
+def _analyse_complete():
 
     try:
 
@@ -399,6 +503,50 @@ def analyse():
 
 
 # =====================================
+# ANALYSE PUBLIQUE / PREMIUM SECURISEE
+# =====================================
+
+@router.get("/analyse")
+def analyse():
+    """Analyse publique : uniquement les données gratuites."""
+    reponse = _analyse_complete()
+    tickets = reponse.get("tickets", {}) or {}
+    reponse["tickets"] = {
+        "gratuit": tickets.get("gratuit", {})
+    }
+    return reponse
+
+
+def _require_premium_request(authorization: str | None, x_admin_key: str | None) -> dict:
+    # Administrateur : accès Premium autorisé avec la clé serveur.
+    if is_valid_admin_key(x_admin_key):
+        return {"admin": True, "telephone": "ADMINISTRATEUR"}
+
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Accès Premium non autorisé.")
+
+    token = authorization[7:].strip()
+    payload = verify_premium_token(token)
+    telephone = payload.get("telephone", "").strip()
+
+    statut = verifier_premium(telephone)
+    if statut.get("statut") != "ACTIF":
+        raise HTTPException(status_code=403, detail="Abonnement Premium inactif ou expiré.")
+
+    return {"admin": False, "telephone": telephone}
+
+
+@router.get("/premium/ticket")
+def premium_ticket(
+    authorization: str | None = Header(default=None),
+    x_admin_key: str | None = Header(default=None),
+):
+    """Endpoint Premium : tickets complets uniquement après authentification serveur."""
+    _require_premium_request(authorization, x_admin_key)
+    return _analyse_complete()
+
+
+# =====================================
 # PARTANTS PMU LIVE
 # =====================================
 
@@ -477,58 +625,27 @@ def abonnement(
 def activation_premium(
     activation: ActivationRequest
 ):
-
     abonnement = activer_abonnement(
-
-        activation.telephone,
-
-        activation.reference
-
+        activation.telephone.strip(),
+        activation.reference.strip()
     )
 
     if abonnement is None:
-
         raise HTTPException(
-
-            status_code=404,
-
-            detail=
-                "Aucun abonnement trouvÃƒÂ©"
-
+            status_code=403,
+            detail="Référence non validée ou abonnement introuvable."
         )
 
-    abonnement["date_fin"] = (
-
-        datetime.now()
-
-        +
-
-        timedelta(
-
-            days=int(
-
-                abonnement.get(
-                    "duree",
-                    30
-                )
-
-            )
-
-        )
-
-    ).isoformat()
+    token = create_premium_token(
+        activation.telephone.strip(),
+        abonnement["date_fin"]
+    )
 
     return {
-
-        "message":
-            "Premium activÃƒÂ©",
-
-        "statut":
-            "ACTIF",
-
-        "date_fin":
-            abonnement["date_fin"]
-
+        "message": "Premium activé",
+        "statut": "ACTIF",
+        "date_fin": abonnement["date_fin"],
+        "access_token": token
     }
 
 
@@ -538,36 +655,52 @@ def activation_premium(
 
 @router.get("/premium/{telephone}")
 def premium(
-    telephone: str
+    telephone: str,
+    authorization: str | None = Header(default=None),
+    x_admin_key: str | None = Header(default=None),
 ):
-
-    return verifier_premium(
-        telephone
-    )
+    """Statut Premium protégé : impossible de sonder arbitrairement un numéro."""
+    acces = _require_premium_request(authorization, x_admin_key)
+    if not acces.get("admin") and acces.get("telephone") != telephone.strip():
+        raise HTTPException(status_code=403, detail="Accès Premium non autorisé pour ce compte.")
+    return verifier_premium(telephone.strip())
 
 
 # =====================================
 # ADMIN - ABONNEMENTS
 # =====================================
 
-@router.get("/admin/abonnements")
-def admin_abonnements():
+@router.post("/admin/valider-reference")
+def admin_valider_reference(
+    activation: ActivationRequest,
+    _: bool = Depends(require_admin)
+):
+    abonnement = valider_reference_paiement(
+        activation.telephone.strip(),
+        activation.reference.strip()
+    )
+
+    if abonnement is None:
+        raise HTTPException(status_code=404, detail="Abonnement introuvable.")
 
     return {
-
-        "abonnements":
-            lister_abonnements()
-
+        "message": "Référence de paiement validée. Le client peut maintenant activer son Premium.",
+        "statut": abonnement["statut"]
     }
 
 
-# =====================================
-# ADMIN - STATISTIQUES
-# =====================================
+@router.get("/admin/verification")
+def admin_verification(_: bool = Depends(require_admin)):
+    return {"authenticated": True}
+
+
+@router.get("/admin/abonnements")
+def admin_abonnements(_: bool = Depends(require_admin)):
+    return {"abonnements": lister_abonnements()}
+
 
 @router.get("/admin/statistiques")
-def admin_statistiques():
-
+def admin_statistiques(_: bool = Depends(require_admin)):
     return statistiques_abonnements()
 
 
@@ -766,14 +899,35 @@ def historique():
 
         for index, entree in enumerate(entrees):
 
-            if entree.get("arrivee") is not None:
+            if not isinstance(entree, dict):
+                continue
+
+            # Une liste vide signifie "résultat encore inconnu".
+            # L'ancien test `is not None` considérait [] comme déjà traité
+            # et empêchait donc toute récupération ultérieure du résultat PMU.
+            arrivee_existante = entree.get("arrivee")
+            if isinstance(arrivee_existante, (list, tuple)) and len(arrivee_existante) >= 5:
+                continue
+            if arrivee_existante and not isinstance(arrivee_existante, (list, tuple)):
                 continue
 
             info_course = entree.get("course") or {}
+            if not isinstance(info_course, dict):
+                info_course = {}
 
-            date = info_course.get("date")
-            reunion = info_course.get("reunion")
-            course_numero = info_course.get("course_numero")
+            # Compatibilité avec les anciennes entrées qui stockaient les
+            # informations de course au niveau racine.
+            date = info_course.get("date") or entree.get("date")
+            reunion = (
+                info_course.get("reunion")
+                or info_course.get("reunion_numero")
+                or entree.get("reunion")
+            )
+            course_numero = (
+                info_course.get("course_numero")
+                or info_course.get("numero_course")
+                or entree.get("course_numero")
+            )
 
             if not (date and reunion and course_numero):
                 continue
@@ -787,11 +941,15 @@ def historique():
                 )
 
                 if arrivee:
-                    mettre_a_jour_arrivee(index, arrivee)
-                    entree["arrivee"] = arrivee
+                    # On normalise avant stockage pour éviter d'afficher des
+                    # objets Python/JSON dans l'historique.
+                    arrivee = [str(x).strip() for x in arrivee if str(x).strip()][:5]
+                    if len(arrivee) >= 5:
+                        mettre_a_jour_arrivee(index, arrivee)
+                        entree["arrivee"] = arrivee
 
-            except Exception:
-                pass
+            except Exception as erreur:
+                print(f"Historique: récupération arrivée impossible ({date} {reunion} {course_numero}): {erreur}")
 
         return {
             "historique": list(reversed(entrees))
