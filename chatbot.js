@@ -110,8 +110,21 @@ function getAssistantAuthHeaders() {
   // L'administrateur utilise la même clé que celle enregistrée depuis
   // l'interface d'administration. Elle reste côté sessionStorage et n'est
   // jamais exposée dans le code source.
-  const adminKey = sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") || localStorage.getItem("AZ_TURF_ADMIN_API_KEY") || "";
-  const token = localStorage.getItem("AZ_TURF_PREMIUM_TOKEN") || "";
+  const adminKey =
+    sessionStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
+    localStorage.getItem("AZ_TURF_ADMIN_API_KEY") ||
+    sessionStorage.getItem("AZ_TURF_ADMIN_KEY") ||
+    localStorage.getItem("AZ_TURF_ADMIN_KEY") ||
+    sessionStorage.getItem("ADMIN_API_KEY") ||
+    localStorage.getItem("ADMIN_API_KEY") ||
+    sessionStorage.getItem("admin_api_key") ||
+    localStorage.getItem("admin_api_key") ||
+    "";
+
+  const token =
+    localStorage.getItem("AZ_TURF_PREMIUM_TOKEN") ||
+    sessionStorage.getItem("AZ_TURF_PREMIUM_TOKEN") ||
+    "";
 
   const headers = {
     "Content-Type": "application/json",
@@ -129,31 +142,25 @@ function getAssistantAuthHeaders() {
 
 async function streamAnswer(question) {
   const auth = getAssistantAuthHeaders();
-  const normalized = String(question || "").trim().toLowerCase().replace(/[!?.,;:]+$/g, "");
-  const publicConversation = new Set([
-    "bonjour", "bonsoir", "salut", "hello", "coucou", "hey",
-    "ça va", "ca va", "je vais bien", "je vais bien merci",
-    "bien merci", "merci", "ok", "d'accord", "daccord", "super"
-  ]);
 
-  // Les échanges de courtoisie restent accessibles sans Premium.
-  // Les analyses PMU restent protégées côté serveur.
-  if (!auth.isAdmin && !auth.hasPremiumToken && !publicConversation.has(normalized)) {
-    throw new Error("Cette fonction interactive est réservée aux abonnés Premium ou à l'administrateur.");
+  if (auth.isAdmin) {
+    const verification = await fetch("/api/admin/verification", {
+      method: "GET",
+      headers: { "X-Admin-Key": auth.headers["X-Admin-Key"] || "" },
+      cache: "no-store"
+    });
+    if (!verification.ok) {
+      let detail = "Clé administrateur refusée.";
+      try { const data = await verification.json(); detail = data.detail || detail; } catch (_) {}
+      throw new Error(detail);
+    }
   }
-
-  const headers = publicConversation.has(normalized)
-    ? { "Content-Type": "application/json", "Accept": "text/event-stream" }
-    : auth.headers;
-
-  const prenom = localStorage.getItem("AZ_TURF_PRENOM") ||
-                 localStorage.getItem("AZ_TURF_NOM_UTILISATEUR") ||
-                 sessionStorage.getItem("AZ_TURF_PRENOM") || "";
-
+  // Ne bloque plus localement un administrateur dont la session n'a
+  // pas encore été restaurée : le serveur est la source d'autorité.
   const response = await fetch(CHAT_STREAM_API, {
     method: "POST",
-    headers,
-    body: JSON.stringify({ question, prenom, historique: history.slice(-12) })
+    headers: auth.headers,
+    body: JSON.stringify({ question, historique: history.slice(-12) })
   });
 
   if (!response.ok) {
