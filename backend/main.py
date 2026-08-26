@@ -47,7 +47,7 @@ if IMAGES_DIR.exists():
     app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 
 # ==============================
-# CSS / JS (si prÃ©sents)
+# CSS / JS (si présents)
 # ==============================
 
 for dossier in ["css", "js"]:
@@ -56,12 +56,12 @@ for dossier in ["css", "js"]:
         app.mount(f"/{dossier}", StaticFiles(directory=chemin), name=dossier)
 
 # ==============================
-# Fichiers frontend Ã  la racine
+# Fichiers frontend à la racine
 # ==============================
-# Le frontend actuel rÃ©fÃ©rence ses CSS/JS/HTML directement Ã  la racine
+# Le frontend actuel référence ses CSS/JS/HTML directement à la racine
 # (/style.css, /analyse.js, /historique.js, etc.). Les dossiers /css et /js
 # ne sont donc pas suffisants. Ces routes servent uniquement des fichiers
-# prÃ©sents directement dans ROOT_DIR et bloquent les chemins traversants.
+# présents directement dans ROOT_DIR et bloquent les chemins traversants.
 
 @app.get("/{asset_name}.css")
 def servir_css(asset_name: str):
@@ -88,9 +88,9 @@ def servir_page_html(page_name: str):
 
 
 # ==============================
-# Frontend statique Ã  la racine
+# Frontend statique à la racine
 # ==============================
-# Sert les fichiers frontend rÃ©fÃ©rencÃ©s directement depuis /.
+# Sert les fichiers frontend référencés directement depuis /.
 if ROOT_DIR.exists():
     app.mount("/_frontend_static", StaticFiles(directory=ROOT_DIR), name="frontend_static")
 
