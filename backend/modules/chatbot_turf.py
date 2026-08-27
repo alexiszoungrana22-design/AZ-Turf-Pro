@@ -1273,9 +1273,144 @@ def _v16_safe(fn, default, *args, **kwargs):
         return default
 
 
+def _brancher_modules_complementaires(ctx, chevaux, course, historique=None):
+    """Branche les modules d'accompagnement existants sans remplacer le pipeline.
+
+    Chaque module est isolé : une panne d'un module ne bloque jamais l'analyse.
+    Les résultats sont exposés dans ctx["modules_accompagnement"], avec un statut
+    explicite afin d'éviter de considérer un simple import comme un branchement.
+    """
+    modules = {}
+
+    # Routage d'intention réel.
+    try:
+        from .intent_router import route
+        modules["intent_router"] = {"status": "ok", "result": route(ctx.get("question", ""), None)}
+    except Exception as exc:
+        modules["intent_router"] = {"status": "error", "error": type(exc).__name__}
+
+    # Mémoire conversationnelle persistante dans le processus.
+    try:
+        from .conversation_memory import State, remember
+        global _CHATBOT_CONVERSATION_STATE
+        if "_CHATBOT_CONVERSATION_STATE" not in globals():
+            _CHATBOT_CONVERSATION_STATE = State()
+        remember(
+            _CHATBOT_CONVERSATION_STATE,
+            intent=modules.get("intent_router", {}).get("result", {}).get("intent"),
+            horses=[c.get("numero") for c in chevaux if c.get("numero") is not None],
+            analysis=ctx.get("moteur", {}),
+            tickets=(ctx.get("moteur", {}) or {}).get("tickets", {}),
+        )
+        modules["conversation_memory"] = {"status": "ok", "state": _CHATBOT_CONVERSATION_STATE}
+    except Exception as exc:
+        modules["conversation_memory"] = {"status": "error", "error": type(exc).__name__}
+
+    # Base de connaissances locale : disponible même sans internet.
+    try:
+        from .knowledge_turf import charger_base
+        modules["knowledge_turf"] = {
+            "status": "ok",
+            "chevaux": len(charger_base("chevaux.json")),
+            "jockeys": len(charger_base("jockeys.json")),
+            "entraineurs": len(charger_base("entraineurs.json")),
+            "lexique": len(charger_base("lexique_turf.json")),
+        }
+    except Exception as exc:
+        modules["knowledge_turf"] = {"status": "error", "error": type(exc).__name__}
+
+    # Actualités locales déjà enregistrées. Aucune actualité n'est inventée.
+    try:
+        from .news_turf import charger_actualites
+        actualites = charger_actualites()
+        modules["news_turf"] = {"status": "ok", "count": len(actualites), "items": actualites[:10]}
+    except Exception as exc:
+        modules["news_turf"] = {"status": "error", "error": type(exc).__name__}
+
+    # Mémoire des courses terminées déjà archivées.
+    try:
+        from .chatbot_memory import generer_contexte_memoire_recent
+        modules["chatbot_memory"] = {"status": "ok", "recent": generer_contexte_memoire_recent()}
+    except Exception as exc:
+        modules["chatbot_memory"] = {"status": "error", "error": type(exc).__name__}
+
+    # Apprentissage : enregistrement du pronostic courant, sans prétendre qu'il est
+    # permanent tant qu'un stockage persistant n'est pas disponible.
+    try:
+        from .learning_turf import enregistrer_pronostic
+        selection = [c.get("numero") for c in chevaux if c.get("numero") is not None][:5]
+        modules["learning_turf"] = {"status": "ok", "pronostic_courant": enregistrer_pronostic(selection, ctx)}
+    except Exception as exc:
+        modules["learning_turf"] = {"status": "error", "error": type(exc).__name__}
+
+    # Raisonnement autonome : calcul indépendant de l'indice AZ/Premium.
+    try:
+        from .autonomous_reasoning import analyze_independently, make_tickets, compare_to_az
+        own = analyze_independently(ctx, limit=20)
+        own["tickets"] = make_tickets(own)
+        own["comparison_az"] = compare_to_az(own, ctx)
+        modules["autonomous_reasoning"] = {"status": "ok", "result": own}
+        ctx["analyse_independante"] = own
+    except Exception as exc:
+        modules["autonomous_reasoning"] = {"status": "error", "error": type(exc).__name__}
+
+    # Gestionnaire de tickets : contrôle coût/couverture des tickets existants.
+    try:
+        from .gestionnaire_ticket_engine import evaluer_couverture, comparer_tickets
+        tickets = []
+        for nom, ticket in ((ctx.get("strategies") or {}).items()):
+            if isinstance(ticket, dict):
+                item = dict(ticket); item["mode"] = nom; tickets.append(item)
+        modules["gestionnaire_ticket_engine"] = {
+            "status": "ok",
+            "couverture": [evaluer_couverture(t) for t in tickets],
+            "comparaison": comparer_tickets(tickets) if tickets else [],
+        }
+    except Exception as exc:
+        modules["gestionnaire_ticket_engine"] = {"status": "error", "error": type(exc).__name__}
+
+    # Score expert v2 : utilisé comme indicateur complémentaire, sans injecter
+    # l'indice AZ dans son calcul.
+    try:
+        from .score_expert_v2 import score_expert
+        scores = {}
+        for c in chevaux:
+            scores[str(c.get("numero"))] = score_expert(
+                az=0,
+                forme=float(c.get("forme") or 0),
+                marche=50 if float(c.get("variation_cote_pct") or 0) < 0 else 0,
+                terrain=50 if course.get("terrain") or course.get("etat_piste") else 0,
+                jockey=float(c.get("reussite_jockey") or 0),
+                presse=50 if course.get("pronostics_presse") or course.get("presse") else 0,
+            )
+        modules["score_expert_v2"] = {"status": "ok", "scores": scores}
+    except Exception as exc:
+        modules["score_expert_v2"] = {"status": "error", "error": type(exc).__name__}
+
+    # Couche expert orientée question : fournit un avis complémentaire sans
+    # remplacer les résultats des moteurs principaux.
+    try:
+        from .expert_turf import analyser_question_expert
+        avis = analyser_question_expert(ctx.get("question", ""), ctx)
+        modules["expert_turf"] = {"status": "ok", "avis": avis}
+    except Exception as exc:
+        modules["expert_turf"] = {"status": "error", "error": type(exc).__name__}
+
+    # Couche expert historique : informative uniquement, jamais utilisée pour
+    # remplacer la décision autonome.
+    try:
+        from .engine_expert import analyser_course_expert
+        modules["engine_expert_legacy"] = {"status": "ok", "result": analyser_course_expert({"chevaux": chevaux})}
+    except Exception as exc:
+        modules["engine_expert_legacy"] = {"status": "error", "error": type(exc).__name__}
+
+    return modules
+
+
 def _v16_enrichir(contexte, historique=None):
     ctx = dict(contexte or {})
     moteur = dict(ctx.get("moteur") or {})
+    ctx.setdefault("question", ctx.get("question", ""))
     chevaux = [c for c in (moteur.get("classement") or moteur.get("chevaux") or []) if isinstance(c, dict)]
     course = dict(ctx.get("course") or {})
 
@@ -1392,6 +1527,13 @@ def _v16_enrichir(contexte, historique=None):
         ctx["simulation"] = {}
         ctx["robustesse"] = {}
 
+    # Branchement des modules complémentaires non utilisés auparavant.
+    # Il intervient après les calculs principaux afin de ne rien remplacer.
+    try:
+        ctx["modules_accompagnement"] = _brancher_modules_complementaires(ctx, chevaux, course, historique)
+    except Exception as exc:
+        ctx["modules_accompagnement"] = {"orchestrateur": {"status": "error", "error": type(exc).__name__}}
+
     moteur["accompagnement"] = {
         "cotes": ctx.get("tendances_cotes"),
         "presse": ctx.get("consensus_presse"),
@@ -1406,6 +1548,8 @@ def _v16_enrichir(contexte, historique=None):
         "simulation": ctx.get("simulation"),
         "robustesse": ctx.get("robustesse"),
         "performance": ctx.get("performance_historique"),
+        "modules_complementaires": ctx.get("modules_accompagnement"),
+        "analyse_independante": ctx.get("analyse_independante"),
     }
     ctx["moteur"] = moteur
     return ctx
@@ -1504,7 +1648,9 @@ def repondre_assistant_turf(question: str, contexte_analyse: dict = None, histor
         if r is not None: return r
     except Exception as exc:
         print(f'[CHATBOT V18] couche conversationnelle: {type(exc).__name__}: {exc}')
-    resultat=_repondre_assistant_turf_v17(question,contexte_analyse=contexte_analyse,historique=historique)
+    contexte_pour_moteur = dict(contexte_analyse or {})
+    contexte_pour_moteur["question"] = question
+    resultat=_repondre_assistant_turf_v17(question,contexte_analyse=contexte_pour_moteur,historique=historique)
     if not isinstance(resultat,dict): resultat={'status':'success','question':question,'reponse':str(resultat),'source':'moteur_az_autonome'}
     resultat.setdefault('intent',_ETAT_DIALOGUE.get('dernier_intent'))
     resultat.setdefault('etat_dialogue',_ETAT_DIALOGUE.get('etat','EXPLORATION'))
