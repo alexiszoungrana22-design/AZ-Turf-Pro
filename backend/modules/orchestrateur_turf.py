@@ -1,59 +1,16 @@
-
-"""
-AZ TURF PRO EXPERT V7
-Orchestrateur principal.
-Relie les couches Expert sans remplacer le moteur AZ.
-"""
-
-try:
-    from modules.pronostiqueur_engine import analyser_profils_chevaux
-except Exception:
-    analyser_profils_chevaux = None
-
-try:
-    from modules.knowledge_turf import expliquer_terme
-except Exception:
-    expliquer_terme = None
-
-try:
-    from modules.news_turf import resumer_actualite
-except Exception:
-    resumer_actualite = None
-
-try:
-    from modules.learning_turf import analyser_erreurs
-except Exception:
-    analyser_erreurs = None
-
-
+"""Orchestrateur local du chatbot : aucun LLM externe requis."""
 def detecter_intention(question):
-    q = (question or "").lower()
-
-    if any(x in q for x in ["pronostic", "quinté", "ticket", "cheval"]):
-        return "analyse_course"
-
-    if any(x in q for x in ["définition", "que veut dire", "signifie"]):
-        return "connaissance"
-
-    if any(x in q for x in ["actualité", "nouvelle", "info"]):
-        return "actualite"
-
-    if any(x in q for x in ["réussite", "performance", "historique"]):
-        return "apprentissage"
-
+    q=(question or "").lower()
+    if any(x in q for x in ("actualité","actualite","news")): return "actualite"
+    if any(x in q for x in ("définition","definition","que veut dire","signifie")): return "connaissance"
+    if any(x in q for x in ("cote","côte","smart money","argent")): return "cotes"
+    if any(x in q for x in ("météo","meteo","terrain","piste")): return "meteo"
+    if any(x in q for x in ("performance","backtest","historique")): return "apprentissage"
+    if any(x in q for x in ("ticket","pronostic","prono","quinté","quinte","cheval")): return "analyse_course"
     return "general"
 
-
-def traiter_question(question, contexte=None):
-    intention = detecter_intention(question)
-
-    if intention == "connaissance" and expliquer_terme:
-        return expliquer_terme(question)
-
-    if intention == "actualite" and resumer_actualite:
-        return resumer_actualite()
-
-    return {
-        "intention": intention,
-        "message": "Analyse experte disponible."
-    }
+def traiter_question(question, contexte=None, historique=None):
+    from .chatbot_turf import repondre_assistant_turf
+    resultat = repondre_assistant_turf(question, contexte or {}, historique or [])
+    resultat["intention"] = detecter_intention(question)
+    return resultat

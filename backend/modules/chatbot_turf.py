@@ -1128,3 +1128,237 @@ def repondre_assistant_turf(question: str, contexte_analyse: dict = None, histor
         texte = ("Je rencontre une difficulté technique passagère. "
                  "Réessayez dans un instant.")
     return {"status": "success", "question": question, "reponse": texte, "source": "secours"}
+
+
+
+# ============================================================
+# INTÉGRATION ROBUSTE V16 — PIPELINE AUTONOME RÉEL
+# ============================================================
+# Cette section est le point d'entrée effectif. Elle conserve le moteur
+# historique ci-dessus et orchestre les modules locaux sans dépendance à
+# Claude/OpenAI. Les appels externes restent disponibles dans le code
+# historique, mais ne sont jamais nécessaires au pronostic autonome.
+
+_V16_SESSIONS = {}
+
+
+def _v16_safe(fn, default, *args, **kwargs):
+    try:
+        value = fn(*args, **kwargs)
+        return default if value is None else value
+    except Exception:
+        return default
+
+
+def _v16_enrichir(contexte, historique=None):
+    ctx = dict(contexte or {})
+    moteur = dict(ctx.get("moteur") or {})
+    chevaux = [c for c in (moteur.get("classement") or moteur.get("chevaux") or []) if isinstance(c, dict)]
+    course = dict(ctx.get("course") or {})
+
+    # Cotes : données réelles déjà présentes dans les partants.
+    try:
+        from .cotes_history import analyser_tendances_cotes
+        ctx["tendances_cotes"] = analyser_tendances_cotes({"chevaux": chevaux})
+    except Exception:
+        ctx["tendances_cotes"] = {"status": "indisponible", "resultats": []}
+
+    # Presse : ne fabrique aucun consensus. Elle ne travaille que sur les
+    # pronostics effectivement fournis par la source d'appel.
+    try:
+        from .pronos_presse import analyser_consensus_presse
+        ctx["consensus_presse"] = analyser_consensus_presse({
+            "info_course": course,
+            "chevaux": chevaux,
+            "pronostics": course.get("pronostics_presse") or course.get("presse") or []
+        })
+    except Exception:
+        ctx["consensus_presse"] = {"status": "indisponible", "consensus": []}
+
+    # Météo/piste : même principe, données seulement si réellement présentes.
+    try:
+        from .meteo_piste import analyser_impact_terrain
+        ctx["impact_meteo"] = analyser_impact_terrain({
+            "info_course": course,
+            "meteo": course.get("meteo"),
+            "terrain": course.get("terrain") or course.get("etat_piste")
+        })
+    except Exception:
+        ctx["impact_meteo"] = {"status": "indisponible", "impact": "INCONNU"}
+
+    # Source France Galop pour le galop, best-effort et non bloquante.
+    try:
+        if "GALOP" in str(course.get("discipline", "")).upper():
+            from france_galop_source import obtenir_complement_france_galop
+            ctx["complement_france_galop"] = obtenir_complement_france_galop(
+                course.get("hippodrome", ""), course.get("discipline", "")
+            )
+    except Exception:
+        ctx["complement_france_galop"] = None
+
+    # Historique : deux modules complémentaires peuvent travailler sur le
+    # même historique sans modifier la prédiction courante.
+    if isinstance(historique, list) and historique:
+        try:
+            from .stats_backtest import calculer_stats_performance
+            ctx["performance_historique"] = calculer_stats_performance(historique)
+        except Exception:
+            ctx["performance_historique"] = {"status": "indisponible"}
+        try:
+            from .performance_expert import statistiques_expert
+            ctx["performance_expert"] = statistiques_expert(historique)
+        except Exception:
+            ctx["performance_expert"] = {"courses": 0, "indice_confiance": 0}
+
+    # Moteur expert indépendant : il reçoit le score indépendant du chatbot,
+    # jamais l'indice AZ/Premium comme entrée de son calcul.
+    try:
+        from .pronostiqueur_engine import analyser_profils_chevaux, generer_synthese
+        profils_input = []
+        for c in chevaux:
+            cc = dict(c)
+            cc["score_expert"] = round(_score_ia_independant(c) * 10.0, 2)
+            profils_input.append(cc)
+        profils = analyser_profils_chevaux(profils_input)
+        # Restaurer le score dans les profils pour les modules suivants.
+        score_map = {str(c.get("numero")): c.get("score_expert", 0) for c in profils_input}
+        for profil in profils:
+            profil["score_expert"] = score_map.get(str(profil.get("numero")), 0)
+        ctx["expert_profils"] = profils
+        ctx["expert_synthese"] = generer_synthese(profils)
+
+        from .decision_engine import analyser_chevaux, generer_ticket
+        decision = analyser_chevaux(profils)
+        ctx["expert_decision"] = decision
+        ctx["expert_ticket"] = generer_ticket(decision, "quinte")
+
+        from .analyse_cheval_engine import comparer_chevaux
+        ctx["fiches_expertes"] = comparer_chevaux(profils)
+    except Exception:
+        ctx["expert_profils"] = []
+        ctx["expert_synthese"] = {}
+        ctx["expert_decision"] = {}
+        ctx["expert_ticket"] = {}
+        ctx["fiches_expertes"] = []
+
+    # Tactique + stratégie + simulation : chaque couche est isolée.
+    selection = [p.get("numero") for p in ctx.get("expert_profils", []) if p.get("numero") is not None]
+    try:
+        from .tactique_course_engine import analyser_scenario_course, construire_strategie_quinte
+        ctx["tactique"] = analyser_scenario_course(chevaux)
+        ctx["strategie_quinte"] = construire_strategie_quinte(selection)
+    except Exception:
+        ctx["tactique"] = {}
+        ctx["strategie_quinte"] = {}
+    try:
+        from .strategie_pari_engine import construire_ticket_strategique, evaluer_risque_ticket
+        ctx["strategies"] = {}
+        for mode in ("prudent", "equilibre", "offensif"):
+            ticket = construire_ticket_strategique(selection, mode)
+            ctx["strategies"][mode] = {**ticket, "risque": evaluer_risque_ticket(ticket)}
+    except Exception:
+        ctx["strategies"] = {}
+    try:
+        from .simulation_course_engine import simuler_scenario, evaluer_robustesse_ticket
+        favori = chevaux[0] if chevaux else {}
+        outsiders = [c.get("numero") for c in chevaux if _cote(c) >= 10][:3]
+        simulation = simuler_scenario(favori.get("numero"), outsiders) if favori else {"scenarios": []}
+        ctx["simulation"] = simulation
+        ctx["robustesse"] = evaluer_robustesse_ticket(ctx.get("expert_ticket") or {}, simulation.get("scenarios", []))
+    except Exception:
+        ctx["simulation"] = {}
+        ctx["robustesse"] = {}
+
+    moteur["accompagnement"] = {
+        "cotes": ctx.get("tendances_cotes"),
+        "presse": ctx.get("consensus_presse"),
+        "meteo": ctx.get("impact_meteo"),
+        "expert": ctx.get("expert_synthese"),
+        "decision": ctx.get("expert_decision"),
+        "ticket_expert": ctx.get("expert_ticket"),
+        "fiches_expertes": ctx.get("fiches_expertes"),
+        "tactique": ctx.get("tactique"),
+        "strategie_quinte": ctx.get("strategie_quinte"),
+        "strategies": ctx.get("strategies"),
+        "simulation": ctx.get("simulation"),
+        "robustesse": ctx.get("robustesse"),
+        "performance": ctx.get("performance_historique"),
+    }
+    ctx["moteur"] = moteur
+    return ctx
+
+
+def _v16_special(question, contexte, historique):
+    q = (question or "").lower().strip()
+    moteur = contexte.get("moteur") or {}
+    classement = moteur.get("classement") or []
+    tickets = moteur.get("tickets") or {}
+
+    # Demandes spécialisées : elles utilisent les données réellement branchées.
+    if any(k in q for k in ("cote", "côte", "smart money", "argent qui rentre", "délaissé", "tendance")):
+        r = contexte.get("tendances_cotes") or {}
+        lignes = []
+        for x in r.get("resultats", []) or []:
+            if isinstance(x, dict):
+                lignes.append(f"N°{x.get('numero')} {x.get('nom')}: {x.get('cote_matin')} → {x.get('cote_direct')} ({x.get('variation_pct',0):+.2f}%) — {x.get('signal','NEUTRE')}")
+        if lignes:
+            return "📈 **Tendances de cotes**\n" + "\n".join(lignes[:12])
+        return "📈 Les données de cote sont bien branchées, mais aucune variation exploitable n'est disponible actuellement."
+
+    if any(k in q for k in ("météo", "meteo", "terrain", "piste", "sol")):
+        r = contexte.get("impact_meteo") or {}
+        return f"🌦️ **Conditions piste : {r.get('impact', 'INCONNU')}**"
+
+    if any(k in q for k in ("presse", "consensus")):
+        r = contexte.get("consensus_presse") or {}
+        if r.get("consensus"):
+            return "📰 **Consensus presse**\n" + str(r["consensus"])
+        return "📰 Aucune sélection presse réelle n'est disponible dans les données de cette course."
+
+    if any(k in q for k in ("backtest", "performance", "rentabilité", "rentabilite")):
+        return "📊 **Performance**\n" + str(contexte.get("performance_historique") or contexte.get("performance_expert") or {"status":"aucun historique fourni"})
+
+    # Pronostic indépendant explicite : score propre + décision propre.
+    if any(k in q for k in ("pronostic indépendant", "pronostic independant", "ton pronostic", "ta sélection", "ta selection", "ticket autonome", "ticket indépendant", "ticket independant")):
+        dec = contexte.get("expert_decision") or {}
+        classement_expert = dec.get("classement") or contexte.get("expert_profils") or []
+        nums = [str(c.get("numero")) for c in classement_expert if c.get("numero") is not None][:5]
+        bases = [str(c.get("numero")) for c in dec.get("bases", []) if c.get("numero") is not None]
+        outsiders = [str(c.get("numero")) for c in dec.get("outsiders", []) if c.get("numero") is not None]
+        if nums:
+            return ("🤖 **Pronostic autonome du chatbot**\n"
+                    f"Sélection : **{' - '.join(nums)}**\n"
+                    f"Bases : **{' - '.join(bases) if bases else 'aucune base forte'}**\n"
+                    f"Outsiders : **{' - '.join(outsiders) if outsiders else 'aucun outsider détecté'}**\n"
+                    f"Confiance du moteur : **{dec.get('confiance', 0)}%**\n"
+                    "Calcul séparé de l'indice AZ : ce classement expert est construit à partir des statistiques brutes disponibles.")
+
+    # Profils stratégiques déjà calculés par les modules.
+    if "prudent" in q and contexte.get("strategies", {}).get("prudent"):
+        return "🛡️ **Ticket prudent**\n" + str(contexte["strategies"]["prudent"])
+    if any(k in q for k in ("spéculatif", "speculatif", "gros rapport")) and contexte.get("strategies", {}).get("offensif"):
+        return "🔥 **Ticket offensif**\n" + str(contexte["strategies"]["offensif"])
+    if any(k in q for k in ("équilibré", "equilibre")) and contexte.get("strategies", {}).get("equilibre"):
+        return "⚖️ **Ticket équilibré**\n" + str(contexte["strategies"]["equilibre"])
+
+    return None
+
+
+def repondre_assistant_turf(question: str, contexte_analyse: dict = None, historique: list = None) -> dict:
+    """Point d'entrée définitif : moteur local + modules réellement branchés.
+
+    Claude/OpenAI ne sont pas nécessaires et ne sont pas appelés ici.
+    """
+    contexte = _v16_enrichir(contexte_analyse or {}, historique)
+    course = contexte.get("course") or {}
+    session_key = f"{course.get('date','')}-{course.get('reunion','')}-{course.get('course_numero','')}"
+    _V16_SESSIONS[session_key] = {"contexte": contexte, "historique": list(historique or [])[-20:]}
+
+    try:
+        special = _v16_special(question, contexte, historique)
+        if special:
+            return {"status":"success", "question":question, "reponse":special, "source":"moteur_local_modules"}
+        texte = _reponse_secours(question, contexte)
+    except Exception:
+        texte = "Les données sont disponibles, mais je n'ai pas pu finaliser cette réponse locale."
+    return {"status":"success", "question":question, "reponse":texte, "source":"moteur_local_autonome"}

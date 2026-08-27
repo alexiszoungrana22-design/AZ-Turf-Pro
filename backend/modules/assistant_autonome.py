@@ -1,20 +1,11 @@
-
-"""Façade d'intégration non destructive."""
-from .intent_router import route
-from .autonomous_reasoning import analyze_independently, make_tickets, compare_to_az
-from .conversation_memory import State, remember
-
-def repondre(question, contexte=None, state=None):
-    contexte=contexte or {}
-    state=state or State()
-    routed=route(question, state)
-    result=analyze_independently(contexte)
-    tickets=make_tickets(result)
-    remember(state, routed["intent"], routed["references"], result, tickets)
-    return {
-        "intent": routed["intent"],
-        "independent_analysis": result,
-        "independent_tickets": tickets,
-        "comparison_az": compare_to_az(result, contexte),
-        "state": state,
-    }
+"""Façade publique vers le chatbot autonome réellement branché."""
+def repondre(question, contexte=None, historique=None, state=None):
+    from .chatbot_turf import repondre_assistant_turf
+    resultat = repondre_assistant_turf(question, contexte or {}, historique or [])
+    if state is not None:
+        try:
+            state.last_intent = resultat.get("intention", "")
+            state.last_analysis = contexte or {}
+        except Exception:
+            pass
+    return resultat
