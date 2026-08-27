@@ -49,7 +49,7 @@ from pmu_source import charger_course_pmu
 
 from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
 
-from learning import lire_historique, mettre_a_jour_arrivee, fusionner_historique
+from learning import lire_historique, mettre_a_jour_arrivee
 from modules.chatbot_turf import repondre_assistant_turf
 
 import json
@@ -60,6 +60,7 @@ from engine import lancer_analyse
 from modules.cotes_history import analyser_tendances_cotes
 from modules.pronos_presse import analyser_consensus_presse
 from modules.meteo_piste import analyser_impact_terrain
+from modules.actualites_hippiques import recuperer_actualites
 
 router = APIRouter(
     prefix="/api",
@@ -294,6 +295,14 @@ def assistant_diagnostic_test():
         resultats["openai"] = {"succes": False, "erreur": "Clé non configurée."}
 
     return resultats
+
+
+@router.get("/actualites")
+def actualites(limit: int = 10):
+    """Actualités hippiques live best-effort depuis des sources officielles.
+    Aucun contenu n'est inventé si les sources sont indisponibles.
+    """
+    return recuperer_actualites(max(1, min(limit, 20)))
 
 
 @router.get("/analyse")
@@ -808,19 +817,6 @@ def debug_journal():
 # LIMITE CONNUE : si l'hebergement Render ne dispose pas d'un
 # disque persistant, ce fichier peut etre remis a zero a chaque
 # redeploiement - l'historique ne survit alors pas dans le temps.
-
-@router.post("/historique/synchroniser")
-def synchroniser_historique(payload: dict):
-    """Récupère une copie locale du navigateur après un redémarrage Render.
-    Cette route ne nécessite aucun disque persistant payant : le navigateur
-    constitue une sauvegarde de secours pour le même utilisateur/appareil.
-    """
-    entrees = payload.get("historique") if isinstance(payload, dict) else None
-    if not isinstance(entrees, list):
-        raise HTTPException(status_code=400, detail="historique doit être une liste")
-    fusionner_historique(entrees)
-    return {"ok": True, "historique": list(reversed(lire_historique()))}
-
 
 @router.get("/historique")
 def historique():
