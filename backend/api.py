@@ -60,6 +60,7 @@ from engine import lancer_analyse
 from modules.cotes_history import analyser_tendances_cotes
 from modules.pronos_presse import analyser_consensus_presse
 from modules.meteo_piste import analyser_impact_terrain
+from modules.actualites_hippiques import recuperer_actualites
 
 router = APIRouter(
     prefix="/api",
@@ -294,6 +295,14 @@ def assistant_diagnostic_test():
         resultats["openai"] = {"succes": False, "erreur": "Clé non configurée."}
 
     return resultats
+
+
+@router.get("/actualites")
+def actualites(limit: int = 10):
+    """Actualités hippiques live best-effort depuis des sources officielles.
+    Aucun contenu n'est inventé si les sources sont indisponibles.
+    """
+    return recuperer_actualites(max(1, min(limit, 20)))
 
 
 @router.get("/analyse")
@@ -1037,17 +1046,7 @@ def _contexte_assistant():
     except Exception:
         complement_galop = None
 
-    # Historique RÉEL des courses déjà analysées (arrivées officielles,
-    # sélections AZ), pour les questions de performance/backtest du
-    # chatbot. À ne jamais confondre avec l'historique de conversation
-    # (payload["historique"]) envoyé séparément par le frontend.
-    try:
-        historique_courses = lire_historique() or []
-    except Exception:
-        historique_courses = []
-
     return {
-        "historique_courses": historique_courses,
         "moteur": {
             "classement": resultat.get("chevaux", []),
             "tickets": resultat.get("tickets", {}),
@@ -1056,6 +1055,18 @@ def _contexte_assistant():
         "source": source,
         "complement_france_galop": complement_galop,
     }
+
+
+@router.post("/stats/backtest")
+def stats_backtest(payload: dict):
+    """Exécute le module de backtest sur l'historique fourni par le client."""
+    from modules.stats_backtest import simuler_backtest_filtre
+    historique = payload.get("historique") or []
+    filtres = payload.get("filtres") or {}
+    try:
+        return simuler_backtest_filtre(historique, filtres)
+    except Exception as erreur:
+        raise HTTPException(status_code=400, detail=f"Backtest invalide : {erreur}")
 
 
 @router.post("/assistant/chat")
