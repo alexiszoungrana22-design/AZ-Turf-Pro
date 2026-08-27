@@ -93,45 +93,6 @@ def _resume_classement(contexte: dict, limite: int = 20) -> str:
             f"corde : {cheval.get('corde', '-')}, "
             f"ferrage : {cheval.get('deferre', '-')}"
         )
-
-        # Statistiques avancées, jusque-là jamais exploitées par le chatbot
-        jockey_pct = cheval.get("reussite_jockey")
-        conf_entraineur = cheval.get("confiance_entraineur")
-        hippo_fav = cheval.get("hippodromes_favoris")
-        dist_pref = cheval.get("distance_predilection")
-        jours_repos = cheval.get("jours_depuis_derniere_course")
-        variation_pct = cheval.get("variation_cote_pct")
-        radar = cheval.get("radar") if isinstance(cheval.get("radar"), dict) else {}
-        badges = cheval.get("badges") if isinstance(cheval.get("badges"), list) else []
-
-        extras = []
-        if jockey_pct is not None:
-            extras.append(f"réussite jockey {jockey_pct}%")
-        if conf_entraineur is not None:
-            extras.append(f"confiance entraîneur {conf_entraineur}")
-        if hippo_fav:
-            extras.append(f"hippodromes favoris : {hippo_fav}")
-        if dist_pref is not None:
-            extras.append(f"distance de prédilection {dist_pref}m")
-        if jours_repos is not None:
-            extras.append(f"{jours_repos}j depuis la dernière course")
-        if variation_pct is not None and variation_pct != 0:
-            sens = "baisse (argent qui rentre)" if variation_pct < 0 else "hausse (argent qui sort)"
-            extras.append(f"cote en {sens} de {abs(variation_pct)}%")
-        if extras:
-            ligne += " | " + ", ".join(extras)
-
-        if radar:
-            ligne += (
-                f" | Radar/100 — forme:{radar.get('forme','-')}, "
-                f"distance:{radar.get('distance','-')}, jockey:{radar.get('jockey','-')}, "
-                f"classe:{radar.get('classe','-')}, fraîcheur:{radar.get('fraicheur','-')}"
-            )
-        if badges:
-            libelles = [b.get("libelle") for b in badges if isinstance(b, dict) and b.get("libelle")]
-            if libelles:
-                ligne += f" | Badges : {', '.join(libelles)}"
-
         lignes.append(ligne)
     return "\n".join(lignes) if lignes else "Aucun classement disponible."
 
@@ -287,45 +248,6 @@ def _cote(cheval: dict) -> float:
         return 0.0
 
 
-def _score_ia_independant(cheval: dict) -> float:
-    """Score IA 0-10 VOLONTAIREMENT INDÉPENDANT de l'indice AZ/Premium
-    (n'utilise jamais indice_az ni indice_premium). Recalcule sa propre
-    opinion à partir des statistiques brutes, pour offrir une vraie
-    seconde lecture — c'est ce qui permet une comparaison "Ticket IA"
-    vs "Ticket AZ Turf Pro" qui ait un sens (deux calculs distincts).
-    """
-    import math as _math
-
-    forme = float(cheval.get("forme") or 5.0)
-    regularite = float(cheval.get("regularite") or 5.0)
-
-    nb_courses = cheval.get("nombre_courses")
-    experience = min(10.0, float(nb_courses) / 5.0) if nb_courses else 5.0
-
-    gains_bruts = cheval.get("gains_carriere") or cheval.get("gains") or 0
-    try:
-        gains_par_course = float(gains_bruts) / max(1, int(nb_courses or 1))
-        gains_score = min(10.0, max(0.0, gains_par_course / 1000.0))
-    except (TypeError, ValueError):
-        gains_score = 5.0
-
-    reussite = cheval.get("reussite_jockey")
-    jockey_score = min(10.0, float(reussite) / 4.0) if reussite is not None else 5.0
-
-    radar = cheval.get("radar") if isinstance(cheval.get("radar"), dict) else {}
-    distance_score = float(radar.get("distance")) / 10.0 if radar.get("distance") is not None else 5.0
-    terrain_score = 5.0  # pas de donnée terrain fiable et systématique disponible
-
-    cote = _cote(cheval)
-    cote_confiance = 5.0 if cote <= 1 else max(0.0, min(10.0, 10.0 / (1.0 + _math.log(cote))))
-
-    score = (
-        forme * 0.25 + regularite * 0.20 + distance_score * 0.12 + terrain_score * 0.08 +
-        jockey_score * 0.10 + experience * 0.07 + gains_score * 0.08 + cote_confiance * 0.10
-    )
-    return round(max(0.0, min(10.0, score)), 2)
-
-
 def _trouver_cheval(classement: list, numero: str):
     return next((c for c in classement if str(c.get("numero")) == str(numero)), None)
 
@@ -347,22 +269,9 @@ def _analyser_favori(classement: list) -> str:
     else:
         confiance = "Seul cheval réellement analysé sur cette course."
 
-    badges = top.get("badges") if isinstance(top.get("badges"), list) else []
-    libelles = [b.get("libelle") for b in badges if isinstance(b, dict) and b.get("libelle")]
-    argument_badges = f" Arguments supplémentaires : {', '.join(libelles)}." if libelles else ""
-
-    jours_repos = top.get("jours_depuis_derniere_course")
-    note_repos = ""
-    if isinstance(jours_repos, (int, float)):
-        if jours_repos > 90:
-            note_repos = f" Attention : {int(jours_repos)} jours sans courir, la fraîcheur est incertaine."
-        elif jours_repos <= 30:
-            note_repos = f" Repos idéal ({int(jours_repos)}j) pour être au top."
-
     return (
         f"🎯 **Favori AZ Turf Pro** : N°{top.get('numero')} **{top.get('nom')}** "
         f"(Indice AZ {top.get('indice_az', '-')}, cote {top.get('cote', '-')}). {confiance}"
-        f"{argument_badges}{note_repos}"
     )
 
 
@@ -414,72 +323,6 @@ def _comparer_chevaux(classement: list, num_a: str, num_b: str) -> str:
     )
 
 
-def _classement_ia(classement: list) -> list:
-    """Reclasse les chevaux selon le score IA indépendant (pas
-    l'indice AZ) — c'est ce classement que les tickets IA utilisent."""
-    copie = [dict(c) for c in classement]
-    for c in copie:
-        c["_ia_score"] = _score_ia_independant(c)
-    return sorted(copie, key=lambda c: c["_ia_score"], reverse=True)
-
-
-def _ticket_prudent(classement: list) -> str:
-    """Ne retient que les valeurs sûres selon le score IA indépendant :
-    les mieux notés ET les plus réguliers, sans aucun outsider."""
-    if len(classement) < 3:
-        return "Pas assez de chevaux analysés pour construire un ticket prudent."
-    classe = _classement_ia(classement)
-    surs = sorted(classe, key=lambda c: (-c["_ia_score"], -float(c.get("regularite") or 0), _cote(c)))[:5]
-    nums = [str(c.get("numero")) for c in surs]
-    return (
-        "🛡️ **Ticket IA PRUDENT (indépendant)** : " + " - ".join(nums) + "\n"
-        f"Base IA : N°{surs[0].get('numero')} {surs[0].get('nom', '')} (score IA {surs[0]['_ia_score']}/10).\n"
-        "Priorité : forme, régularité — aucun outsider, calcul séparé de l'indice AZ."
-    )
-
-
-def _ticket_speculatif(classement: list) -> str:
-    """Privilégie les outsiders à cote élevée dont le score IA
-    indépendant reste correct — recherche du gros rapport."""
-    if len(classement) < 3:
-        return "Pas assez de chevaux analysés pour construire un ticket spéculatif."
-    classe = _classement_ia(classement)
-    outsiders = [c for c in classe if _cote(c) >= 12]
-    outsiders = sorted(outsiders, key=lambda c: -c["_ia_score"])[:3]
-    solides = [c for c in classe if c not in outsiders][:2]
-    combinaison = (outsiders + solides)[:5]
-    nums = [str(c.get("numero")) for c in combinaison]
-    outsiders_txt = (
-        "\n".join(f"• N°{c.get('numero')} {c.get('nom','')} — cote {_cote(c)} — score IA {c['_ia_score']}/10" for c in outsiders)
-        if outsiders else "• Aucun outsider à cote ≥ 12 avec des données suffisantes."
-    )
-    return (
-        "🎲 **Ticket IA SPÉCULATIF (indépendant, risqué)** : " + " - ".join(nums) + "\n\n"
-        f"Outsiders réellement retenus :\n{outsiders_txt}\n\n"
-        "Accepte davantage de risque — ne recopie pas le ticket AZ Turf Pro."
-    )
-
-
-def _ticket_mix(classement: list) -> str:
-    """Équilibre selon le score IA indépendant : les meilleures valeurs
-    sûres + 1-2 outsiders, sans tout miser sur un seul profil."""
-    if len(classement) < 4:
-        return "Pas assez de chevaux analysés pour construire un ticket mixte."
-    classe = _classement_ia(classement)
-    surs = classe[:3]
-    surs_numeros = {c.get("numero") for c in surs}
-    outsiders = [c for c in classe if _cote(c) >= 8 and c.get("numero") not in surs_numeros][:2]
-    if not outsiders:
-        outsiders = [c for c in classe if c.get("numero") not in surs_numeros][-2:]
-    combinaison = surs + outsiders
-    nums = [str(c.get("numero")) for c in combinaison]
-    return (
-        "⚖️ **Ticket IA MIX (équilibré, indépendant)** : " + " - ".join(nums) + "\n"
-        "Combine les meilleures valeurs sûres (score IA) et 1 à 2 outsiders "
-        "pour doser risque et régularité — calcul séparé de l'indice AZ."
-    )
-
-
 def _generer_scenarios(classement: list) -> str:
     if len(classement) < 3:
         return "Pas assez de chevaux analysés pour construire des scénarios."
@@ -508,8 +351,8 @@ def _fiche_cheval(cheval: dict) -> str:
     fiche = (
         f"**N°{cheval.get('numero')} {cheval.get('nom')}** — "
         f"{cheval.get('age', '-')} ans, {cheval.get('sexe', '-')}\n"
-        f"- Jockey/Driver : {driver} (réussite {cheval.get('reussite_jockey', '-')}%)\n"
-        f"- Entraîneur : {cheval.get('entraineur', '-')} (confiance {cheval.get('confiance_entraineur', '-')})\n"
+        f"- Jockey/Driver : {driver}\n"
+        f"- Entraîneur : {cheval.get('entraineur', '-')}\n"
         f"- Cote : {cheval.get('cote', '-')} (tendance {tendance}) | Indice AZ : {cheval.get('indice_az', '-')} | "
         f"Indice Premium : {cheval.get('indice_premium', '-')}\n"
         f"- Musique (forme récente) : {cheval.get('musique_brute', '-')}"
@@ -519,55 +362,10 @@ def _fiche_cheval(cheval: dict) -> str:
         if regularite is not None:
             fiche += f", régularité {regularite}/10"
     fiche += (
-        f"\n- Gains de carrière : {cheval.get('gains', cheval.get('gains_carriere_brute', '-'))} | "
-        f"Nombre de courses : {cheval.get('nombre_courses', '-')}\n"
-        f"- Corde : {cheval.get('corde', '-')} | Ferrage : {cheval.get('deferre', '-')}\n"
-        f"- Distance de prédilection : {cheval.get('distance_predilection', '-')}m | "
-        f"Repos : {cheval.get('jours_depuis_derniere_course', '-')} jours\n"
-        f"- Hippodromes favoris : {cheval.get('hippodromes_favoris', '-')}"
+        f"\n- Gains de carrière : {cheval.get('gains', cheval.get('gains_carriere_brute', '-'))}\n"
+        f"- Corde : {cheval.get('corde', '-')} | Ferrage : {cheval.get('deferre', '-')}"
     )
-
-    radar = cheval.get("radar") if isinstance(cheval.get("radar"), dict) else {}
-    if radar:
-        fiche += (
-            f"\n- Radar/100 : forme {radar.get('forme', '-')}, distance {radar.get('distance', '-')}, "
-            f"jockey {radar.get('jockey', '-')}, classe {radar.get('classe', '-')}, "
-            f"fraîcheur {radar.get('fraicheur', '-')}"
-        )
-
-    badges = cheval.get("badges") if isinstance(cheval.get("badges"), list) else []
-    libelles = [b.get("libelle") for b in badges if isinstance(b, dict) and b.get("libelle")]
-    if libelles:
-        fiche += f"\n- Badges : {', '.join(libelles)}"
-
     return fiche
-
-
-def _points_forts_faibles(cheval: dict) -> str:
-    """Analyse réelle des points forts/faibles à partir du radar 5
-    axes déjà calculé par le moteur — pas de texte générique."""
-    radar = cheval.get("radar") if isinstance(cheval.get("radar"), dict) else {}
-    if not radar:
-        return (f"N°{cheval.get('numero')} **{cheval.get('nom')}** : pas de radar "
-                f"détaillé disponible pour cette course.")
-
-    libelles = {
-        "forme": "la forme récente", "distance": "l'aptitude à la distance du jour",
-        "jockey": "le duo jockey/entraîneur", "classe": "le niveau de classe",
-        "fraicheur": "la fraîcheur (repos)",
-    }
-    valides = {k: v for k, v in radar.items() if isinstance(v, (int, float))}
-    if not valides:
-        return f"N°{cheval.get('numero')} **{cheval.get('nom')}** : radar incomplet."
-
-    meilleur = max(valides, key=valides.get)
-    pire = min(valides, key=valides.get)
-
-    return (
-        f"N°{cheval.get('numero')} **{cheval.get('nom')}** :\n"
-        f"✅ Point fort : {libelles.get(meilleur, meilleur)} ({valides[meilleur]}/100)\n"
-        f"⚠️ Point faible : {libelles.get(pire, pire)} ({valides[pire]}/100)"
-    )
 
 
 # =====================================
@@ -645,99 +443,6 @@ def _analyser_historique() -> str | None:
         return "\n".join(lignes)
     except Exception:
         return None
-
-
-def _analyser_course_passee(question: str) -> str | None:
-    """Regarde l'historique réel (learning.py) pour répondre sur une
-    course passée : sa sélection, et — si l'arrivée officielle a été
-    récupérée entre-temps — pourquoi ça a marché ou pas, en comparant
-    concrètement les numéros joués aux numéros arrivés."""
-    import re as _re
-    try:
-        from learning import lire_historique
-    except Exception:
-        return None
-
-    q = question.lower()
-    if not any(k in q for k in ["hier", "course passée", "course passee", "dernière course",
-                                  "derniere course", "pourquoi ça a marché", "pourquoi ca a marche",
-                                  "pourquoi ça n'a pas marché", "résultat", "resultat", "arrivée", "arrivee"]):
-        return None
-
-    try:
-        historique = lire_historique() or []
-    except Exception:
-        return None
-    if not historique:
-        return "Aucun historique de course n'est encore enregistré."
-
-    # "hier" ou pas de date précisée -> la plus récente course TERMINÉE (avec arrivée connue)
-    entrees_avec_arrivee = [e for e in historique if isinstance(e, dict) and e.get("arrivee")]
-    if not entrees_avec_arrivee:
-        return ("Aucune course passée n'a encore d'arrivée officielle enregistrée — "
-                "je ne peux pas encore analyser de résultat.")
-
-    entree = entrees_avec_arrivee[-1]  # la plus récente avec arrivée connue
-    arrivee = [str(n) for n in entree.get("arrivee", [])]
-    selection = [str(n) for n in (entree.get("selection_az") or [])]
-    hippodrome = entree.get("hippodrome", "-")
-    date = entree.get("date", "-")
-
-    if not selection:
-        return f"L'arrivée du {date} à {hippodrome} était {' - '.join(arrivee)}, mais aucune sélection n'a été enregistrée pour comparer."
-
-    touches = [n for n in selection if n in arrivee]
-    manques = [n for n in selection if n not in arrivee]
-    nb_touches = len(touches)
-
-    if nb_touches >= 3:
-        verdict = "Un bon résultat : la sélection a largement recoupé l'arrivée réelle."
-    elif nb_touches >= 1:
-        verdict = "Un résultat partiel : quelques chevaux de la sélection sont sortis, pas tous."
-    else:
-        verdict = "Aucun cheval de la sélection n'est sorti dans l'arrivée — la course a déjoué le classement AZ."
-
-    return (
-        f"📋 **Course du {date} — {hippodrome}**\n"
-        f"Arrivée officielle : {' - '.join(arrivee)}\n"
-        f"Sélection AZ jouée : {' - '.join(selection)}\n"
-        f"Chevaux sortis parmi la sélection : {', '.join(touches) if touches else 'aucun'} "
-        f"({nb_touches}/{len(selection)})\n"
-        f"{verdict}"
-    )
-
-
-def _analyser_course_demain(question: str, course_actuelle: dict) -> str | None:
-    """Tente de récupérer en direct le programme PMU du lendemain.
-    Best-effort : PMU ne publie pas toujours les partants aussi loin
-    à l'avance ; échoue silencieusement si l'info n'existe pas encore."""
-    q = question.lower()
-    if "demain" not in q:
-        return None
-
-    try:
-        from pmu_source import charger_course_pmu
-        from datetime import datetime, timedelta
-
-        demain = (datetime.now() + timedelta(days=1)).strftime("%d%m%Y")
-        course_demain = charger_course_pmu(demain)
-
-        if not course_demain or not isinstance(course_demain, dict) or not course_demain.get("chevaux"):
-            return ("Le programme PMU de demain n'est pas encore publié ou disponible "
-                    "à cet instant — réessayez plus tard, généralement il sort la veille "
-                    "au soir.")
-
-        nb = len(course_demain.get("chevaux", []))
-        hippodrome = course_demain.get("hippodrome", "-")
-        return (
-            f"📅 **Programme PMU de demain trouvé** : {hippodrome}, {nb} partants "
-            f"annoncés. L'analyse AZ Turf Pro complète (indices, tickets) n'est "
-            f"générée qu'au moment où la course devient celle du jour — je peux "
-            f"seulement confirmer sa disponibilité pour l'instant."
-        )
-    except Exception:
-        return ("Je n'ai pas pu vérifier le programme de demain à l'instant "
-                "(PMU.fr indisponible ou pas encore publié).")
 
 
 def _rafraichir_cotes_pmu_direct(course_reference: dict) -> str | None:
@@ -826,93 +531,6 @@ def _reponse_secours(question: str, contexte: dict) -> str:
     tickets = moteur.get("tickets", {})
     course = (contexte or {}).get("course", {}) or {}
 
-    # --- Comparaison "Ticket IA" (indépendant) vs "Ticket AZ Turf Pro" ---
-    if "compar" in q and any(k in q for k in ["az turf", "az", "premium", "ticket ia", "l'ia", "ia et"]):
-        classe_ia = _classement_ia(classement)
-        ticket_ia = [str(c.get("numero")) for c in classe_ia[:5]]
-        tk_tmp = _extraire_tickets(tickets)
-        ticket_az = tk_tmp["selection_quinte_premium"] or tk_tmp["quinte_premium"] or tk_tmp["quinte_gratuit"]
-        return (
-            "⚔️ **Comparaison Ticket IA (indépendant) / Ticket AZ Turf Pro**\n\n"
-            f"🤖 Ticket IA : **{' - '.join(ticket_ia)}**\n"
-            f"🏆 Ticket AZ Turf Pro : **{' - '.join(ticket_az) if ticket_az else 'non disponible'}**\n\n"
-            "Les deux sélections sont calculées séparément : l'IA n'utilise jamais "
-            "l'indice AZ, elle recalcule sa propre opinion à partir des statistiques brutes."
-        )
-
-    # --- Comparaison entre deux profils de ticket (prudent/spéculatif/mix/gratuit) ---
-    if "compar" in q and "ticket" in q:
-        profils_cites = []
-        if any(k in q for k in ["prudent", "sûr", "sécurisé"]):
-            profils_cites.append(("Prudent", _ticket_prudent(classement)))
-        if any(k in q for k in ["spéculat", "speculat", "risqué", "risque", "audacieux"]):
-            profils_cites.append(("Spéculatif", _ticket_speculatif(classement)))
-        if any(k in q for k in ["mix", "équilibré", "equilibre"]):
-            profils_cites.append(("Mix", _ticket_mix(classement)))
-        if "premium" in q:
-            tk_tmp = _extraire_tickets(tickets)
-            if tk_tmp["quinte_premium"]:
-                profils_cites.append(("Quinté Premium", "💎 " + " - ".join(tk_tmp["quinte_premium"])))
-        if "gratuit" in q:
-            tk_tmp = _extraire_tickets(tickets)
-            if tk_tmp["quinte_gratuit"]:
-                profils_cites.append(("Quinté Gratuit", "💡 " + " - ".join(tk_tmp["quinte_gratuit"])))
-
-        if len(profils_cites) >= 2:
-            texte = "🔍 **Comparaison de tickets**\n\n"
-            for nom, contenu in profils_cites[:2]:
-                texte += f"**{nom}** :\n{contenu}\n\n"
-            return texte.strip()
-
-        return ("Pour comparer, précisez deux profils parmi : prudent, spéculatif, mix, "
-                "Quinté gratuit ou Quinté Premium — par exemple \"compare le ticket "
-                "prudent et le ticket spéculatif\".")
-
-    # --- Analyse de valeur (probabilité modèle vs cote implicite) ---
-    if any(k in q for k in ["value", "valeur", "sous-coté", "sous cote", "sous-cote"]):
-        import math as _math
-        classe_ia = _classement_ia(classement)
-        candidats = []
-        for c in classe_ia:
-            cote = _cote(c)
-            if cote >= 8:
-                implicite = 1.0 / cote
-                proba_modele = max(0.02, min(0.35, 0.02 + (c["_ia_score"] / 10.0) * 0.22))
-                ecart = proba_modele - implicite
-                candidats.append((ecart, c, proba_modele, implicite))
-        candidats.sort(key=lambda x: x[0], reverse=True)
-        if not candidats:
-            return "Aucun cheval à cote suffisamment élevée (≥8) pour une analyse de valeur sur cette course."
-        lignes = [
-            f"• N°{c.get('numero')} {c.get('nom','')} — cote {cote:.1f} — proba. modèle {pm*100:.1f}% — "
-            f"implicite {pi*100:.1f}% — écart {ecart*100:+.1f} pts"
-            for ecart, c, pm, pi in candidats[:5]
-            for cote in [_cote(c)]
-        ]
-        return (
-            "💰 **Meilleures valeurs (probabilité modèle vs cote implicite)**\n" +
-            "\n".join(lignes) +
-            "\n\n⚠️ L'écart est un indicateur du modèle, pas une probabilité garantie."
-        )
-
-    # --- Tickets par profil de risque (prudent / spéculatif / mix) ---
-    if any(k in q for k in ["prudent", "sûr", "sur ", "sécurisé", "securise", "sans risque"]):
-        return _ticket_prudent(classement)
-    if any(k in q for k in ["spéculat", "speculat", "risqué", "risque", "audacieux", "gros rapport"]):
-        return _ticket_speculatif(classement)
-    if any(k in q for k in ["mix", "équilibré", "equilibre", "équilibre"]):
-        return _ticket_mix(classement)
-
-    # --- Course passée : sélection vs arrivée réelle ---
-    reponse_passe = _analyser_course_passee(question)
-    if reponse_passe:
-        return reponse_passe
-
-    # --- Course de demain (best-effort PMU) ---
-    reponse_demain = _analyser_course_demain(question, course)
-    if reponse_demain:
-        return reponse_demain
-
     # --- Recherche indépendante en direct : cotes/dernière minute ---
     if any(k in q for k in ["cote a boug", "cote a change", "evolution", "évolution", "en direct", "temps réel", "temps reel", "à jour", "a jour", "actualise", "actualisé"]):
         rafraichi = _rafraichir_cotes_pmu_direct(course)
@@ -971,13 +589,6 @@ def _reponse_secours(question: str, contexte: dict) -> str:
     # --- Scénarios de course ---
     if "scénario" in q or "scenario" in q:
         return _generer_scenarios(classement)
-
-    # --- Points forts / points faibles d'un cheval (radar) ---
-    if numeros_cites and any(k in q for k in ["point fort", "points fort", "point faible", "points faible", "atout", "faiblesse", "avantage", "handicap de"]):
-        cheval = _trouver_cheval(classement, numeros_cites[0])
-        if cheval:
-            return _points_forts_faibles(cheval)
-        return f"Je ne trouve pas le numéro {numeros_cites[0]} dans le classement de cette course."
 
     # --- Statistiques précises d'un cheval : jockey, musique, gains, corde... ---
     if numeros_cites and any(k in q for k in ["jockey", "driver", "entraineur", "entraîneur", "musique", "forme", "gains", "corde", "ferrage", "déferré", "deferre", "âge", "age", "fiche", "stat", "monte", "pilote", "qui monte"]):
