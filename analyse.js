@@ -18,6 +18,40 @@ throw new Error("Erreur API");
 
 const data = await response.json();
 
+// Sauvegarde locale de secours : Render gratuit peut perdre le stockage
+// serveur lors d'un redéploiement. On conserve donc chaque analyse complète
+// dans le navigateur et elle pourra être resynchronisée par historique.js.
+try {
+    const key = "AZ_TURF_HISTORIQUE_COURSES_V1";
+    const local = JSON.parse(localStorage.getItem(key) || "[]");
+    const course = data.course || data.info_course || {};
+    const entree = {
+        date: course.date || data.date || new Date().toISOString(),
+        course: course,
+        reunion: course.reunion,
+        course_numero: course.course_numero,
+        hippodrome: course.hippodrome,
+        classement: data.classement || data.chevaux || [],
+        favori: data.favori || (data.classement || data.chevaux || [])[0] || {},
+        tickets: data.tickets || {},
+        selection_az: ((data.tickets || {}).gratuit || {}).quinte || [],
+        selection_premium: ((data.tickets || {}).premium || {}).selection_quinte || [],
+        non_partants: data.non_partants || [],
+        arrivee: data.arrivee || null,
+        date_analyse: new Date().toISOString()
+    };
+    const cle = `${entree.date || ""}-${entree.reunion || ""}-${entree.course_numero || ""}-${course.nom || course.course || ""}`;
+    const sansDoublon = local.filter(e => {
+        const c = e.course || {};
+        const k = `${e.date || c.date || ""}-${e.reunion || c.reunion || ""}-${e.course_numero || c.course_numero || ""}-${c.nom || c.course || ""}`;
+        return k !== cle;
+    });
+    sansDoublon.push(entree);
+    localStorage.setItem(key, JSON.stringify(sansDoublon.slice(-500)));
+} catch (e) {
+    console.warn("Sauvegarde historique locale impossible :", e);
+}
+
 
 
 const chevaux =

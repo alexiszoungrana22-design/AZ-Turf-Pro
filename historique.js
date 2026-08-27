@@ -137,22 +137,44 @@ function normaliserEntree(c) {
 }
 
 async function chargerHistorique() {
+    const local = lireLocal();
+
+    // Sur Render gratuit, le serveur peut redémarrer avec un historique vide.
+    // On resynchronise donc la sauvegarde du navigateur avant de lire l'API.
+    if (local.length) {
+        try {
+            await fetch("/api/historique/synchroniser", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ historique: local })
+            });
+        } catch (e) {
+            console.warn("Synchronisation historique différée :", e);
+        }
+    }
+
     try {
         const r = await fetch(API_HISTORIQUE, { cache: "no-store" });
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const data = await r.json();
-        const liste = Array.isArray(data.historique) ? data.historique : [];
-        if (liste.length) {
-            try {
-                localStorage.setItem(HISTORIQUE_STORAGE_KEY, JSON.stringify(liste));
-            } catch (e) {}
-            return liste.map(normaliserEntree).filter(Boolean);
-        }
+        const serveur = Array.isArray(data.historique) ? data.historique : [];
+        const fusion = [...local, ...serveur];
+
+        // Déduplication par identité de course avant de remettre la copie
+        // fusionnée dans le navigateur.
+        const map = new Map();
+        fusion.forEach(e => {
+            const c = e?.course && typeof e.course === "object" ? e.course : {};
+            const key = `${e?.date || c.date || ""}-${e?.reunion || c.reunion || ""}-${e?.course_numero || c.course_numero || ""}-${c.nom || c.course || e?.hippodrome || ""}`;
+            if (key !== "---") map.set(key, e);
+        });
+        const fusionFinale = Array.from(map.values()).slice(-500);
+        try { localStorage.setItem(HISTORIQUE_STORAGE_KEY, JSON.stringify(fusionFinale)); } catch (e) {}
+        return fusionFinale.map(normaliserEntree).filter(Boolean);
     } catch (e) {
         console.warn("Historique API indisponible, utilisation locale", e);
+        return local.map(normaliserEntree).filter(Boolean);
     }
-
-    return lireLocal().map(normaliserEntree).filter(Boolean);
 }
 
 function eliminerDoublons(liste) {
