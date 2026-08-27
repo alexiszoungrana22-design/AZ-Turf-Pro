@@ -1,90 +1,85 @@
 """
 AZ TURF PRO - MODULE MÉMOIRE & HISTORIQUE AVANCÉ DU CHATBOT
 Fichier : backend/modules/chatbot_memory.py
-
-Corrigé : la version précédente archivait dans un dict Python en
-mémoire (MEMOIRE_COURSES_ARCHIVES) que personne n'alimentait jamais et
-qui de toute façon se vidait à chaque redémarrage du serveur (process
-Render éphémère). Cette version s'appuie directement sur le vrai
-historique persistant écrit par learning.py (backend/data/historique_az.json),
-qui est la seule source réellement alimentée par l'application
-(engine.lancer_analyse -> enregistrer_course à chaque analyse).
 """
 
+import json
 from datetime import datetime
 
+# Mémoire globale persistante ou tampon pour la session/serveur
+MEMOIRE_COURSES_ARCHIVES = {}
 
-def _historique_reel():
-    try:
-        from learning import lire_historique
-        return lire_historique() or []
-    except Exception:
-        return []
+def archiver_course_passee(id_course: str, contexte_course: dict, arrivee_officielle: list) -> dict:
+    """
+    Enregistre une course terminée dans la mémoire à long terme de l'assistant,
+    en combinant les données de course, le classement AZ et l'arrivée officielle.
+    """
+    if not id_course:
+        id_course = f"COURSE_{datetime.now().strftime('%Y%m%d_%H%M')}"
+    
+    MEMOIRE_COURSES_ARCHIVES[id_course] = {
+        "id_course": id_course,
+        "date_archivage": datetime.now().isoformat(),
+        "contexte": contexte_course,
+        "arrivee_officielle": [str(x) for x in arrivee_officielle]
+    }
+    
+    return {
+        "status": "success",
+        "message": f"Course {id_course} archivée avec succès dans la mémoire de l'assistant.",
+        "total_archives": len(MEMOIRE_COURSES_ARCHIVES)
+    }
 
 
 def rechercher_memoire_historique(requete: str) -> str:
     """
-    Recherche dans les vraies courses déjà analysées par l'application
-    (hippodrome, date, réunion/numéro de course).
+    Permet à l'assistant de fouiller dans les courses passées en fonction
+    d'un mot-clé (nom d'hippodrome, date, numéro de course).
     """
-    historique = _historique_reel()
-    if not historique:
-        return "Aucune course passée n'est actuellement enregistrée dans mon historique."
+    if not MEMOIRE_COURSES_ARCHIVES:
+        return "Aucune course passée n'est actuellement enregistrée dans ma mémoire d'archives."
 
-    requete = (requete or "").strip().lower()
-    if not requete:
-        return "Précise l'hippodrome, la date ou la course que tu cherches."
-
+    requete = requete.lower()
     matches = []
-    for course in historique:
-        if not isinstance(course, dict):
-            continue
-        info = course.get("course") or {}
-        hippodrome = str(info.get("hippodrome", course.get("hippodrome", ""))).lower()
-        date_c = str(info.get("date", course.get("date", ""))).lower()
-        reunion = str(info.get("reunion", course.get("reunion", ""))).lower()
-        if requete in hippodrome or requete in date_c or requete in reunion:
-            matches.append(course)
+
+    for cid, data in MEMOIRE_COURSES_ARCHIVES.items():
+        course_info = data.get("contexte", {}).get("course", {})
+        hippodrome = str(course_info.get("hippodrome", "")).lower()
+        date_c = str(course_info.get("date", "")).lower()
+        
+        if requete in cid.lower() or requete in hippodrome or requete in date_c:
+            matches.append(data)
 
     if not matches:
-        return f"Je n'ai trouvé aucune course correspondant à « {requete} » dans mon historique."
+        return f"Je n'ai trouvé aucune archive correspondant à '{requete}' dans mes mémoires."
 
+    # Formater le résumé des courses trouvées
     reponses = []
-    for m in matches[-3:]:
-        info = m.get("course") or {}
-        arrivee = m.get("arrivee") or m.get("arrivee_officielle") or []
-        arrivee_txt = ", ".join(str(a) for a in arrivee) if arrivee else "pas encore connue"
+    for m in matches[-3:]:  # Limiter aux 3 derniers résultats pertinents
+        c_info = m["contexte"].get("course", {})
+        arrivee = ", ".join(m["arrivee_officielle"])
         reponses.append(
-            f"• **{info.get('hippodrome', 'Hippodrome inconnu')}** du {info.get('date', 'date inconnue')} "
-            f"(R{info.get('reunion', '?')}C{info.get('course_numero', '?')}) — "
-            f"Arrivée officielle : [ {arrivee_txt} ]"
+            f"• **{c_info.get('hippodrome', 'Hippodrome inconnu')}** du {c_info.get('date', 'date inconnue')} "
+            f"(R{c_info.get('reunion', '?')}C{c_info.get('course_numero', '?')}) — "
+            f"**Arrivée officielle** : [ {arrivee} ]"
         )
 
-    return "🧠 **Courses retrouvées dans l'historique**\n" + "\n".join(reponses)
+    return "🧠 **Archives retrouvées** :\n" + "\n".join(reponses)
 
 
-def generer_contexte_memoire_recent(limite: int = 5) -> str:
+def generer_contexte_memoire_recent() -> str:
     """
-    Résumé textuel des dernières courses réellement analysées, pour
-    contexte interne (jamais présenté comme des données inventées).
+    Génère un résumé textuel des dernières courses en mémoire pour l'injecter
+    dans le prompt système de l'IA (Claude/OpenAI) ou du moteur de secours.
     """
-    historique = _historique_reel()
-    if not historique:
+    if not MEMOIRE_COURSES_ARCHIVES:
         return "Aucun historique de course passée en mémoire."
-
-    lignes = ["=== DERNIÈRES COURSES ANALYSÉES ==="]
-    for course in historique[-limite:]:
-        if not isinstance(course, dict):
-            continue
-        info = course.get("course") or {}
-        arrivee = course.get("arrivee") or course.get("arrivee_officielle") or []
+    
+    lignes = ["=== MÉMOIRE DES COURSES PRÉCÉDENTES ==="]
+    for cid, data in list(MEMOIRE_COURSES_ARCHIVES.items())[-5:]:
+        c_inf = data.get("contexte", {}).get("course", {})
         lignes.append(
-            f"- {info.get('hippodrome', course.get('hippodrome', '-'))} "
-            f"({info.get('date', course.get('date', '-'))}) "
-            f"| Arrivée : {', '.join(str(a) for a in arrivee) if arrivee else 'inconnue'}"
+            f"- Course {cid} à {c_inf.get('hippodrome', '-')} ({c_inf.get('date', '-')}) "
+            f"| Arrivée : {', '.join(data.get('arrivee_officielle', []))}"
         )
     return "\n".join(lignes)
-
-
-def nombre_courses_archivees() -> int:
-    return len(_historique_reel())

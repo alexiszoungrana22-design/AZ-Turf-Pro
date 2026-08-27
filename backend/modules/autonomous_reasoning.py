@@ -56,13 +56,8 @@ def make_tickets(result: dict) -> dict:
     }
 
 def compare_to_az(result: dict, contexte: dict) -> dict:
-    # Normalisation en chaînes : "selection_az" (moteur AZ) contient des
-    # numéros bruts en chaîne, tandis que analyze_independently produit
-    # des numéros en int (_num) — sans cette normalisation, la
-    # comparaison ne trouvait jamais aucun accord même sur une sélection
-    # identique.
-    az = [str(n) for n in ((contexte or {}).get("moteur", {}).get("selection_az", []) or [])]
-    own = [str(h["numero"]) for h in result.get("horses", []) if h.get("numero") is not None][:7]
+    az = (contexte or {}).get("moteur", {}).get("selection_az", []) or []
+    own = [h["numero"] for h in result.get("horses", []) if h.get("numero") is not None][:7]
     return {
         "independent_selection": own,
         "az_selection": az[:7],
