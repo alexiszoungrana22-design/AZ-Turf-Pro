@@ -438,3 +438,26 @@ document.addEventListener("DOMContentLoaded", () => {
     setInterval(changerPublicite, 4000);
 });
                                                                                                                
+
+
+async function chargerActualitesHippiques(){
+    const zone=document.getElementById('home-news'), status=document.getElementById('news-status'), sources=document.getElementById('news-sources');
+    if(!zone) return;
+    try{
+        const r=await fetch('/api/actualites?limit=10',{cache:'no-store'}); const d=await r.json();
+        const items=d.actualites||[];
+        if(status) status.textContent=items.length?'● En direct':'● Sources indisponibles';
+        zone.innerHTML=items.length?items.map(a=>`<a class="news-item" href="${a.url}" target="_blank" rel="noopener noreferrer"><span class="news-source">${a.source||'Source hippique'}</span><div class="news-title">${a.titre}</div><span class="news-more">Lire la source →</span></a>`).join(''):'<div class="news-skeleton">Les sources d’actualité ne sont pas disponibles pour le moment. Aucun contenu n’est inventé.</div>';
+        if(sources && d.sources) sources.innerHTML=d.sources.map(x=>`<a href="${x.url}" target="_blank" rel="noopener noreferrer">Source : ${x.nom}</a>`).join(' · ');
+    }catch(e){ zone.innerHTML='<div class="news-skeleton">Actualités indisponibles momentanément. Consultez les sources officielles.</div>'; if(status) status.textContent='● Indisponible'; }
+}
+
+function enrichirTableauDeBordAccueil(data){
+    const c=(data.classement||data.chevaux||[]); const fav=c[0], out=c[6]||c[3];
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v||'—'};
+    set('day-course',data.course||'Course du jour'); set('day-course-meta',[data.hippodrome,data.discipline,data.distance?data.distance+' m':''].filter(Boolean).join(' · '));
+    set('day-favori',fav?`N°${fav.numero} ${fav.nom||''}`:'—'); set('day-favori-meta',fav?`Indice ${Math.round(fav.indice_az||0)} · ${fav.confiance||'—'} %`:'—');
+    set('day-outsider',out?`N°${out.numero} ${out.nom||''}`:'—'); set('day-outsider-meta',out?`Indice ${Math.round(out.indice_az||0)} · ${out.confiance||'—'} %`:'—');
+}
+const _chargerAnalyseAccueil=chargerAnalyse;
+chargerAnalyse=async function(){ await _chargerAnalyseAccueil(); enrichirTableauDeBordAccueil(window.courseDuJourData||{}); chargerActualitesHippiques(); };

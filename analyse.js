@@ -18,40 +18,6 @@ throw new Error("Erreur API");
 
 const data = await response.json();
 
-// Sauvegarde locale de secours : Render gratuit peut perdre le stockage
-// serveur lors d'un redéploiement. On conserve donc chaque analyse complète
-// dans le navigateur et elle pourra être resynchronisée par historique.js.
-try {
-    const key = "AZ_TURF_HISTORIQUE_COURSES_V1";
-    const local = JSON.parse(localStorage.getItem(key) || "[]");
-    const course = data.course || data.info_course || {};
-    const entree = {
-        date: course.date || data.date || new Date().toISOString(),
-        course: course,
-        reunion: course.reunion,
-        course_numero: course.course_numero,
-        hippodrome: course.hippodrome,
-        classement: data.classement || data.chevaux || [],
-        favori: data.favori || (data.classement || data.chevaux || [])[0] || {},
-        tickets: data.tickets || {},
-        selection_az: ((data.tickets || {}).gratuit || {}).quinte || [],
-        selection_premium: ((data.tickets || {}).premium || {}).selection_quinte || [],
-        non_partants: data.non_partants || [],
-        arrivee: data.arrivee || null,
-        date_analyse: new Date().toISOString()
-    };
-    const cle = `${entree.date || ""}-${entree.reunion || ""}-${entree.course_numero || ""}-${course.nom || course.course || ""}`;
-    const sansDoublon = local.filter(e => {
-        const c = e.course || {};
-        const k = `${e.date || c.date || ""}-${e.reunion || c.reunion || ""}-${e.course_numero || c.course_numero || ""}-${c.nom || c.course || ""}`;
-        return k !== cle;
-    });
-    sansDoublon.push(entree);
-    localStorage.setItem(key, JSON.stringify(sansDoublon.slice(-500)));
-} catch (e) {
-    console.warn("Sauvegarde historique locale impossible :", e);
-}
-
 
 
 const chevaux =
@@ -580,13 +546,7 @@ error
 
 
 
-document.addEventListener(
-
-"DOMContentLoaded",
-
-chargerAnalyse
-
-);
+document.addEventListener("DOMContentLoaded", () => chargerAnalyse());
 
 
 // ===============================
@@ -636,3 +596,28 @@ champ.value = "";
 
 });
  
+
+
+async function chargerActualitesAnalyse(){
+  const z=document.getElementById('analyse-news'); if(!z)return;
+  try{const r=await fetch('/api/actualites?limit=6',{cache:'no-store'});const d=await r.json();const items=d.actualites||[];z.innerHTML=items.length?items.map(a=>`<a class="news-item" href="${a.url}" target="_blank" rel="noopener noreferrer"><span class="news-source">${a.source||'Source hippique'}</span><div class="news-title">${a.titre}</div><span class="news-more">Lire la source →</span></a>`).join(''):'<div class="news-skeleton">Actualités indisponibles momentanément.</div>';}catch(e){z.innerHTML='<div class="news-skeleton">Actualités indisponibles momentanément.</div>';}}
+
+function enrichirContexteAnalyse(data){
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v||'—'};
+  set('ctx-hippodrome',data.hippodrome); set('ctx-discipline',data.discipline); set('ctx-distance',data.distance?data.distance+' m':'—'); set('ctx-partants',data.partants); set('ctx-depart',(data.horaires&&data.horaires.depart)||data.heure_depart); set('ctx-terrain',data.terrain||data.etat_piste||'Donnée à confirmer');
+  const b=document.getElementById('analyse-source-badge'); if(b) b.textContent='Source : '+(data.source==='pmu_live'?'PMU live':(data.source||'—'));
+}
+async function chargerContexteAvance(){
+  try{
+    const r=await fetch(API,{cache:'no-store'}); if(!r.ok) return; const data=await r.json(); enrichirContexteAnalyse(data);
+    const r2=await fetch('/api/analyse/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chevaux:data.chevaux||data.classement||[],info_course:data})});
+    if(!r2.ok) return; const d=await r2.json();
+    const c=d.tendances_cotes||[]; const sig=c.find(x=>x.signal&&x.signal!=='NEUTRE');
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v||'—'};
+    set('signal-cotes',sig?`${sig.signal} · N°${sig.numero}`:'Aucun signal fort'); set('signal-cotes-detail',sig?`${sig.nom||''} · variation ${sig.variation_pct??'—'} %`:'Aucun mouvement exploitable disponible.');
+    const presse=d.consensus_presse||[]; set('signal-presse',presse.length?`${presse.length} avis disponibles`:'Non disponible'); set('signal-presse-detail',presse.length?'Consensus reçu depuis le module presse.':'Aucun consensus réel disponible.');
+    set('signal-piste',d.impact_meteo||'INCONNU'); set('signal-piste-detail',d.impact_meteo&&d.impact_meteo!=='NEUTRE'?'Impact transmis au contexte de course.':'Pas de signal terrain exploitable.');
+  }catch(e){ console.log('Contexte avancé indisponible',e); }
+}
+const _chargerAnalyseOrig=chargerAnalyse;
+chargerAnalyse=async function(){ await _chargerAnalyseOrig(); await chargerContexteAvance(); await chargerActualitesAnalyse(); };
