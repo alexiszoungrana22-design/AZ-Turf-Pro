@@ -1,4 +1,4 @@
-const API = "/api/analyse";
+const API = "https://az-turf-pro.onrender.com/api/analyse";
 
 function badgeTendance(cheval){
     const signal = String(cheval && cheval.signal_marche || "NEUTRE");
@@ -461,57 +461,3 @@ function enrichirTableauDeBordAccueil(data){
 }
 const _chargerAnalyseAccueil=chargerAnalyse;
 chargerAnalyse=async function(){ await _chargerAnalyseAccueil(); enrichirTableauDeBordAccueil(window.courseDuJourData||{}); chargerActualitesHippiques(); };
-
-
-function echapperHTMLAccueil(value){
-    return String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;", "'":"&#39;"}[c]));
-}
-
-async function chargerActualitesAccueil(){
-    const zone=document.getElementById("home-news");
-    const status=document.getElementById("home-news-status");
-    if(!zone) return;
-    try{
-        const r=await fetch("/api/actualites?limit=8",{cache:"no-store"});
-        if(!r.ok) throw new Error("HTTP "+r.status);
-        const d=await r.json();
-        const items=Array.isArray(d.actualites)?d.actualites:[];
-        if(status) status.textContent=d.source==="live"?"En direct":"Données disponibles";
-        if(!items.length){
-            zone.innerHTML='<div class="news-skeleton">Aucune actualité vérifiable disponible pour le moment.</div>';
-            return;
-        }
-        zone.innerHTML=items.map(a=>{
-            const url=echapperHTMLAccueil(a.url||"#");
-            return `<a class="news-item" href="${url}" target="_blank" rel="noopener noreferrer"><span class="news-source">${echapperHTMLAccueil(a.source||"Source hippique")}</span><div class="news-title">${echapperHTMLAccueil(a.titre||"Actualité hippique")}</div><span class="news-more">Lire la source →</span></a>`;
-        }).join("");
-    }catch(e){
-        if(status) status.textContent="Indisponible";
-        zone.innerHTML='<div class="news-skeleton">Les sources d’actualité sont momentanément indisponibles. Aucune information n’est inventée.</div>';
-    }
-}
-
-function afficherTableauDeBordAccueil(data){
-    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v||"—";};
-    const classement=data?.classement||data?.chevaux||[];
-    const f=classement[0];
-    set("follow-course", data?.course || "Course du jour");
-    set("follow-course-detail", data?.hippodrome ? `${data.hippodrome}${data.heure_depart?" · "+data.heure_depart:""}` : "Données de course disponibles");
-    if(f){
-        set("follow-favori", `N°${f.numero||"—"} ${f.nom||""}`);
-        set("follow-favori-detail", f.confiance!=null ? `Confiance ${f.confiance} % · indice AZ ${f.indice_az??"—"}` : `Indice AZ ${f.indice_az??"—"}`);
-    }
-    const populaires=Array.isArray(data?.plus_joues)?data.plus_joues:[];
-    set("follow-popular", populaires.length?populaires.slice(0,6).join(" · "):"Non disponible");
-}
-
-const _chargerAnalyseAccueilOrig=chargerAnalyse;
-chargerAnalyse=async function(){
-    await _chargerAnalyseAccueilOrig();
-    afficherTableauDeBordAccueil(window.courseDuJourData||{});
-    await chargerActualitesAccueil();
-};
-
-document.addEventListener("DOMContentLoaded",()=>{
-    chargerActualitesAccueil();
-});
