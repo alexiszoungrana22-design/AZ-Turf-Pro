@@ -262,5 +262,589 @@
             }
         ],
         "arrivee": []
-    }
+    },
+    {
+        "date_analyse": "2026-08-27 12:23:54",
+        "date": null,
+        "course": {
+            "discipline": "TROT",
+            "distance": 2000,
+            "hippodrome": "TEST"
+        },
+        "reunion": null,
+        "course_numero": null,
+        "hippodrome": "TEST",
+        "classement": [
+            {
+                "numero": 4,
+                "nom": "D",
+                "forme": 5,
+                "regularite": 5,
+                "cote": 20,
+                "nombre_courses": 8,
+                "gains_carriere": 10000,
+                "reussite_jockey": 20,
+                "distance_predilection": 2200,
+                "musique": "8a6a4a",
+                "cote_matin_brute": 18,
+                "cote_brute": 20,
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 92.5,
+                "indice_az": 92.5,
+                "indice_premium": 146.25,
+                "badges": [],
+                "radar": {
+                    "forme": 50.0,
+                    "distance": 60.0,
+                    "jockey": 40.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 1,
+                "raison": "⭐ Favori AZ : meilleur indice et profil prioritaire",
+                "confiance": 100
+            },
+            {
+                "numero": 2,
+                "nom": "B",
+                "forme": 6,
+                "regularite": 7,
+                "cote": 12,
+                "nombre_courses": 15,
+                "gains_carriere": 25000,
+                "reussite_jockey": 30,
+                "distance_predilection": 2100,
+                "musique": "3a5a2a",
+                "cote_matin_brute": 10,
+                "cote_brute": 12,
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 85.0,
+                "indice_az": 85.0,
+                "indice_premium": 155.7,
+                "badges": [],
+                "radar": {
+                    "forme": 60.0,
+                    "distance": 80.0,
+                    "jockey": 60.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 2,
+                "raison": "🔥 Base solide : régularité et forte chance de podium",
+                "confiance": 92
+            },
+            {
+                "numero": 1,
+                "nom": "A",
+                "forme": 8,
+                "regularite": 8,
+                "cote": 4,
+                "nombre_courses": 20,
+                "gains_carriere": 50000,
+                "reussite_jockey": 40,
+                "distance_predilection": 2000,
+                "musique": "1a2a3a",
+                "cote_matin_brute": 5,
+                "cote_brute": 4,
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 78.0,
+                "indice_az": 78.0,
+                "indice_premium": 132.8,
+                "badges": [
+                    {
+                        "code": "DUO_HOT",
+                        "libelle": "Duo Chaud 🔥",
+                        "couleur": "#ffc107"
+                    }
+                ],
+                "radar": {
+                    "forme": 80.0,
+                    "distance": 100.0,
+                    "jockey": 80.0,
+                    "classe": 25.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 3,
+                "raison": "🔥 Base solide : régularité et forte chance de podium",
+                "confiance": 84
+            },
+            {
+                "numero": 3,
+                "nom": "C",
+                "forme": 7,
+                "regularite": 6,
+                "cote": 8,
+                "nombre_courses": 10,
+                "gains_carriere": 18000,
+                "reussite_jockey": 25,
+                "distance_predilection": 2000,
+                "musique": "4a2a5a",
+                "cote_matin_brute": 9,
+                "cote_brute": 8,
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 75.5,
+                "indice_az": 75.5,
+                "indice_premium": 127.95,
+                "badges": [],
+                "radar": {
+                    "forme": 70.0,
+                    "distance": 100.0,
+                    "jockey": 50.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 4,
+                "raison": "🎯 Chance AZ : potentiel pour intégrer l'arrivée",
+                "confiance": 82
+            }
+        ],
+        "favori": {
+            "numero": 4,
+            "nom": "D",
+            "forme": 5,
+            "regularite": 5,
+            "cote": 20,
+            "nombre_courses": 8,
+            "gains_carriere": 10000,
+            "reussite_jockey": 20,
+            "distance_predilection": 2200,
+            "musique": "8a6a4a",
+            "cote_matin_brute": 18,
+            "cote_brute": 20,
+            "est_non_partant": false,
+            "statut": "PARTANT",
+            "score_az": 92.5,
+            "indice_az": 92.5,
+            "indice_premium": 146.25,
+            "badges": [],
+            "radar": {
+                "forme": 50.0,
+                "distance": 60.0,
+                "jockey": 40.0,
+                "classe": 20.0,
+                "fraicheur": 100.0
+            },
+            "rang": 1,
+            "raison": "⭐ Favori AZ : meilleur indice et profil prioritaire",
+            "confiance": 100
+        },
+        "selection_az": [
+            "4",
+            "2",
+            "1",
+            "3"
+        ],
+        "selection_premium": [
+            "2",
+            "4",
+            "3",
+            "1"
+        ],
+        "tickets": {
+            "gratuit": {
+                "quinte": [
+                    "4",
+                    "2",
+                    "1",
+                    "3"
+                ],
+                "deux_sur_quatre": [
+                    "4",
+                    "2",
+                    "1",
+                    "3"
+                ],
+                "couple_place": [
+                    "4",
+                    "2"
                 ]
+            },
+            "premium": {
+                "selection_quinte": [
+                    "2",
+                    "4",
+                    "3",
+                    "1"
+                ],
+                "quinte": [
+                    "2",
+                    "4",
+                    "3",
+                    "1"
+                ],
+                "quarte": [
+                    "2",
+                    "4",
+                    "3",
+                    "1"
+                ],
+                "trio": [
+                    "2",
+                    "4",
+                    "3"
+                ],
+                "couple_gagnant_place": [
+                    [
+                        "2",
+                        "4"
+                    ],
+                    [
+                        "2",
+                        "3"
+                    ],
+                    [
+                        "4",
+                        "3"
+                    ]
+                ],
+                "champ_reduit": {
+                    "format": "2-4-X-1-X / 3",
+                    "bases": [
+                        "2",
+                        "4",
+                        "X",
+                        "1",
+                        "X"
+                    ],
+                    "complements": [
+                        "3"
+                    ],
+                    "disponible": true
+                },
+                "ticket_derniere_minute": {
+                    "selection": [
+                        "4",
+                        "2",
+                        "3",
+                        "1"
+                    ],
+                    "joker": null,
+                    "format": "4-2-3-1"
+                },
+                "methode": "Indice Premium AZ Pro : valeur + forme + régularité + expérience, avec diversification des tickets.",
+                "message_fin": "🍀 Bonne chance ! Les tickets Premium sont générés séparément du ticket gratuit et la dernière minute est calculée indépendamment.",
+                "lecture_course": {
+                    "profil": {
+                        "discipline": "TROT",
+                        "distance": 2000.0,
+                        "type_depart": "NON DOCUMENTÉ",
+                        "partants": 4,
+                        "lecture": [
+                            "distance intermédiaire",
+                            "peloton de 4 partants"
+                        ],
+                        "confiance": 0.55
+                    },
+                    "points_forts": [
+                        "distance très proche de sa préférence",
+                        "forme récente suffisamment solide",
+                        "profil régulier"
+                    ],
+                    "points_attention": [],
+                    "methode": "Lecture contextuelle Premium : parcours + scénario + engagement + entourage + marché, sans remplacer l'Indice AZ existant."
+                }
+            }
+        },
+        "non_partants": [],
+        "arrivee": null,
+        "heure_arrivee": null,
+        "publication_at": null,
+        "publication_statut": "EN ATTENTE"
+    },
+    {
+        "date_analyse": "2026-08-27 12:24:17",
+        "date": null,
+        "course": {
+            "discipline": "TROT",
+            "distance": 2000,
+            "hippodrome": "TEST"
+        },
+        "reunion": null,
+        "course_numero": null,
+        "hippodrome": "TEST",
+        "classement": [
+            {
+                "numero": 4,
+                "nom": "D",
+                "forme": 5,
+                "regularite": 5,
+                "cote": 20,
+                "nombre_courses": 8,
+                "gains_carriere": 10000,
+                "reussite_jockey": 20,
+                "distance_predilection": 2200,
+                "musique": "8a6a4a",
+                "cote_matin_brute": 18,
+                "cote_brute": 20,
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 92.5,
+                "indice_az": 92.5,
+                "indice_premium": 146.25,
+                "badges": [],
+                "radar": {
+                    "forme": 50.0,
+                    "distance": 60.0,
+                    "jockey": 40.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 1,
+                "raison": "⭐ Favori AZ : meilleur indice et profil prioritaire",
+                "confiance": 100
+            },
+            {
+                "numero": 2,
+                "nom": "B",
+                "forme": 6,
+                "regularite": 7,
+                "cote": 12,
+                "nombre_courses": 15,
+                "gains_carriere": 25000,
+                "reussite_jockey": 30,
+                "distance_predilection": 2100,
+                "musique": "3a5a2a",
+                "cote_matin_brute": 10,
+                "cote_brute": 12,
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 85.0,
+                "indice_az": 85.0,
+                "indice_premium": 155.7,
+                "badges": [],
+                "radar": {
+                    "forme": 60.0,
+                    "distance": 80.0,
+                    "jockey": 60.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 2,
+                "raison": "🔥 Base solide : régularité et forte chance de podium",
+                "confiance": 92
+            },
+            {
+                "numero": 1,
+                "nom": "A",
+                "forme": 8,
+                "regularite": 8,
+                "cote": 4,
+                "nombre_courses": 20,
+                "gains_carriere": 50000,
+                "reussite_jockey": 40,
+                "distance_predilection": 2000,
+                "musique": "1a2a3a",
+                "cote_matin_brute": 5,
+                "cote_brute": 4,
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 78.0,
+                "indice_az": 78.0,
+                "indice_premium": 132.8,
+                "badges": [
+                    {
+                        "code": "DUO_HOT",
+                        "libelle": "Duo Chaud 🔥",
+                        "couleur": "#ffc107"
+                    }
+                ],
+                "radar": {
+                    "forme": 80.0,
+                    "distance": 100.0,
+                    "jockey": 80.0,
+                    "classe": 25.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 3,
+                "raison": "🔥 Base solide : régularité et forte chance de podium",
+                "confiance": 84
+            },
+            {
+                "numero": 3,
+                "nom": "C",
+                "forme": 7,
+                "regularite": 6,
+                "cote": 8,
+                "nombre_courses": 10,
+                "gains_carriere": 18000,
+                "reussite_jockey": 25,
+                "distance_predilection": 2000,
+                "musique": "4a2a5a",
+                "cote_matin_brute": 9,
+                "cote_brute": 8,
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 75.5,
+                "indice_az": 75.5,
+                "indice_premium": 127.95,
+                "badges": [],
+                "radar": {
+                    "forme": 70.0,
+                    "distance": 100.0,
+                    "jockey": 50.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 4,
+                "raison": "🎯 Chance AZ : potentiel pour intégrer l'arrivée",
+                "confiance": 82
+            }
+        ],
+        "favori": {
+            "numero": 4,
+            "nom": "D",
+            "forme": 5,
+            "regularite": 5,
+            "cote": 20,
+            "nombre_courses": 8,
+            "gains_carriere": 10000,
+            "reussite_jockey": 20,
+            "distance_predilection": 2200,
+            "musique": "8a6a4a",
+            "cote_matin_brute": 18,
+            "cote_brute": 20,
+            "est_non_partant": false,
+            "statut": "PARTANT",
+            "score_az": 92.5,
+            "indice_az": 92.5,
+            "indice_premium": 146.25,
+            "badges": [],
+            "radar": {
+                "forme": 50.0,
+                "distance": 60.0,
+                "jockey": 40.0,
+                "classe": 20.0,
+                "fraicheur": 100.0
+            },
+            "rang": 1,
+            "raison": "⭐ Favori AZ : meilleur indice et profil prioritaire",
+            "confiance": 100
+        },
+        "selection_az": [
+            "4",
+            "2",
+            "1",
+            "3"
+        ],
+        "selection_premium": [
+            "2",
+            "4",
+            "3",
+            "1"
+        ],
+        "tickets": {
+            "gratuit": {
+                "quinte": [
+                    "4",
+                    "2",
+                    "1",
+                    "3"
+                ],
+                "deux_sur_quatre": [
+                    "4",
+                    "2",
+                    "1",
+                    "3"
+                ],
+                "couple_place": [
+                    "4",
+                    "2"
+                ]
+            },
+            "premium": {
+                "selection_quinte": [
+                    "2",
+                    "4",
+                    "3",
+                    "1"
+                ],
+                "quinte": [
+                    "2",
+                    "4",
+                    "3",
+                    "1"
+                ],
+                "quarte": [
+                    "2",
+                    "4",
+                    "3",
+                    "1"
+                ],
+                "trio": [
+                    "2",
+                    "4",
+                    "3"
+                ],
+                "couple_gagnant_place": [
+                    [
+                        "2",
+                        "4"
+                    ],
+                    [
+                        "2",
+                        "3"
+                    ],
+                    [
+                        "4",
+                        "3"
+                    ]
+                ],
+                "champ_reduit": {
+                    "format": "2-4-X-1-X / 3",
+                    "bases": [
+                        "2",
+                        "4",
+                        "X",
+                        "1",
+                        "X"
+                    ],
+                    "complements": [
+                        "3"
+                    ],
+                    "disponible": true
+                },
+                "ticket_derniere_minute": {
+                    "selection": [
+                        "4",
+                        "2",
+                        "3",
+                        "1"
+                    ],
+                    "joker": null,
+                    "format": "4-2-3-1"
+                },
+                "methode": "Indice Premium AZ Pro : valeur + forme + régularité + expérience, avec diversification des tickets.",
+                "message_fin": "🍀 Bonne chance ! Les tickets Premium sont générés séparément du ticket gratuit et la dernière minute est calculée indépendamment.",
+                "lecture_course": {
+                    "profil": {
+                        "discipline": "TROT",
+                        "distance": 2000.0,
+                        "type_depart": "NON DOCUMENTÉ",
+                        "partants": 4,
+                        "lecture": [
+                            "distance intermédiaire",
+                            "peloton de 4 partants"
+                        ],
+                        "confiance": 0.55
+                    },
+                    "points_forts": [
+                        "distance très proche de sa préférence",
+                        "forme récente suffisamment solide",
+                        "profil régulier"
+                    ],
+                    "points_attention": [],
+                    "methode": "Lecture contextuelle Premium : parcours + scénario + engagement + entourage + marché, sans remplacer l'Indice AZ existant."
+                }
+            }
+        },
+        "non_partants": [],
+        "arrivee": null,
+        "heure_arrivee": null,
+        "publication_at": null,
+        "publication_statut": "EN ATTENTE"
+    }
+]

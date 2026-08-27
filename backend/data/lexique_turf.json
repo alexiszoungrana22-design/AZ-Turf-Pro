@@ -1,1 +1,10 @@
-[]
+[
+  {"terme": "déferré", "definition": "Cheval couru sans fer à un ou plusieurs pieds, souvent pour améliorer l'adhérence ou alléger l'action."},
+  {"terme": "musique", "definition": "Suite des dernières performances d'un cheval, lues de la plus récente à la plus ancienne (ex: 1a2a3a)."},
+  {"terme": "quinté", "definition": "Pari consistant à désigner les 5 premiers chevaux d'une course, dans l'ordre ou le désordre selon la formule jouée."},
+  {"terme": "champ réduit", "definition": "Sélection restreinte de partants jugés les plus probables, utilisée pour réduire le coût d'un ticket."},
+  {"terme": "corde", "definition": "Position de départ d'un cheval par rapport à la bordure intérieure de la piste."},
+  {"terme": "réunion", "definition": "Ensemble des courses organisées le même jour sur un même hippodrome (ex: R1, R2...)."},
+  {"terme": "outsider", "definition": "Cheval considéré comme peu favori par le marché (cote élevée) mais pouvant représenter une valeur intéressante."},
+  {"terme": "smart money", "definition": "Mouvement de cote traduisant un afflux d'argent jugé informé sur un cheval, généralement à la baisse de sa cote."}
+]
