@@ -49,7 +49,7 @@ from pmu_source import charger_course_pmu
 
 from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
 
-from learning import lire_historique, mettre_a_jour_arrivee
+from learning import lire_historique, mettre_a_jour_arrivee, fusionner_historique
 from modules.chatbot_turf import repondre_assistant_turf
 
 import json
@@ -808,6 +808,19 @@ def debug_journal():
 # LIMITE CONNUE : si l'hebergement Render ne dispose pas d'un
 # disque persistant, ce fichier peut etre remis a zero a chaque
 # redeploiement - l'historique ne survit alors pas dans le temps.
+
+@router.post("/historique/synchroniser")
+def synchroniser_historique(payload: dict):
+    """Récupère une copie locale du navigateur après un redémarrage Render.
+    Cette route ne nécessite aucun disque persistant payant : le navigateur
+    constitue une sauvegarde de secours pour le même utilisateur/appareil.
+    """
+    entrees = payload.get("historique") if isinstance(payload, dict) else None
+    if not isinstance(entrees, list):
+        raise HTTPException(status_code=400, detail="historique doit être une liste")
+    fusionner_historique(entrees)
+    return {"ok": True, "historique": list(reversed(lire_historique()))}
+
 
 @router.get("/historique")
 def historique():
