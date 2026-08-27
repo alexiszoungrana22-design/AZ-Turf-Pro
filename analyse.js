@@ -1,4 +1,4 @@
-const API = "https://az-turf-pro.onrender.com/api/analyse";
+const API = "/api/analyse";
 
 
 async function chargerAnalyse(){
