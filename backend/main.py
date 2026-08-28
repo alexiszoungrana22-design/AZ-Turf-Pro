@@ -1,4 +1,11 @@
 from pathlib import Path
+import sys
+
+# Ensure the backend directory is always on sys.path, including Render
+# executions where the working directory can differ from the module directory.
+BACKEND_DIR = Path(__file__).resolve().parent
+if str(BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(BACKEND_DIR))
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
