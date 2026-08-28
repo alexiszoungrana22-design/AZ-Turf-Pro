@@ -194,6 +194,9 @@ def partants():
                 "date": course.get("date"),
                 "reunion": course.get("reunion"),
                 "course_numero": course.get("course_numero"),
+                "pmu_id": course.get("pmu_id") or course.get("id"),
+                "identifiant_pmu": course.get("identifiant_pmu") or course.get("pmu_id") or course.get("id"),
+                "cle_pmu": course.get("cle_pmu"),
                 "course": course.get("course", ""),
                 "hippodrome": course.get("hippodrome", ""),
                 "discipline": course.get("discipline", ""),
@@ -356,6 +359,9 @@ def analyse():
                 "date": course.get("date"),
                 "reunion": course.get("reunion"),
                 "course_numero": course.get("course_numero"),
+                "pmu_id": course.get("pmu_id") or course.get("id"),
+                "identifiant_pmu": course.get("identifiant_pmu") or course.get("pmu_id") or course.get("id"),
+                "cle_pmu": course.get("cle_pmu"),
                 "course": course.get("course", ""),
                 "hippodrome": course.get("hippodrome"),
                 "discipline": course.get("discipline", ""),
@@ -869,73 +875,6 @@ def historique():
             detail=f"Erreur historique : {erreur}"
 )
             
-
-# =========================================================
-# INSPECTION BRUTE HISTORIQUE — DIAGNOSTIC CIBLE
-# =========================================================
-@router.get("/historique/inspect-brut")
-def historique_inspect_brut():
-    """Expose uniquement les champs utiles des entrées historiques.
-
-    Objectif : identifier précisément les anciens formats sans exposer les
-    sélections complètes ni les données sensibles. Cette route est en lecture
-    seule et ne modifie jamais l'historique.
-    """
-    try:
-        entrees = lire_historique()
-        if not isinstance(entrees, list):
-            entrees = []
-
-        def _valeur(d, *cles):
-            if not isinstance(d, dict):
-                return None
-            for cle in cles:
-                valeur = d.get(cle)
-                if valeur not in (None, "", []):
-                    return valeur
-            return None
-
-        resultat = []
-        for index, entree in enumerate(entrees):
-            if not isinstance(entree, dict):
-                resultat.append({
-                    "index": index,
-                    "type_entree": type(entree).__name__,
-                })
-                continue
-
-            course = entree.get("course")
-            if not isinstance(course, dict):
-                course = {}
-
-            resultat.append({
-                "index": index,
-                "cles_entree": sorted(str(k) for k in entree.keys()),
-                "cles_course": sorted(str(k) for k in course.keys()),
-                "date": _valeur(entree, "date", "date_course") or _valeur(course, "date", "dateCourse", "date_course"),
-                "date_course": _valeur(entree, "date_course") or _valeur(course, "date_course", "dateCourse", "date"),
-                "reunion": _valeur(entree, "reunion", "numReunion") or _valeur(course, "reunion", "numReunion"),
-                "course_numero": _valeur(entree, "course_numero", "numero_course", "numCourse", "numOrdre") or _valeur(course, "course_numero", "numero_course", "numCourse", "numOrdre", "numero"),
-                "numero_course": _valeur(entree, "numero_course", "course_numero", "numCourse", "numOrdre") or _valeur(course, "numero_course", "course_numero", "numCourse", "numOrdre", "numero"),
-                "hippodrome": _valeur(entree, "hippodrome") or _valeur(course, "hippodrome", "hippodromeNom", "nomHippodrome"),
-                "pmu_id": _valeur(entree, "pmu_id", "id_pmu", "identifiant_pmu", "idCourse") or _valeur(course, "pmu_id", "id_pmu", "identifiant_pmu", "idCourse"),
-                "identifiant_pmu": _valeur(entree, "identifiant_pmu", "pmu_id", "id_pmu", "idCourse") or _valeur(course, "identifiant_pmu", "pmu_id", "id_pmu", "idCourse"),
-                "nom_course": _valeur(entree, "nom_course", "course") or _valeur(course, "nom_course", "libelle", "nom", "course"),
-                "arrivee_presente": bool(entree.get("arrivee") or entree.get("arrivee_officielle")),
-            })
-
-        return {
-            "status": "success",
-            "total": len(resultat),
-            "entrees": resultat,
-            "note": "Lecture seule : aucune modification de l'historique.",
-        }
-    except Exception as erreur:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Erreur inspection historique : {erreur}",
-        )
-
 # Dans api.py (à la fin du fichier)
 from modules.cotes_history import analyser_tendances_cotes
 from modules.export_pdf import generer_pdf_ticket

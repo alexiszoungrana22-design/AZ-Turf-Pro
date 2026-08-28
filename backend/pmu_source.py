@@ -554,6 +554,20 @@ def transformer_course(course, participants):
             "libelle",
             course.get("nom", "Course"),
         ),
+        "pmu_id": (
+            course.get("id")
+            or course.get("courseId")
+            or course.get("idCourse")
+            or course.get("identifiant")
+            or course.get("numCourseId")
+        ),
+        "identifiant_pmu": (
+            course.get("id")
+            or course.get("courseId")
+            or course.get("idCourse")
+            or course.get("identifiant")
+            or course.get("numCourseId")
+        ),
         "date": date_course,
         "reunion": reunion,
         "course_numero": course_numero,
@@ -576,9 +590,6 @@ def transformer_course(course, participants):
         "plus_joues": [],
         "source_plus_joues": "non disponible via API PMU",
         "source": "pmu_live",
-        # Identifiants PMU conservés pour le rapprochement historique.
-        "pmu_id": (course.get("id") or course.get("idCourse") or course.get("courseId") or course.get("identifiant") or ""),
-        "identifiant_pmu": (course.get("id") or course.get("idCourse") or course.get("courseId") or course.get("identifiant") or ""),
     }
 
 
@@ -1004,6 +1015,8 @@ def charger_course_pmu(
 
         if not resultat.get("date"):
             resultat["date"] = date
+        if not resultat.get("cle_pmu") and date and reunion and course_numero:
+            resultat["cle_pmu"] = f"{date}|{reunion}|{course_numero}"
 
         return resultat
 

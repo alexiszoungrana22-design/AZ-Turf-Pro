@@ -28,15 +28,11 @@ from quinte import generer_tickets_az
 from learning import enregistrer_course, lire_historique
 from race_analyzer import analyser_course_premium, bonus_premium_cheval
 from modules.engine_complementary import construire_analyse_complementaire
-from intelligence.history_manager import enregistrer_pronostic
 
 
-# Enregistrement V25 (non bloquant)
+# Enregistrement V25 conservé comme hook non bloquant.
 def _sauvegarder_v25(data):
-    try:
-        enregistrer_pronostic(data)
-    except Exception:
-        pass
+    return None
 
 
 # =========================================================
@@ -593,6 +589,21 @@ def lancer_analyse(
 
 
     try:
+        info_course_historique = dict(info_course)
+        if not info_course_historique.get("date"):
+            info_course_historique["date"] = info_course_historique.get("date_course")
+        if not info_course_historique.get("course_numero"):
+            info_course_historique["course_numero"] = info_course_historique.get("numero_course")
+        if not info_course_historique.get("pmu_id"):
+            info_course_historique["pmu_id"] = info_course_historique.get("identifiant_pmu")
+        if not info_course_historique.get("identifiant_pmu"):
+            info_course_historique["identifiant_pmu"] = info_course_historique.get("pmu_id")
+        if not info_course_historique.get("cle_pmu"):
+            d = info_course_historique.get("date")
+            r = info_course_historique.get("reunion")
+            c = info_course_historique.get("course_numero")
+            if d and r and c:
+                info_course_historique["cle_pmu"] = f"{d}|{r}|{c}"
 
         enregistrer_course({
 
@@ -632,7 +643,7 @@ def lancer_analyse(
                 ),
 
             "course":
-                info_course,
+                info_course_historique,
 
         })
 
