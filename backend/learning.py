@@ -504,6 +504,64 @@ def analyser_erreurs_historique(historique=None):
     }
 
 
+
+def calculer_performance_30_courses(historique=None):
+    """Analyse les 30 dernières courses terminées réellement disponibles.
+
+    Cette fonction ne fabrique aucune course manquante : si moins de 30 courses
+    sont disponibles, le rapport indique explicitement le volume réel.
+    """
+    historique = _charger_historique() if historique is None else historique
+    terminees = [
+        e for e in historique
+        if isinstance(e, dict) and e.get("arrivee")
+    ]
+    terminees = terminees[-30:]
+    if not terminees:
+        return {
+            "courses_demandees": 30, "courses_disponibles": 0,
+            "rapport_complet": False, "performance": {},
+            "message": "Aucune course terminée disponible."
+        }
+
+    performance = calculer_performance_historique(terminees)
+    erreurs = analyser_erreurs_historique(terminees)
+
+    # Mesure séparée des tickets AZ et Premium, avec moyenne par course.
+    az3 = az5 = prem3 = prem5 = 0.0
+    fav3 = 0.0
+    n = 0
+    for entree in terminees:
+        ev = entree.get("evaluation") or evaluer_prediction(entree)
+        if not ev:
+            continue
+        n += 1
+        selaz = max(1, len(entree.get("selection_az") or []))
+        selpr = max(1, len(entree.get("selection_premium") or []))
+        az3 += float(ev.get("selection_az_top3", 0)) / selaz
+        az5 += float(ev.get("selection_az_top5", 0)) / selaz
+        prem3 += float(ev.get("selection_premium_top3", 0)) / selpr
+        prem5 += float(ev.get("selection_premium_top5", 0)) / selpr
+        fav3 += float(bool(ev.get("favori_top3")))
+
+    moyennes = {
+        "favori_top3": round(fav3 / n, 4) if n else 0.0,
+        "selection_az_top3": round(az3 / n, 4) if n else 0.0,
+        "selection_az_top5": round(az5 / n, 4) if n else 0.0,
+        "selection_premium_top3": round(prem3 / n, 4) if n else 0.0,
+        "selection_premium_top5": round(prem5 / n, 4) if n else 0.0,
+    }
+    return {
+        "courses_demandees": 30,
+        "courses_disponibles": len(terminees),
+        "courses_evaluees": n,
+        "rapport_complet": len(terminees) >= 30,
+        "performance": performance,
+        "erreurs": erreurs,
+        "moyennes": moyennes,
+        "message": "Rapport basé uniquement sur les courses réellement terminées."
+    }
+
 def diagnostic_apprentissage(historique=None):
     perf = calculer_performance_historique(historique)
     erreurs = analyser_erreurs_historique(historique)
