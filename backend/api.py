@@ -49,7 +49,7 @@ from pmu_source import charger_course_pmu
 
 from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
 
-from learning import lire_historique, mettre_a_jour_arrivee, calculer_performance_30_courses, synchroniser_arrivees_pmu, calculer_performance_historique, diagnostic_historique
+from learning import lire_historique, mettre_a_jour_arrivee
 from security import create_premium_token, verify_premium_token
 from modules.chatbot_turf import repondre_assistant_turf
 
@@ -824,46 +824,51 @@ def debug_journal():
 
 @router.get("/historique")
 def historique():
+
     try:
-        synchronisation = synchroniser_arrivees_pmu()
-        return {"historique": list(reversed(lire_historique())), "synchronisation": synchronisation}
+
+        entrees = lire_historique()
+
+        for index, entree in enumerate(entrees):
+
+            if entree.get("arrivee"):
+                continue
+
+            info_course = entree.get("course") or {}
+
+            date = info_course.get("date")
+            reunion = info_course.get("reunion")
+            course_numero = info_course.get("course_numero")
+
+            if not (date and reunion and course_numero):
+                continue
+
+            try:
+
+                from pmu_source import recuperer_arrivee_pmu
+
+                arrivee = recuperer_arrivee_pmu(
+                    date, reunion, course_numero
+                )
+
+                if arrivee:
+                    mettre_a_jour_arrivee(index, arrivee)
+                    entree["arrivee"] = arrivee
+
+            except Exception:
+                pass
+
+        return {
+            "historique": list(reversed(entrees))
+        }
+
     except Exception as erreur:
-        raise HTTPException(status_code=500, detail=f"Erreur historique : {erreur}")
 
-
-@router.post("/historique/synchroniser-resultats")
-def synchroniser_resultats():
-    try:
-        return {"status": "success", **synchroniser_arrivees_pmu()}
-    except Exception as erreur:
-        raise HTTPException(status_code=500, detail=f"Erreur synchronisation résultats : {erreur}")
-
-
-@router.get("/performance/historique")
-def performance_historique():
-    try:
-        return {"status": "success", "performance": calculer_performance_historique()}
-    except Exception as erreur:
-        raise HTTPException(status_code=500, detail=f"Erreur performance historique : {erreur}")
-
-
-@router.get("/historique/diagnostic")
-def diagnostic_historique_route():
-    try:
-        return {"status": "success", **diagnostic_historique()}
-    except Exception as erreur:
-        raise HTTPException(status_code=500, detail=f"Erreur diagnostic historique : {erreur}")
-
-
-@router.get("/performance/30-courses")
-def performance_30_courses():
-    """Rapport des 30 dernières courses réellement terminées."""
-    try:
-        return {"status": "success", **calculer_performance_30_courses()}
-    except Exception as erreur:
-        raise HTTPException(status_code=500, detail=f"Erreur performance 30 courses : {erreur}")
-
-
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erreur historique : {erreur}"
+)
+            
 # Dans api.py (à la fin du fichier)
 from modules.cotes_history import analyser_tendances_cotes
 from modules.export_pdf import generer_pdf_ticket
@@ -1028,6 +1033,8 @@ def _contexte_assistant():
             "allocation": course.get("allocation", ""),
             "heure_depart": course.get("heure_depart", ""),
             "horaires": course.get("horaires", {}),
+            "pmu_id": course.get("pmu_id") or course.get("id") or course.get("idCourse") or course.get("courseId") or "",
+            "identifiant_pmu": course.get("identifiant_pmu") or course.get("pmu_id") or course.get("id") or course.get("idCourse") or course.get("courseId") or "",
             "non_partants": course.get("non_partants", []),
             "plus_joues": course.get("plus_joues", []),
         }
