@@ -68,10 +68,7 @@ def simuler_backtest_filtre(historique_courses: list, filtres: dict) -> dict:
 
         for cheval in chevaux:
             num = str(cheval.get("numero"))
-            try:
-                cote = float(cheval.get("cote", cheval.get("cote_brute", 0)) or 0)
-            except (TypeError, ValueError):
-                cote = 0.0
+            cote = float(cheval.get("cote", 0) or 0)
             
             if cote_min <= cote <= cote_max:
                 mises_totales += mise_de_base
