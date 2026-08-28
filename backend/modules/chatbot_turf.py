@@ -1,42 +1,24 @@
-"""AZ TURF PRO — Assistant conversationnel IA
-Un pronostiqueur hippique et analyste, pas un chatbot à commandes :
-la question est envoyée telle quelle à un modèle de langage (Claude ou
-OpenAI), avec le contexte complet de la course, pour un vrai raisonnement
-et une conversation naturelle sur n'importe quelle formulation.
+"""AZ TURF PRO — Assistant conversationnel autonome.
 
-Configuration (variables d'environnement, sur Render → Environment) :
-  ANTHROPIC_API_KEY   clé Claude (prioritaire par défaut)
-  OPENAI_API_KEY      clé OpenAI (utilisée en secours, ou en priorité si
-                       AI_PROVIDER=openai)
-  AI_PROVIDER         "anthropic" (défaut) ou "openai"
+Pronostiqueur hippique et analyste local : le module comprend les demandes
+naturelles, conserve le contexte de conversation et orchestre les données
+PMU, le moteur AZ Turf Pro et ses modules d'accompagnement.
 
-Si aucune des deux clés n'est configurée, ou si les deux appels échouent
-(réseau, quota...), l'assistant retombe sur une réponse minimale par
-mots-clés pour ne jamais laisser le client sans réponse.
+Aucune API Claude/OpenAI n'est nécessaire au fonctionnement de ce module.
 """
 
-import os
 import json
-import httpx
+import re
+from datetime import datetime
 
-# Modules d'orchestration complémentaires : ils enrichissent le moteur existant
-# sans modifier ses scores ni ses routes API.
-try:
-    from modules.intent_orchestrator import analyser as _planifier_demande
-    from modules.value_analysis import analyser_valeur as _analyser_valeur, resume_valeur as _resume_valeur
-    from modules.race_scenarios import resume_scenarios as _resume_scenarios
-    from modules.arbitre_ia_az import resume as _resume_arbitre
-except Exception:
-    _planifier_demande = _analyser_valeur = _resume_valeur = _resume_scenarios = _resume_arbitre = None
-
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip()
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
-AI_PROVIDER = os.getenv("AI_PROVIDER", "anthropic").strip().lower()
-
-CLAUDE_MODEL = "claude-sonnet-5"
-OPENAI_MODEL = "gpt-4o-mini"
-
-TIMEOUT_SECONDES = 25
+# MODE AUTONOME AZ TURF PRO
+# Claude et OpenAI sont volontairement désactivés.
+AI_PROVIDER = "local"
+ANTHROPIC_API_KEY = ""
+OPENAI_API_KEY = ""
+CLAUDE_MODEL = ""
+OPENAI_MODEL = ""
+TIMEOUT_SECONDES = 0
 
 
 # =====================================
@@ -217,63 +199,11 @@ def _historique_pour_ia(historique: list, limite: int = 12) -> list:
 # =====================================
 
 def _appeler_claude(system_prompt: str, messages: list, question: str) -> str:
-    if not ANTHROPIC_API_KEY:
-        raise RuntimeError("ANTHROPIC_API_KEY non configurée.")
-
-    payload = {
-        "model": CLAUDE_MODEL,
-        "max_tokens": 1000,
-        "system": system_prompt,
-        "messages": messages + [{"role": "user", "content": question}],
-    }
-    reponse = httpx.post(
-        "https://api.anthropic.com/v1/messages",
-        headers={
-            "x-api-key": ANTHROPIC_API_KEY,
-            "anthropic-version": "2023-06-01",
-            "content-type": "application/json",
-        },
-        json=payload,
-        timeout=TIMEOUT_SECONDES,
-    )
-    if reponse.status_code >= 400:
-        raise RuntimeError(f"Claude {reponse.status_code} : {reponse.text[:500]}")
-    data = reponse.json()
-    morceaux = [b.get("text", "") for b in data.get("content", []) if b.get("type") == "text"]
-    texte = "".join(morceaux).strip()
-    if not texte:
-        raise RuntimeError("Réponse Claude vide.")
-    return texte
+    raise RuntimeError("Claude est désactivé : mode autonome AZ Turf Pro.")
 
 
 def _appeler_openai(system_prompt: str, messages: list, question: str) -> str:
-    if not OPENAI_API_KEY:
-        raise RuntimeError("OPENAI_API_KEY non configurée.")
-
-    payload = {
-        "model": OPENAI_MODEL,
-        "messages": [{"role": "system", "content": system_prompt}]
-        + messages
-        + [{"role": "user", "content": question}],
-        "max_tokens": 1000,
-    }
-    reponse = httpx.post(
-        "https://api.openai.com/v1/chat/completions",
-        headers={
-            "Authorization": f"Bearer {OPENAI_API_KEY}",
-            "Content-Type": "application/json",
-        },
-        json=payload,
-        timeout=TIMEOUT_SECONDES,
-    )
-    if reponse.status_code >= 400:
-        raise RuntimeError(f"OpenAI {reponse.status_code} : {reponse.text[:500]}")
-    data = reponse.json()
-    texte = (data.get("choices") or [{}])[0].get("message", {}).get("content", "").strip()
-    if not texte:
-        raise RuntimeError("Réponse OpenAI vide.")
-    return texte
-
+    raise RuntimeError("OpenAI est désactivé : mode autonome AZ Turf Pro.")
 
 # =====================================
 # REPLI SANS IA (aucune clé configurée / échec des deux appels)
@@ -297,7 +227,7 @@ def _cote(cheval: dict) -> float:
         return 0.0
 
 
-def _score_ia_independant(cheval: dict) -> float:
+def _score_expert_independant(cheval: dict) -> float:
     """Score IA 0-10 VOLONTAIREMENT INDÉPENDANT de l'indice AZ/Premium
     (n'utilise jamais indice_az ni indice_premium). Recalcule sa propre
     opinion à partir des statistiques brutes, pour offrir une vraie
@@ -334,6 +264,10 @@ def _score_ia_independant(cheval: dict) -> float:
         jockey_score * 0.10 + experience * 0.07 + gains_score * 0.08 + cote_confiance * 0.10
     )
     return round(max(0.0, min(10.0, score)), 2)
+
+
+# Alias de compatibilité avec les anciennes versions du module.
+_score_ia_independant = _score_expert_independant
 
 
 def _trouver_cheval(classement: list, numero: str):
@@ -425,25 +359,25 @@ def _comparer_chevaux(classement: list, num_a: str, num_b: str) -> str:
 
 
 def _classement_ia(classement: list) -> list:
-    """Reclasse les chevaux selon le score IA indépendant (pas
+    """Reclasse les chevaux selon le score expert indépendant (pas
     l'indice AZ) — c'est ce classement que les tickets IA utilisent."""
     copie = [dict(c) for c in classement]
     for c in copie:
-        c["_ia_score"] = _score_ia_independant(c)
-    return sorted(copie, key=lambda c: c["_ia_score"], reverse=True)
+        c["_expert_score"] = _score_expert_independant(c)
+    return sorted(copie, key=lambda c: c["_expert_score"], reverse=True)
 
 
 def _ticket_prudent(classement: list) -> str:
-    """Ne retient que les valeurs sûres selon le score IA indépendant :
+    """Ne retient que les valeurs sûres selon le score expert indépendant :
     les mieux notés ET les plus réguliers, sans aucun outsider."""
     if len(classement) < 3:
         return "Pas assez de chevaux analysés pour construire un ticket prudent."
     classe = _classement_ia(classement)
-    surs = sorted(classe, key=lambda c: (-c["_ia_score"], -float(c.get("regularite") or 0), _cote(c)))[:5]
+    surs = sorted(classe, key=lambda c: (-c["_expert_score"], -float(c.get("regularite") or 0), _cote(c)))[:5]
     nums = [str(c.get("numero")) for c in surs]
     return (
-        "🛡️ **Ticket IA PRUDENT (indépendant)** : " + " - ".join(nums) + "\n"
-        f"Base IA : N°{surs[0].get('numero')} {surs[0].get('nom', '')} (score IA {surs[0]['_ia_score']}/10).\n"
+        "🛡️ **Ticket expert autonome (prudent)** : " + " - ".join(nums) + "\n"
+        f"Base expert : N°{surs[0].get('numero')} {surs[0].get('nom', '')} (score expert {surs[0]['_expert_score']}/10).\n"
         "Priorité : forme, régularité — aucun outsider, calcul séparé de l'indice AZ."
     )
 
@@ -455,23 +389,23 @@ def _ticket_speculatif(classement: list) -> str:
         return "Pas assez de chevaux analysés pour construire un ticket spéculatif."
     classe = _classement_ia(classement)
     outsiders = [c for c in classe if _cote(c) >= 12]
-    outsiders = sorted(outsiders, key=lambda c: -c["_ia_score"])[:3]
+    outsiders = sorted(outsiders, key=lambda c: -c["_expert_score"])[:3]
     solides = [c for c in classe if c not in outsiders][:2]
     combinaison = (outsiders + solides)[:5]
     nums = [str(c.get("numero")) for c in combinaison]
     outsiders_txt = (
-        "\n".join(f"• N°{c.get('numero')} {c.get('nom','')} — cote {_cote(c)} — score IA {c['_ia_score']}/10" for c in outsiders)
+        "\n".join(f"• N°{c.get('numero')} {c.get('nom','')} — cote {_cote(c)} — score expert {c['_expert_score']}/10" for c in outsiders)
         if outsiders else "• Aucun outsider à cote ≥ 12 avec des données suffisantes."
     )
     return (
-        "🎲 **Ticket IA SPÉCULATIF (indépendant, risqué)** : " + " - ".join(nums) + "\n\n"
+        "🎲 **Ticket expert autonome (spéculatif, risqué)** : " + " - ".join(nums) + "\n\n"
         f"Outsiders réellement retenus :\n{outsiders_txt}\n\n"
         "Accepte davantage de risque — ne recopie pas le ticket AZ Turf Pro."
     )
 
 
 def _ticket_mix(classement: list) -> str:
-    """Équilibre selon le score IA indépendant : les meilleures valeurs
+    """Équilibre selon le score expert indépendant : les meilleures valeurs
     sûres + 1-2 outsiders, sans tout miser sur un seul profil."""
     if len(classement) < 4:
         return "Pas assez de chevaux analysés pour construire un ticket mixte."
@@ -484,7 +418,7 @@ def _ticket_mix(classement: list) -> str:
     combinaison = surs + outsiders
     nums = [str(c.get("numero")) for c in combinaison]
     return (
-        "⚖️ **Ticket IA MIX (équilibré, indépendant)** : " + " - ".join(nums) + "\n"
+        "⚖️ **Ticket expert autonome (mix équilibré)** : " + " - ".join(nums) + "\n"
         "Combine les meilleures valeurs sûres (score IA) et 1 à 2 outsiders "
         "pour doser risque et régularité — calcul séparé de l'indice AZ."
     )
@@ -827,66 +761,119 @@ def _extraire_tickets(tickets: dict) -> dict:
     }
 
 
-def _reponse_plan_local(question: str, contexte: dict) -> str | None:
-    """Réponses locales structurées pour les demandes composées.
-    Elles servent de moteur de secours quand aucune API IA externe n'est configurée.
-    """
-    plan = (contexte or {}).get("plan_chatbot") or {}
-    classement = ((contexte or {}).get("moteur") or {}).get("classement") or []
-    nums = [str(x) for x in plan.get("chevaux") or []]
-    q = question.lower()
+# =====================================
+# COUCHE CONVERSATIONNELLE AUTONOME V17
+# =====================================
 
-    if not classement:
-        return None
+_CONVERSATION_ETATS = {}
 
-    # Les demandes pédagogiques explicites sont prioritaires sur une intention
-    # générique « analyse indépendante ».
-    if "badges" in (plan.get("intentions") or []):
-        return ("🏷️ **Guide des badges AZ Turf Pro**\n"
-                "• **D4** : cheval déferré des quatre pieds.\n"
-                "• **Duo Chaud 🔥** : association jockey/entraîneur signalée en réussite.\n"
-                "• **Spécialiste 🎯** : aptitude particulière détectée par les données disponibles.\n"
-                "• **Rachat ⚡** : profil à surveiller après une performance décevante.\n\n"
-                "Les badges sont des signaux complémentaires : ils ne remplacent pas l'analyse globale.")
 
-    # Comparaison de deux chevaux : plusieurs critères, pas uniquement l'indice AZ.
-    if plan.get("intentions") and "comparaison_chevaux" in plan["intentions"] and len(nums) >= 2:
-        a = _trouver_cheval(classement, nums[0]); b = _trouver_cheval(classement, nums[1])
-        if not a or not b: return None
-        def f(c,k,d=5):
-            try: return float(c.get(k) if c.get(k) is not None else d)
-            except (TypeError,ValueError): return float(d)
-        sa = 0.30*f(a,'forme')+0.22*f(a,'regularite')+0.15*f(a,'distance')+0.13*f(a,'jockey_score')+0.10*f(a,'terrain')+0.10*f(a,'experience')
-        sb = 0.30*f(b,'forme')+0.22*f(b,'regularite')+0.15*f(b,'distance')+0.13*f(b,'jockey_score')+0.10*f(b,'terrain')+0.10*f(b,'experience')
-        meilleur = a if sa >= sb else b
-        autre = b if meilleur is a else a
-        raisons=[]
-        for k,label in [('forme','forme'),('regularite','régularité'),('distance','distance'),('jockey_score','jockey/driver')]:
-            va,vb=f(meilleur,k),f(autre,k)
-            if va-vb >= 1: raisons.append(f"{label} ({va:g} contre {vb:g})")
-        return (f"⚔️ **Duel N°{a.get('numero')} / N°{b.get('numero')}**\n"
-                f"Je donne l'avantage au **N°{meilleur.get('numero')} {meilleur.get('nom')}**. "
-                f"Score autonome indicatif : {max(sa,sb):.2f}/10 contre {min(sa,sb):.2f}/10. "
-                + ("Les critères qui font la différence : " + ", ".join(raisons) + "." if raisons else "Les profils sont très proches : la cote et le déroulement peuvent départager les deux."))
+def _normaliser_texte(texte: str) -> str:
+    import unicodedata
+    texte = str(texte or "").strip().lower()
+    texte = "".join(c for c in unicodedata.normalize("NFD", texte) if unicodedata.category(c) != "Mn")
+    # Les apostrophes et tirets ne doivent pas empêcher la reconnaissance
+    # de formulations comme « qu’on », « veux-tu » ou « comment vas-tu ».
+    texte = re.sub(r"[’'\-_/]+", " ", texte)
+    texte = re.sub(r"\s+", " ", texte)
+    return texte.strip()
 
-    if "analyse_independante" in (plan.get("intentions") or []):
-        ia = sorted(classement, key=lambda c: __import__('modules.value_analysis', fromlist=['score_independant']).score_independant(c), reverse=True)
-        top = ia[:5]
-        if not top: return None
-        return ("🤖 **Mon analyse indépendante**\n"
-                + " — ".join(f"{i+1}. N°{c.get('numero')} {c.get('nom')}" for i,c in enumerate(top))
-                + "\n\nCette hiérarchie est calculée séparément des indices AZ/Premium à partir des données brutes disponibles.")
 
-    if "valeur" in (plan.get("intentions") or []):
-        try: return "💰 **Analyse de valeur**\n" + _resume_valeur(classement)
-        except Exception: return None
+def _extraire_numeros_question(question: str) -> list:
+    return re.findall(r"(?<!\d)(\d{1,2})(?!\d)", str(question or ""))
 
-    if "scenarios" in (plan.get("intentions") or []):
-        try: return "🛤️ **Scénarios possibles**\n" + _resume_scenarios(classement, (contexte or {}).get("course"))
-        except Exception: return None
 
-    if "actualites" in (plan.get("intentions") or []):
-        return None  # laisse la logique existante utiliser la source d'actualités
+def _detecter_intention_conversation(question: str) -> str:
+    q = _normaliser_texte(question)
+    if not q:
+        return "vide"
+    if re.search(r"\b(bonjour|salut|bonsoir|coucou|hello|bjr|bonne journee)\b", q):
+        return "salutation"
+    if any(x in q for x in ("comment allez vous", "comment vas tu", "comment va tu", "ca va", "tu vas bien", "vous allez bien")):
+        return "bien_etre"
+    if any(x in q for x in ("merci", "merci beaucoup", "super merci", "parfait merci")):
+        return "remerciement"
+    if any(x in q for x in ("qui es tu", "qui etes vous", "que peux tu faire", "que savez vous faire", "aide moi", "comment ca marche")):
+        return "aide"
+    if any(x in q for x in ("sur quoi travailler", "sur quoi veux tu", "on travaille sur quoi", "que fait on aujourd hui", "quoi faire aujourd hui", "qu est ce qu on fait")):
+        return "orientation"
+    if any(x in q for x in ("bonne chance", "a bientot", "a plus", "au revoir", "bye")):
+        return "au_revoir"
+    return "autre"
+
+
+def _etat_conversation(historique: list) -> dict:
+    dernier_user = ""
+    dernier_assistant = ""
+    for e in reversed(historique or []):
+        if not isinstance(e, dict):
+            continue
+        role = str(e.get("role") or "").lower()
+        contenu = e.get("content") or e.get("question") or e.get("reponse") or ""
+        if role in ("user", "utilisateur") and not dernier_user:
+            dernier_user = str(contenu)
+        elif role in ("assistant", "bot", "ia") and not dernier_assistant:
+            dernier_assistant = str(contenu)
+        if dernier_user and dernier_assistant:
+            break
+    return {"dernier_user": dernier_user, "dernier_assistant": dernier_assistant, "derniers_numeros": _extraire_numeros_question(dernier_user)}
+
+
+def _reponse_conversation_naturelle(question: str, contexte: dict, historique: list = None) -> str | None:
+    intention = _detecter_intention_conversation(question)
+    course = (contexte or {}).get("course") or {}
+    moteur = (contexte or {}).get("moteur") or {}
+    classement = moteur.get("classement") or []
+    nom_course = course.get("course") or "la course du jour"
+    hippodrome = course.get("hippodrome")
+
+    if intention == "salutation":
+        q_norm = _normaliser_texte(question)
+        demande_turf = any(k in q_norm for k in (
+            "favori", "quinte", "quinte", "quarté", "trio", "cheval", "cote",
+            "course", "analyse", "ticket", "compare", "outsider", "pronostic",
+            "terrain", "piste", "presse", "joker", "couple"
+        ))
+        if demande_turf:
+            return None
+        lieu = f" à {hippodrome}" if hippodrome else ""
+        if classement:
+            return ("👋 Bonjour ! Heureux de vous retrouver. "
+                    f"Je suis prêt à travailler avec vous{lieu}. "
+                    "Nous pouvons étudier la course, un cheval, les cotes ou préparer un ticket. "
+                    "**Sur quoi souhaitez-vous qu'on travaille aujourd'hui ?**")
+        return ("👋 Bonjour ! Heureux de vous retrouver. "
+                "Je suis prêt à travailler avec vous sur les courses. "
+                "**Sur quoi souhaitez-vous qu'on travaille aujourd'hui ?**")
+
+    if intention == "bien_etre":
+        return ("😊 Je vais très bien, merci ! Et je suis prêt pour l'analyse. "
+                "On peut regarder le Quinté, étudier un cheval, comparer deux partants "
+                "ou préparer une sélection. **Qu'est-ce qui vous intéresse ?**")
+
+    if intention == "remerciement":
+        return ("Avec plaisir ! 👍 On continue quand vous voulez. "
+                "On peut maintenant approfondir la course, un cheval ou le ticket.")
+
+    if intention == "aide":
+        return ("🏇 **Je suis votre assistant turf AZ Turf Pro.**\n\n"
+                "Je peux analyser la course et les partants, donner le favori, repérer les favoris vulnérables, "
+                "comparer des chevaux, étudier les cotes, la presse et la piste, proposer des scénarios, "
+                "préparer les tickets et revenir sur les résultats passés.\n\n"
+                "Parlez-moi simplement : **« que penses-tu du 5 ? »**, **« compare le 5 et le 7 »** "
+                "ou **« prépare-moi un Quinté »**.")
+
+    if intention == "orientation":
+        if classement:
+            top = classement[0]
+            return (f"Très bien. Pour **{nom_course}**, les données des partants sont disponibles. "
+                    f"Le classement AZ place actuellement le N°{top.get('numero')} **{top.get('nom', 'en tête')}** en première position. "
+                    "On peut partir de là ou examiner la course sous un autre angle. "
+                    "**Vous préférez : favori, risques, comparaison ou ticket ?**")
+        return "Très bien. Je suis prêt. Dès que les données de la course sont disponibles, nous pouvons commencer par le favori, les partants ou le ticket."
+
+    if intention == "au_revoir":
+        return "À bientôt ! 👋 Nous pourrons reprendre l'analyse quand vous le souhaitez."
 
     return None
 
@@ -900,26 +887,17 @@ def _reponse_secours(question: str, contexte: dict) -> str:
     tickets = moteur.get("tickets", {})
     course = (contexte or {}).get("course", {}) or {}
 
-    plan_response = _reponse_plan_local(question, contexte)
-    if plan_response:
-        return plan_response
-
-    # --- Comparaison "Ticket IA" (indépendant) vs "Ticket AZ Turf Pro" ---
+    # --- Comparaison "Expert autonome" vs "Ticket AZ Turf Pro" ---
     if "compar" in q and any(k in q for k in ["az turf", "az", "premium", "ticket ia", "l'ia", "ia et"]):
         classe_ia = _classement_ia(classement)
         ticket_ia = [str(c.get("numero")) for c in classe_ia[:5]]
         tk_tmp = _extraire_tickets(tickets)
         ticket_az = tk_tmp["selection_quinte_premium"] or tk_tmp["quinte_premium"] or tk_tmp["quinte_gratuit"]
-        if not ticket_az and classement:
-            ticket_az = [str(c.get("numero")) for c in classement[:5]]
-            az_label = "classement AZ (proxy, aucun ticket généré disponible)"
-        else:
-            az_label = "ticket AZ Turf Pro"
         return (
-            "⚔️ **Comparaison Ticket IA (indépendant) / Ticket AZ Turf Pro**\n\n"
-            f"🤖 Ticket IA : **{' - '.join(ticket_ia)}**\n"
-            f"🏆 {az_label} : **{' - '.join(ticket_az) if ticket_az else 'non disponible'}**\n\n"
-            "Les deux sélections sont calculées séparément : l'IA n'utilise jamais "
+            "⚔️ **Comparaison Expert autonome / Ticket AZ Turf Pro**\n\n"
+            f"🤖 Expert autonome : **{' - '.join(ticket_ia)}**\n"
+            f"🏆 Ticket AZ Turf Pro : **{' - '.join(ticket_az) if ticket_az else 'non disponible'}**\n\n"
+            "Les deux sélections sont calculées séparément : le moteur expert n'utilise jamais "
             "l'indice AZ, elle recalcule sa propre opinion à partir des statistiques brutes."
         )
 
@@ -960,7 +938,7 @@ def _reponse_secours(question: str, contexte: dict) -> str:
             cote = _cote(c)
             if cote >= 8:
                 implicite = 1.0 / cote
-                proba_modele = max(0.02, min(0.35, 0.02 + (c["_ia_score"] / 10.0) * 0.22))
+                proba_modele = max(0.02, min(0.35, 0.02 + (c["_expert_score"] / 10.0) * 0.22))
                 ecart = proba_modele - implicite
                 candidats.append((ecart, c, proba_modele, implicite))
         candidats.sort(key=lambda x: x[0], reverse=True)
@@ -1177,88 +1155,437 @@ def _reponse_secours(question: str, contexte: dict) -> str:
             "outsiders ou les badges AZ Turf Pro.")
 
 
-def _enrichir_contexte_local(question: str, contexte: dict) -> tuple[dict, object]:
-    """Construit un plan local et des résultats complémentaires.
-    Aucun score AZ n'est modifié ; les résultats sont uniquement ajoutés au contexte.
-    """
-    contexte = dict(contexte or {})
-    moteur = dict(contexte.get("moteur") or {})
-    classement = list(moteur.get("classement") or [])
-    plan = _planifier_demande(question, contexte) if _planifier_demande else None
-    if plan:
-        contexte["plan_chatbot"] = {
-            "intentions": plan.intentions, "chevaux": plan.chevaux,
-            "modules": plan.modules, "strategie": plan.strategie,
-            "comparaison_az": plan.comparaison_az, "demande_detaillee": plan.demande_detaillee
-        }
-        if plan.chevaux:
-            contexte["derniers_chevaux"] = plan.chevaux
-        if classement:
-            if "valeur" in plan.modules and _analyser_valeur:
-                contexte["analyse_valeur"] = _analyser_valeur(classement)
-            if "scenarios" in plan.modules and _resume_scenarios:
-                contexte["resume_scenarios"] = _resume_scenarios(classement, contexte.get("course"))
-            if "arbitre" in plan.modules and _resume_arbitre:
-                contexte["arbitrage_az_ia"] = _resume_arbitre(classement)
-    return contexte, plan
+# =====================================
+# V18 — COUCHE CONVERSATIONNELLE ROBUSTE
+# =====================================
 
+_ETAT_DIALOGUE = {"etat":"ACCUEIL","dernier_intent":None,"derniers_numeros":[],"dernier_cheval":None,"derniere_question":"","dernier_resultat":None}
+
+_VARIANTES_ACCUEIL = [
+    "👋 Bonjour ! Heureux de vous retrouver. Comment allez-vous aujourd'hui ? Sur quoi souhaitez-vous qu'on travaille ?",
+    "👋 Bonjour ! AZ Turf Pro est prêt. Comment allez-vous ? On peut regarder la course du jour, un cheval ou préparer un ticket.",
+    "Bonjour ! 🏇 Ravi de vous retrouver. Dites-moi ce que vous souhaitez étudier aujourd'hui et nous allons avancer ensemble.",
+]
+_VARIANTES_BONSOIR = [
+    "🌙 Bonsoir ! Comment allez-vous ? Je suis prêt à travailler avec vous sur les courses.",
+    "Bonsoir ! 🏇 Tout est prêt. Sur quoi souhaitez-vous qu'on travaille ce soir ?",
+]
+
+def _normaliser_conversation(texte: str) -> str:
+    import unicodedata
+    s=str(texte or '').strip().lower().replace('’', "'").replace('`', "'")
+    s=unicodedata.normalize('NFD',s)
+    s=''.join(c for c in s if unicodedata.category(c)!='Mn')
+    s=re.sub(r"[^a-z0-9\s'#-]",' ',s)
+    return re.sub(r'\s+',' ',s).strip()
+
+def _detecter_intention_robuste(question: str) -> str:
+    q=_normaliser_conversation(question)
+    familles=[
+      ('salutation',["bonjour","bjr","salut","coucou","hello","bonsoir","bonne soiree"]),
+      ('bien_etre',["ca va","comment vas tu","comment allez vous","tu vas bien","vous allez bien","comment te portes tu"]),
+      ('merci',["merci","merci beaucoup","je te remercie"]),
+      ('aide',["aide moi","que peux tu faire","tu peux faire quoi","quelles sont tes capacites","comment peux tu m aider"]),
+      ('au_revoir',["au revoir","a bientot","bonne nuit","a plus","a demain","je te laisse"]),
+      ('comparaison',["compare","comparons","face au","versus","contre","lequel est meilleur","lequel prefere"]),
+      ('favori',["favori","base","plus sur","plus fiable","coup sur"]),
+      ('ticket',["ticket","quinte","quarte","trio","couple","champ reduit","derniere minute","combinaison"]),
+      ('cotes',["cote","cotes","smart money","evolution","baisse de cote","hausse de cote"]),
+      ('outsider',["outsider","grosse cote","surprise","toque"]),
+      ('presse',["presse","journalistes","pronostics presse","presse hippique"]),
+      ('historique',["historique","archives","course precedente","course passee","souviens toi","rappelle"]),
+      ('meteo',["meteo","terrain","piste","pluie","lourd","souple","bon terrain"]),
+      ('analyse_course',["analyse la course","analyser la course","analyse du quinte","regardons le quinte","fais la selection","donne moi la selection","tes cinq","chevaux a retenir"]),
+    ]
+    for intent,mots in familles:
+        if any(m in q for m in mots): return intent
+    if re.search(r"\b(?:numero|n|cheval)\s*#?\s*\d{1,2}\b",q): return 'cheval'
+    return 'general'
+
+def _extraire_numeros_robuste(question: str) -> list:
+    nums=[int(x) for x in re.findall(r"\b(\d{1,2})\b",_normaliser_conversation(question))]
+    return list(dict.fromkeys(nums))[:10]
+
+def _mettre_a_jour_memoire_dialogue(question: str,intent: str,resultats=None):
+    global _ETAT_DIALOGUE
+    nums=_extraire_numeros_robuste(question)
+    if nums:
+        _ETAT_DIALOGUE['derniers_numeros']=nums
+        _ETAT_DIALOGUE['dernier_cheval']=nums[-1]
+    _ETAT_DIALOGUE.update({'dernier_intent':intent,'derniere_question':str(question or ''),'dernier_resultat':resultats})
+    transitions={'salutation':'ACCUEIL','bien_etre':'ACCUEIL','aide':'EXPLORATION','analyse_course':'ANALYSE','cheval':'ANALYSE','comparaison':'COMPARAISON','favori':'ANALYSE','cotes':'ANALYSE','outsider':'ANALYSE','presse':'ANALYSE','meteo':'ANALYSE','ticket':'DECISION','historique':'SUIVI','au_revoir':'ACCUEIL'}
+    _ETAT_DIALOGUE['etat']=transitions.get(intent,_ETAT_DIALOGUE.get('etat','EXPLORATION'))
+
+def _resoudre_references(question: str) -> str:
+    q=_normaliser_conversation(question); p=_ETAT_DIALOGUE.get('derniers_numeros',[]) or []
+    if not p: return question
+    if any(x in q for x in ('eux','les deux','ces deux','entre eux')) and len(p)>=2: return f"{question} [référence: chevaux {p[-2]} et {p[-1]}]"
+    if any(x in q for x in ('ce cheval','celui ci','celui-ci')): return f"{question} [référence: cheval {_ETAT_DIALOGUE.get('dernier_cheval')}]"
+    if 'le premier' in q and p: return f"{question} [référence: cheval {p[0]}]"
+    if any(x in q for x in ('le suivant','le deuxieme','deuxieme')) and len(p)>=2: return f"{question} [référence: cheval {p[1]}]"
+    return question
+
+def _reponse_conversation_naturelle(question: str,intent: str):
+    import random
+    q=_normaliser_conversation(question)
+    if intent=='salutation': return random.choice(_VARIANTES_BONSOIR if ('bonsoir' in q or 'bonne soiree' in q) else _VARIANTES_ACCUEIL)
+    if intent=='bien_etre': return "Merci de demander 😊 Je vais bien et je suis prêt à travailler avec vous. On peut regarder la course du jour, étudier un cheval, comparer deux profils ou préparer un ticket. Sur quoi voulez-vous commencer ?"
+    if intent=='merci': return random.choice(["Avec plaisir ! 👍 On continue quand vous voulez.","Avec plaisir. 🏇 Je suis prêt pour la suite.","Je vous en prie ! Dites-moi simplement ce qu'on examine ensuite."])
+    if intent=='aide': return "Je peux vous accompagner sur l'analyse disponible dans AZ Turf Pro : course, chevaux, favori, outsiders, cotes, presse, terrain, comparaison, scénarios et tickets. Vous pouvez me parler naturellement, par exemple : « analyse le 5 », « compare le 5 et le 7 » ou « donne-moi ton Quinté »."
+    if intent=='au_revoir': return random.choice(["À bientôt 👋 ! Nous reprendrons l'analyse quand vous le souhaitez.","À bientôt ! 🏇 Bonne continuation et bonne chance pour vos analyses.","Très bien, à bientôt. Je serai prêt pour la prochaine course !"])
+    if intent=='general' and len(q.split())<12: return "Bien sûr. Je vous écoute. Si vous souhaitez travailler sur la course, donnez-moi simplement votre demande, même avec vos propres mots."
+    return None
+
+def _evaluer_confiance_reponse(contexte: dict,intent: str) -> str:
+    classement=((contexte or {}).get('moteur') or {}).get('classement') or []
+    if intent in {'salutation','bien_etre','merci','aide','au_revoir'}: return 'élevée'
+    return 'élevée' if classement else 'limitée'
+
+def _construire_reponse_robuste(question: str,contexte: dict,historique=None):
+    intent=_detecter_intention_robuste(question)
+    question_resolue=_resoudre_references(question)
+    _mettre_a_jour_memoire_dialogue(question_resolue,intent)
+    naturelle=_reponse_conversation_naturelle(question_resolue,intent)
+    if naturelle is not None:
+        return {'status':'success','question':question,'reponse':naturelle,'source':'conversation_locale','intent':intent,'etat_dialogue':_ETAT_DIALOGUE['etat'],'confiance':_evaluer_confiance_reponse(contexte,intent)}
+    return None
 
 # =====================================
 # POINT D'ENTRÉE
 # =====================================
 
-def repondre_assistant_turf(question: str, contexte_analyse: dict = None, historique: list = None) -> dict:
-    contexte = contexte_analyse or {}
+# ============================================================
+# INTÉGRATION ROBUSTE V16 — PIPELINE AUTONOME RÉEL
+# ============================================================
+# Cette section est le point d'entrée effectif. Elle conserve le moteur
+# historique ci-dessus et orchestre les modules locaux sans dépendance à
+# Claude/OpenAI. Les appels externes restent disponibles dans le code
+# historique, mais ne sont jamais nécessaires au pronostic autonome.
+
+_V16_SESSIONS = {}
+
+
+def _v16_safe(fn, default, *args, **kwargs):
     try:
-        contexte, plan = _enrichir_contexte_local(question, contexte)
+        value = fn(*args, **kwargs)
+        return default if value is None else value
     except Exception:
-        plan = None
+        return default
 
+
+def _v16_enrichir(contexte, historique=None):
+    ctx = dict(contexte or {})
+    moteur = dict(ctx.get("moteur") or {})
+    chevaux = [c for c in (moteur.get("classement") or moteur.get("chevaux") or []) if isinstance(c, dict)]
+    course = dict(ctx.get("course") or {})
+
+    # Cotes : données réelles déjà présentes dans les partants.
     try:
-        system_prompt = _construire_system_prompt(contexte)
-        if plan:
-            system_prompt += ("\n\n=== PLAN D'ORCHESTRATION LOCAL ===\n"
-                              f"Intentions : {', '.join(plan.intentions)}\n"
-                              f"Chevaux concernés : {', '.join(plan.chevaux) or 'aucun'}\n"
-                              f"Modules à croiser : {', '.join(plan.modules)}\n"
-                              "Ce plan sert de guide : ne l'invente pas comme un résultat et "
-                              "n'utilise que les données réellement présentes.\n")
-            if contexte.get("analyse_valeur"):
-                system_prompt += "\n=== ANALYSE DE VALEUR ===\n" + _resume_valeur(contexte.get("moteur", {}).get("classement", []))
-            if contexte.get("resume_scenarios"):
-                system_prompt += "\n=== SCÉNARIOS ===\n" + contexte["resume_scenarios"]
-            if contexte.get("arbitrage_az_ia"):
-                system_prompt += "\n=== ARBITRAGE AZ / IA ===\n" + contexte["arbitrage_az_ia"]
-        messages = _historique_pour_ia(historique)
-
-        ordre = [AI_PROVIDER] + [p for p in ("anthropic", "openai") if p != AI_PROVIDER]
-        appels = {"anthropic": _appeler_claude, "openai": _appeler_openai}
-
-        for fournisseur in ordre:
-            appel = appels.get(fournisseur)
-            if appel is None:
-                continue
-            try:
-                texte = appel(system_prompt, messages, question)
-                return {"status": "success", "question": question, "reponse": texte, "source": fournisseur}
-            except Exception:
-                continue
+        from .cotes_history import analyser_tendances_cotes
+        ctx["tendances_cotes"] = analyser_tendances_cotes({"chevaux": chevaux})
     except Exception:
-        pass
+        ctx["tendances_cotes"] = {"status": "indisponible", "resultats": []}
 
-    # Aucune IA disponible/configurée, ou donnée de course imprévue :
-    # repli sans jamais laisser d'erreur brute remonter au client.
+    # Presse : ne fabrique aucun consensus. Elle ne travaille que sur les
+    # pronostics effectivement fournis par la source d'appel.
     try:
+        from .pronos_presse import analyser_consensus_presse
+        ctx["consensus_presse"] = analyser_consensus_presse({
+            "info_course": course,
+            "chevaux": chevaux,
+            "pronostics": course.get("pronostics_presse") or course.get("presse") or []
+        })
+    except Exception:
+        ctx["consensus_presse"] = {"status": "indisponible", "consensus": []}
+
+    # Météo/piste : même principe, données seulement si réellement présentes.
+    try:
+        from .meteo_piste import analyser_impact_terrain
+        ctx["impact_meteo"] = analyser_impact_terrain({
+            "info_course": course,
+            "meteo": course.get("meteo"),
+            "terrain": course.get("terrain") or course.get("etat_piste")
+        })
+    except Exception:
+        ctx["impact_meteo"] = {"status": "indisponible", "impact": "INCONNU"}
+
+    # Source France Galop pour le galop, best-effort et non bloquante.
+    try:
+        if "GALOP" in str(course.get("discipline", "")).upper():
+            from france_galop_source import obtenir_complement_france_galop
+            ctx["complement_france_galop"] = obtenir_complement_france_galop(
+                course.get("hippodrome", ""), course.get("discipline", "")
+            )
+    except Exception:
+        ctx["complement_france_galop"] = None
+
+    # Historique : deux modules complémentaires peuvent travailler sur le
+    # même historique sans modifier la prédiction courante.
+    if isinstance(historique, list) and historique:
+        try:
+            from .stats_backtest import calculer_stats_performance
+            ctx["performance_historique"] = calculer_stats_performance(historique)
+        except Exception:
+            ctx["performance_historique"] = {"status": "indisponible"}
+        try:
+            from .performance_expert import statistiques_expert
+            ctx["performance_expert"] = statistiques_expert(historique)
+        except Exception:
+            ctx["performance_expert"] = {"courses": 0, "indice_confiance": 0}
+
+    # Moteur expert indépendant : il reçoit le score indépendant du chatbot,
+    # jamais l'indice AZ/Premium comme entrée de son calcul.
+    try:
+        from .pronostiqueur_engine import analyser_profils_chevaux, generer_synthese
+        profils_input = []
+        for c in chevaux:
+            cc = dict(c)
+            cc["score_expert"] = round(_score_expert_independant(c) * 10.0, 2)
+            profils_input.append(cc)
+        profils = analyser_profils_chevaux(profils_input)
+        # Restaurer le score dans les profils pour les modules suivants.
+        score_map = {str(c.get("numero")): c.get("score_expert", 0) for c in profils_input}
+        for profil in profils:
+            profil["score_expert"] = score_map.get(str(profil.get("numero")), 0)
+        ctx["expert_profils"] = profils
+        ctx["expert_synthese"] = generer_synthese(profils)
+
+        from .decision_engine import analyser_chevaux, generer_ticket
+        decision = analyser_chevaux(profils)
+        ctx["expert_decision"] = decision
+        ctx["expert_ticket"] = generer_ticket(decision, "quinte")
+
+        from .analyse_cheval_engine import comparer_chevaux
+        ctx["fiches_expertes"] = comparer_chevaux(profils)
+    except Exception:
+        ctx["expert_profils"] = []
+        ctx["expert_synthese"] = {}
+        ctx["expert_decision"] = {}
+        ctx["expert_ticket"] = {}
+        ctx["fiches_expertes"] = []
+
+    # Tactique + stratégie + simulation : chaque couche est isolée.
+    selection = [p.get("numero") for p in ctx.get("expert_profils", []) if p.get("numero") is not None]
+    try:
+        from .tactique_course_engine import analyser_scenario_course, construire_strategie_quinte
+        ctx["tactique"] = analyser_scenario_course(chevaux)
+        ctx["strategie_quinte"] = construire_strategie_quinte(selection)
+    except Exception:
+        ctx["tactique"] = {}
+        ctx["strategie_quinte"] = {}
+    try:
+        from .strategie_pari_engine import construire_ticket_strategique, evaluer_risque_ticket
+        ctx["strategies"] = {}
+        for mode in ("prudent", "equilibre", "offensif"):
+            ticket = construire_ticket_strategique(selection, mode)
+            ctx["strategies"][mode] = {**ticket, "risque": evaluer_risque_ticket(ticket)}
+    except Exception:
+        ctx["strategies"] = {}
+    try:
+        from .simulation_course_engine import simuler_scenario, evaluer_robustesse_ticket
+        favori = chevaux[0] if chevaux else {}
+        outsiders = [c.get("numero") for c in chevaux if _cote(c) >= 10][:3]
+        simulation = simuler_scenario(favori.get("numero"), outsiders) if favori else {"scenarios": []}
+        ctx["simulation"] = simulation
+        ctx["robustesse"] = evaluer_robustesse_ticket(ctx.get("expert_ticket") or {}, simulation.get("scenarios", []))
+    except Exception:
+        ctx["simulation"] = {}
+        ctx["robustesse"] = {}
+
+    moteur["accompagnement"] = {
+        "cotes": ctx.get("tendances_cotes"),
+        "presse": ctx.get("consensus_presse"),
+        "meteo": ctx.get("impact_meteo"),
+        "expert": ctx.get("expert_synthese"),
+        "decision": ctx.get("expert_decision"),
+        "ticket_expert": ctx.get("expert_ticket"),
+        "fiches_expertes": ctx.get("fiches_expertes"),
+        "tactique": ctx.get("tactique"),
+        "strategie_quinte": ctx.get("strategie_quinte"),
+        "strategies": ctx.get("strategies"),
+        "simulation": ctx.get("simulation"),
+        "robustesse": ctx.get("robustesse"),
+        "performance": ctx.get("performance_historique"),
+    }
+    ctx["moteur"] = moteur
+    return ctx
+
+
+def _v16_special(question, contexte, historique):
+    q = (question or "").lower().strip()
+    moteur = contexte.get("moteur") or {}
+    classement = moteur.get("classement") or []
+    tickets = moteur.get("tickets") or {}
+
+    # Demandes spécialisées : elles utilisent les données réellement branchées.
+    if any(k in q for k in ("cote", "côte", "smart money", "argent qui rentre", "délaissé", "tendance")):
+        r = contexte.get("tendances_cotes") or {}
+        lignes = []
+        for x in r.get("resultats", []) or []:
+            if isinstance(x, dict):
+                lignes.append(f"N°{x.get('numero')} {x.get('nom')}: {x.get('cote_matin')} → {x.get('cote_direct')} ({x.get('variation_pct',0):+.2f}%) — {x.get('signal','NEUTRE')}")
+        if lignes:
+            return "📈 **Tendances de cotes**\n" + "\n".join(lignes[:12])
+        return "📈 Les données de cote sont bien branchées, mais aucune variation exploitable n'est disponible actuellement."
+
+    if any(k in q for k in ("météo", "meteo", "terrain", "piste", "sol")):
+        r = contexte.get("impact_meteo") or {}
+        return f"🌦️ **Conditions piste : {r.get('impact', 'INCONNU')}**"
+
+    if any(k in q for k in ("presse", "consensus")):
+        r = contexte.get("consensus_presse") or {}
+        if r.get("consensus"):
+            return "📰 **Consensus presse**\n" + str(r["consensus"])
+        return "📰 Aucune sélection presse réelle n'est disponible dans les données de cette course."
+
+    if any(k in q for k in ("backtest", "performance", "rentabilité", "rentabilite")):
+        return "📊 **Performance**\n" + str(contexte.get("performance_historique") or contexte.get("performance_expert") or {"status":"aucun historique fourni"})
+
+    # Pronostic indépendant explicite : score propre + décision propre.
+    if any(k in q for k in ("pronostic indépendant", "pronostic independant", "ton pronostic", "ta sélection", "ta selection", "ticket autonome", "ticket indépendant", "ticket independant")):
+        dec = contexte.get("expert_decision") or {}
+        classement_expert = dec.get("classement") or contexte.get("expert_profils") or []
+        nums = [str(c.get("numero")) for c in classement_expert if c.get("numero") is not None][:5]
+        bases = [str(c.get("numero")) for c in dec.get("bases", []) if c.get("numero") is not None]
+        outsiders = [str(c.get("numero")) for c in dec.get("outsiders", []) if c.get("numero") is not None]
+        if nums:
+            return ("🤖 **Pronostic expert autonome du chatbot**\n"
+                    f"Sélection : **{' - '.join(nums)}**\n"
+                    f"Bases : **{' - '.join(bases) if bases else 'aucune base forte'}**\n"
+                    f"Outsiders : **{' - '.join(outsiders) if outsiders else 'aucun outsider détecté'}**\n"
+                    f"Confiance du moteur : **{dec.get('confiance', 0)}%**\n"
+                    "Calcul séparé de l'indice AZ : ce classement expert est construit à partir des statistiques brutes disponibles.")
+
+    # Profils stratégiques déjà calculés par les modules.
+    if "prudent" in q and contexte.get("strategies", {}).get("prudent"):
+        return "🛡️ **Ticket prudent**\n" + str(contexte["strategies"]["prudent"])
+    if any(k in q for k in ("spéculatif", "speculatif", "gros rapport")) and contexte.get("strategies", {}).get("offensif"):
+        return "🔥 **Ticket offensif**\n" + str(contexte["strategies"]["offensif"])
+    if any(k in q for k in ("équilibré", "equilibre")) and contexte.get("strategies", {}).get("equilibre"):
+        return "⚖️ **Ticket équilibré**\n" + str(contexte["strategies"]["equilibre"])
+
+    return None
+
+
+def _repondre_assistant_turf_v17(question: str, contexte_analyse: dict = None, historique: list = None) -> dict:
+    """Point d'entrée définitif : moteur local + modules réellement branchés.
+
+    Claude/OpenAI ne sont pas nécessaires et ne sont pas appelés ici.
+    """
+    contexte = _v16_enrichir(contexte_analyse or {}, historique)
+    course = contexte.get("course") or {}
+    session_key = f"{course.get('date','')}-{course.get('reunion','')}-{course.get('course_numero','')}"
+    _V16_SESSIONS[session_key] = {"contexte": contexte, "historique": list(historique or [])[-20:]}
+
+    try:
+        conversation = _reponse_conversation_naturelle(question, contexte, historique)
+        if conversation:
+            return {"status":"success", "question":question, "reponse":conversation, "source":"conversation_locale"}
+        special = _v16_special(question, contexte, historique)
+        if special:
+            return {"status":"success", "question":question, "reponse":special, "source":"moteur_local_modules"}
         texte = _reponse_secours(question, contexte)
-        if plan and not texte.startswith("Je n'ai pas identifié"):
-            # Les réponses historiques restent prioritaires ; les compléments
-            # calculés localement sont ajoutés uniquement lorsqu'ils répondent à la demande.
-            pass
-        elif plan:
-            modules = ", ".join(plan.modules)
-            texte = (f"Je peux traiter cette demande à partir de la course courante. "
-                     f"Je vais croiser : {modules}.\n\n" + texte)
     except Exception:
-        texte = ("Je rencontre une difficulté technique passagère. "
-                 "Réessayez dans un instant.")
-    return {"status": "success", "question": question, "reponse": texte, "source": "secours"}
+        texte = "Les données sont disponibles, mais je n'ai pas pu finaliser cette réponse locale."
+    return {"status":"success", "question":question, "reponse":texte, "source":"moteur_local_autonome"}
+
+
+# =====================================
+# V18 — POINT D'ENTRÉE FINAL ROBUSTE
+# =====================================
+
+def repondre_assistant_turf(question: str, contexte_analyse: dict = None, historique: list = None) -> dict:
+    """Entrée publique locale : conversation d'abord, moteur turf ensuite."""
+    question=str(question or '').strip(); contexte=contexte_analyse or {}
+    if not question:
+        return {'status':'success','question':'','reponse':'Je suis prêt. 🏇 Dites-moi ce que vous souhaitez analyser et nous allons commencer.','source':'conversation_locale','intent':'general','etat_dialogue':_ETAT_DIALOGUE.get('etat','ACCUEIL'),'confiance':'élevée'}
+    try:
+        r=_construire_reponse_robuste(question,contexte,historique)
+        if r is not None: return r
+    except Exception as exc:
+        print(f'[CHATBOT V18] couche conversationnelle: {type(exc).__name__}: {exc}')
+    resultat=_repondre_assistant_turf_v17(question,contexte_analyse=contexte_analyse,historique=historique)
+    if not isinstance(resultat,dict): resultat={'status':'success','question':question,'reponse':str(resultat),'source':'moteur_az_autonome'}
+    resultat.setdefault('intent',_ETAT_DIALOGUE.get('dernier_intent'))
+    resultat.setdefault('etat_dialogue',_ETAT_DIALOGUE.get('etat','EXPLORATION'))
+    resultat.setdefault('confiance',_evaluer_confiance_reponse(contexte,_ETAT_DIALOGUE.get('dernier_intent') or 'general'))
+    resultat.setdefault('source','moteur_az_autonome')
+    return resultat
+
+def diagnostic_conversation_v18() -> dict:
+    return {'version':'V18','mode':'autonome','claude':False,'openai':False,'etat':dict(_ETAT_DIALOGUE)}
+
+# ============================================================
+# ORCHESTRATEUR LARGE V19
+# ============================================================
+# Couche additive : compréhension par familles sémantiques, résolution du
+# contexte et réponses spécialisées. Elle est placée devant les anciens
+# replis afin de conserver la compatibilité sans dépendre de mots-clés exacts.
+try:
+    from .orchestrateur_turf import repondre as _orchestrateur_large_repondre
+except Exception:
+    _orchestrateur_large_repondre = None
+
+_ancienne_repondre_assistant_turf = repondre_assistant_turf
+
+
+def _v19_enrichir(contexte, question, historique):
+    base = _v16_enrichir(contexte, historique)
+    try:
+        from .orchestrateur_turf import enrichir_modules_accompagnement
+        return enrichir_modules_accompagnement(base, question, historique)
+    except Exception as exc:
+        print(f"[CHATBOT V19] enrichissement accompagnement: {type(exc).__name__}: {exc}")
+        return base
+
+
+def _v20_route(question, contexte, historique):
+    """Couche V20 : compréhension large et réponses spécialisées avant les replis historiques."""
+    try:
+        from .orchestrateur_v20 import respond, plan
+        result = respond(question, contexte, historique)
+        if result:
+            result.setdefault("plan", plan(question, historique))
+            return result
+    except Exception as exc:
+        print(f"[CHATBOT V20] routeur: {type(exc).__name__}: {exc}")
+    return None
+
+
+def repondre_assistant_turf(question: str, contexte_analyse: dict = None, historique: list = None) -> dict:
+    question = str(question or '').strip()
+    contexte = contexte_analyse or {}
+    historique = historique or []
+    if not question:
+        return {'status':'success','question':'','reponse':'Je suis prêt. 🏇 Dites-moi ce que vous souhaitez examiner.','source':'conversation_locale','intent':'general','etat_dialogue':_ETAT_DIALOGUE.get('etat','ACCUEIL'),'confiance':'élevée'}
+
+    try:
+        # Enrichissement unique avant orchestration : les modules locaux restent
+        # la source des données et l'analyse autonome reste indépendante d'AZ.
+        contexte_enrichi = _v19_enrichir(contexte, question, historique)
+        resultat_v20 = _v20_route(question, contexte_enrichi, historique)
+        if resultat_v20:
+            resultat_v20.setdefault("question", question)
+            return resultat_v20
+        if _orchestrateur_large_repondre:
+            resultat = _orchestrateur_large_repondre(question, contexte_enrichi, historique)
+            if resultat:
+                resultat.setdefault('question', question)
+                resultat.setdefault('confiance', _evaluer_confiance_reponse(contexte_enrichi, resultat.get('intent','general')))
+                return resultat
+        # Compatibilité : ancien moteur si l'orchestrateur ne couvre pas la demande.
+        resultat = _ancienne_repondre_assistant_turf(question, contexte_analyse=contexte_enrichi, historique=historique)
+        if isinstance(resultat, dict):
+            return resultat
+        return {'status':'success','question':question,'reponse':str(resultat),'source':'moteur_az_autonome'}
+    except Exception as exc:
+        # Ne jamais exposer une exception brute à l'utilisateur. Le moteur
+        # historique reste le dernier filet de sécurité.
+        print(f'[CHATBOT V19] orchestration: {type(exc).__name__}: {exc}')
+        try:
+            resultat = _ancienne_repondre_assistant_turf(question, contexte_analyse=contexte, historique=historique)
+            if isinstance(resultat, dict):
+                return resultat
+        except Exception:
+            pass
+        return {'status':'success','question':question,'reponse':'Je peux traiter cette demande dès que les données de la course nécessaires sont disponibles.','source':'moteur_local','intent':'general','confiance':'limitée'}

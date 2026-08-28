@@ -1,28 +1,65 @@
-"""Analyse robuste des mouvements de cotes disponibles."""
-from __future__ import annotations
-
-
-def _float(v, default=0.0):
-    try:
-        if isinstance(v, str): v=v.replace(',', '.')
-        return float(v)
-    except (TypeError, ValueError): return default
-
+"""
+AZ TURF PRO - MODULE TENDANCES DE COTES
+Fichier : backend/modules/cotes_history.py
+"""
 
 def analyser_tendances_cotes(data: dict) -> dict:
-    if not isinstance(data, dict) or not isinstance(data.get("chevaux"), list):
-        return {"status":"error","message":"Données de course manquantes ou invalides","resultats":[]}
-    resultats=[]
-    for cheval in data["chevaux"]:
-        if not isinstance(cheval, dict) or cheval.get("numero") is None: continue
-        matin=_float(cheval.get("cote_matin_brute", cheval.get("cote_matin", 0)))
-        direct=_float(cheval.get("cote_brute", cheval.get("cote", 0)))
-        variation=0.0; tendance="NON_DOCUMENTE"; signal="NON_DOCUMENTE"
-        if matin>0 and direct>0:
-            variation=round((direct-matin)/matin*100,2)
-            if variation<=-20: tendance,signal="FORTE_BAISSE","SMART_MONEY"
-            elif variation<=-5: tendance,signal="BAISSE","SOUTENU"
-            elif variation>=20: tendance,signal="HAUSSE","DELAISSE"
-            else: tendance,signal="STABLE","NEUTRE"
-        resultats.append({"numero":cheval.get("numero"),"nom":cheval.get("nom","Inconnu"),"cote_matin":matin or None,"cote_direct":direct or None,"variation_pct":variation,"tendance":tendance,"signal":signal})
-    return {"status":"success","total_analyses":len(resultats),"resultats":resultats}
+    """
+    Analyse la variation entre la cote matinale et la cote en direct
+    pour identifier les chevaux joués (Smart Money) et les délaissés.
+    """
+    if not data or "chevaux" not in data:
+        return {
+            "status": "error",
+            "message": "Données de course manquantes ou invalides",
+            "resultats": []
+        }
+
+    chevaux = data.get("chevaux", [])
+    resultats = []
+
+    for cheval in chevaux:
+        nom = cheval.get("nom", "Inconnu")
+        numero = cheval.get("numero", "?")
+        try:
+            cote_matin = float(cheval.get("cote_matin_brute", 0) or 0)
+        except (TypeError, ValueError):
+            cote_matin = 0.0
+        try:
+            cote_direct = float(cheval.get("cote_brute", 0) or 0)
+        except (TypeError, ValueError):
+            cote_direct = 0.0
+
+        variation = 0.0
+        tendance = "STABLE"
+        signal = "NEUTRE"
+
+        if cote_matin > 0 and cote_direct > 0:
+            # Calcul de la baisse/hausse en pourcentage
+            variation = round(((cote_direct - cote_matin) / cote_matin) * 100, 2)
+
+            if variation <= -20.0:
+                tendance = "FORTE_BAISSE"
+                signal = "SMART_MONEY 🔥"  # Gros volume d'argent sur ce cheval
+            elif variation <= -5.0:
+                tendance = "BAISSE"
+                signal = "SOUTENU 📈"
+            elif variation >= 20.0:
+                tendance = "HAUSSE"
+                signal = "DELAISSE 📉"
+
+        resultats.append({
+            "numero": numero,
+            "nom": nom,
+            "cote_matin": cote_matin,
+            "cote_direct": cote_direct,
+            "variation_pct": variation,
+            "tendance": tendance,
+            "signal": signal
+        })
+
+    return {
+        "status": "success",
+        "total_analyses": len(resultats),
+        "resultats": resultats
+    }
