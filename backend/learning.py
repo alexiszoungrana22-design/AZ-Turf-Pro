@@ -36,9 +36,9 @@ def _charger_historique():
 
 
 def _sauvegarder_historique(historique):
-    os.makedirs(DATA_DIR, exist_ok=True)
+    os.makedirs(HISTORIQUE_DATA_DIR, exist_ok=True)
     fd, fichier_temp = tempfile.mkstemp(
-        prefix="historique_az_", suffix=".tmp", dir=DATA_DIR, text=True
+        prefix="historique_az_", suffix=".tmp", dir=HISTORIQUE_DATA_DIR, text=True
     )
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
