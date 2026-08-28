@@ -7,13 +7,24 @@ def _num(x):
     except Exception: return None
 
 def _score(c):
-    for key in ("confiance", "score_ia", "score", "indice_ia", "indice_premium", "indice_az"):
-        v = c.get(key)
-        try:
-            return float(v)
-        except Exception:
-            pass
-    return None
+    """Score propre: aucune dépendance à indice_az/indice_premium.
+    Utilise uniquement des variables brutes ou dérivées du partant."""
+    def num(v):
+        try: return float(v)
+        except Exception: return None
+    vals=[]
+    for key in ("forme", "regularite"):
+        v=num(c.get(key))
+        if v is not None: vals.append(v)
+    r=c.get("radar") if isinstance(c.get("radar"), dict) else {}
+    for key in ("distance","jockey","classe","fraicheur"):
+        v=num(r.get(key))
+        if v is not None: vals.append(v/10 if v>10 else v)
+    cote=num(c.get("cote"))
+    if cote is not None and cote>0:
+        import math
+        vals.append(max(0.0,min(10.0,10.0/(1+math.log(max(cote,1))))))
+    return round(sum(vals)/len(vals),2) if vals else None
 
 def analyze_independently(contexte: dict, limit: int = 20) -> dict:
     moteur = (contexte or {}).get("moteur", {}) or {}

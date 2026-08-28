@@ -35,50 +35,86 @@ FAMILLES = {
 }
 
 
+def _tokens_semantiques(q: str):
+    return set(normaliser(q).split())
+
+
 def detecter_intention_large(question: str, historique: list | None = None) -> str:
+    """Compréhension large locale : intentions, formulations et contexte.
+    Ce n'est pas une liste de commandes : les expressions sont regroupées par
+    concepts et peuvent se combiner. Aucun LLM externe n'est requis."""
     q = normaliser(question)
     if not q:
         return "vide"
-    if re.search(r"\b(bonjour|salut|hello|bonsoir|coucou|bjr)\b", q) and len(q.split()) <= 8:
+    nums = extraire_numeros(question, historique)
+    # Petites conversations
+    if re.search(r"\b(bonjour|salut|hello|bonsoir|coucou|bjr)\b", q) and len(q.split()) <= 10:
         return "salutation"
-    if any(x in q for x in ("merci", "je te remercie", "super")) and len(q.split()) <= 8:
+    if any(x in q for x in ("merci", "je te remercie", "super merci")) and len(q.split()) <= 10:
         return "merci"
-
-    scores = {}
-    for intent, vocab in FAMILLES.items():
-        words = set(vocab.split())
-        tokens = set(q.split())
-        score = len(words & tokens)
-        # Bonus sur expressions caractéristiques.
-        for expr in vocab.split():
-            if len(expr) >= 7 and expr in q:
-                score += 1
-        scores[intent] = score
-
-    # Priorités explicites : certaines demandes contiennent plusieurs thèmes.
-    if "badge" in q or "pastille" in q or "pictogramme" in q or "icone" in q or "signifie" in q:
+    # Concepts à forte priorité, même avec une formulation inhabituelle.
+    if any(x in q for x in ("badge", "badges", "pastille", "pictogramme", "icone", "symbole", "couleur du cheval", "etiquette")) and any(x in q for x in ("explique", "signifie", "veut dire", "correspond", "pourquoi", "c est quoi", "quoi", "signification")):
         return "badges"
-    if ("compare" in q or "compar" in q or "versus" in q or "contre" in q or "comparer" in q) and "ticket" in q:
-        return "comparaison_tickets"
-    if ("compare" in q or "compar" in q or "versus" in q or "contre" in q or "meilleur" in q or "mieux" in q or "difference" in q) and len(nums := extraire_numeros(question, historique)) >= 2:
-        return "comparaison_chevaux"
-    if any(x in q for x in ("ton pronostic", "ta selection", "ton ticket", "independamment", "independant", "sans az")):
+    if any(x in q for x in ("compare", "comparons", "confronte", "opposer", "face a", "versus", "contre", "difference entre", "entre le", "entre la", "lequel", "laquelle")):
+        if any(x in q for x in ("ticket", "selection", "combinaison", "jeu")) and any(x in q for x in ("az", "ia", "autonome", "premium", "propre")):
+            return "comparaison_tickets"
+        if len(nums) >= 2 or any(x in q for x in ("deux chevaux", "deux partants", "les deux")):
+            return "comparaison_chevaux"
+        return "comparaison"
+    if any(x in q for x in ("sans az", "independamment d az", "independant d az", "ton propre", "ta propre", "ton pronostic", "ta selection", "ton ticket", "moteur autonome", "avis autonome")):
         return "analyse_independante"
-    if "premium" in q and any(x in q for x in ("que", "quoi", "difference", "apporte", "fonctionne", "faire")):
+    if any(x in q for x in ("premium", "abonnement", "version payante")) and any(x in q for x in ("quoi", "que", "apporte", "difference", "fonction", "capacite", "compris")):
         return "premium"
-    if scores.get("actualite", 0) and not scores.get("analyse", 0):
-        return "actualite"
-    if any(x in q for x in ("qui a une chance", "qui a vraiment une chance", "qui peut gagner", "qui peut finir", "qui retenir", "qui retenirais", "qui retiendrais", "le plus interessant", "plus interessant", "meilleur aujourd hui")):
+    if any(x in q for x in ("ticket", "selection", "quinte", "quarte", "trio", "prudent", "equilibre", "offensif", "deux outsiders", "moins de risque")):
+        return "ticket"
+    # Intentions factuelles
+    groups = {
+        "actualite": ("actualite", "news", "nouvelles", "derniere minute", "info du jour", "quoi de neuf", "nouveautes"),
+        "cotes": ("cote", "cotes", "marche", "argent", "mouvement", "baisse", "hausse", "value", "sous cote"),
+        "meteo": ("meteo", "pluie", "vent", "terrain", "piste", "sol", "lourd", "souple", "sec"),
+        "presse": ("presse", "journalistes", "media", "consensus", "pronostics presse"),
+        "scenario": ("scenario", "rythme", "train", "tactique", "anime", "meneur", "attentiste", "parcours"),
+        "historique": ("historique", "hier", "avant hier", "course precedente", "resultat passe", "arrivee passee", "archive", "souviens"),
+        "ticket": ("ticket", "selection", "combinaison", "quinte", "quarte", "trio", "jeu", "mise", "pari"),
+        "cheval": ("cheval", "partant", "concurrent", "profil", "musique", "jockey", "driver", "entraineur"),
+        "analyse": ("analyse", "avis", "pense", "interessant", "chance", "favori", "base", "retenir", "gagnant", "solide", "fiable", "qui peut gagner"),
+    }
+    scores={k:sum(2 if phrase in q else 1 for phrase in vals if phrase in q) for k,vals in groups.items()}
+    # Les demandes ciblées sur un numéro héritent du contexte précédent.
+    if nums and not any(v for k,v in scores.items() if k in ("ticket","actualite","historique") and v):
+        if any(x in q for x in ("pourquoi", "avis", "penses", "interessant", "forme", "profil", "retenir")):
+            return "cheval"
+    if scores.get("analyse",0) and any(x in q for x in ("si la piste", "avec la meteo", "avec la cote", "tenir compte", "en tenant compte")):
         return "analyse"
-    best = max(scores, key=scores.get)
+    best=max(scores,key=scores.get)
     if scores[best] > 0:
         return best
-
-    # Les questions très courtes sur un numéro deviennent une demande cheval.
-    if re.search(r"\b(?:le|la|du|sur|avec|pour|numero|n)\s*\d{1,2}\b", q):
+    if nums:
         return "cheval"
     return "general"
 
+
+def planifier_demande(question: str, contexte: dict, historique: list | None = None) -> dict:
+    """Produit un plan d'exécution exploitable par l'orchestrateur.
+    Une demande peut appeler plusieurs domaines sans que l'utilisateur connaisse
+    les noms internes des modules."""
+    q=normaliser(question)
+    nums=extraire_numeros(question,historique)
+    intent=detecter_intention_large(question,historique)
+    modules=[]
+    def add(*names):
+        for n in names:
+            if n not in modules: modules.append(n)
+    if any(x in q for x in ("cote","cotes","marche","argent","value","mouvement","sous cote")): add("cotes")
+    if any(x in q for x in ("presse","journalistes","media","consensus")): add("presse")
+    if any(x in q for x in ("meteo","pluie","vent","terrain","piste","sol","lourd","souple")): add("meteo_piste")
+    if any(x in q for x in ("scenario","rythme","train","tactique","anime","meneur","attentiste")): add("tactique","simulation")
+    if any(x in q for x in ("historique","hier","precedente","resultat passe","archive","souviens")): add("historique","performance")
+    if any(x in q for x in ("actualite","news","nouvelles","derniere minute","info du jour")): add("actualites")
+    if intent in ("analyse","analyse_independante","cheval","comparaison","comparaison_chevaux") or any(x in q for x in ("qui a une chance","qui peut gagner","favori","plus interessant","interessant","base")): add("analyse_cheval","expert","decision")
+    if intent in ("ticket","comparaison_tickets") or any(x in q for x in ("ticket","selection","quinte","prudent","equilibre","offensif","outsider","deux outsiders")): add("strategie","tickets","simulation")
+    if intent=="analyse_independante": add("raisonnement_autonome")
+    return {"intent":intent,"numeros":nums,"modules":modules,"multi_module":len(modules)>1}
 
 def extraire_numeros(question: str, historique: list | None = None) -> list[int]:
     q = normaliser(question)
@@ -314,64 +350,61 @@ def repondre(question: str, contexte: dict, historique: list | None = None) -> d
 
 # --- Enrichissement additionnel : modules d'accompagnement historiques ---
 def enrichir_modules_accompagnement(contexte: dict, question: str, historique: list | None = None) -> dict:
+    """Orchestre réellement les modules disponibles selon le plan de demande.
+    Chaque module est isolé : une panne d'une source ne bloque pas le chatbot."""
     ctx = dict(contexte or {})
-    question_n = normaliser(question)
-    # Connaissance turf : uniquement pour les demandes lexicales/explicatives.
-    if any(x in question_n for x in ("definition", "signifie", "veut dire", "c est quoi", "qu est ce que")):
+    moteur = dict(ctx.get("moteur") or {})
+    chevaux = [c for c in (moteur.get("classement") or moteur.get("chevaux") or []) if isinstance(c, dict)]
+    course = dict(ctx.get("course") or {})
+    plan = planifier_demande(question, ctx, historique)
+    ctx["plan_chatbot"] = plan
+    def safe(key, fn, default=None):
+        try: ctx[key] = fn()
+        except Exception as exc:
+            ctx[key] = default
+            ctx.setdefault("diagnostic_modules", {})[key] = type(exc).__name__
+    # Données transversales : elles deviennent disponibles à tous les intents.
+    safe("tendances_cotes", lambda: __import__("modules.cotes_history", fromlist=["analyser_tendances_cotes"]).analyser_tendances_cotes({"chevaux": chevaux}), {"status":"indisponible","resultats":[]})
+    safe("consensus_presse", lambda: __import__("modules.pronos_presse", fromlist=["analyser_consensus_presse"]).analyser_consensus_presse({"info_course":course,"chevaux":chevaux,"pronostics":course.get("pronostics_presse") or course.get("presse") or []}), {"status":"indisponible","consensus":[]})
+    safe("impact_meteo", lambda: __import__("modules.meteo_piste", fromlist=["analyser_impact_terrain"]).analyser_impact_terrain({"info_course":course,"meteo":course.get("meteo"),"terrain":course.get("terrain") or course.get("etat_piste")}), {"status":"indisponible","impact":"INCONNU"})
+    safe("expert_accompagnement", lambda: __import__("modules.expert_turf", fromlist=["analyser_question_expert"]).analyser_question_expert(question,ctx), None)
+    safe("expert_marche", lambda: __import__("modules.expert_turf", fromlist=["analyser_marche"]).analyser_marche(ctx), None)
+    safe("expert_performance", lambda: __import__("modules.expert_turf", fromlist=["analyser_performance"]).analyser_performance(ctx), None)
+    safe("expert_conditions", lambda: __import__("modules.expert_turf", fromlist=["analyser_conditions"]).analyser_conditions(ctx), None)
+    safe("expert_valeur", lambda: __import__("modules.expert_turf", fromlist=["analyser_valeur"]).analyser_valeur(ctx), None)
+    safe("profils_chevaux", lambda: __import__("modules.pronostiqueur_engine", fromlist=["analyser_profils_chevaux"]).analyser_profils_chevaux(chevaux), [])
+    profils=ctx.get("profils_chevaux") or []
+    safe("synthese_pronostiqueur", lambda: __import__("modules.pronostiqueur_engine", fromlist=["generer_synthese"]).generer_synthese(profils), None)
+    safe("tactique", lambda: __import__("modules.tactique_course_engine", fromlist=["analyser_scenario_course"]).analyser_scenario_course(chevaux), None)
+    safe("rythme_course", lambda: __import__("modules.tactique_course_engine", fromlist=["analyser_rythme_course"]).analyser_rythme_course(chevaux), None)
+    # Raisonnement autonome : calcul indépendant des indices AZ/Premium.
+    safe("raisonnement_autonome", lambda: __import__("modules.autonomous_reasoning", fromlist=["analyze_independently"]).analyze_independently(ctx), {"independent":True,"horses":[]})
+    try:
+        from .autonomous_reasoning import make_tickets, compare_to_az
+        ctx["tickets_autonomes"] = make_tickets(ctx["raisonnement_autonome"])
+        ctx["comparaison_autonome_az"] = compare_to_az(ctx["raisonnement_autonome"],ctx)
+    except Exception: ctx["tickets_autonomes"]={}
+    # Modules de tickets/risque si un ticket est demandé ou si une comparaison est demandée.
+    if plan["intent"] in ("ticket","comparaison_tickets","analyse_independante") or "ticket" in plan["modules"]:
+        try:
+            from .strategie_pari_engine import definir_profil_parieur, construire_ticket_strategique, evaluer_risque_ticket
+            selection=[h.get("numero") for h in (ctx.get("raisonnement_autonome",{}).get("horses") or [])[:7] if h.get("numero") is not None]
+            ctx["strategies"]={}
+            for mode in ("prudent","equilibre","offensif"):
+                tk=construire_ticket_strategique(selection,mode)
+                ctx["strategies"][mode]={"ticket":tk,"risque":evaluer_risque_ticket(tk)}
+        except Exception: ctx["strategies"]={}
+    # Connaissance et actualités : formulation libre, pas seulement "définition".
+    if plan["intent"] in ("general","badges","premium") or any(x in normaliser(question) for x in ("signifie","veut dire","explique","comment marche")):
         try:
             from .knowledge_turf import expliquer_terme
-            termes = [t for t in question_n.split() if len(t) >= 4]
-            trouve = None
-            for terme in reversed(termes):
-                trouve = expliquer_terme(terme)
-                if trouve:
-                    break
-            ctx["connaissance_turf"] = trouve
-        except Exception:
-            ctx["connaissance_turf"] = None
-    # Actualités locales déjà présentes dans le projet, sans appel réseau bloquant.
-    if any(x in question_n for x in ("actualite", "news", "nouvelles", "derniere minute")):
-        try:
-            from .news_turf import resumer_actualite
-            ctx["actualites"] = resumer_actualite()
-        except Exception:
-            ctx["actualites"] = []
-    # Couche expert descriptive, additive et non décisionnelle.
-    try:
-        from .expert_turf import analyser_question_expert
-        ctx["expert_accompagnement"] = analyser_question_expert(question, ctx)
-    except Exception:
-        ctx["expert_accompagnement"] = None
-    # Score expert V2 : indicateur complémentaire, distinct du score autonome.
-    try:
-        from .score_expert_v2 import score_expert
-        classement = ((ctx.get("moteur") or {}).get("classement") or [])
-        ctx["score_expert_v2"] = {
-            str(c.get("numero")): score_expert(
-                az=float(c.get("indice_az") or 0),
-                forme=float(c.get("forme") or 0),
-                marche=0,
-                terrain=0,
-                jockey=float(c.get("reussite_jockey") or 0),
-                presse=0,
-            ) for c in classement if isinstance(c, dict) and c.get("numero") is not None
-        }
-    except Exception:
-        ctx["score_expert_v2"] = {}
-    # Mémoire et apprentissage : exploitent seulement l'historique fourni à la requête.
+            for terme in reversed(normaliser(question).split()):
+                if len(terme)>=4 and (res:=expliquer_terme(terme)):
+                    ctx["connaissance_turf"]=res; break
+        except Exception: pass
+    if plan["intent"]=="actualite" or any(x in normaliser(question) for x in ("actualite","news","nouvelles")):
+        safe("actualites", lambda: __import__("modules.news_turf", fromlist=["resumer_actualite"]).resumer_actualite(), [])
     if historique:
-        try:
-            from .chatbot_memory import generer_contexte_memoire_recent
-            ctx["memoire_recent"] = generer_contexte_memoire_recent()
-        except Exception:
-            ctx["memoire_recent"] = ""
-        try:
-            from .learning_turf import calculer_indice_confiance
-            resultats = []
-            for e in historique:
-                if isinstance(e, dict) and isinstance(e.get("resultat"), (int, float)):
-                    resultats.append(float(e["resultat"]))
-            ctx["indice_confiance_apprentissage"] = calculer_indice_confiance(resultats) if resultats else 0
-        except Exception:
-            ctx["indice_confiance_apprentissage"] = 0
+        safe("memoire_recent", lambda: __import__("modules.chatbot_memory", fromlist=["generer_contexte_memoire_recent"]).generer_contexte_memoire_recent(), "")
     return ctx
+
