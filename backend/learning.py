@@ -230,6 +230,39 @@ def mettre_a_jour_arrivee(index_entree, arrivee):
     return True
 
 
+def synchroniser_arrivees_pmu():
+    """Synchronise les arrivées PMU disponibles avec les pronostics enregistrés."""
+    historique = _charger_historique()
+    try:
+        from pmu_source import recuperer_arrivee_pmu
+    except Exception:
+        return {"modifie": False, "courses_verifiees": 0, "arrivees_recuperees": 0}
+    modifie = False; verifiees = 0; recuperees = 0
+    for entree in historique:
+        if not isinstance(entree, dict) or entree.get("arrivee"):
+            continue
+        course = entree.get("course") or {}
+        date = course.get("date") or entree.get("date")
+        reunion = course.get("reunion") or entree.get("reunion")
+        numero = course.get("course_numero") or entree.get("course_numero")
+        if not (date and reunion and numero):
+            continue
+        verifiees += 1
+        try:
+            arrivee = recuperer_arrivee_pmu(date, reunion, numero)
+        except Exception:
+            continue
+        if not arrivee:
+            continue
+        entree["arrivee"] = [_numero_arrivee(x) for x in arrivee if _numero_arrivee(x)][:5]
+        entree["evaluation"] = evaluer_prediction(entree)
+        entree["heure_arrivee"] = datetime.now().isoformat(timespec="seconds")
+        modifie = True; recuperees += 1
+    if modifie:
+        _sauvegarder_historique(historique)
+    return {"modifie": modifie, "courses_verifiees": verifiees, "arrivees_recuperees": recuperees}
+
+
 def mettre_a_jour_publications():
     historique = _charger_historique()
     maintenant = datetime.now()
