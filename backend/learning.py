@@ -518,10 +518,16 @@ def calculer_performance_30_courses(historique=None):
     ]
     terminees = terminees[-30:]
     if not terminees:
+        en_attente = sum(1 for e in historique if isinstance(e, dict) and not e.get("arrivee"))
         return {
             "courses_demandees": 30, "courses_disponibles": 0,
+            "courses_en_attente": en_attente,
             "rapport_complet": False, "performance": {},
-            "message": "Aucune course terminée disponible."
+            "message": (
+                "Aucune course terminée disponible. "
+                f"{en_attente} pronostic(s) en attente d'arrivée officielle."
+                if en_attente else "Aucune course terminée disponible."
+            )
         }
 
     performance = calculer_performance_historique(terminees)
@@ -576,3 +582,32 @@ def diagnostic_apprentissage(historique=None):
         "regle_securite": "aucun ajustement avant 10 courses terminées et 80 observations cheval",
     }
 
+
+
+def diagnostic_historique():
+    """Etat du pipeline de mémoire sans inventer de résultats."""
+    historique = _charger_historique()
+    enregistrees = terminees = en_attente = synchronisables = sans_identifiant = 0
+    for entree in historique:
+        if not isinstance(entree, dict):
+            continue
+        enregistrees += 1
+        if entree.get("arrivee"):
+            terminees += 1
+            continue
+        en_attente += 1
+        course = entree.get("course") or {}
+        date = course.get("date") or entree.get("date")
+        reunion = course.get("reunion") or entree.get("reunion")
+        numero = course.get("course_numero") or entree.get("course_numero")
+        if date and reunion and numero:
+            synchronisables += 1
+        else:
+            sans_identifiant += 1
+    return {
+        "pronostics_enregistres": enregistrees,
+        "courses_terminees": terminees,
+        "courses_en_attente": en_attente,
+        "entrees_synchronisables": synchronisables,
+        "entrees_sans_identifiant_pmu": sans_identifiant,
+    }

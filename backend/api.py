@@ -49,7 +49,7 @@ from pmu_source import charger_course_pmu
 
 from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
 
-from learning import lire_historique, mettre_a_jour_arrivee, calculer_performance_30_courses, synchroniser_arrivees_pmu, calculer_performance_historique
+from learning import lire_historique, mettre_a_jour_arrivee, calculer_performance_30_courses, synchroniser_arrivees_pmu, calculer_performance_historique, diagnostic_historique
 from security import create_premium_token, verify_premium_token
 from modules.chatbot_turf import repondre_assistant_turf
 
@@ -845,6 +845,14 @@ def performance_historique():
         return {"status": "success", "performance": calculer_performance_historique()}
     except Exception as erreur:
         raise HTTPException(status_code=500, detail=f"Erreur performance historique : {erreur}")
+
+
+@router.get("/historique/diagnostic")
+def diagnostic_historique_route():
+    try:
+        return {"status": "success", **diagnostic_historique()}
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur diagnostic historique : {erreur}")
 
 
 @router.get("/performance/30-courses")
