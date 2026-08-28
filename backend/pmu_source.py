@@ -549,18 +549,6 @@ def transformer_course(course, participants):
         or ""
     )
 
-    # Identifiant PMU : le schéma PMU peut varier selon le client/version.
-    # On conserve aussi une clé déterministe de secours basée sur date/R/C.
-    pmu_id = (
-        course.get("id")
-        or course.get("idCourse")
-        or course.get("identifiant")
-        or course.get("identifiantCourse")
-        or course.get("courseId")
-        or course.get("numCourseId")
-    )
-    cle_pmu = f"{date_course}|{reunion}|{course_numero}" if (date_course and reunion and course_numero) else ""
-
     return {
         "course": course.get(
             "libelle",
@@ -569,9 +557,6 @@ def transformer_course(course, participants):
         "date": date_course,
         "reunion": reunion,
         "course_numero": course_numero,
-        "pmu_id": str(pmu_id).strip() if pmu_id not in (None, "") else "",
-        "identifiant_pmu": str(pmu_id).strip() if pmu_id not in (None, "") else "",
-        "cle_pmu": cle_pmu,
         "heure_depart": heure_depart,
         "horaires": {"depart": heure_depart, "arret_des_jeux": ""},
         "hippodrome": obtenir_hippodrome(course),
@@ -591,6 +576,9 @@ def transformer_course(course, participants):
         "plus_joues": [],
         "source_plus_joues": "non disponible via API PMU",
         "source": "pmu_live",
+        # Identifiants PMU conservés pour le rapprochement historique.
+        "pmu_id": (course.get("id") or course.get("idCourse") or course.get("courseId") or course.get("identifiant") or ""),
+        "identifiant_pmu": (course.get("id") or course.get("idCourse") or course.get("courseId") or course.get("identifiant") or ""),
     }
 
 

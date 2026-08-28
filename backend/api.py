@@ -194,9 +194,6 @@ def partants():
                 "date": course.get("date"),
                 "reunion": course.get("reunion"),
                 "course_numero": course.get("course_numero"),
-                "pmu_id": course.get("pmu_id", ""),
-                "identifiant_pmu": course.get("identifiant_pmu", ""),
-                "cle_pmu": course.get("cle_pmu", ""),
                 "course": course.get("course", ""),
                 "hippodrome": course.get("hippodrome", ""),
                 "discipline": course.get("discipline", ""),
@@ -359,9 +356,6 @@ def analyse():
                 "date": course.get("date"),
                 "reunion": course.get("reunion"),
                 "course_numero": course.get("course_numero"),
-                "pmu_id": course.get("pmu_id", ""),
-                "identifiant_pmu": course.get("identifiant_pmu", ""),
-                "cle_pmu": course.get("cle_pmu", ""),
                 "course": course.get("course", ""),
                 "hippodrome": course.get("hippodrome"),
                 "discipline": course.get("discipline", ""),
@@ -828,63 +822,6 @@ def debug_journal():
 # disque persistant, ce fichier peut etre remis a zero a chaque
 # redeploiement - l'historique ne survit alors pas dans le temps.
 
-@router.get("/historique/diagnostic")
-def historique_diagnostic():
-    """Diagnostic du pipeline historique : un ID PMU explicite ou la
-    clé date|réunion|course_numero suffit pour synchroniser une arrivée."""
-    try:
-        entrees = lire_historique() or []
-        synchronisables = 0
-        sans_cle = 0
-        terminees = 0
-        for entree in entrees:
-            if not isinstance(entree, dict):
-                continue
-            course = entree.get("course") or {}
-            pmu_id = entree.get("pmu_id") or entree.get("identifiant_pmu") or course.get("pmu_id") or course.get("identifiant_pmu")
-            date = course.get("date")
-            reunion = course.get("reunion")
-            numero = course.get("course_numero")
-            cle = entree.get("cle_pmu") or course.get("cle_pmu")
-            if not cle and date and reunion and numero:
-                cle = f"{date}|{reunion}|{numero}"
-            if entree.get("arrivee"):
-                terminees += 1
-            if pmu_id or cle:
-                synchronisables += 1
-            else:
-                sans_cle += 1
-        return {
-            "status": "success",
-            "pronostics_enregistres": len(entrees),
-            "courses_terminees": terminees,
-            "courses_en_attente": max(0, len(entrees) - terminees),
-            "entrees_synchronisables": synchronisables,
-            "entrees_sans_identifiant_pmu": sans_cle,
-            "methode_secours": "date|reunion|course_numero",
-        }
-    except Exception as erreur:
-        raise HTTPException(status_code=500, detail=f"Erreur diagnostic historique : {erreur}")
-
-
-@router.get("/performance/30-courses")
-def performance_30_courses():
-    try:
-        entrees = [e for e in (lire_historique() or []) if isinstance(e, dict) and e.get("arrivee")][-30:]
-        if not entrees:
-            return {"status":"success","courses_demandees":30,"courses_disponibles":0,"rapport_complet":False,"performance":{},"message":"Aucune course terminée disponible."}
-        n=len(entrees); fav_ok=0; top3_ok=0
-        for e in entrees:
-            arrivee=[str(x) for x in (e.get("arrivee") or [])]
-            fav=e.get("favori") or {}
-            sel=[str(x.get("numero")) if isinstance(x,dict) else str(x) for x in (e.get("selection_az") or [])]
-            if fav.get("numero") is not None and arrivee and str(fav.get("numero"))==arrivee[0]: fav_ok+=1
-            if set(sel[:3]) & set(arrivee[:3]): top3_ok+=1
-        return {"status":"success","courses_demandees":30,"courses_disponibles":n,"rapport_complet":n>=30,"performance":{"favori_gagnant_pct":round(fav_ok*100/n,2),"selection_az_top3_pct":round(top3_ok*100/n,2)}}
-    except Exception as erreur:
-        raise HTTPException(status_code=500, detail=f"Erreur performance : {erreur}")
-
-
 @router.get("/historique")
 def historique():
 
@@ -1154,6 +1091,21 @@ def stats_backtest(payload: dict):
 # =========================================================
 # COMPATIBILITÃ‰ FRONTEND — routes additives, sans modifier les routes existantes
 # =========================================================
+@router.get("/historique/diagnostic")
+def historique_diagnostic():
+    from learning import diagnostic_historique
+    return diagnostic_historique()
+
+
+@router.post("/historique/reparer")
+def historique_reparer():
+    from learning import reparer_historique
+    try:
+        return reparer_historique()
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur réparation historique : {erreur}")
+
+
 @router.post("/historique/synchroniser")
 def synchroniser_historique(payload: dict):
     from learning import fusionner_historique
