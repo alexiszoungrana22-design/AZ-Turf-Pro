@@ -602,9 +602,18 @@ async function chargerActualitesAnalyse(){
   const z=document.getElementById('analyse-news'); if(!z)return;
   try{const r=await fetch('/api/actualites?limit=6',{cache:'no-store'});const d=await r.json();const items=d.actualites||[];z.innerHTML=items.length?items.map(a=>`<a class="news-item" href="${a.url}" target="_blank" rel="noopener noreferrer"><span class="news-source">${a.source||'Source hippique'}</span><div class="news-title">${a.titre}</div><span class="news-more">Lire la source →</span></a>`).join(''):'<div class="news-skeleton">Actualités indisponibles momentanément.</div>';}catch(e){z.innerHTML='<div class="news-skeleton">Actualités indisponibles momentanément.</div>';}}
 
+function formaterDepart(value){
+  if(value===null||value===undefined||value==='') return 'Non communiqué';
+  const n=Number(value);
+  if(Number.isFinite(n) && n>100000000000){
+    const d=new Date(n);
+    if(!Number.isNaN(d.getTime())) return d.toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'});
+  }
+  return String(value);
+}
 function enrichirContexteAnalyse(data){
-  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v||'—'};
-  set('ctx-hippodrome',data.hippodrome); set('ctx-discipline',data.discipline); set('ctx-distance',data.distance?data.distance+' m':'—'); set('ctx-partants',data.partants); set('ctx-depart',(data.horaires&&data.horaires.depart)||data.heure_depart); set('ctx-terrain',data.terrain||data.etat_piste||'Donnée à confirmer');
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=(v===0||v)?v:'—'};
+  set('ctx-hippodrome',data.hippodrome||'Non communiqué'); set('ctx-discipline',data.discipline||'Non communiquée'); set('ctx-distance',data.distance?data.distance+' m':'—'); set('ctx-partants',data.partants??'—'); set('ctx-depart',formaterDepart((data.horaires&&data.horaires.depart)||data.heure_depart)); set('ctx-terrain',data.terrain||data.etat_piste||'Donnée non disponible');
   const b=document.getElementById('analyse-source-badge'); if(b) b.textContent='Source : '+(data.source==='pmu_live'?'PMU live':(data.source||'—'));
 }
 async function chargerContexteAvance(){

@@ -1,1 +1,26 @@
-<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="0;url=arrivée.html"><title>Résultats - AZ Turf Pro</title></head><body><p>Redirection vers les résultats…</p><script>location.replace("arrivée.html");</script></body></html>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Résultats - AZ Turf Pro</title>
+<link rel="stylesheet" href="style.css">
+<style>body{font-family:Arial,sans-serif;background:#0f172a;margin:0;padding:20px}.results{max-width:1000px;margin:auto;background:#fff;border-radius:16px;padding:20px}.muted{color:#64748b}.course{border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin:12px 0}</style>
+</head>
+<body><main class="results"><h1>🏇 Résultats AZ Turf Pro</h1><p class="muted">Arrivées enregistrées dans l'historique accessible.</p><div id="results-list">Chargement…</div></main>
+<script>
+(async function(){
+ const box=document.getElementById('results-list');
+ try{
+  const r=await fetch('/api/historique',{cache:'no-store'});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const d=await r.json(); const h=Array.isArray(d.historique)?d.historique:[];
+  if(!h.length){box.innerHTML='<p>Aucun résultat enregistré pour le moment.</p>';return;}
+  box.innerHTML=h.slice().reverse().map(e=>{
+   const c=e.course||{}; const nom=c.course||e.course||'Course'; const hip=c.hippodrome||e.hippodrome||'';
+   const arr=e.arrivee_officielle||e.arrivee||[];
+   return '<section class="course"><strong>'+String(nom)+'</strong><br><span class="muted">'+String(hip)+' — '+String(e.date||c.date||'')+'</span><br>Arrivée : <strong>'+((Array.isArray(arr)&&arr.length)?arr.join(' - '):'En attente')+'</strong></section>';
+  }).join('');
+ }catch(err){box.innerHTML='<p>Les résultats serveur sont momentanément indisponibles.</p>'; console.warn(err);}
+})();
+</script></body></html>

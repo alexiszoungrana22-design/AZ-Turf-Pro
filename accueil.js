@@ -415,7 +415,7 @@ async function chargerQuintesPeriodes(){
     if(!tabs.length) return;
 
     try{
-        const response = await fetch("https://az-turf-pro.onrender.com/api/quintes-periodes");
+        const response = await fetch("/api/quintes-periodes");
         if(!response.ok) throw new Error("Erreur API Quinté périodes");
         quintesPeriodes = await response.json();
     }catch(error){
