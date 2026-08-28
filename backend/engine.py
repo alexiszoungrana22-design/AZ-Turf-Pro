@@ -25,8 +25,9 @@ Fonctions principales :
 from scoring import calculer_score_az
 from ranking import classer_chevaux
 from quinte import generer_tickets_az
-from learning import enregistrer_course
+from learning import enregistrer_course, lire_historique
 from race_analyzer import analyser_course_premium, bonus_premium_cheval
+from modules.engine_complementary import construire_analyse_complementaire
 
 
 # =========================================================
@@ -546,6 +547,35 @@ def lancer_analyse(
         }
 
 
+    # =====================================================
+    # BRANCHEMENT RÉEL DES MODULES COMPLÉMENTAIRES
+    # =====================================================
+    # Additif : le classement et les indices AZ ci-dessus restent inchangés.
+    # Chaque module reçoit les données réellement disponibles et son résultat
+    # est conservé dans la réponse du moteur pour être consommé par le chatbot,
+    # Analyse et Premium.
+    analyse_complementaire = construire_analyse_complementaire(
+        classement,
+        info_course=info_course,
+        historique=lire_historique(),
+    )
+
+    # Enrichissement non destructif : aucun score AZ/Premium n'est recalculé.
+    signal_valeur = {
+        str(x.get("numero")): x
+        for x in analyse_complementaire.get("valeur", [])
+        if isinstance(x, dict)
+    }
+    signal_cotes = {
+        str(x.get("numero")): x
+        for x in analyse_complementaire.get("tendances_cotes", [])
+        if isinstance(x, dict)
+    }
+    for cheval in classement:
+        numero = str(cheval.get("numero"))
+        cheval["analyse_valeur"] = signal_valeur.get(numero, {})
+        cheval["tendance_cote"] = signal_cotes.get(numero, {})
+
     favori = (
         classement[0]
         if classement
@@ -634,5 +664,8 @@ def lancer_analyse(
 
         "tickets":
             tickets,
+
+        # Résultats des modules complémentaires réellement exécutés.
+        "analyse_complementaire": analyse_complementaire,
 
     }
