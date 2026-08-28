@@ -375,3 +375,146 @@ def calculer_performance_historique(historique=None):
         "precision_selection_az_top3":round(az3/total,4),
         "precision_selection_az_top5":round(az5/total,4),
     }
+
+# =========================================================
+# APPRENTISSAGE PROGRESSIF / CALIBRATION V1
+# =========================================================
+
+def _float_safe(value, default=0.0):
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return float(default)
+
+
+def _historique_termine(historique=None):
+    historique = _charger_historique() if historique is None else historique
+    return [
+        e for e in historique
+        if isinstance(e, dict) and e.get("arrivee") and (e.get("classement") or e.get("selection_az"))
+    ]
+
+
+def _taux_lisse(succes, essais, prior=0.50, force=8.0):
+    essais = max(0, int(essais or 0))
+    succes = max(0.0, min(float(essais), _float_safe(succes)))
+    return (succes + force * prior) / (essais + force) if essais else prior
+
+
+def construire_calibration(historique=None):
+    """Construit une calibration bornée à partir des résultats réellement observés.
+
+    On apprend uniquement sur des arrivées officielles déjà présentes. Le moteur
+    de base reste inchangé si le volume d'observations est insuffisant.
+    """
+    courses = _historique_termine(historique)
+    observations = []
+    for entree in courses:
+        arrivee = [_numero_arrivee(x) for x in (entree.get("arrivee") or []) if _numero_arrivee(x)]
+        top3, top5 = set(arrivee[:3]), set(arrivee[:5])
+        classement = entree.get("classement") or []
+        for rang, cheval in enumerate(classement, start=1):
+            if not isinstance(cheval, dict):
+                continue
+            numero = _numero_arrivee(cheval)
+            if not numero:
+                continue
+            observations.append({
+                "score": _float_safe(cheval.get("score_az", cheval.get("indice_az", 0))),
+                "rang": rang,
+                "top3": numero in top3,
+                "top5": numero in top5,
+            })
+
+    # Apprentissage par bandes de score : robuste aux changements de numéros.
+    bandes = {"0_39": [], "40_59": [], "60_79": [], "80_100": [], "101_plus": []}
+    for obs in observations:
+        score = obs["score"]
+        if score < 40: cle = "0_39"
+        elif score < 60: cle = "40_59"
+        elif score < 80: cle = "60_79"
+        elif score <= 100: cle = "80_100"
+        else: cle = "101_plus"
+        bandes[cle].append(obs)
+
+    calibration = {}
+    for cle, vals in bandes.items():
+        essais = len(vals)
+        top3 = sum(bool(x["top3"]) for x in vals)
+        top5 = sum(bool(x["top5"]) for x in vals)
+        calibration[cle] = {
+            "essais": essais,
+            "taux_top3": round(_taux_lisse(top3, essais), 4),
+            "taux_top5": round(_taux_lisse(top5, essais), 4),
+        }
+    return {
+        "courses_terminees": len(courses),
+        "observations": len(observations),
+        "calibration": calibration,
+    }
+
+
+def ajuster_score_avec_apprentissage(score, historique=None):
+    """Ajustement très borné du score, activé seulement après assez de données.
+
+    L'objectif est une calibration progressive, pas un remplacement du modèle.
+    Le facteur maximal est volontairement limité pour éviter la dérive.
+    """
+    base = _float_safe(score)
+    calibration = construire_calibration(historique)
+    if calibration["courses_terminees"] < 10 or calibration["observations"] < 80:
+        return round(base, 2)
+
+    if base < 40: cle = "0_39"
+    elif base < 60: cle = "40_59"
+    elif base < 80: cle = "60_79"
+    elif base <= 100: cle = "80_100"
+    else: cle = "101_plus"
+
+    taux = calibration["calibration"][cle]["taux_top3"]
+    # Centre de gravité à 50%; effet maximal +/- 0.60 point.
+    ajustement = max(-0.60, min(0.60, (taux - 0.50) * 1.20))
+    return round(base + ajustement, 2)
+
+
+def analyser_erreurs_historique(historique=None):
+    """Identifie les erreurs récurrentes du moteur sans inventer de cause."""
+    courses = _historique_termine(historique)
+    erreurs = {"favori_hors_top3": 0, "gagnant_hors_selection": 0, "top1_incorrect": 0}
+    total = 0
+    for entree in courses:
+        ev = entree.get("evaluation") or evaluer_prediction(entree)
+        if not ev:
+            continue
+        total += 1
+        if not ev.get("favori_top3"):
+            erreurs["favori_hors_top3"] += 1
+        arrivee = [str(x) for x in (entree.get("arrivee") or [])]
+        selection = [str(_numero_arrivee(x)) for x in (entree.get("selection_az") or [])]
+        if arrivee and arrivee[0] not in selection:
+            erreurs["gagnant_hors_selection"] += 1
+        if not ev.get("classement_top1_correct"):
+            erreurs["top1_incorrect"] += 1
+    return {
+        "courses_evaluees": total,
+        "erreurs": erreurs,
+        "taux_erreur_favori_top3": round(erreurs["favori_hors_top3"] / total, 4) if total else 0.0,
+        "taux_gagnant_hors_selection": round(erreurs["gagnant_hors_selection"] / total, 4) if total else 0.0,
+        "taux_top1_incorrect": round(erreurs["top1_incorrect"] / total, 4) if total else 0.0,
+    }
+
+
+def diagnostic_apprentissage(historique=None):
+    perf = calculer_performance_historique(historique)
+    erreurs = analyser_erreurs_historique(historique)
+    calibration = construire_calibration(historique)
+    return {
+        "performance": perf,
+        "erreurs": erreurs,
+        "calibration": calibration,
+        "apprentissage_actif": bool(
+            calibration["courses_terminees"] >= 10 and calibration["observations"] >= 80
+        ),
+        "regle_securite": "aucun ajustement avant 10 courses terminées et 80 observations cheval",
+    }
+

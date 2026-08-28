@@ -25,7 +25,7 @@ Fonctions principales :
 from scoring import calculer_score_az
 from ranking import classer_chevaux
 from quinte import generer_tickets_az
-from learning import enregistrer_course, lire_historique
+from learning import enregistrer_course, lire_historique, ajuster_score_avec_apprentissage
 from race_analyzer import analyser_course_premium, bonus_premium_cheval
 from modules.engine_complementary import construire_analyse_complementaire
 
@@ -448,6 +448,7 @@ def lancer_analyse(
         )
 
 
+        score_az = ajuster_score_avec_apprentissage(score_az)
         copie["score_az"] = score_az
         copie["indice_az"] = score_az
 
