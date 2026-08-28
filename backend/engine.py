@@ -28,6 +28,7 @@ from quinte import generer_tickets_az
 from learning import enregistrer_course, lire_historique
 from race_analyzer import analyser_course_premium, bonus_premium_cheval
 from modules.engine_complementary import construire_analyse_complementaire
+from intelligence.history_manager import enregistrer_pronostic
 
 
 # Enregistrement V25 (non bloquant)

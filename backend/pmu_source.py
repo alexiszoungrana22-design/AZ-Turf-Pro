@@ -497,6 +497,21 @@ def extraire_non_partants(course, participants):
     return sorted(non_partants)
 
 
+def _extraire_identifiant_course(course):
+    """Retourne l'identifiant PMU de la course si le schéma le fournit."""
+    if not isinstance(course, dict):
+        return None
+    cles = (
+        "id", "idCourse", "identifiant", "identifiantCourse",
+        "courseId", "idCoursePmu", "idCoursePMU", "numCoursePmu",
+    )
+    for cle in cles:
+        valeur = course.get(cle)
+        if valeur not in (None, "") and not isinstance(valeur, (dict, list)):
+            return str(valeur)
+    return None
+
+
 def transformer_course(course, participants):
     if not participants:
         return None
@@ -549,7 +564,11 @@ def transformer_course(course, participants):
         or ""
     )
 
+    pmu_id = _extraire_identifiant_course(course)
+
     return {
+        "pmu_id": pmu_id,
+        "identifiant_pmu": pmu_id,
         "course": course.get(
             "libelle",
             course.get("nom", "Course"),
@@ -557,8 +576,6 @@ def transformer_course(course, participants):
         "date": date_course,
         "reunion": reunion,
         "course_numero": course_numero,
-        "pmu_id": (course.get("id") or course.get("idCourse") or course.get("courseId") or course.get("numCourseId") or ""),
-        "identifiant_pmu": (course.get("id") or course.get("idCourse") or course.get("courseId") or course.get("numCourseId") or ""),
         "heure_depart": heure_depart,
         "horaires": {"depart": heure_depart, "arret_des_jeux": ""},
         "hippodrome": obtenir_hippodrome(course),

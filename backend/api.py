@@ -194,6 +194,8 @@ def partants():
                 "date": course.get("date"),
                 "reunion": course.get("reunion"),
                 "course_numero": course.get("course_numero"),
+                "pmu_id": course.get("pmu_id") or course.get("identifiant_pmu"),
+                "identifiant_pmu": course.get("identifiant_pmu") or course.get("pmu_id"),
                 "course": course.get("course", ""),
                 "hippodrome": course.get("hippodrome", ""),
                 "discipline": course.get("discipline", ""),
@@ -1033,8 +1035,6 @@ def _contexte_assistant():
             "allocation": course.get("allocation", ""),
             "heure_depart": course.get("heure_depart", ""),
             "horaires": course.get("horaires", {}),
-            "pmu_id": course.get("pmu_id") or course.get("id") or course.get("idCourse") or course.get("courseId") or "",
-            "identifiant_pmu": course.get("identifiant_pmu") or course.get("pmu_id") or course.get("id") or course.get("idCourse") or course.get("courseId") or "",
             "non_partants": course.get("non_partants", []),
             "plus_joues": course.get("plus_joues", []),
         }
@@ -1136,6 +1136,96 @@ def quintes_periodes():
         else:
             result[key]={"disponible":False,"source":"indisponible"}
     return {"status":"success","periodes":result}
+
+
+def _diagnostic_historique_data():
+    entrees = lire_historique()
+    if not isinstance(entrees, list):
+        entrees = []
+    pronostics = [e for e in entrees if isinstance(e, dict)]
+    terminees = [e for e in pronostics if e.get("arrivee") or e.get("arrivee_officielle")]
+    attente = [e for e in pronostics if not (e.get("arrivee") or e.get("arrivee_officielle"))]
+    synchronisables = []
+    sans_id = []
+    for e in attente:
+        course = e.get("course") if isinstance(e.get("course"), dict) else {}
+        pmu_id = course.get("pmu_id") or course.get("identifiant_pmu") or e.get("pmu_id") or e.get("identifiant_pmu")
+        date = course.get("date")
+        reunion = course.get("reunion")
+        numero = course.get("course_numero")
+        if pmu_id or (date and reunion and numero):
+            synchronisables.append(e)
+        else:
+            sans_id.append(e)
+    return pronostics, terminees, attente, synchronisables, sans_id
+
+
+@router.get("/historique/diagnostic")
+def historique_diagnostic():
+    try:
+        pronostics, terminees, attente, synchronisables, sans_id = _diagnostic_historique_data()
+        return {
+            "status": "success",
+            "pronostics_enregistres": len(pronostics),
+            "courses_terminees": len(terminees),
+            "courses_en_attente": len(attente),
+            "entrees_synchronisables": len(synchronisables),
+            "entrees_sans_identifiant_pmu": len(sans_id),
+        }
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur diagnostic historique : {erreur}")
+
+
+@router.get("/performance/30-courses")
+def performance_30_courses():
+    try:
+        pronostics, terminees, _, _, _ = _diagnostic_historique_data()
+        courses = terminees[-30:]
+        mesures = []
+        favori_top3 = 0
+        selection_top3 = 0
+        selection_top5 = 0
+        total = 0
+        for e in courses:
+            arrivee = e.get("arrivee") or e.get("arrivee_officielle") or []
+            arrivee = [str(x.get("numero")) if isinstance(x, dict) else str(x) for x in arrivee]
+            favori = e.get("favori") if isinstance(e.get("favori"), dict) else {}
+            selection = e.get("selection_az") or []
+            selection = [str(x.get("numero")) if isinstance(x, dict) else str(x) for x in selection]
+            if not arrivee:
+                continue
+            total += 1
+            if str(favori.get("numero")) in arrivee[:3]:
+                favori_top3 += 1
+            if set(selection[:3]) & set(arrivee[:3]):
+                selection_top3 += 1
+            if set(selection[:5]) & set(arrivee[:5]):
+                selection_top5 += 1
+            mesures.append({
+                "date": (e.get("course") or {}).get("date"),
+                "reunion": (e.get("course") or {}).get("reunion"),
+                "course_numero": (e.get("course") or {}).get("course_numero"),
+                "arrivee": arrivee,
+            })
+        performance = {}
+        if total:
+            performance = {
+                "courses_evaluees": total,
+                "favori_top3_pct": round(favori_top3 * 100 / total, 2),
+                "selection_top3_pct": round(selection_top3 * 100 / total, 2),
+                "selection_top5_pct": round(selection_top5 * 100 / total, 2),
+            }
+        return {
+            "status": "success",
+            "courses_demandees": 30,
+            "courses_disponibles": len(courses),
+            "rapport_complet": len(courses) >= 30,
+            "performance": performance,
+            "courses": mesures,
+            "message": "Aucune course terminée disponible." if not courses else None,
+        }
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur performance 30 courses : {erreur}")
 
 
 @router.post("/assistant/chat")
