@@ -11,11 +11,7 @@ from datetime import datetime, timedelta
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
-# Sur Render gratuit le système de fichiers est éphémère. On permet donc
-# de déplacer le fichier vers un stockage monté plus tard sans modifier le code.
-# Tant que HISTORIQUE_DATA_DIR n'est pas défini, comportement historique conservé.
-HISTORIQUE_DATA_DIR = os.getenv("HISTORIQUE_DATA_DIR", DATA_DIR)
-HISTORIQUE_FILE = os.path.join(HISTORIQUE_DATA_DIR, "historique_az.json")
+HISTORIQUE_FILE = os.path.join(DATA_DIR, "historique_az.json")
 
 
 def _charger_historique():
@@ -36,9 +32,9 @@ def _charger_historique():
 
 
 def _sauvegarder_historique(historique):
-    os.makedirs(HISTORIQUE_DATA_DIR, exist_ok=True)
+    os.makedirs(DATA_DIR, exist_ok=True)
     fd, fichier_temp = tempfile.mkstemp(
-        prefix="historique_az_", suffix=".tmp", dir=HISTORIQUE_DATA_DIR, text=True
+        prefix="historique_az_", suffix=".tmp", dir=DATA_DIR, text=True
     )
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
@@ -151,49 +147,6 @@ def enregistrer_course(data):
 
     _sauvegarder_historique(historique)
     return nouvelle_course
-
-
-def fusionner_historique(entrees):
-    """Fusionne des sauvegardes clientes dans l'historique serveur.
-
-    Utile sur un hébergement éphémère : le navigateur peut conserver une copie
-    locale des analyses et la resynchroniser après un redémarrage du serveur.
-    La clé de course empêche les doublons et les données déjà publiées sont
-    conservées en priorité.
-    """
-    if not isinstance(entrees, list):
-        return False
-    historique = _charger_historique()
-    index_par_cle = {}
-    for i, ancienne in enumerate(historique):
-        if isinstance(ancienne, dict):
-            index_par_cle[_cle_course(ancienne)] = i
-
-    modifie = False
-    for entree in entrees:
-        if not isinstance(entree, dict):
-            continue
-        cle = _cle_course(entree)
-        if cle == ("", "", "", ""):
-            continue
-        if cle not in index_par_cle:
-            historique.append(entree)
-            index_par_cle[cle] = len(historique) - 1
-            modifie = True
-        else:
-            actuel = historique[index_par_cle[cle]]
-            # La copie cliente sert à récupérer une course perdue après reboot,
-            # mais ne doit pas effacer une arrivée déjà connue côté serveur.
-            arrivee = actuel.get("arrivee")
-            actuel.update(entree)
-            if arrivee:
-                actuel["arrivee"] = arrivee
-            historique[index_par_cle[cle]] = actuel
-            modifie = True
-
-    if modifie:
-        _sauvegarder_historique(historique)
-    return modifie
 
 
 def lire_historique():
