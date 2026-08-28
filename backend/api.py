@@ -50,6 +50,7 @@ from pmu_source import charger_course_pmu
 from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
 
 from learning import lire_historique, mettre_a_jour_arrivee
+from security import create_premium_token, verify_premium_token
 from modules.chatbot_turf import repondre_assistant_turf
 
 import json
@@ -60,6 +61,7 @@ from engine import lancer_analyse
 from modules.cotes_history import analyser_tendances_cotes
 from modules.pronos_presse import analyser_consensus_presse
 from modules.meteo_piste import analyser_impact_terrain
+from modules.actualites_hippiques import recuperer_actualites
 
 router = APIRouter(
     prefix="/api",
@@ -231,8 +233,8 @@ def version():
     """Petit indicateur pour vérifier facilement, depuis un navigateur,
     quelle version du code est réellement déployée sur ce serveur."""
     return {
-        "version": "v13-erreur-detaillee",
-        "chatbot": "modules/chatbot_turf.py — moteur IA (Claude/OpenAI + repli mots-clés)",
+        "version": "v22-audit-fonctionnel",
+        "chatbot": "modules/chatbot_turf.py — moteur AZ conservé + orchestration locale V22",
     }
 
 
@@ -294,6 +296,14 @@ def assistant_diagnostic_test():
         resultats["openai"] = {"succes": False, "erreur": "Clé non configurée."}
 
     return resultats
+
+
+@router.get("/actualites")
+def actualites(limit: int = 10):
+    """Actualités hippiques live best-effort depuis des sources officielles.
+    Aucun contenu n'est inventé si les sources sont indisponibles.
+    """
+    return recuperer_actualites(max(1, min(limit, 20)))
 
 
 @router.get("/analyse")
@@ -467,6 +477,9 @@ def analyse():
                     ""
                 ),
 
+            "terrain": course.get("terrain") or course.get("etat_piste") or "",
+            "meteo": course.get("meteo") or {},
+
             "allocation":
                 course.get(
                     "allocation",
@@ -635,17 +648,17 @@ def activation_premium(
 
     ).isoformat()
 
+    token = create_premium_token(
+        activation.telephone,
+        abonnement["date_fin"]
+    )
+
     return {
-
-        "message":
-            "Premium activÃ©",
-
-        "statut":
-            "ACTIF",
-
-        "date_fin":
-            abonnement["date_fin"]
-
+        "message": "Premium activÃ©",
+        "statut": "ACTIF",
+        "date_fin": abonnement["date_fin"],
+        "access_token": token,
+        "token_type": "bearer"
     }
 
 
@@ -958,11 +971,11 @@ def _auth_assistant(admin_key: str | None, authorization: str | None) -> str:
     if _admin_key_valide(admin_key):
         return "admin"
 
-    # Le frontend Premium transmet son token d'abonnement.
-    # La validation détaillée du téléphone reste gérée par /api/premium/{telephone}.
     if authorization and authorization.lower().startswith("bearer "):
         token = authorization[7:].strip()
         if token:
+            # Validation cryptographique réelle du jeton signé.
+            verify_premium_token(token)
             return "premium"
 
     raise HTTPException(
@@ -1048,12 +1061,88 @@ def _contexte_assistant():
     }
 
 
+@router.post("/stats/backtest")
+def stats_backtest(payload: dict):
+    """Exécute le backtest sans changer la route existante.
+
+    Accepte l'historique navigateur AZ_TURF_HISTORIQUE_COURSES_V1 aussi bien
+    que l'historique serveur produit par learning.py.
+    """
+    from modules.stats_backtest import simuler_backtest_filtre
+    historique = payload.get("historique") or []
+    filtres = payload.get("filtres") or {}
+    normalise=[]
+    for e in historique:
+        if not isinstance(e, dict):
+            continue
+        course=e.get("course") if isinstance(e.get("course"),dict) else {}
+        arrivee=e.get("arrivee_officielle") or e.get("arrivee") or []
+        selection=e.get("selection_az") or []
+        if isinstance(selection, list) and selection and isinstance(selection[0], str):
+            selection=[{"numero":x} for x in selection]
+        chevaux=e.get("chevaux") or e.get("classement") or []
+        normalise.append({**e,"arrivee_officielle":arrivee,"selection_az":selection,"chevaux":chevaux,"course":course})
+    try:
+        return simuler_backtest_filtre(normalise, filtres)
+    except Exception as erreur:
+        raise HTTPException(status_code=400, detail=f"Backtest invalide : {erreur}")
+
+
+# =========================================================
+# COMPATIBILITÃ‰ FRONTEND — routes additives, sans modifier les routes existantes
+# =========================================================
+@router.post("/historique/synchroniser")
+def synchroniser_historique(payload: dict):
+    from learning import fusionner_historique
+    entrees = payload.get("historique") or []
+    if not isinstance(entrees, list):
+        raise HTTPException(status_code=400, detail="historique doit être une liste")
+    try:
+        modifie = fusionner_historique(entrees)
+        return {"status":"success","synchronise":bool(modifie),"nombre_recu":len(entrees),"nombre_serveur":len(lire_historique())}
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur synchronisation historique : {erreur}")
+
+
+def _charger_course_pour_date(date_obj):
+    try:
+        date_pmu=date_obj.strftime("%d%m%Y")
+        course=charger_course_pmu(date_pmu)
+        if course and isinstance(course,dict) and course.get("chevaux"):
+            return course, "pmu_live"
+    except Exception:
+        pass
+    return None, "none"
+
+
+@router.get("/quintes-periodes")
+def quintes_periodes():
+    """Retourne le programme disponible pour hier, aujourd'hui et demain.
+    Route additive destinée à l'accueil ; aucune route existante n'est modifiée.
+    """
+    from datetime import datetime, timedelta
+    result={}
+    for key,delta in (("hier",-1),("aujourdhui",0),("demain",1)):
+        course,source=_charger_course_pour_date(datetime.now()+timedelta(days=delta))
+        if course:
+            result[key]={
+                "disponible":True,"source":source,"date":course.get("date"),
+                "hippodrome":course.get("hippodrome",""),"reunion":course.get("reunion",""),
+                "course_numero":course.get("course_numero",""),"heure_depart":course.get("heure_depart",""),
+                "partants":len(course.get("chevaux",[]) or []),
+            }
+        else:
+            result[key]={"disponible":False,"source":"indisponible"}
+    return {"status":"success","periodes":result}
+
+
 @router.post("/assistant/chat")
 def assistant_chat(
     payload: dict,
     x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
     authorization: str | None = Header(default=None),
 ):
+    _auth_assistant(x_admin_key, authorization)
     question = str(payload.get("question", "")).strip()
     if not question:
         raise HTTPException(status_code=400, detail="Question obligatoire.")
@@ -1069,6 +1158,7 @@ async def assistant_chat_stream(
     x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
     authorization: str | None = Header(default=None),
 ):
+    _auth_assistant(x_admin_key, authorization)
     question = str(payload.get("question", "")).strip()
     if not question:
         raise HTTPException(status_code=400, detail="Question obligatoire.")
