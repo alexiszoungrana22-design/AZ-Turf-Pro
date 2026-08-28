@@ -632,7 +632,7 @@ def lancer_analyse(
                 ),
 
             "course":
-                info_course,
+                dict(info_course),
 
         })
 

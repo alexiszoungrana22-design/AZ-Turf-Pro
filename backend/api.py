@@ -194,8 +194,9 @@ def partants():
                 "date": course.get("date"),
                 "reunion": course.get("reunion"),
                 "course_numero": course.get("course_numero"),
-                "pmu_id": course.get("pmu_id") or course.get("identifiant_pmu"),
-                "identifiant_pmu": course.get("identifiant_pmu") or course.get("pmu_id"),
+                "pmu_id": course.get("pmu_id", ""),
+                "identifiant_pmu": course.get("identifiant_pmu", ""),
+                "cle_pmu": course.get("cle_pmu", ""),
                 "course": course.get("course", ""),
                 "hippodrome": course.get("hippodrome", ""),
                 "discipline": course.get("discipline", ""),
@@ -358,6 +359,9 @@ def analyse():
                 "date": course.get("date"),
                 "reunion": course.get("reunion"),
                 "course_numero": course.get("course_numero"),
+                "pmu_id": course.get("pmu_id", ""),
+                "identifiant_pmu": course.get("identifiant_pmu", ""),
+                "cle_pmu": course.get("cle_pmu", ""),
                 "course": course.get("course", ""),
                 "hippodrome": course.get("hippodrome"),
                 "discipline": course.get("discipline", ""),
@@ -824,6 +828,63 @@ def debug_journal():
 # disque persistant, ce fichier peut etre remis a zero a chaque
 # redeploiement - l'historique ne survit alors pas dans le temps.
 
+@router.get("/historique/diagnostic")
+def historique_diagnostic():
+    """Diagnostic du pipeline historique : un ID PMU explicite ou la
+    clé date|réunion|course_numero suffit pour synchroniser une arrivée."""
+    try:
+        entrees = lire_historique() or []
+        synchronisables = 0
+        sans_cle = 0
+        terminees = 0
+        for entree in entrees:
+            if not isinstance(entree, dict):
+                continue
+            course = entree.get("course") or {}
+            pmu_id = entree.get("pmu_id") or entree.get("identifiant_pmu") or course.get("pmu_id") or course.get("identifiant_pmu")
+            date = course.get("date")
+            reunion = course.get("reunion")
+            numero = course.get("course_numero")
+            cle = entree.get("cle_pmu") or course.get("cle_pmu")
+            if not cle and date and reunion and numero:
+                cle = f"{date}|{reunion}|{numero}"
+            if entree.get("arrivee"):
+                terminees += 1
+            if pmu_id or cle:
+                synchronisables += 1
+            else:
+                sans_cle += 1
+        return {
+            "status": "success",
+            "pronostics_enregistres": len(entrees),
+            "courses_terminees": terminees,
+            "courses_en_attente": max(0, len(entrees) - terminees),
+            "entrees_synchronisables": synchronisables,
+            "entrees_sans_identifiant_pmu": sans_cle,
+            "methode_secours": "date|reunion|course_numero",
+        }
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur diagnostic historique : {erreur}")
+
+
+@router.get("/performance/30-courses")
+def performance_30_courses():
+    try:
+        entrees = [e for e in (lire_historique() or []) if isinstance(e, dict) and e.get("arrivee")][-30:]
+        if not entrees:
+            return {"status":"success","courses_demandees":30,"courses_disponibles":0,"rapport_complet":False,"performance":{},"message":"Aucune course terminée disponible."}
+        n=len(entrees); fav_ok=0; top3_ok=0
+        for e in entrees:
+            arrivee=[str(x) for x in (e.get("arrivee") or [])]
+            fav=e.get("favori") or {}
+            sel=[str(x.get("numero")) if isinstance(x,dict) else str(x) for x in (e.get("selection_az") or [])]
+            if fav.get("numero") is not None and arrivee and str(fav.get("numero"))==arrivee[0]: fav_ok+=1
+            if set(sel[:3]) & set(arrivee[:3]): top3_ok+=1
+        return {"status":"success","courses_demandees":30,"courses_disponibles":n,"rapport_complet":n>=30,"performance":{"favori_gagnant_pct":round(fav_ok*100/n,2),"selection_az_top3_pct":round(top3_ok*100/n,2)}}
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur performance : {erreur}")
+
+
 @router.get("/historique")
 def historique():
 
@@ -1136,96 +1197,6 @@ def quintes_periodes():
         else:
             result[key]={"disponible":False,"source":"indisponible"}
     return {"status":"success","periodes":result}
-
-
-def _diagnostic_historique_data():
-    entrees = lire_historique()
-    if not isinstance(entrees, list):
-        entrees = []
-    pronostics = [e for e in entrees if isinstance(e, dict)]
-    terminees = [e for e in pronostics if e.get("arrivee") or e.get("arrivee_officielle")]
-    attente = [e for e in pronostics if not (e.get("arrivee") or e.get("arrivee_officielle"))]
-    synchronisables = []
-    sans_id = []
-    for e in attente:
-        course = e.get("course") if isinstance(e.get("course"), dict) else {}
-        pmu_id = course.get("pmu_id") or course.get("identifiant_pmu") or e.get("pmu_id") or e.get("identifiant_pmu")
-        date = course.get("date")
-        reunion = course.get("reunion")
-        numero = course.get("course_numero")
-        if pmu_id or (date and reunion and numero):
-            synchronisables.append(e)
-        else:
-            sans_id.append(e)
-    return pronostics, terminees, attente, synchronisables, sans_id
-
-
-@router.get("/historique/diagnostic")
-def historique_diagnostic():
-    try:
-        pronostics, terminees, attente, synchronisables, sans_id = _diagnostic_historique_data()
-        return {
-            "status": "success",
-            "pronostics_enregistres": len(pronostics),
-            "courses_terminees": len(terminees),
-            "courses_en_attente": len(attente),
-            "entrees_synchronisables": len(synchronisables),
-            "entrees_sans_identifiant_pmu": len(sans_id),
-        }
-    except Exception as erreur:
-        raise HTTPException(status_code=500, detail=f"Erreur diagnostic historique : {erreur}")
-
-
-@router.get("/performance/30-courses")
-def performance_30_courses():
-    try:
-        pronostics, terminees, _, _, _ = _diagnostic_historique_data()
-        courses = terminees[-30:]
-        mesures = []
-        favori_top3 = 0
-        selection_top3 = 0
-        selection_top5 = 0
-        total = 0
-        for e in courses:
-            arrivee = e.get("arrivee") or e.get("arrivee_officielle") or []
-            arrivee = [str(x.get("numero")) if isinstance(x, dict) else str(x) for x in arrivee]
-            favori = e.get("favori") if isinstance(e.get("favori"), dict) else {}
-            selection = e.get("selection_az") or []
-            selection = [str(x.get("numero")) if isinstance(x, dict) else str(x) for x in selection]
-            if not arrivee:
-                continue
-            total += 1
-            if str(favori.get("numero")) in arrivee[:3]:
-                favori_top3 += 1
-            if set(selection[:3]) & set(arrivee[:3]):
-                selection_top3 += 1
-            if set(selection[:5]) & set(arrivee[:5]):
-                selection_top5 += 1
-            mesures.append({
-                "date": (e.get("course") or {}).get("date"),
-                "reunion": (e.get("course") or {}).get("reunion"),
-                "course_numero": (e.get("course") or {}).get("course_numero"),
-                "arrivee": arrivee,
-            })
-        performance = {}
-        if total:
-            performance = {
-                "courses_evaluees": total,
-                "favori_top3_pct": round(favori_top3 * 100 / total, 2),
-                "selection_top3_pct": round(selection_top3 * 100 / total, 2),
-                "selection_top5_pct": round(selection_top5 * 100 / total, 2),
-            }
-        return {
-            "status": "success",
-            "courses_demandees": 30,
-            "courses_disponibles": len(courses),
-            "rapport_complet": len(courses) >= 30,
-            "performance": performance,
-            "courses": mesures,
-            "message": "Aucune course terminée disponible." if not courses else None,
-        }
-    except Exception as erreur:
-        raise HTTPException(status_code=500, detail=f"Erreur performance 30 courses : {erreur}")
 
 
 @router.post("/assistant/chat")

@@ -497,21 +497,6 @@ def extraire_non_partants(course, participants):
     return sorted(non_partants)
 
 
-def _extraire_identifiant_course(course):
-    """Retourne l'identifiant PMU de la course si le schéma le fournit."""
-    if not isinstance(course, dict):
-        return None
-    cles = (
-        "id", "idCourse", "identifiant", "identifiantCourse",
-        "courseId", "idCoursePmu", "idCoursePMU", "numCoursePmu",
-    )
-    for cle in cles:
-        valeur = course.get(cle)
-        if valeur not in (None, "") and not isinstance(valeur, (dict, list)):
-            return str(valeur)
-    return None
-
-
 def transformer_course(course, participants):
     if not participants:
         return None
@@ -564,11 +549,19 @@ def transformer_course(course, participants):
         or ""
     )
 
-    pmu_id = _extraire_identifiant_course(course)
+    # Identifiant PMU : le schéma PMU peut varier selon le client/version.
+    # On conserve aussi une clé déterministe de secours basée sur date/R/C.
+    pmu_id = (
+        course.get("id")
+        or course.get("idCourse")
+        or course.get("identifiant")
+        or course.get("identifiantCourse")
+        or course.get("courseId")
+        or course.get("numCourseId")
+    )
+    cle_pmu = f"{date_course}|{reunion}|{course_numero}" if (date_course and reunion and course_numero) else ""
 
     return {
-        "pmu_id": pmu_id,
-        "identifiant_pmu": pmu_id,
         "course": course.get(
             "libelle",
             course.get("nom", "Course"),
@@ -576,6 +569,9 @@ def transformer_course(course, participants):
         "date": date_course,
         "reunion": reunion,
         "course_numero": course_numero,
+        "pmu_id": str(pmu_id).strip() if pmu_id not in (None, "") else "",
+        "identifiant_pmu": str(pmu_id).strip() if pmu_id not in (None, "") else "",
+        "cle_pmu": cle_pmu,
         "heure_depart": heure_depart,
         "horaires": {"depart": heure_depart, "arret_des_jeux": ""},
         "hippodrome": obtenir_hippodrome(course),
