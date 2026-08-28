@@ -194,9 +194,6 @@ def partants():
                 "date": course.get("date"),
                 "reunion": course.get("reunion"),
                 "course_numero": course.get("course_numero"),
-                "pmu_id": course.get("pmu_id") or course.get("id"),
-                "identifiant_pmu": course.get("identifiant_pmu") or course.get("pmu_id") or course.get("id"),
-                "cle_pmu": course.get("cle_pmu"),
                 "course": course.get("course", ""),
                 "hippodrome": course.get("hippodrome", ""),
                 "discipline": course.get("discipline", ""),
@@ -359,9 +356,6 @@ def analyse():
                 "date": course.get("date"),
                 "reunion": course.get("reunion"),
                 "course_numero": course.get("course_numero"),
-                "pmu_id": course.get("pmu_id") or course.get("id"),
-                "identifiant_pmu": course.get("identifiant_pmu") or course.get("pmu_id") or course.get("id"),
-                "cle_pmu": course.get("cle_pmu"),
                 "course": course.get("course", ""),
                 "hippodrome": course.get("hippodrome"),
                 "discipline": course.get("discipline", ""),
@@ -1097,6 +1091,21 @@ def stats_backtest(payload: dict):
 # =========================================================
 # COMPATIBILITÃ‰ FRONTEND — routes additives, sans modifier les routes existantes
 # =========================================================
+@router.get("/historique/diagnostic")
+def historique_diagnostic():
+    from learning import diagnostic_historique
+    return diagnostic_historique()
+
+
+@router.post("/historique/reparer")
+def historique_reparer():
+    from learning import reparer_historique
+    try:
+        return reparer_historique()
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur réparation historique : {erreur}")
+
+
 @router.post("/historique/synchroniser")
 def synchroniser_historique(payload: dict):
     from learning import fusionner_historique
