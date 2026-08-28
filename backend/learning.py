@@ -219,6 +219,7 @@ def mettre_a_jour_arrivee(index_entree, arrivee):
     maintenant = datetime.now()
     entree = historique[index]
     entree["arrivee"] = arrivee
+    entree["evaluation"] = evaluer_prediction(entree)
     entree["heure_arrivee"] = maintenant.isoformat(timespec="seconds")
     entree["publication_at"] = (
         maintenant + timedelta(hours=2)
@@ -271,3 +272,73 @@ def mettre_a_jour_publications():
         _sauvegarder_historique(historique)
 
     return modifie
+
+
+def _numero_arrivee(x):
+    if isinstance(x, dict):
+        return _numero(x.get("numero") or x.get("num") or x.get("cheval"))
+    return _numero(x)
+
+
+def evaluer_prediction(entree):
+    """Évalue une prédiction dès qu'une arrivée officielle est disponible.
+
+    Retourne des métriques simples et déterministes, sans modifier le scoring AZ.
+    """
+    if not isinstance(entree, dict):
+        return {}
+    arrivee = [_numero_arrivee(x) for x in (entree.get("arrivee") or []) if _numero_arrivee(x)]
+    selection = entree.get("selection_az") or []
+    selection = [_numero_arrivee(x) for x in selection if _numero_arrivee(x)]
+    premium = entree.get("selection_premium") or []
+    premium = [_numero_arrivee(x) for x in premium if _numero_arrivee(x)]
+    classement = entree.get("classement") or []
+    classement_nums = [_numero_arrivee(x) for x in classement if _numero_arrivee(x)]
+    if not arrivee:
+        return {}
+
+    top3=set(arrivee[:3]); top5=set(arrivee[:5])
+    return {
+        "favori_numero": _numero_arrivee(entree.get("favori")),
+        "favori_top3": _numero_arrivee(entree.get("favori")) in top3,
+        "selection_az_top3": sum(n in top3 for n in selection),
+        "selection_az_top5": sum(n in top5 for n in selection),
+        "selection_premium_top3": sum(n in top3 for n in premium),
+        "selection_premium_top5": sum(n in top5 for n in premium),
+        "classement_top1_correct": bool(classement_nums and classement_nums[0] == arrivee[0]),
+        "arrivee": arrivee[:5],
+    }
+
+
+def calculer_performance_historique(historique=None):
+    """Calcule des indicateurs pondérés sur les courses déjà terminées.
+
+    Les courses récentes reçoivent un poids supérieur (décroissance exponentielle),
+    sans entraîner ni modifier encore le modèle de scoring.
+    """
+    historique = _charger_historique() if historique is None else historique
+    terminees=[]
+    for entree in historique:
+        if not isinstance(entree, dict) or not entree.get("arrivee"):
+            continue
+        evaluation=entree.get("evaluation") or evaluer_prediction(entree)
+        if evaluation:
+            terminees.append((entree,evaluation))
+    if not terminees:
+        return {"courses_terminees":0,"poids_total":0.0,"precision_favori_top3":0.0,"precision_selection_az_top3":0.0,"precision_selection_az_top5":0.0}
+
+    # Plus la course est récente dans l'historique, plus son poids est fort.
+    total=0.0; fav=0.0; az3=0.0; az5=0.0
+    for idx,(entree,ev) in enumerate(reversed(terminees)):
+        poids=0.90 ** idx
+        total += poids
+        fav += poids * float(bool(ev.get("favori_top3")))
+        az3 += poids * (float(ev.get("selection_az_top3",0)) / max(1,len(entree.get("selection_az") or [])))
+        az5 += poids * (float(ev.get("selection_az_top5",0)) / max(1,len(entree.get("selection_az") or [])))
+    return {
+        "courses_terminees":len(terminees),
+        "poids_total":round(total,6),
+        "precision_favori_top3":round(fav/total,4),
+        "precision_selection_az_top3":round(az3/total,4),
+        "precision_selection_az_top5":round(az5/total,4),
+    }
