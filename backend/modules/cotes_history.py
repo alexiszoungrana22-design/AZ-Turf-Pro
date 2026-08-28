@@ -21,8 +21,14 @@ def analyser_tendances_cotes(data: dict) -> dict:
     for cheval in chevaux:
         nom = cheval.get("nom", "Inconnu")
         numero = cheval.get("numero", "?")
-        cote_matin = float(cheval.get("cote_matin_brute", 0) or 0)
-        cote_direct = float(cheval.get("cote_brute", 0) or 0)
+        try:
+            cote_matin = float(cheval.get("cote_matin_brute", 0) or 0)
+        except (TypeError, ValueError):
+            cote_matin = 0.0
+        try:
+            cote_direct = float(cheval.get("cote_brute", 0) or 0)
+        except (TypeError, ValueError):
+            cote_direct = 0.0
 
         variation = 0.0
         tendance = "STABLE"
