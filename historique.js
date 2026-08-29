@@ -1,253 +1,151 @@
-/**
- * AZ Turf Pro - Historique des analyses et arrivées
- * Affichage robuste des anciennes et nouvelles structures de données.
+/** AZ Turf Pro - Historique v8
+ * L'archive PostgreSQL est prioritaire pour les courses passées.
+ * L'ancien /api/historique reste un fallback : aucune route existante n'est supprimée.
  */
+(() => {
+  'use strict';
+  const API_HISTORIQUE = '/api/historique';
+  const API_ARCHIVE = '/api/archive/courses?limit=100';
+  const API_PERFORMANCE = '/api/archive/performance';
+  const STORAGE = 'AZ_TURF_HISTORIQUE_COURSES_V1';
 
-const HISTORIQUE_STORAGE_KEY = "AZ_TURF_HISTORIQUE_COURSES_V1";
-const API_HISTORIQUE = "/api/historique";
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  const text = (v, fallback='-') => (v === null || v === undefined || v === '') ? fallback : String(v);
+  const nums = v => Array.isArray(v) ? v.map(x => typeof x === 'object' ? x?.numero : x).filter(x => x !== null && x !== undefined && String(x).trim() !== '').map(String) : [];
 
-document.addEventListener("DOMContentLoaded", () => {
-    afficherPageHistorique();
-});
+  function dateFr(v) {
+    if (!v) return '-';
+    const s = String(v).trim();
+    if (/^\d{8}$/.test(s)) return `${s.slice(0,2)}/${s.slice(2,4)}/${s.slice(4)}`;
+    const d = new Date(s.replace(' ','T'));
+    return Number.isNaN(d.getTime()) ? s : d.toLocaleDateString('fr-FR');
+  }
 
-function lireLocal() {
-    try {
-        const valeur = JSON.parse(localStorage.getItem(HISTORIQUE_STORAGE_KEY) || "[]");
-        return Array.isArray(valeur) ? valeur : [];
-    } catch (e) {
-        return [];
+  function nomFavori(v) {
+    if (!v) return '-';
+    if (typeof v === 'object') {
+      const n = v.numero ?? '';
+      const nom = v.nom ?? v.name ?? '';
+      if (n && nom) return `N°${n} ${nom}`;
+      if (n) return `N°${n}`;
+      return nom || '-';
     }
-}
+    return String(v);
+  }
 
-function texte(valeur, fallback = "") {
-    if (valeur === null || valeur === undefined) return fallback;
-    if (typeof valeur === "string" || typeof valeur === "number") return String(valeur);
-    return fallback;
-}
+  function liste(v) { return nums(v).join(' - ') || '-'; }
 
-function numeroCheval(valeur) {
-    if (valeur && typeof valeur === "object") return texte(valeur.numero, "");
-    return texte(valeur, "");
-}
-
-function nomCheval(valeur) {
-    if (valeur && typeof valeur === "object") {
-        const nom = texte(valeur.nom || valeur.name, "");
-        const numero = numeroCheval(valeur);
-        if (numero && nom) return `N°${numero} ${nom}`;
-        if (numero) return `N°${numero}`;
-        if (nom) return nom;
-    }
-    return texte(valeur, "-");
-}
-
-function valeurListe(valeur) {
-    if (!Array.isArray(valeur)) return [];
-    return valeur.map(item => {
-        if (item && typeof item === "object") return numeroCheval(item) || nomCheval(item);
-        return texte(item, "");
-    }).filter(Boolean);
-}
-
-function extraireNomCourse(courseInfo, entree) {
-    if (courseInfo && typeof courseInfo === "object") {
-        const direct = [
-            courseInfo.nom,
-            courseInfo.nom_course,
-            courseInfo.nom_prix,
-            courseInfo.prix,
-            courseInfo.libelle,
-            courseInfo.course
-        ];
-        for (const valeur of direct) {
-            if (typeof valeur === "string" && valeur.trim()) return valeur.trim();
-            if (valeur && typeof valeur === "object") {
-                const nom = valeur.nom || valeur.libelle || valeur.name;
-                if (typeof nom === "string" && nom.trim()) return nom.trim();
-            }
-        }
-    }
-    for (const valeur of [entree?.nom, entree?.nom_course, entree?.libelle]) {
-        if (typeof valeur === "string" && valeur.trim()) return valeur.trim();
-    }
-    return "Course";
-}
-
-function formaterDate(valeur) {
-    if (!valeur) return "-";
-    const brut = String(valeur).trim();
-
-    // Format PMU compact : 21082026 -> 21/08/2026
-    if (/^\d{8}$/.test(brut)) {
-        return `${brut.slice(0, 2)}/${brut.slice(2, 4)}/${brut.slice(4)}`;
-    }
-
-    const dt = new Date(brut.replace(" ", "T"));
-    if (!Number.isNaN(dt.getTime())) {
-        const date = dt.toLocaleDateString("fr-FR");
-        const heure = dt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
-        return `${date} ${heure}`;
-    }
-
-    return brut;
-}
-
-function normaliserEntree(c) {
-    if (!c || typeof c !== "object") return null;
-
-    const tickets = c.tickets && typeof c.tickets === "object" ? c.tickets : {};
-    const gratuit = tickets.gratuit && typeof tickets.gratuit === "object" ? tickets.gratuit : {};
-    const premium = tickets.premium && typeof tickets.premium === "object" ? tickets.premium : {};
-    const courseInfo = c.course && typeof c.course === "object" ? c.course : {};
-
-    const classement = Array.isArray(c.classement) ? c.classement : [];
-    const selection = c.selection_az ?? gratuit.quinte ?? c.selection ?? [];
-    const selectionPremium = c.selection_premium ?? premium.selection_quinte ?? premium.quinte ?? [];
-    const arriveeBrute = c.arrivee_quinte ?? c.arrivee ?? [];
-    const arrivee = valeurListe(arriveeBrute).slice(0, 5);
-
-    const favoriBrut = c.favori ?? (classement.length ? classement[0] : "-");
-    const favori = nomCheval(favoriBrut);
-
-    const dateBrute = c.date || courseInfo.date || c.date_analyse || "";
-    const reunion = texte(c.reunion || courseInfo.reunion || courseInfo.reunion_numero, "");
-    const numero = texte(c.course_numero || courseInfo.course_numero || courseInfo.numero_course, "");
-
-    // Les anciennes entrées sans aucune identité de course sont ignorées.
-    const identiteValide = Boolean(
-        reunion || numero ||
-        (courseInfo && Object.keys(courseInfo).length) ||
-        c.hippodrome || c.nom || c.nom_course
-    );
-    if (!identiteValide) return null;
-
+  function normaliserArchive(c) {
+    const course = c.course_json && typeof c.course_json === 'object' ? c.course_json : {};
+    const selection = c.selection_az_json ?? course.selection_az ?? [];
+    const selectionPremium = c.selection_premium_json ?? course.selection_premium ?? [];
+    const favori = c.favori_json ?? course.favori ?? {};
+    const arrivee = c.arrivee_json ?? course.arrivee ?? [];
     return {
-        date: formaterDate(dateBrute),
-        dateBrute,
-        reunion,
-        numero,
-        course: extraireNomCourse(courseInfo, c),
-        hippodrome: texte(courseInfo.hippodrome || c.hippodrome, ""),
-        favori,
-        selection: valeurListe(selection),
-        selectionPremium: valeurListe(selectionPremium),
-        arrivee,
-        statut: arrivee.length >= 5 ? "ARRIVÉE OFFICIELLE" : "EN ATTENTE"
+      date: c.date_course ?? course.date ?? '',
+      reunion: c.reunion ?? course.reunion ?? '',
+      numero: c.course_numero ?? course.course_numero ?? course.numero_course ?? '',
+      nom: course.course ?? course.nom ?? course.libelle ?? 'Course',
+      hippodrome: c.hippodrome ?? course.hippodrome ?? '',
+      favori: nomFavori(favori),
+      selectionPremium: nums(selectionPremium),
+      arrivee: nums(arrivee)
     };
-}
+  }
 
-async function chargerHistorique() {
-    const local = lireLocal();
+  function normaliserAncienne(c) {
+    const course = c?.course && typeof c.course === 'object' ? c.course : {};
+    return {
+      date: c?.date ?? course.date ?? c?.date_analyse ?? '',
+      reunion: c?.reunion ?? course.reunion ?? '',
+      numero: c?.course_numero ?? course.course_numero ?? c?.numero_course ?? '',
+      nom: course.course ?? course.nom ?? c?.nom_course ?? 'Course',
+      hippodrome: c?.hippodrome ?? course.hippodrome ?? '',
+      favori: nomFavori(c?.favori ?? {}),
+      selectionPremium: nums(c?.selection_premium ?? []),
+      arrivee: nums(c?.arrivee ?? c?.arrivee_quinte ?? [])
+    };
+  }
 
-    // Sur Render gratuit, le serveur peut redémarrer avec un historique vide.
-    // On resynchronise donc la sauvegarde du navigateur avant de lire l'API.
-    if (local.length) {
-        try {
-            await fetch("/api/historique/synchroniser", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ historique: local })
-            });
-        } catch (e) {
-            console.warn("Synchronisation historique différée :", e);
-        }
-    }
+  async function getJson(url) {
+    const r = await fetch(`${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`, {cache:'no-store', headers:{Accept:'application/json'}});
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.json();
+  }
+
+  async function chargerCourses() {
+    try {
+      const data = await getJson(API_ARCHIVE);
+      if (data?.status === 'success' && Array.isArray(data.courses)) {
+        return data.courses.map(normaliserArchive);
+      }
+    } catch (e) { console.warn('Archive PostgreSQL indisponible:', e); }
 
     try {
-        const r = await fetch(API_HISTORIQUE, { cache: "no-store" });
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        const data = await r.json();
-        const serveur = Array.isArray(data.historique) ? data.historique : [];
-        const fusion = [...local, ...serveur];
+      const data = await getJson(API_HISTORIQUE);
+      const arr = Array.isArray(data?.historique) ? data.historique : [];
+      return arr.map(normaliserAncienne);
+    } catch (e) { console.warn('Historique API indisponible:', e); }
 
-        // Déduplication par identité de course avant de remettre la copie
-        // fusionnée dans le navigateur.
-        const map = new Map();
-        fusion.forEach(e => {
-            const c = e?.course && typeof e.course === "object" ? e.course : {};
-            const key = `${e?.date || c.date || ""}-${e?.reunion || c.reunion || ""}-${e?.course_numero || c.course_numero || ""}-${c.nom || c.course || e?.hippodrome || ""}`;
-            if (key !== "---") map.set(key, e);
-        });
-        const fusionFinale = Array.from(map.values()).slice(-500);
-        try { localStorage.setItem(HISTORIQUE_STORAGE_KEY, JSON.stringify(fusionFinale)); } catch (e) {}
-        return fusionFinale.map(normaliserEntree).filter(Boolean);
+    try {
+      const arr = JSON.parse(localStorage.getItem(STORAGE) || '[]');
+      return Array.isArray(arr) ? arr.map(normaliserAncienne) : [];
+    } catch (_) { return []; }
+  }
+
+  function renderCourses(courses) {
+    const body = document.getElementById('historique-body');
+    if (!body) return;
+    body.innerHTML = '';
+    if (!courses.length) {
+      body.innerHTML = '<tr><td colspan="5" class="az-empty">Aucune course archivée pour le moment.</td></tr>';
+      return;
+    }
+    courses.forEach(c => {
+      const identite = `${c.reunion ? esc(c.reunion) + ' ' : ''}${c.numero ? 'N°' + esc(c.numero) : ''}`.trim() || 'Course';
+      const nom = esc(c.nom);
+      const hippo = c.hippodrome ? `<br><small>${esc(c.hippodrome)}</small>` : '';
+      const arrivee = c.arrivee.length ? esc(c.arrivee.join(' - ')) : '<span class="az-status pending">⏳ En attente</span>';
+      body.insertAdjacentHTML('beforeend', `<tr>
+        <td>${esc(dateFr(c.date))}</td>
+        <td><strong>${identite}</strong><br>${nom}${hippo}</td>
+        <td><strong style="color:#08783f">${esc(c.favori)}</strong></td>
+        <td><strong style="color:#b8860b;letter-spacing:1px">${esc(c.selectionPremium.length ? c.selectionPremium.join(' - ') : '-')}</strong></td>
+        <td>${arrivee}</td>
+      </tr>`);
+    });
+  }
+
+  function pct(v) {
+    if (v === null || v === undefined || Number.isNaN(Number(v))) return '0 %';
+    return `${Number(v).toFixed(1)} %`;
+  }
+
+  async function chargerPerformance() {
+    const state = document.getElementById('az-performance-state');
+    try {
+      const data = await getJson(API_PERFORMANCE);
+      if (data?.status !== 'success') throw new Error('Réponse invalide');
+      const total = Number(data.courses_analysees ?? data.courses_terminees ?? 0);
+      document.getElementById('perf-courses').textContent = total;
+      document.getElementById('perf-selection').textContent = pct(data.selection_taux_gagnant);
+      document.getElementById('perf-favori').textContent = pct(data.favori_taux);
+      document.getElementById('perf-touche').textContent = pct(data.selection_taux_touchee);
+      state.textContent = total ? `${total} course(s) terminée(s) évaluée(s).` : 'Aucune course terminée disponible pour le calcul.';
     } catch (e) {
-        console.warn("Historique API indisponible, utilisation locale", e);
-        return local.map(normaliserEntree).filter(Boolean);
+      console.warn('Performances indisponibles:', e);
+      state.textContent = 'Les performances seront calculées dès qu’une arrivée officielle sera disponible.';
     }
-}
+  }
 
-function eliminerDoublons(liste) {
-    const coursesVues = new Set();
-    return liste.filter(c => {
-        const date = c.dateBrute || c.date || "";
-        const identifiant = `${date}-${c.reunion}-${c.numero}-${c.course}`;
-        if (coursesVues.has(identifiant)) return false;
-        coursesVues.add(identifiant);
-        return true;
-    });
-}
+  async function charger() {
+    const courses = await chargerCourses();
+    renderCourses(courses);
+    await chargerPerformance();
+  }
 
-function echapperHTML(valeur) {
-    return String(valeur ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-}
-
-function afficherPageHistorique() {
-    const tbody = document.getElementById("historique-body") || document.getElementById("historique-table-body");
-    const container = document.getElementById("historique-container");
-    if (!tbody && !container) return;
-
-    chargerHistorique().then(listeBrute => {
-        const liste = eliminerDoublons(listeBrute);
-
-        if (tbody) {
-            tbody.innerHTML = "";
-            if (!liste.length) {
-                tbody.innerHTML = '<tr><td colspan="5">Aucune course enregistrée pour le moment.</td></tr>';
-                return;
-            }
-
-            liste.forEach(c => {
-                const selection = c.selection.length ? c.selection.join(" - ") : (c.selectionPremium.length ? c.selectionPremium.join(" - ") : "-");
-                const arrivee = c.arrivee.length ? c.arrivee.join(" - ") : "En attente";
-                const affichageReunion = c.numero ? `${c.reunion || ""} N°${c.numero}`.trim() : (c.reunion || "Course");
-                const nomCourse = echapperHTML(c.course);
-                const hippo = c.hippodrome ? `<br><small>${echapperHTML(c.hippodrome)}</small>` : "";
-
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td>${echapperHTML(c.date)}</td>
-                    <td><strong>${echapperHTML(affichageReunion)}</strong><br>${nomCourse}${hippo}</td>
-                    <td><strong style="color:#08783f;">${echapperHTML(c.favori)}</strong></td>
-                    <td><strong style="color:#b8860b;letter-spacing:1px;">${echapperHTML(selection)}</strong></td>
-                    <td><strong class="badge-arrivee">${echapperHTML(arrivee)}</strong></td>`;
-                tbody.appendChild(tr);
-            });
-        } else if (container) {
-            container.innerHTML = liste.map(c => {
-                const selection = c.selection.length ? c.selection.join(" - ") : (c.selectionPremium.length ? c.selectionPremium.join(" - ") : "-");
-                return `
-                    <article class="historique-card">
-                        <h3>${echapperHTML(c.reunion)} ${c.numero ? `N°${echapperHTML(c.numero)}` : ""} - ${echapperHTML(c.course)}</h3>
-                        <p>${echapperHTML(c.hippodrome || "Hippodrome non disponible")}</p>
-                        <p><strong>Date :</strong> ${echapperHTML(c.date)}</p>
-                        <p><strong>Favori :</strong> ${echapperHTML(c.favori)}</p>
-                        <p><strong>Sélection Premium AZ :</strong> ${echapperHTML(selection)}</p>
-                        <p><strong>Arrivée officielle :</strong> ${echapperHTML(c.arrivee.join(" - ") || "En attente")}</p>
-                    </article>`;
-            }).join("");
-        }
-    });
-}
-
-function reinitialiserHistorique() {
-    if (confirm("Voulez-vous vraiment effacer tout l'historique local ?")) {
-        localStorage.removeItem(HISTORIQUE_STORAGE_KEY);
-        afficherPageHistorique();
-    }
-}
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('az-performance-refresh')?.addEventListener('click', charger);
+    charger();
+  });
+})();

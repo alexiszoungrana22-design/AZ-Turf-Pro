@@ -1,27 +1,17 @@
-# Panneau Performance AZ — Historique
-
-Patch additif pour afficher les performances de l'archive dans `historique.html`.
+# AZ Turf Pro — Historique v8 / interface Performance
 
 ## Installation
+Remplacer uniquement à la racine du frontend :
+- `historique.html`
+- `historique.js`
 
-Ajouter dans `<head>` de `historique.html` :
+Le `historique.js` v8 utilise en priorité :
+- `GET /api/archive/courses?limit=100`
+- `GET /api/archive/performance`
 
-```html
-<link rel="stylesheet" href="historique-performance.css?v=1">
-```
+Puis conserve un fallback vers l'ancien `GET /api/historique`, puis le localStorage.
 
-Ajouter avant `</body>` :
-
-```html
-<script src="historique-performance.js?v=1"></script>
-```
-
-Le panneau se crée automatiquement dans `<main>` et appelle :
-
-`GET /api/archive/performance`
-
-Aucune route historique existante n'est supprimée ou remplacée.
+Aucune route API existante n'est supprimée.
 
 ## Important
-
-Le script accepte `window.AZ_API_BASE` si le frontend est hébergé sur un domaine différent du backend. Sinon il utilise le même domaine que la page.
+Cette version corrige le problème où l'ancienne page Historique restait affichée : le chargement du panneau Performance est désormais directement intégré à `historique.html` au lieu d'attendre un script externe séparé.
