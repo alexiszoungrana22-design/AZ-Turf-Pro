@@ -28,6 +28,7 @@ from quinte import generer_tickets_az
 from learning import enregistrer_course, lire_historique
 from race_analyzer import analyser_course_premium, bonus_premium_cheval
 from modules.engine_complementary import construire_analyse_complementaire
+from intelligence.history_manager import enregistrer_pronostic
 
 
 # Enregistrement V25 (non bloquant)
@@ -593,7 +594,7 @@ def lancer_analyse(
 
     try:
 
-        enregistrer_course({
+        archive_data = {
 
             "chevaux":
                 chevaux_valides,
@@ -633,7 +634,19 @@ def lancer_analyse(
             "course":
                 info_course,
 
-        })
+        }
+
+        # Historique existant : comportement conserve.
+        enregistrer_course(archive_data)
+
+        # Archive PostgreSQL additive et non bloquante.
+        # Une panne de l'archive ne doit jamais casser l'analyse AZ.
+        try:
+            from archive_store import archiver_course
+            resultat_archive = archiver_course(archive_data)
+            print("Archive PostgreSQL :", resultat_archive.get("status", "ok"))
+        except Exception as erreur_archive:
+            print("Erreur archive PostgreSQL :", erreur_archive)
 
 
     except Exception as erreur:
