@@ -30,6 +30,11 @@ from race_analyzer import analyser_course_premium, bonus_premium_cheval
 from modules.engine_complementary import construire_analyse_complementaire
 from intelligence.history_manager import enregistrer_pronostic
 
+try:
+    from archive_store import archiver_course
+except Exception:
+    archiver_course = None
+
 
 # Enregistrement V25 (non bloquant)
 def _sauvegarder_v25(data):
@@ -594,7 +599,7 @@ def lancer_analyse(
 
     try:
 
-        archive_data = {
+        enregistrer_course({
 
             "chevaux":
                 chevaux_valides,
@@ -634,19 +639,7 @@ def lancer_analyse(
             "course":
                 info_course,
 
-        }
-
-        # Historique existant : comportement conserve.
-        enregistrer_course(archive_data)
-
-        # Archive PostgreSQL additive et non bloquante.
-        # Une panne de l'archive ne doit jamais casser l'analyse AZ.
-        try:
-            from archive_store import archiver_course
-            resultat_archive = archiver_course(archive_data)
-            print("Archive PostgreSQL :", resultat_archive.get("status", "ok"))
-        except Exception as erreur_archive:
-            print("Erreur archive PostgreSQL :", erreur_archive)
+        })
 
 
     except Exception as erreur:
@@ -655,6 +648,31 @@ def lancer_analyse(
             "Erreur enregistrement historique :",
             erreur
         )
+
+
+    # Archive PostgreSQL persistante — ajout non bloquant.
+    # L'historique existant ci-dessus reste inchangé.
+    if archiver_course is not None:
+        try:
+            archiver_course({
+                "chevaux": chevaux_valides,
+                "classement": classement,
+                "tickets": tickets,
+                "selection_az": (
+                    tickets.get("gratuit", {}).get("quinte", [])
+                ),
+                "selection_premium": (
+                    tickets.get("premium", {}).get("selection_quinte", [])
+                ),
+                "favori": favori,
+                "non_partants": sorted(
+                    list(np_nums),
+                    key=lambda x: int(x) if str(x).isdigit() else 9999
+                ),
+                "course": info_course,
+            })
+        except Exception as erreur:
+            print("Erreur archive PostgreSQL :", erreur)
 
 
     return {
