@@ -141,3 +141,23 @@ def lire_archive(limit: int = 100) -> list[dict]:
         return [dict(zip(cols, row)) for row in rows]
     finally:
         conn.close()
+
+
+def lire_archive_performance(limit: int = 1000) -> list[dict]:
+    """Lecture des colonnes nécessaires au calcul des performances."""
+    conn = _connexion()
+    try:
+        _init(conn)
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT course_key, date_course, reunion, course_numero, hippodrome,
+                       favori_json, selection_az_json, arrivee_json, created_at, updated_at
+                FROM az_course_archive
+                ORDER BY created_at DESC
+                LIMIT %s
+            """, (max(1, min(int(limit), 5000)),))
+            cols = [d.name for d in cur.description]
+            rows = cur.fetchall()
+        return [dict(zip(cols, row)) for row in rows]
+    finally:
+        conn.close()
