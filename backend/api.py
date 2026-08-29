@@ -1091,6 +1091,71 @@ def stats_backtest(payload: dict):
 # =========================================================
 # COMPATIBILITÃ‰ FRONTEND — routes additives, sans modifier les routes existantes
 # =========================================================
+@router.get("/historique/diagnostic")
+def diagnostic_historique():
+    """Diagnostic de l'historique existant.
+
+    Route additive : elle ne modifie aucune donnée et conserve la compatibilité
+    avec les anciennes versions du frontend.
+    """
+    try:
+        historique = lire_historique()
+        if not isinstance(historique, list):
+            historique = []
+
+        synchronisables = 0
+        sans_identifiant = 0
+        terminees = 0
+        attente = 0
+
+        for entree in historique:
+            if not isinstance(entree, dict):
+                continue
+
+            arrivee = entree.get("arrivee_officielle") or entree.get("arrivee")
+            est_terminee = bool(arrivee)
+            if est_terminee:
+                terminees += 1
+            else:
+                attente += 1
+
+            course = entree.get("course")
+            course = course if isinstance(course, dict) else {}
+
+            pmu_id = (
+                entree.get("pmu_id")
+                or entree.get("identifiant_pmu")
+                or entree.get("id_pmu")
+                or course.get("pmu_id")
+                or course.get("identifiant_pmu")
+                or course.get("id_pmu")
+            )
+            date = entree.get("date") or entree.get("date_course") or course.get("date") or course.get("date_course")
+            reunion = entree.get("reunion") or course.get("reunion")
+            numero = (
+                entree.get("course_numero")
+                or entree.get("numero_course")
+                or course.get("course_numero")
+                or course.get("numero_course")
+            )
+
+            if pmu_id or (date and reunion and numero):
+                synchronisables += 1
+            else:
+                sans_identifiant += 1
+
+        return {
+            "status": "success",
+            "pronostics_enregistres": len(historique),
+            "courses_terminees": terminees,
+            "courses_en_attente": attente,
+            "entrees_synchronisables": synchronisables,
+            "entrees_sans_identifiant_pmu": sans_identifiant,
+        }
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur diagnostic historique : {erreur}")
+
+
 @router.post("/historique/synchroniser")
 def synchroniser_historique(payload: dict):
     from learning import fusionner_historique
