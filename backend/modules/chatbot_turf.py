@@ -29,6 +29,23 @@ try:
 except Exception:
     _planifier_demande = _analyser_valeur = _resume_valeur = _resume_scenarios = _resume_arbitre = None
 
+# Branchement en bloc des modules d'accompagnement historiques, jusqu'ici non
+# reliés à l'API : orchestrateur_turf.py (enrichissement réel des modules
+# satellites : cotes, presse, météo, expert_turf, pronostiqueur_engine,
+# tactique_course_engine, autonomous_reasoning, strategie_pari_engine,
+# knowledge_turf, news_turf, chatbot_memory) et orchestrateur_v20.py (réponse
+# locale de secours qui consomme ce même contexte enrichi). Purement additif :
+# aucun score AZ, aucune route existante, aucun comportement actuel n'est modifié.
+try:
+    from modules.orchestrateur_turf import enrichir_modules_accompagnement as _enrichir_accompagnement_bloc
+except Exception:
+    _enrichir_accompagnement_bloc = None
+
+try:
+    from modules.orchestrateur_v20 import respond as _repondre_orchestrateur_v20
+except Exception:
+    _repondre_orchestrateur_v20 = None
+
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
 AI_PROVIDER = os.getenv("AI_PROVIDER", "anthropic").strip().lower()
@@ -1203,6 +1220,63 @@ def _enrichir_contexte_local(question: str, contexte: dict) -> tuple[dict, objec
     return contexte, plan
 
 
+def _enrichir_contexte_modules_accompagnement(question: str, contexte: dict, historique: list | None = None) -> dict:
+    """Branche en bloc les modules d'accompagnement historiques (orchestrateur_turf.py)
+    sur le contexte déjà construit.
+
+    Purement additif : seules les clés absentes du contexte existant sont
+    ajoutées. La clé "plan_chatbot" n'est jamais reprise ici, car elle est
+    déjà gérée par le plan d'orchestration existant (intent_orchestrator,
+    utilisé par _enrichir_contexte_local et _reponse_plan_local) — on ne
+    veut pas la remplacer par le plan (structure différente) d'orchestrateur_turf.
+    Toute panne d'un module est silencieuse : le contexte d'origine est
+    retourné inchangé.
+    """
+    if not _enrichir_accompagnement_bloc:
+        return contexte
+    try:
+        enrichi = _enrichir_accompagnement_bloc(dict(contexte or {}), question, historique)
+    except Exception:
+        return contexte
+    if not isinstance(enrichi, dict):
+        return contexte
+    for cle, valeur in enrichi.items():
+        if cle == "plan_chatbot":
+            continue
+        if cle not in contexte:
+            contexte[cle] = valeur
+    return contexte
+
+
+def _resume_modules_accompagnement(contexte: dict) -> str:
+    """Formate, pour le system prompt, les résultats des modules d'accompagnement
+    fraîchement branchés — uniquement ceux qui ont produit un résultat exploitable."""
+    sections = []
+    libelles = [
+        ("tendances_cotes", "TENDANCES DE COTES"),
+        ("consensus_presse", "CONSENSUS PRESSE"),
+        ("impact_meteo", "MÉTÉO / TERRAIN"),
+        ("expert_accompagnement", "EXPERT — RÉPONSE CIBLÉE"),
+        ("expert_marche", "EXPERT — MARCHÉ"),
+        ("expert_performance", "EXPERT — PERFORMANCE"),
+        ("expert_conditions", "EXPERT — CONDITIONS"),
+        ("expert_valeur", "EXPERT — VALEUR"),
+        ("synthese_pronostiqueur", "SYNTHÈSE PRONOSTIQUEUR"),
+        ("tactique", "TACTIQUE DE COURSE"),
+        ("rythme_course", "RYTHME DE COURSE"),
+        ("raisonnement_autonome", "RAISONNEMENT AUTONOME"),
+        ("strategies", "STRATÉGIES DE TICKET"),
+        ("connaissance_turf", "LEXIQUE TURF"),
+        ("actualites", "ACTUALITÉS HIPPIQUES"),
+    ]
+    for cle, titre in libelles:
+        valeur = contexte.get(cle)
+        if not valeur:
+            continue
+        sections.append(f"=== {titre} (module d'accompagnement) ===\n{valeur}")
+    return "\n\n".join(sections)
+
+
 # =====================================
 # POINT D'ENTRÉE
 # =====================================
@@ -1213,6 +1287,10 @@ def repondre_assistant_turf(question: str, contexte_analyse: dict = None, histor
         contexte, plan = _enrichir_contexte_local(question, contexte)
     except Exception:
         plan = None
+
+    # Branchement en bloc des modules d'accompagnement (orchestrateur_turf.py) :
+    # additif uniquement, voir _enrichir_contexte_modules_accompagnement.
+    contexte = _enrichir_contexte_modules_accompagnement(question, contexte, historique)
 
     try:
         system_prompt = _construire_system_prompt(contexte)
@@ -1229,6 +1307,9 @@ def repondre_assistant_turf(question: str, contexte_analyse: dict = None, histor
                 system_prompt += "\n=== SCÉNARIOS ===\n" + contexte["resume_scenarios"]
             if contexte.get("arbitrage_az_ia"):
                 system_prompt += "\n=== ARBITRAGE AZ / IA ===\n" + contexte["arbitrage_az_ia"]
+        resume_accompagnement = _resume_modules_accompagnement(contexte)
+        if resume_accompagnement:
+            system_prompt += "\n\n" + resume_accompagnement
         messages = _historique_pour_ia(historique)
 
         ordre = [AI_PROVIDER] + [p for p in ("anthropic", "openai") if p != AI_PROVIDER]
@@ -1248,9 +1329,11 @@ def repondre_assistant_turf(question: str, contexte_analyse: dict = None, histor
 
     # Aucune IA disponible/configurée, ou donnée de course imprévue :
     # repli sans jamais laisser d'erreur brute remonter au client.
+    source_secours = "secours"
     try:
         texte = _reponse_secours(question, contexte)
-        if plan and not texte.startswith("Je n'ai pas identifié"):
+        non_identifiee = texte.startswith("Je n'ai pas identifié")
+        if plan and not non_identifiee:
             # Les réponses historiques restent prioritaires ; les compléments
             # calculés localement sont ajoutés uniquement lorsqu'ils répondent à la demande.
             pass
@@ -1258,7 +1341,21 @@ def repondre_assistant_turf(question: str, contexte_analyse: dict = None, histor
             modules = ", ".join(plan.modules)
             texte = (f"Je peux traiter cette demande à partir de la course courante. "
                      f"Je vais croiser : {modules}.\n\n" + texte)
+        # Palier additif : uniquement lorsque le secours existant ne reconnaît
+        # pas la demande (avant l'ajout éventuel du préfixe ci-dessus), on
+        # tente orchestrateur_v20.py — il consomme le contexte déjà enrichi
+        # par orchestrateur_turf.py (cotes, presse, météo, tactique,
+        # raisonnement autonome...). S'il ne trouve rien de mieux, le message
+        # de secours existant est conservé tel quel.
+        if non_identifiee and _repondre_orchestrateur_v20:
+            try:
+                resultat_v20 = _repondre_orchestrateur_v20(question, contexte, historique)
+            except Exception:
+                resultat_v20 = None
+            if isinstance(resultat_v20, dict) and resultat_v20.get("reponse"):
+                texte = str(resultat_v20["reponse"])
+                source_secours = "secours_orchestrateur_v20"
     except Exception:
         texte = ("Je rencontre une difficulté technique passagère. "
                  "Réessayez dans un instant.")
-    return {"status": "success", "question": question, "reponse": texte, "source": "secours"}
+    return {"status": "success", "question": question, "reponse": texte, "source": source_secours}
