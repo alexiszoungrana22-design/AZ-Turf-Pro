@@ -43,9 +43,9 @@
       return;
     }
     const courses = Number(data.courses_evaluees ?? data.courses_terminees ?? data.total ?? 0);
-    const selection = data.taux_selection_az ?? data.selection_az_taux ?? null;
-    const favori = data.taux_favori_gagnant ?? data.favori_gagnant_taux ?? null;
-    const touche = data.taux_selection_az_touche ?? data.selection_az_touche_taux ?? null;
+    const selection = data.selection_taux_gagnant ?? data.taux_selection_az ?? data.selection_az_taux ?? null;
+    const favori = data.favori_taux ?? data.taux_favori_gagnant ?? data.favori_gagnant_taux ?? null;
+    const touche = data.selection_taux_touchee ?? data.taux_selection_az_touche ?? data.selection_az_touche_taux ?? null;
     const fmt = v => v == null ? '—' : `${Number(v).toFixed(1)} %`;
     const cards = [
       ['Courses évaluées', courses],
