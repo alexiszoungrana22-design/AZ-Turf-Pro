@@ -1331,70 +1331,11 @@ async def assistant_chat_stream(
 # =========================================================
 @router.get("/archive/courses")
 def archive_courses(limit: int = 100):
-    """Retourne l'archive et complète automatiquement les arrivées manquantes.
-
-    Une course déjà archivée mais sans arrivée officielle n'est pas considérée
-    comme perdue : si son identifiant PMU (ou date/réunion/course) permet une
-    recherche, on tente de récupérer le résultat officiel puis de le persister
-    dans PostgreSQL. En cas d'indisponibilité PMU, la course reste affichée avec
-    ``arrivee_json = null`` afin de ne jamais inventer un résultat.
-    """
     try:
-        from archive_store import lire_archive, archiver_arrivee
-        from pmu_source import recuperer_arrivee_pmu
-
-        courses = lire_archive(limit)
-        synchronisees = 0
-
-        for course in courses:
-            if not isinstance(course, dict) or course.get("arrivee_json"):
-                continue
-
-            date = course.get("date_course")
-            reunion = course.get("reunion")
-            numero = course.get("course_numero")
-            course_key = course.get("course_key")
-
-            if not (date and reunion and numero and course_key):
-                continue
-
-            try:
-                arrivee = recuperer_arrivee_pmu(date, reunion, numero)
-            except Exception:
-                arrivee = None
-
-            if arrivee:
-                try:
-                    if archiver_arrivee(course_key, arrivee):
-                        course["arrivee_json"] = arrivee
-                        course["updated_at"] = datetime.now().isoformat()
-                        synchronisees += 1
-                except Exception:
-                    # L'affichage reste disponible même si la persistance échoue.
-                    pass
-
-        return {
-            "status": "success",
-            "total": len(courses),
-            "courses": courses,
-            "arrivees_synchronisees": synchronisees,
-        }
+        from archive_store import lire_archive
+        return {"status": "success", "total": len(lire_archive(limit)), "courses": lire_archive(limit)}
     except Exception as erreur:
         raise HTTPException(status_code=500, detail=f"Erreur archive : {erreur}")
-
-@router.get("/archive/performance")
-def archive_performance():
-    """Calcule les performances uniquement sur les archives avec arrivée officielle."""
-    try:
-        from archive_store import lire_archive_performance
-        from archive_performance import calculer_performance
-        courses = lire_archive_performance(1000)
-        return calculer_performance(courses)
-    except Exception as erreur:
-        # Message exploitable dans les logs/diagnostics Render, sans exposer
-        # de secret de connexion.
-        raise HTTPException(status_code=500, detail=f"Erreur performance archive : {erreur}")
-
 
 @router.get("/archive/diagnostic")
 def archive_diagnostic():
@@ -1405,6 +1346,130 @@ def archive_diagnostic():
         "stockage": "PostgreSQL persistant",
         "table": "az_course_archive",
     }
+
+
+# =========================================================
+# PERFORMANCE AZ — panneau "Performances AZ" de historique.html
+# (historique-performance.js appelle GET /api/archive/performance,
+# route absente jusqu'ici -> 404 constaté en production). Additive :
+# s'appuie sur archive_store.lire_archive_performance(), déjà écrite
+# mais jamais appelée par personne. Aucune donnée inventée : les
+# courses sans arrivée officielle enregistrée sont simplement exclues
+# du calcul plutôt que comptées comme un échec ou une réussite.
+#
+# Définitions retenues (à ajuster si une autre définition est voulue) :
+#   - taux_favori_gagnant      : le favori AZ (classement[0]) est le
+#                                 vainqueur réel (arrivee[0])
+#   - taux_selection_az        : les 5 premiers de l'arrivée réelle
+#                                 sont TOUS contenus dans la sélection
+#                                 AZ (quinté, 7 numéros) — ticket
+#                                 entièrement "dans le jeu"
+#   - taux_selection_az_touche : AU MOINS UN des 5 premiers de
+#                                 l'arrivée réelle figure dans la
+#                                 sélection AZ — touché partiel
+# =========================================================
+@router.get("/archive/performance")
+def archive_performance():
+    try:
+        from archive_store import lire_archive_performance
+
+        lignes = lire_archive_performance(1000)
+
+        courses_evaluees = 0
+        favoris_gagnants = 0
+        selections_reussies = 0
+        selections_touchees = 0
+
+        for ligne in lignes:
+            arrivee = ligne.get("arrivee_json")
+            if not arrivee or not isinstance(arrivee, list):
+                continue  # course sans résultat officiel : exclue, jamais inventée
+            arrivee_num = [str(n) for n in arrivee]
+            top5 = set(arrivee_num[:5])
+            if not top5:
+                continue
+
+            courses_evaluees += 1
+
+            favori = ligne.get("favori_json") or {}
+            favori_numero = str(favori.get("numero")) if isinstance(favori, dict) and favori.get("numero") is not None else None
+            if favori_numero and arrivee_num and favori_numero == arrivee_num[0]:
+                favoris_gagnants += 1
+
+            selection = ligne.get("selection_az_json") or []
+            selection_num = {str(n) for n in selection} if isinstance(selection, list) else set()
+            if selection_num:
+                if top5.issubset(selection_num):
+                    selections_reussies += 1
+                if top5 & selection_num:
+                    selections_touchees += 1
+
+        def _taux(n):
+            return round((n / courses_evaluees) * 100, 1) if courses_evaluees else None
+
+        return {
+            "status": "success",
+            "courses_evaluees": courses_evaluees,
+            "taux_favori_gagnant": _taux(favoris_gagnants),
+            "taux_selection_az": _taux(selections_reussies),
+            "taux_selection_az_touche": _taux(selections_touchees),
+        }
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur Performance AZ : {erreur}")
+
+
+# =========================================================
+# PERFORMANCE AZ — panneau "historique-performance.js" (frontend déjà
+# présent, appelait /api/archive/performance qui n'existait pas -> 404).
+# Route additive, nouvelle : ne remplace ni /archive/courses ni
+# /archive/classement-chevaux. Utilise archive_store.lire_archive_performance(),
+# déjà écrite mais jusqu'ici jamais appelée par personne.
+# Aucun résultat inventé : seules les courses ayant une arrivee_json réelle
+# (résultat officiel déjà archivé, voir /historique) sont comptabilisées.
+# =========================================================
+@router.get("/archive/performance")
+def archive_performance():
+    try:
+        from archive_store import lire_archive_performance
+        lignes = lire_archive_performance(1000)
+
+        courses_evaluees = 0
+        favori_gagnant = 0
+        selection_reussie = 0
+        selection_touche = 0
+
+        for ligne in lignes:
+            arrivee = ligne.get("arrivee_json")
+            if not arrivee or not isinstance(arrivee, list):
+                continue
+            courses_evaluees += 1
+            arrivee_str = [str(n) for n in arrivee]
+            gagnant = arrivee_str[0] if arrivee_str else None
+
+            favori = ligne.get("favori_json") or {}
+            favori_numero = str(favori.get("numero")) if isinstance(favori, dict) and favori.get("numero") is not None else None
+            if favori_numero and gagnant and favori_numero == gagnant:
+                favori_gagnant += 1
+
+            selection = ligne.get("selection_az_json") or []
+            selection_str = [str(n) for n in selection] if isinstance(selection, list) else []
+            if gagnant and gagnant in selection_str:
+                selection_reussie += 1
+            if selection_str and any(n in arrivee_str for n in selection_str):
+                selection_touche += 1
+
+        def pct(n):
+            return round((n / courses_evaluees) * 100, 1) if courses_evaluees else None
+
+        return {
+            "status": "success",
+            "courses_evaluees": courses_evaluees,
+            "taux_favori_gagnant": pct(favori_gagnant),
+            "taux_selection_az": pct(selection_reussie),
+            "taux_selection_az_touche": pct(selection_touche),
+        }
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur performance archive : {erreur}")
 
 
 # =========================================================
