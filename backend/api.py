@@ -1331,9 +1331,54 @@ async def assistant_chat_stream(
 # =========================================================
 @router.get("/archive/courses")
 def archive_courses(limit: int = 100):
+    """Retourne l'archive et complète automatiquement les arrivées manquantes.
+
+    Une course déjà archivée mais sans arrivée officielle n'est pas considérée
+    comme perdue : si son identifiant PMU (ou date/réunion/course) permet une
+    recherche, on tente de récupérer le résultat officiel puis de le persister
+    dans PostgreSQL. En cas d'indisponibilité PMU, la course reste affichée avec
+    ``arrivee_json = null`` afin de ne jamais inventer un résultat.
+    """
     try:
-        from archive_store import lire_archive
-        return {"status": "success", "total": len(lire_archive(limit)), "courses": lire_archive(limit)}
+        from archive_store import lire_archive, archiver_arrivee
+        from pmu_source import recuperer_arrivee_pmu
+
+        courses = lire_archive(limit)
+        synchronisees = 0
+
+        for course in courses:
+            if not isinstance(course, dict) or course.get("arrivee_json"):
+                continue
+
+            date = course.get("date_course")
+            reunion = course.get("reunion")
+            numero = course.get("course_numero")
+            course_key = course.get("course_key")
+
+            if not (date and reunion and numero and course_key):
+                continue
+
+            try:
+                arrivee = recuperer_arrivee_pmu(date, reunion, numero)
+            except Exception:
+                arrivee = None
+
+            if arrivee:
+                try:
+                    if archiver_arrivee(course_key, arrivee):
+                        course["arrivee_json"] = arrivee
+                        course["updated_at"] = datetime.now().isoformat()
+                        synchronisees += 1
+                except Exception:
+                    # L'affichage reste disponible même si la persistance échoue.
+                    pass
+
+        return {
+            "status": "success",
+            "total": len(courses),
+            "courses": courses,
+            "arrivees_synchronisees": synchronisees,
+        }
     except Exception as erreur:
         raise HTTPException(status_code=500, detail=f"Erreur archive : {erreur}")
 
@@ -1351,46 +1396,27 @@ def archive_diagnostic():
 # =========================================================
 # PERFORMANCE AZ — TOP 10 CHEVAUX
 # =========================================================
-@router.get("/archive/performance")
-def archive_performance(limit: int = 1000):
-    """Retourne les performances calculées sur les arrivées officielles archivées."""
-    try:
-        from archive_store import lire_archive_performance
-        from archive_performance import calculer_performance
-
-        courses = lire_archive_performance(limit)
-        return calculer_performance(courses)
-    except Exception as erreur:
-        raise HTTPException(status_code=500, detail=f"Erreur Performance AZ : {erreur}")
-
-
 @router.get("/archive/classement-chevaux")
 def classement_chevaux(limit: int = 10):
-    """Classement Performance AZ depuis les arrivées officielles archivées."""
+    """Classement Performance AZ depuis les archives disponibles."""
     try:
         from archive_store import lire_archive
 
-        limit = max(1, min(int(limit), 100))
-        archives = lire_archive(1000)
+        archives = lire_archive(500)
         chevaux = {}
 
         for course in archives:
             if not isinstance(course, dict):
                 continue
-            arrivee = course.get("arrivee_json")
-            if arrivee is None:
-                # Compatibilité avec d'anciens formats JSON.
-                arrivee = course.get("arrivee") or course.get("resultat") or []
-            if not isinstance(arrivee, list) or not arrivee:
+            if not course.get("arrivee") and not course.get("resultat"):
                 continue
 
-            # Une course donne une seule observation par cheval : sa présence
-            # dans l'arrivée officielle. Le taux mesure ici la part de TOP 3.
+            arrivee = course.get("arrivee") or course.get("resultat") or []
+            if isinstance(arrivee, str):
+                continue
+
             for position, cheval in enumerate(arrivee, start=1):
-                if isinstance(cheval, dict):
-                    nom = cheval.get("nom") or cheval.get("name")
-                else:
-                    nom = str(cheval).strip() if cheval is not None else ""
+                nom = cheval if isinstance(cheval, str) else cheval.get("nom")
                 if not nom:
                     continue
                 data = chevaux.setdefault(nom, {"courses": 0, "reussites": 0})
@@ -1403,23 +1429,29 @@ def classement_chevaux(limit: int = 10):
             if data["courses"] < 10:
                 continue
             taux = round((data["reussites"] / data["courses"]) * 100, 2)
-            confiance = min(100, round(taux * 0.7 + min(data["courses"], 30), 0))
+            confiance = min(100, round(taux * 0.7 + min(data["courses"], 30) * 1.0, 0))
             classement.append({
                 "cheval": nom,
                 "courses_analysees": data["courses"],
                 "reussites": data["reussites"],
                 "taux_reussite": taux,
-                "confiance": int(confiance),
+                "confiance": int(confiance)
             })
 
-        classement.sort(key=lambda x: (x["taux_reussite"], x["courses_analysees"]), reverse=True)
-        classement = classement[:limit]
-        for index, item in enumerate(classement, start=1):
+        classement.sort(key=lambda x: x["taux_reussite"], reverse=True)
+
+        for index, item in enumerate(classement[:limit], start=1):
             item["rang"] = index
 
-        return {"status": "success", "total": len(classement), "classement": classement}
+        return {
+            "status": "success",
+            "total": len(classement[:limit]),
+            "classement": classement[:limit]
+        }
+
     except Exception as erreur:
         raise HTTPException(status_code=500, detail=f"Erreur Performance AZ : {erreur}")
+
 
 # =========================================================
 # PIPELINE EXPERT V8/V9/V12/V13 — branchement des modules complémentaires
