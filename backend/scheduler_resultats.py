@@ -33,11 +33,31 @@ def _heure_course(course: dict) -> datetime | None:
                     continue
             else:
                 return None
+        # PMU peut exposer HH:MM/HHhMM, ou exceptionnellement un timestamp.
+        if isinstance(heure, (int, float)) and not isinstance(heure, bool):
+            valeur = float(heure)
+            if valeur > 1_000_000_000:
+                if valeur > 10_000_000_000:
+                    valeur /= 1000.0
+                try:
+                    return datetime.fromtimestamp(valeur)
+                except (OverflowError, OSError, ValueError):
+                    return None
+            heure = str(int(valeur))
+
         h = str(heure).strip().replace("h", ":").replace("H", ":")
-        if h.count(":") == 0:
+        if ":" not in h and h.isdigit() and len(h) in (3, 4):
+            h = h.zfill(4)
+            h = h[:2] + ":" + h[2:]
+        elif ":" not in h:
             h += ":00"
-        hh, mm = h.split(":", 1)[:2]
-        return datetime.combine(base, datetime.min.time()).replace(hour=int(hh), minute=int(mm))
+        parts = h.split(":")
+        if len(parts) < 2:
+            return None
+        hh, mm = int(parts[0]), int(parts[1])
+        if not (0 <= hh <= 23 and 0 <= mm <= 59):
+            return None
+        return datetime.combine(base, datetime.min.time()).replace(hour=hh, minute=mm)
     except (TypeError, ValueError):
         return None
 

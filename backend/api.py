@@ -1382,6 +1382,20 @@ def archive_courses(limit: int = 100):
     except Exception as erreur:
         raise HTTPException(status_code=500, detail=f"Erreur archive : {erreur}")
 
+@router.get("/archive/performance")
+def archive_performance():
+    """Calcule les performances uniquement sur les archives avec arrivée officielle."""
+    try:
+        from archive_store import lire_archive_performance
+        from archive_performance import calculer_performance
+        courses = lire_archive_performance(1000)
+        return calculer_performance(courses)
+    except Exception as erreur:
+        # Message exploitable dans les logs/diagnostics Render, sans exposer
+        # de secret de connexion.
+        raise HTTPException(status_code=500, detail=f"Erreur performance archive : {erreur}")
+
+
 @router.get("/archive/diagnostic")
 def archive_diagnostic():
     import os as _os
@@ -1391,33 +1405,6 @@ def archive_diagnostic():
         "stockage": "PostgreSQL persistant",
         "table": "az_course_archive",
     }
-
-
-# =========================================================
-# PERFORMANCE AZ — CALCUL SUR ARCHIVE OFFICIELLE
-# =========================================================
-@router.get("/archive/performance")
-def archive_performance():
-    """Calcule les performances uniquement sur les courses avec arrivée officielle.
-
-    Les arrivées manquantes sont d'abord synchronisées par le même flux que
-    /archive/courses, puis les colonnes PostgreSQL sont transmises au moteur
-    de performance. Aucune arrivée n'est inventée.
-    """
-    try:
-        # Synchronisation opportuniste des arrivées réellement disponibles.
-        try:
-            archive_courses(limit=1000)
-        except Exception:
-            pass
-
-        from archive_store import lire_archive_performance
-        from archive_performance import calculer_performance
-
-        courses = lire_archive_performance(1000)
-        return calculer_performance(courses)
-    except Exception as erreur:
-        raise HTTPException(status_code=500, detail=f"Erreur calcul Performance AZ : {erreur}")
 
 
 # =========================================================
