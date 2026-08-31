@@ -1394,6 +1394,33 @@ def archive_diagnostic():
 
 
 # =========================================================
+# PERFORMANCE AZ — CALCUL SUR ARCHIVE OFFICIELLE
+# =========================================================
+@router.get("/archive/performance")
+def archive_performance():
+    """Calcule les performances uniquement sur les courses avec arrivée officielle.
+
+    Les arrivées manquantes sont d'abord synchronisées par le même flux que
+    /archive/courses, puis les colonnes PostgreSQL sont transmises au moteur
+    de performance. Aucune arrivée n'est inventée.
+    """
+    try:
+        # Synchronisation opportuniste des arrivées réellement disponibles.
+        try:
+            archive_courses(limit=1000)
+        except Exception:
+            pass
+
+        from archive_store import lire_archive_performance
+        from archive_performance import calculer_performance
+
+        courses = lire_archive_performance(1000)
+        return calculer_performance(courses)
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur calcul Performance AZ : {erreur}")
+
+
+# =========================================================
 # PERFORMANCE AZ — TOP 10 CHEVAUX
 # =========================================================
 @router.get("/archive/classement-chevaux")
