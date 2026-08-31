@@ -1,1 +1,1591 @@
+# =====================================
+# AZ TURF PRO
+# API
+# Analyse + Premium
+# =====================================
+#
+# CORRECTIONS APPORTEES A CETTE VERSION (rien d'autre n'a change) :
+#
+# 1. charger_course() ne fige plus reunion="R1"/course_numero="C1"
+#    en dur : ces valeurs sont desormais laissees a
+#    charger_course_pmu(), qui lit le vrai programme du jour et
+#    choisit la premiere reunion/course reellement disponible
+#    (cf. pmu_source.py corrige). Avant, meme si R1/C1 n'existait
+#    pas ce jour-la, on ne le savait jamais - PMU echouait toujours
+#    silencieusement et on retombait sur courses.json.
+#
+# 2. Quand la source reelle echoue et qu'on retombe sur
+#    courses.json, la reponse de /api/analyse indique desormais
+#    clairement qu'il s'agit de donnees de demonstration (source
+#    "demo" + message explicite + date_demo separee de la date du
+#    jour), pour ne jamais laisser croire que c'est la course
+#    actuelle. Toutes les autres routes (abonnement, activation,
+#    premium, admin) sont strictement inchangees.
 
+
+from fastapi import APIRouter, HTTPException, Header
+from fastapi.responses import StreamingResponse
+import secrets
+import asyncio
+import re
+
+from engine import lancer_analyse
+
+from database import (
+    creer_abonnement,
+    activer_abonnement,
+    valider_reference_paiement,
+    verifier_premium,
+    lister_abonnements,
+    statistiques_abonnements
+)
+
+from models import (
+    AbonnementRequest,
+    ActivationRequest
+)
+
+from pmu_source import charger_course_pmu
+
+from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
+
+from learning import lire_historique, mettre_a_jour_arrivee
+from security import create_premium_token, verify_premium_token
+from modules.chatbot_turf import repondre_assistant_turf
+
+import json
+import os
+from datetime import datetime, timedelta
+
+from modules.cotes_history import analyser_tendances_cotes
+from modules.pronos_presse import analyser_consensus_presse
+from modules.meteo_piste import analyser_impact_terrain
+from modules.actualites_hippiques import recuperer_actualites
+
+router = APIRouter(
+    prefix="/api",
+    tags=["AZ Turf"]
+)
+
+
+# =====================================
+# CHARGEMENT COURSE LOCALE
+# =====================================
+
+def charger_course_locale():
+
+    chemin = os.path.join(
+        os.path.dirname(__file__),
+        "data",
+        "courses.json"
+    )
+
+    with open(
+        chemin,
+        "r",
+        encoding="utf-8"
+    ) as fichier:
+
+        return json.load(fichier)
+
+
+# =====================================
+# CHARGEMENT COURSE
+# PMU PRIORITAIRE + FALLBACK LOCAL
+# =====================================
+
+def charger_course():
+
+    aujourd_hui = datetime.now()
+
+    # Format attendu par l'API PMU
+    date_pmu = aujourd_hui.strftime(
+        "%d%m%Y"
+    )
+
+    # =================================
+    # 1. TENTATIVE PMU
+    # reunion/course_numero ne sont plus
+    # fixes en dur : charger_course_pmu()
+    # determine elle-meme la premiere
+    # reunion/course reellement
+    # disponible dans le programme du
+    # jour si on ne lui impose rien.
+    # =================================
+
+    try:
+
+        course = charger_course_pmu(
+            date_pmu
+        )
+
+        if (
+            course
+            and isinstance(course, dict)
+            and course.get("chevaux")
+        ):
+
+            print(
+                "Source utilisÃ©e : PMU rÃ©el"
+            )
+
+            return course, "pmu_live"
+
+    except Exception as erreur:
+
+        print(
+            "PMU indisponible :",
+            erreur
+        )
+
+    # =================================
+    # 2. FALLBACK LOCAL
+    # Marque explicitement comme donnee
+    # de demonstration : ne doit jamais
+    # etre presentee comme la course du
+    # jour.
+    # =================================
+
+    try:
+
+        course = charger_course_locale()
+
+        if (
+            course
+            and isinstance(course, dict)
+            and course.get("chevaux")
+        ):
+
+            print(
+                "Source utilisÃ©e : donnÃ©es locales (dÃ©mo)"
+            )
+
+            course["donnees_demo"] = True
+
+            return course, "demo"
+
+    except Exception as erreur:
+
+        print(
+            "Erreur chargement local :",
+            erreur
+        )
+
+    return None, "none"
+
+
+# =====================================
+# PARTANTS — ROUTE ADDITIVE
+# =====================================
+@router.get("/partants")
+def partants():
+    """Retourne les partants analysés sans modifier /api/analyse."""
+    course, source = charger_course()
+    if not course:
+        raise HTTPException(status_code=503, detail="Données PMU indisponibles actuellement.")
+    chevaux = course.get("chevaux", [])
+    if not chevaux:
+        raise HTTPException(status_code=503, detail="Aucun partant disponible.")
+    try:
+        resultat = lancer_analyse(
+            chevaux,
+            info_course={
+                "date": course.get("date"),
+                "reunion": course.get("reunion"),
+                "course_numero": course.get("course_numero"),
+                "course": course.get("course", ""),
+                "hippodrome": course.get("hippodrome", ""),
+                "discipline": course.get("discipline", ""),
+                "distance": course.get("distance_course", ""),
+                "allocation": course.get("allocation", ""),
+                "heure_depart": course.get("heure_depart", ""),
+                "non_partants": course.get("non_partants", []),
+            },
+        )
+        classement = resultat.get("chevaux", []) if isinstance(resultat, dict) else []
+        return [
+            {
+                "rang": c.get("rang"),
+                "numero": c.get("numero"),
+                "nom": c.get("nom"),
+                "indice": c.get("indice_az"),
+                "confiance": c.get("confiance"),
+                "jockey": c.get("jockey", ""),
+                "entraineur": c.get("entraineur", ""),
+                "cote": c.get("cote_brute", c.get("rapport", "")),
+                "statut": c.get("statut", ""),
+                "source": source,
+                "donnees_demo": source == "demo",
+            }
+            for c in classement
+        ]
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur partants : {erreur}")
+
+
+# =====================================
+# ANALYSE AZ TURF
+# =====================================
+
+@router.get("/version")
+def version():
+    """Petit indicateur pour vérifier facilement, depuis un navigateur,
+    quelle version du code est réellement déployée sur ce serveur."""
+    return {
+        "version": "v22-audit-fonctionnel",
+        "chatbot": "modules/chatbot_turf.py — moteur AZ conservé + orchestration locale V22",
+    }
+
+
+@router.get("/assistant/diagnostic")
+def assistant_diagnostic():
+    """Confirme si les clés IA sont bien détectées par le serveur,
+    SANS jamais révéler leur valeur — juste vrai/faux."""
+    import os as _os
+    return {
+        "anthropic_key_detectee": bool(_os.getenv("ANTHROPIC_API_KEY", "").strip()),
+        "openai_key_detectee": bool(_os.getenv("OPENAI_API_KEY", "").strip()),
+        "provider_prioritaire": _os.getenv("AI_PROVIDER", "anthropic").strip().lower(),
+    }
+
+
+@router.get("/diagnostic/france-galop")
+def diagnostic_france_galop():
+    """Teste EN DIRECT le module France Galop (scraping best-effort,
+    non garanti). Permet de vérifier depuis un navigateur si ça
+    fonctionne réellement contre le site, sans risque pour le reste
+    de l'application (échec silencieux garanti par le module)."""
+    from france_galop_source import obtenir_complement_france_galop
+    resultat = obtenir_complement_france_galop("Longchamp", "GALOP")
+    return {
+        "resultat": resultat,
+        "succes": resultat is not None,
+        "note": ("Rien n'a pu être récupéré — le module a échoué "
+                 "silencieusement comme prévu, rien n'est cassé "
+                 "ailleurs dans l'app." if resultat is None else
+                 "Le scraping fonctionne."),
+    }
+
+
+@router.get("/assistant/diagnostic/test")
+def assistant_diagnostic_test():
+    """Tente un VRAI appel à chaque IA configurée et renvoie soit la
+    réponse, soit le message d'erreur exact — pour diagnostiquer en un
+    clic depuis un navigateur, sans accès aux logs serveur."""
+    from modules.chatbot_turf import _appeler_claude, _appeler_openai, ANTHROPIC_API_KEY, OPENAI_API_KEY
+
+    resultats = {}
+
+    if ANTHROPIC_API_KEY:
+        try:
+            texte = _appeler_claude("Réponds juste 'OK' si tu me reçois.", [], "Test")
+            resultats["anthropic"] = {"succes": True, "reponse": texte}
+        except Exception as erreur:
+            resultats["anthropic"] = {"succes": False, "erreur": str(erreur)}
+    else:
+        resultats["anthropic"] = {"succes": False, "erreur": "Clé non configurée."}
+
+    if OPENAI_API_KEY:
+        try:
+            texte = _appeler_openai("Réponds juste 'OK' si tu me reçois.", [], "Test")
+            resultats["openai"] = {"succes": True, "reponse": texte}
+        except Exception as erreur:
+            resultats["openai"] = {"succes": False, "erreur": str(erreur)}
+    else:
+        resultats["openai"] = {"succes": False, "erreur": "Clé non configurée."}
+
+    return resultats
+
+
+@router.get("/actualites")
+def actualites(limit: int = 10):
+    """Actualités hippiques live best-effort depuis des sources officielles.
+    Aucun contenu n'est inventé si les sources sont indisponibles.
+    """
+    return recuperer_actualites(max(1, min(limit, 20)))
+
+
+@router.get("/analyse")
+def analyse():
+
+    try:
+
+        # =================================
+        # 1. CHARGEMENT DES DONNÃ‰ES
+        # =================================
+
+        course, source = charger_course()
+
+        if not course:
+
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    "Aucune donnÃ©e de course "
+                    "disponible actuellement."
+                )
+            )
+
+        # =================================
+        # 2. CHEVAUX
+        # =================================
+
+        chevaux = course.get(
+            "chevaux",
+            []
+        )
+
+        if not chevaux:
+
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    "Aucun cheval trouvÃ© "
+                    "dans la course."
+                )
+            )
+
+        # =================================
+        # 3. MOTEUR AZ
+        # =================================
+
+        resultat = lancer_analyse(
+            chevaux,
+            info_course={
+                "date": course.get("date"),
+                "reunion": course.get("reunion"),
+                "course_numero": course.get("course_numero"),
+                "course": course.get("course", ""),
+                "hippodrome": course.get("hippodrome"),
+                "discipline": course.get("discipline", ""),
+                "distance": course.get("distance_course", ""),
+                "allocation": course.get("allocation", ""),
+                "heure_depart": course.get("heure_depart", ""),
+                "horaires": course.get("horaires", {}),
+                "non_partants": course.get("non_partants", []),
+                "plus_joues": course.get("plus_joues", []),
+            }
+        )
+
+        if not isinstance(
+            resultat,
+            dict
+        ):
+            raise Exception(
+                "RÃ©ponse invalide du moteur AZ"
+            )
+
+        classement = resultat.get(
+            "chevaux",
+            []
+        )
+
+        if not classement:
+
+            raise Exception(
+                "Le moteur AZ n'a retournÃ© "
+                "aucun classement."
+            )
+
+        # =================================
+        # 4. INFORMATIONS COURSE
+        # =================================
+
+        aujourd_hui = datetime.now()
+
+        est_demo = (source == "demo")
+
+        date_course = (
+            course.get("date")
+            or aujourd_hui.strftime(
+                "%Y-%m-%d"
+            )
+        )
+
+        reunion = (
+            course.get("reunion")
+            or "R1"
+        )
+
+        course_numero = (
+            course.get("course_numero")
+            or "C1"
+        )
+
+        # =================================
+        # 5. RÃ‰PONSE API
+        # =================================
+
+        reponse = {
+
+            "message": (
+                "Analyse AZ Turf terminÃ©e"
+                if not est_demo else
+                "Analyse AZ Turf terminÃ©e "
+                "(donnÃ©es de dÃ©monstration, "
+                "aucune course rÃ©elle "
+                "disponible actuellement)"
+            ),
+
+            "source":
+                source,
+
+            # Indique explicitement au frontend
+            # qu'il ne s'agit pas d'une course
+            # reelle du jour, pour eviter toute
+            # confusion.
+            "donnees_demo":
+                est_demo,
+
+            "course":
+                course.get(
+                    "course",
+                    "Course"
+                ),
+
+            "date":
+                date_course,
+
+            "reunion":
+                reunion,
+
+            "course_numero":
+                course_numero,
+
+            "heure_depart":
+                course.get("heure_depart", ""),
+
+            "horaires":
+                course.get("horaires", {"depart": course.get("heure_depart", ""), "arret_des_jeux": ""}),
+
+            "hippodrome":
+                course.get(
+                    "hippodrome",
+                    ""
+                ),
+
+            "discipline":
+                course.get(
+                    "discipline",
+                    ""
+                ),
+
+            "distance":
+                course.get(
+                    "distance_course",
+                    ""
+                ),
+
+            "terrain": course.get("terrain") or course.get("etat_piste") or "",
+            "meteo": course.get("meteo") or {},
+
+            "allocation":
+                course.get(
+                    "allocation",
+                    ""
+                ),
+
+            "non_partants":
+                course.get(
+                    "non_partants",
+                    []
+                ),
+
+            "plus_joues":
+                course.get(
+                    "plus_joues",
+                    []
+                ),
+
+            "source_plus_joues":
+                course.get(
+                    "source_plus_joues",
+                    "Non disponible"
+                ),
+
+            "partants":
+                len(chevaux),
+
+            "chevaux":
+                classement,
+
+            "classement":
+                classement,
+
+            "favori": (
+                classement[0]
+                if classement
+                else {}
+            ),
+
+            "tickets":
+                resultat.get(
+                    "tickets",
+                    {}
+                )
+
+        }
+
+        if est_demo:
+
+            reponse["avertissement"] = (
+                "Ces donnÃ©es sont des donnÃ©es de "
+                "dÃ©monstration figÃ©es et ne "
+                "correspondent pas Ã   une course "
+                "rÃ©elle du jour."
+            )
+
+        return reponse
+
+    except HTTPException:
+        raise
+
+    except Exception as erreur:
+
+        print(
+            "Erreur analyse AZ :",
+            erreur
+        )
+
+        raise HTTPException(
+
+            status_code=500,
+
+            detail=(
+                "Erreur AZ : "
+                f"{str(erreur)}"
+            )
+
+        )
+
+
+# =====================================
+# CREATION ABONNEMENT PREMIUM
+# =====================================
+
+@router.post("/abonnement")
+def abonnement(
+    data: AbonnementRequest
+):
+
+    try:
+
+        resultat = creer_abonnement(
+            data.model_dump()
+        )
+
+        return {
+
+            "message":
+                "Abonnement enregistrÃ©",
+
+            "abonnement":
+                resultat
+
+        }
+
+    except Exception as erreur:
+
+        raise HTTPException(
+
+            status_code=500,
+
+            detail=str(erreur)
+
+        )
+
+
+# =====================================
+# ACTIVATION PREMIUM ADMIN
+# =====================================
+
+@router.post("/activation")
+def activation_premium(
+    activation: ActivationRequest
+):
+    # Auto-service : la vraie protection est déjà dans activer_abonnement,
+    # qui n'active que si un admin a préalablement validé cette référence
+    # exacte via /admin/valider-paiement. Aucune clé admin requise ici.
+
+    abonnement = activer_abonnement(
+
+        activation.telephone,
+
+        activation.reference
+
+    )
+
+    if abonnement is None:
+
+        raise HTTPException(
+
+            status_code=404,
+
+            detail=
+                "Aucun abonnement trouvÃ©"
+
+        )
+
+    abonnement["date_fin"] = (
+
+        datetime.now()
+
+        +
+
+        timedelta(
+
+            days=int(
+
+                abonnement.get(
+                    "duree",
+                    30
+                )
+
+            )
+
+        )
+
+    ).isoformat()
+
+    token = create_premium_token(
+        activation.telephone,
+        abonnement["date_fin"]
+    )
+
+    return {
+        "message": "Premium activÃ©",
+        "statut": "ACTIF",
+        "date_fin": abonnement["date_fin"],
+        "access_token": token,
+        "token_type": "bearer"
+    }
+
+
+# =====================================
+# VERIFICATION PREMIUM
+# =====================================
+
+@router.get("/premium/{telephone}")
+def premium(
+    telephone: str
+):
+
+    return verifier_premium(
+        telephone
+    )
+
+
+# =====================================
+# ADMIN - ABONNEMENTS
+# =====================================
+
+@router.get("/admin/abonnements")
+def admin_abonnements(
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
+):
+    _require_admin(x_admin_key)
+    return {
+        "abonnements": lister_abonnements()
+    }
+
+
+# =====================================
+# ADMIN - STATISTIQUES
+# =====================================
+
+@router.get("/admin/statistiques")
+def admin_statistiques(
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
+):
+    _require_admin(x_admin_key)
+    return statistiques_abonnements()
+
+
+# =====================================
+# JOURNAL HIPPIQUE (LONAB)
+# =====================================
+#
+# Route additive : n'affecte aucune route existante ci-dessus.
+
+@router.get("/journal")
+def journal():
+
+    try:
+
+        aujourd_hui = datetime.now()
+
+        resultat = recuperer_journal_lonab(
+            aujourd_hui
+        )
+
+        if not resultat:
+
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    "Journal hippique LONAB indisponible "
+                    "actuellement."
+                )
+            )
+
+        return resultat
+
+    except HTTPException:
+        raise
+
+    except Exception as erreur:
+
+        print(
+            "Erreur journal LONAB :",
+            erreur
+        )
+
+        raise HTTPException(
+
+            status_code=500,
+
+            detail=(
+                "Erreur journal : "
+                f"{str(erreur)}"
+            )
+
+        )
+
+
+# =====================================
+# DEBUG TEMPORAIRE - JSON BRUT PMU
+# =====================================
+#
+# Route temporaire, a retirer une fois le probleme d'hippodrome
+# resolu. Retourne le dict "course" brut tel que recu de l'API PMU,
+# AVANT toute transformation, pour identifier le vrai nom du champ
+# hippodrome dans le schema reel de l'API client/61.
+
+@router.get("/debug-pmu")
+def debug_pmu():
+    from pmu_source import trouver_quinte_du_jour, LAST_PMU_DIAGNOSTIC
+    date_pmu = datetime.now().strftime("%d%m%Y")
+    try:
+        programme, reunion, course = trouver_quinte_du_jour(date_pmu)
+        from pmu_source import LAST_PMU_DIAGNOSTIC as diagnostic
+        return {
+            "date_demandee": date_pmu,
+            "reunion": reunion,
+            "programme_brut": programme,
+            "course_brute": course,
+            "pmu_diagnostic": diagnostic,
+        }
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur debug PMU : {erreur}")
+
+
+# =====================================
+# DEBUG TEMPORAIRE - JOURNAL LONAB
+# =====================================
+#
+# Route temporaire, a retirer une fois le journal fonctionnel.
+# Montre precisement a quelle etape la recuperation LONAB echoue.
+
+@router.get("/debug-journal")
+def debug_journal():
+
+    aujourd_hui = datetime.now()
+
+    try:
+
+        diagnostic = diagnostiquer_journal_lonab(
+            aujourd_hui
+        )
+
+        return diagnostic
+
+    except Exception as erreur:
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erreur debug journal : {erreur}"
+        )
+
+
+# =====================================
+# HISTORIQUE (SELECTION + RESULTATS)
+# =====================================
+#
+# Route additive : n'affecte aucune route existante. Lit
+# data/historique_az.json (rempli automatiquement par
+# engine.lancer_analyse a chaque appel de /api/analyse) et tente
+# de completer le vrai resultat (arrivee) des entrees passees dont
+# la course est desormais terminee.
+#
+# LIMITE CONNUE : si l'hebergement Render ne dispose pas d'un
+# disque persistant, ce fichier peut etre remis a zero a chaque
+# redeploiement - l'historique ne survit alors pas dans le temps.
+
+@router.get("/historique")
+def historique():
+
+    try:
+
+        entrees = lire_historique()
+
+        for index, entree in enumerate(entrees):
+
+            if entree.get("arrivee"):
+                # Rattrapage additif : cette arrivée était déjà connue dans le
+                # JSON local (avant même le branchement de archiver_arrivee()
+                # ci-dessous), donc jamais poussée vers l'archive PostgreSQL —
+                # d'où des courses affichées "En attente" côté archive alors
+                # que le résultat était déjà là. Idempotent (simple UPDATE),
+                # sans risque à répéter à chaque appel.
+                try:
+                    from archive_store import archiver_arrivee, _cle_course
+                    info_course_connue = entree.get("course") or {}
+                    if info_course_connue:
+                        archiver_arrivee(_cle_course(info_course_connue), entree["arrivee"])
+                except Exception:
+                    pass
+                continue
+
+            info_course = entree.get("course") or {}
+
+            date = info_course.get("date")
+            reunion = info_course.get("reunion")
+            course_numero = info_course.get("course_numero")
+
+            if not (date and reunion and course_numero):
+                continue
+
+            try:
+
+                from pmu_source import recuperer_arrivee_pmu
+
+                arrivee = recuperer_arrivee_pmu(
+                    date, reunion, course_numero
+                )
+
+                if arrivee:
+                    mettre_a_jour_arrivee(index, arrivee)
+                    entree["arrivee"] = arrivee
+
+                    # Branchement additif : le même résultat, déjà récupéré
+                    # ci-dessus via la même API PMU publique déjà utilisée
+                    # ailleurs dans le projet, est aussi répercuté sur
+                    # l'archive PostgreSQL (colonne arrivee_json), qui
+                    # disposait déjà de archiver_arrivee() mais dont
+                    # personne ne l'appelait. N'affecte pas la mise à jour
+                    # JSON ci-dessus, qui reste inchangée.
+                    try:
+                        from archive_store import archiver_arrivee, _cle_course
+                        archiver_arrivee(_cle_course(info_course), arrivee)
+                    except Exception:
+                        pass
+
+            except Exception:
+                pass
+
+        return {
+            "historique": list(reversed(entrees))
+        }
+
+    except Exception as erreur:
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erreur historique : {erreur}"
+)
+            
+# Dans api.py (à la fin du fichier)
+from modules.cotes_history import analyser_tendances_cotes
+from modules.export_pdf import generer_pdf_ticket
+
+@router.post("/analyse/cotes")
+def api_analyse_cotes(data: dict):
+    return analyser_tendances_cotes(data)
+
+@router.post("/export/pdf")
+def api_export_pdf(data: dict):
+    return generer_pdf_ticket(data)
+
+# =========================================================
+# ENDPOINT TOUT-EN-UN (ANALYSE GLOBALE AZ TURF PRO)
+# =========================================================
+
+@router.post("/analyse/complete")
+def api_analyse_complete(payload: dict):
+    """
+    Combine le moteur principal, le suivi des cotes, la presse et la météo 
+    en une seule réponse structurée pour l'application.
+    """
+    chevaux = payload.get("chevaux", [])
+    info_course = payload.get("info_course", {})
+
+    # 1. Moteur d'analyse principal (Scores AZ, Premium, Badges et Radar)
+    res_moteur = lancer_analyse(chevaux, info_course)
+
+    # 2. Suivi des cotes & Smart Money (Sécurisé avec try/except)
+    res_cotes = {}
+    try:
+        res_cotes = analyser_tendances_cotes({"chevaux": chevaux})
+    except Exception as e:
+        print("Erreur analyse cotes :", e)
+
+    # 3. Consensus Presse (Sécurisé avec try/except)
+    res_presse = {}
+    try:
+        res_presse = analyser_consensus_presse({"info_course": info_course})
+    except Exception as e:
+        print("Erreur analyse presse :", e)
+
+    # 4. Météo et état de la piste (Sécurisé avec try/except)
+    res_meteo = {}
+    try:
+        res_meteo = analyser_impact_terrain({"info_course": info_course})
+    except Exception as e:
+        print("Erreur analyse météo :", e)
+
+    # 5. Actualités hippiques (déjà importées en haut du fichier pour /api/actualites,
+    # mais jamais utilisées ici — branchement additif, sans rien changer d'existant).
+    res_actualites = []
+    try:
+        res_actualites = recuperer_actualites(8)
+    except Exception as e:
+        print("Erreur actualités :", e)
+
+    # 6. Modules complémentaires jusqu'ici non branchés sur cette route :
+    # expert_turf, pronostiqueur_engine, tactique_course_engine et
+    # autonomous_reasoning (via orchestrateur_turf.enrichir_modules_accompagnement,
+    # déjà utilisé pour l'assistant conversationnel). Purement additif, sous une
+    # clé dédiée : aucune clé existante de la réponse n'est modifiée.
+    modules_complementaires = {}
+    try:
+        from modules.orchestrateur_turf import enrichir_modules_accompagnement
+        classement_pour_ctx = res_moteur.get("chevaux", []) if isinstance(res_moteur, dict) else []
+        ctx_complementaire = enrichir_modules_accompagnement(
+            {"moteur": {"classement": classement_pour_ctx}, "course": info_course},
+            "",
+            [],
+        )
+        for cle in (
+            "expert_accompagnement", "expert_marche", "expert_performance",
+            "expert_conditions", "expert_valeur", "profils_chevaux",
+            "synthese_pronostiqueur", "tactique", "rythme_course",
+            "raisonnement_autonome", "tickets_autonomes", "comparaison_autonome_az",
+        ):
+            if ctx_complementaire.get(cle):
+                modules_complementaires[cle] = ctx_complementaire[cle]
+    except Exception as e:
+        print("Erreur modules complémentaires :", e)
+
+    # Assemblage de la réponse globale
+    return {
+        "status": "success",
+        "message": "Analyse complète AZ Turf Pro effectuée",
+        "analyse_moteur": res_moteur,
+        "tendances_cotes": res_cotes.get("resultats", []),
+        "consensus_presse": res_presse.get("consensus", []),
+        "impact_meteo": res_meteo.get("impact", "NEUTRE"),
+        "actualites": res_actualites,
+        "modules_complementaires": modules_complementaires,
+    }
+
+
+# =========================================================
+# AUTHENTIFICATION ADMIN + ASSISTANT
+# =========================================================
+
+def _admin_configured_keys() -> list[str]:
+    """Retourne la clé admin configurée sur le serveur (une seule source de vérité)."""
+    value = os.getenv("AZ_ADMIN_API_KEY", "").strip()
+    return [value] if value else []
+
+
+def _admin_expected_key() -> str:
+    """Compatibilité historique : renvoie la première clé configurée."""
+    keys = _admin_configured_keys()
+    return keys[0] if keys else ""
+
+
+def _admin_key_valide(admin_key: str | None) -> bool:
+    supplied = (admin_key or "").strip()
+    if not supplied:
+        return False
+    # IMPORTANT : ne pas bloquer une clé correcte simplement parce qu'une
+    # ancienne variable Render contient encore une ancienne clé.
+    return any(secrets.compare_digest(supplied, expected) for expected in _admin_configured_keys())
+
+
+def _require_admin(admin_key: str | None) -> None:
+    if not _admin_expected_key():
+        raise HTTPException(
+            status_code=503,
+            detail="Aucune clé administrateur n'est configurée sur le serveur Render."
+        )
+    if not _admin_key_valide(admin_key):
+        raise HTTPException(
+            status_code=401,
+            detail="Clé administrateur invalide ou différente de celle configurée sur le serveur."
+        )
+
+
+def _auth_assistant(admin_key: str | None, authorization: str | None) -> str:
+    if _admin_key_valide(admin_key):
+        return "admin"
+
+    if authorization and authorization.lower().startswith("bearer "):
+        token = authorization[7:].strip()
+        if token:
+            # Validation cryptographique réelle du jeton signé.
+            verify_premium_token(token)
+            return "premium"
+
+    raise HTTPException(
+        status_code=401,
+        detail="Accès refusé : Premium ou administrateur requis."
+    )
+
+
+@router.get("/admin/verification")
+def admin_verification(x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")):
+    _require_admin(x_admin_key)
+    return {"authorized": True, "role": "admin"}
+
+
+@router.post("/admin/valider-paiement")
+def admin_valider_paiement(
+    telephone: str,
+    reference: str,
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
+):
+    """L'admin confirme avoir reçu ce paiement (Orange/Moov/Wave, vérifié
+    manuellement pour l'instant). Le client peut ensuite activer lui-même
+    via /activation en resaisissant la même référence exacte."""
+    _require_admin(x_admin_key)
+
+    abonnement = valider_reference_paiement(telephone, reference)
+    if abonnement is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Aucun abonnement en attente trouvé pour ce numéro."
+        )
+
+    return {"message": "Référence validée. Le client peut maintenant activer.", "abonnement": abonnement}
+
+
+def _contexte_assistant():
+    course, source = charger_course()
+    if not course:
+        raise HTTPException(status_code=503, detail="Aucune course disponible.")
+
+    chevaux = course.get("chevaux", [])
+    if not chevaux:
+        raise HTTPException(status_code=503, detail="Aucun partant disponible.")
+
+    resultat = lancer_analyse(
+        chevaux,
+        info_course={
+            "date": course.get("date"),
+            "reunion": course.get("reunion"),
+            "course_numero": course.get("course_numero"),
+            "course": course.get("course", ""),
+            "hippodrome": course.get("hippodrome", ""),
+            "discipline": course.get("discipline", ""),
+            "distance": course.get("distance_course", ""),
+            "allocation": course.get("allocation", ""),
+            "heure_depart": course.get("heure_depart", ""),
+            "horaires": course.get("horaires", {}),
+            "non_partants": course.get("non_partants", []),
+            "plus_joues": course.get("plus_joues", []),
+        }
+    )
+
+    # Enrichissement optionnel France Galop (courses de galop
+    # uniquement). Best-effort, jamais bloquant : si indisponible,
+    # le contexte reste identique à avant, rien n'est cassé.
+    complement_galop = None
+    try:
+        from france_galop_source import obtenir_complement_france_galop
+        complement_galop = obtenir_complement_france_galop(
+            course.get("hippodrome", ""), course.get("discipline", "")
+        )
+    except Exception:
+        complement_galop = None
+
+    return {
+        "moteur": {
+            "classement": resultat.get("chevaux", []),
+            "tickets": resultat.get("tickets", {}),
+        },
+        "course": course,
+        "source": source,
+        "complement_france_galop": complement_galop,
+    }
+
+
+@router.post("/stats/backtest")
+def stats_backtest(payload: dict):
+    """Exécute le backtest sans changer la route existante.
+
+    Accepte l'historique navigateur AZ_TURF_HISTORIQUE_COURSES_V1 aussi bien
+    que l'historique serveur produit par learning.py.
+    """
+    from modules.stats_backtest import simuler_backtest_filtre
+    historique = payload.get("historique") or []
+    filtres = payload.get("filtres") or {}
+    normalise=[]
+    for e in historique:
+        if not isinstance(e, dict):
+            continue
+        course=e.get("course") if isinstance(e.get("course"),dict) else {}
+        arrivee=e.get("arrivee_officielle") or e.get("arrivee") or []
+        selection=e.get("selection_az") or []
+        if isinstance(selection, list) and selection and isinstance(selection[0], str):
+            selection=[{"numero":x} for x in selection]
+        chevaux=e.get("chevaux") or e.get("classement") or []
+        normalise.append({**e,"arrivee_officielle":arrivee,"selection_az":selection,"chevaux":chevaux,"course":course})
+    try:
+        return simuler_backtest_filtre(normalise, filtres)
+    except Exception as erreur:
+        raise HTTPException(status_code=400, detail=f"Backtest invalide : {erreur}")
+
+
+# =========================================================
+# COMPATIBILITÃ‰ FRONTEND — routes additives, sans modifier les routes existantes
+# =========================================================
+@router.get("/historique/diagnostic")
+def diagnostic_historique():
+    """Diagnostic de l'historique existant.
+
+    Route additive : elle ne modifie aucune donnée et conserve la compatibilité
+    avec les anciennes versions du frontend.
+    """
+    try:
+        historique = lire_historique()
+        if not isinstance(historique, list):
+            historique = []
+
+        synchronisables = 0
+        sans_identifiant = 0
+        terminees = 0
+        attente = 0
+
+        for entree in historique:
+            if not isinstance(entree, dict):
+                continue
+
+            arrivee = entree.get("arrivee_officielle") or entree.get("arrivee")
+            est_terminee = bool(arrivee)
+            if est_terminee:
+                terminees += 1
+            else:
+                attente += 1
+
+            course = entree.get("course")
+            course = course if isinstance(course, dict) else {}
+
+            pmu_id = (
+                entree.get("pmu_id")
+                or entree.get("identifiant_pmu")
+                or entree.get("id_pmu")
+                or course.get("pmu_id")
+                or course.get("identifiant_pmu")
+                or course.get("id_pmu")
+            )
+            date = entree.get("date") or entree.get("date_course") or course.get("date") or course.get("date_course")
+            reunion = entree.get("reunion") or course.get("reunion")
+            numero = (
+                entree.get("course_numero")
+                or entree.get("numero_course")
+                or course.get("course_numero")
+                or course.get("numero_course")
+            )
+
+            if pmu_id or (date and reunion and numero):
+                synchronisables += 1
+            else:
+                sans_identifiant += 1
+
+        return {
+            "status": "success",
+            "pronostics_enregistres": len(historique),
+            "courses_terminees": terminees,
+            "courses_en_attente": attente,
+            "entrees_synchronisables": synchronisables,
+            "entrees_sans_identifiant_pmu": sans_identifiant,
+        }
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur diagnostic historique : {erreur}")
+
+
+@router.post("/historique/synchroniser")
+def synchroniser_historique(payload: dict):
+    from learning import fusionner_historique
+    entrees = payload.get("historique") or []
+    if not isinstance(entrees, list):
+        raise HTTPException(status_code=400, detail="historique doit être une liste")
+    try:
+        modifie = fusionner_historique(entrees)
+        return {"status":"success","synchronise":bool(modifie),"nombre_recu":len(entrees),"nombre_serveur":len(lire_historique())}
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur synchronisation historique : {erreur}")
+
+
+def _charger_course_pour_date(date_obj):
+    try:
+        date_pmu=date_obj.strftime("%d%m%Y")
+        course=charger_course_pmu(date_pmu)
+        if course and isinstance(course,dict) and course.get("chevaux"):
+            return course, "pmu_live"
+    except Exception:
+        pass
+    return None, "none"
+
+
+@router.get("/quintes-periodes")
+def quintes_periodes():
+    """Retourne le programme disponible pour hier, aujourd'hui et demain.
+    Route additive destinée à l'accueil ; aucune route existante n'est modifiée.
+    """
+    from datetime import datetime, timedelta
+    result={}
+    for key,delta in (("hier",-1),("aujourdhui",0),("demain",1)):
+        course,source=_charger_course_pour_date(datetime.now()+timedelta(days=delta))
+        if course:
+            result[key]={
+                "disponible":True,"source":source,"date":course.get("date"),
+                "hippodrome":course.get("hippodrome",""),"reunion":course.get("reunion",""),
+                "course_numero":course.get("course_numero",""),"heure_depart":course.get("heure_depart",""),
+                "partants":len(course.get("chevaux",[]) or []),
+            }
+        else:
+            result[key]={"disponible":False,"source":"indisponible"}
+    return {"status":"success","periodes":result}
+
+
+@router.post("/assistant/chat")
+def assistant_chat(
+    payload: dict,
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
+    authorization: str | None = Header(default=None),
+):
+    _auth_assistant(x_admin_key, authorization)
+    question = str(payload.get("question", "")).strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="Question obligatoire.")
+
+    historique = payload.get("historique") or []
+    contexte = _contexte_assistant()
+    return repondre_assistant_turf(question, contexte, historique)
+
+
+@router.post("/chatbot/stream")
+async def assistant_chat_stream(
+    payload: dict,
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key"),
+    authorization: str | None = Header(default=None),
+):
+    _auth_assistant(x_admin_key, authorization)
+    question = str(payload.get("question", "")).strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="Question obligatoire.")
+
+    historique = payload.get("historique") or []
+
+    async def generate():
+        try:
+            contexte = _contexte_assistant()
+            # Le moteur (IA ou repli) produit une réponse complète ; on la
+            # transmet progressivement pour conserver l'interface SSE.
+            resultat = repondre_assistant_turf(question, contexte, historique)
+            texte = str(resultat.get("reponse", ""))
+            if not texte:
+                texte = "Je n'ai pas de réponse disponible actuellement."
+
+            for morceau in re.split(r"(\s+)", texte):
+                if morceau:
+                    import json as _json
+                    yield "data: " + _json.dumps(
+                        {"type": "token", "text": morceau},
+                        ensure_ascii=False
+                    ) + "\n\n"
+                    await asyncio.sleep(0)
+
+            import json as _json
+            yield "data: " + _json.dumps(
+                {"type": "done"},
+                ensure_ascii=False
+            ) + "\n\n"
+
+        except HTTPException as exc:
+            import json as _json
+            yield "data: " + _json.dumps(
+                {"type": "error", "message": exc.detail},
+                ensure_ascii=False
+            ) + "\n\n"
+        except Exception as exc:
+            import json as _json
+            yield "data: " + _json.dumps(
+                {"type": "error", "message": f"Erreur assistant : {exc}"},
+                ensure_ascii=False
+            ) + "\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+# =========================================================
+# ARCHIVE PERSISTANTE DES COURSES — additive, sans remplacer l'historique existant
+# =========================================================
+@router.get("/archive/courses")
+def archive_courses(limit: int = 100):
+    try:
+        from archive_store import lire_archive
+        return {"status": "success", "total": len(lire_archive(limit)), "courses": lire_archive(limit)}
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur archive : {erreur}")
+
+@router.get("/archive/diagnostic")
+def archive_diagnostic():
+    import os as _os
+    return {
+        "status": "success",
+        "database_url_configuree": bool((_os.getenv("DATABASE_URL") or _os.getenv("POSTGRES_URL") or "").strip()),
+        "stockage": "PostgreSQL persistant",
+        "table": "az_course_archive",
+    }
+
+
+# =========================================================
+# PERFORMANCE AZ — panneau "Performances AZ" de historique.html
+# (historique-performance.js appelle GET /api/archive/performance,
+# route absente jusqu'ici -> 404 constaté en production). Additive :
+# s'appuie sur archive_store.lire_archive_performance(), déjà écrite
+# mais jamais appelée par personne. Aucune donnée inventée : les
+# courses sans arrivée officielle enregistrée sont simplement exclues
+# du calcul plutôt que comptées comme un échec ou une réussite.
+#
+# Définitions retenues (à ajuster si une autre définition est voulue) :
+#   - taux_favori_gagnant      : le favori AZ (classement[0]) est le
+#                                 vainqueur réel (arrivee[0])
+#   - taux_selection_az        : les 5 premiers de l'arrivée réelle
+#                                 sont TOUS contenus dans la sélection
+#                                 AZ (quinté, 7 numéros) — ticket
+#                                 entièrement "dans le jeu"
+#   - taux_selection_az_touche : AU MOINS UN des 5 premiers de
+#                                 l'arrivée réelle figure dans la
+#                                 sélection AZ — touché partiel
+# =========================================================
+@router.get("/archive/performance")
+def archive_performance():
+    try:
+        from archive_store import lire_archive_performance
+
+        lignes = lire_archive_performance(1000)
+
+        courses_evaluees = 0
+        favoris_gagnants = 0
+        selections_reussies = 0
+        selections_touchees = 0
+
+        for ligne in lignes:
+            arrivee = ligne.get("arrivee_json")
+            if not arrivee or not isinstance(arrivee, list):
+                continue  # course sans résultat officiel : exclue, jamais inventée
+            arrivee_num = [str(n) for n in arrivee]
+            top5 = set(arrivee_num[:5])
+            if not top5:
+                continue
+
+            courses_evaluees += 1
+
+            favori = ligne.get("favori_json") or {}
+            favori_numero = str(favori.get("numero")) if isinstance(favori, dict) and favori.get("numero") is not None else None
+            if favori_numero and arrivee_num and favori_numero == arrivee_num[0]:
+                favoris_gagnants += 1
+
+            selection = ligne.get("selection_az_json") or []
+            selection_num = {str(n) for n in selection} if isinstance(selection, list) else set()
+            if selection_num:
+                if top5.issubset(selection_num):
+                    selections_reussies += 1
+                if top5 & selection_num:
+                    selections_touchees += 1
+
+        def _taux(n):
+            return round((n / courses_evaluees) * 100, 1) if courses_evaluees else None
+
+        return {
+            "status": "success",
+            "courses_evaluees": courses_evaluees,
+            "taux_favori_gagnant": _taux(favoris_gagnants),
+            "taux_selection_az": _taux(selections_reussies),
+            "taux_selection_az_touche": _taux(selections_touchees),
+        }
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur Performance AZ : {erreur}")
+
+
+# =========================================================
+# PERFORMANCE AZ — TOP 10 CHEVAUX
+# =========================================================
+@router.get("/archive/classement-chevaux")
+def classement_chevaux(limit: int = 10):
+    """Classement Performance AZ depuis les archives disponibles."""
+    try:
+        from archive_store import lire_archive
+
+        archives = lire_archive(500)
+        chevaux = {}
+
+        for course in archives:
+            if not isinstance(course, dict):
+                continue
+            if not course.get("arrivee") and not course.get("resultat"):
+                continue
+
+            arrivee = course.get("arrivee") or course.get("resultat") or []
+            if isinstance(arrivee, str):
+                continue
+
+            for position, cheval in enumerate(arrivee, start=1):
+                nom = cheval if isinstance(cheval, str) else cheval.get("nom")
+                if not nom:
+                    continue
+                data = chevaux.setdefault(nom, {"courses": 0, "reussites": 0})
+                data["courses"] += 1
+                if position <= 3:
+                    data["reussites"] += 1
+
+        classement = []
+        for nom, data in chevaux.items():
+            if data["courses"] < 10:
+                continue
+            taux = round((data["reussites"] / data["courses"]) * 100, 2)
+            confiance = min(100, round(taux * 0.7 + min(data["courses"], 30) * 1.0, 0))
+            classement.append({
+                "cheval": nom,
+                "courses_analysees": data["courses"],
+                "reussites": data["reussites"],
+                "taux_reussite": taux,
+                "confiance": int(confiance)
+            })
+
+        classement.sort(key=lambda x: x["taux_reussite"], reverse=True)
+
+        for index, item in enumerate(classement[:limit], start=1):
+            item["rang"] = index
+
+        return {
+            "status": "success",
+            "total": len(classement[:limit]),
+            "classement": classement[:limit]
+        }
+
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur Performance AZ : {erreur}")
+
+
+# =========================================================
+# PIPELINE EXPERT V8/V9/V12/V13 — branchement des modules complémentaires
+# jusqu'ici non reliés : engine_expert, analyse_cheval_engine, decision_engine,
+# simulation_course_engine, gestionnaire_ticket_engine, learning_turf,
+# score_expert_v2. Route entièrement nouvelle et additive : elle ne modifie
+# ni ne remplace /analyse, /analyse/complete, ni le moteur AZ (engine.py).
+# Chaque étape reste indépendante des scores AZ officiels.
+# =========================================================
+@router.get("/analyse/pipeline-expert")
+def analyse_pipeline_expert():
+    try:
+        from modules.engine_expert import analyser_course_expert, generer_avis_expert
+        from modules.analyse_cheval_engine import comparer_chevaux
+        from modules.decision_engine import analyser_chevaux, generer_ticket, synthese_pronostiqueur
+        from modules.simulation_course_engine import simuler_scenario, evaluer_robustesse_ticket
+        from modules.gestionnaire_ticket_engine import evaluer_couverture
+        from modules.learning_turf import enregistrer_pronostic
+        from modules.score_expert_v2 import score_expert as calculer_score_expert_v2
+
+        course, source = charger_course()
+        if not course:
+            raise HTTPException(status_code=503, detail="Aucune donnée de course disponible actuellement.")
+
+        chevaux = course.get("chevaux", [])
+        if not chevaux:
+            raise HTTPException(status_code=503, detail="Aucun cheval trouvé dans la course.")
+
+        info_course = {
+            "date": course.get("date"), "reunion": course.get("reunion"),
+            "course_numero": course.get("course_numero"), "hippodrome": course.get("hippodrome"),
+            "discipline": course.get("discipline", ""),
+        }
+
+        # 1. Moteur AZ (inchangé) — fournit indice_az/cote/forme à la chaîne experte.
+        res_moteur = lancer_analyse(chevaux, info_course)
+        classement_az = res_moteur.get("chevaux", []) if isinstance(res_moteur, dict) else []
+
+        # 2. engine_expert — score expert indépendant (V2)
+        expert = analyser_course_expert({"chevaux": classement_az})
+        classement_expert = expert.get("classement_expert", [])
+        avis_expert = [generer_avis_expert(c) for c in classement_expert[:3]]
+
+        # 3. analyse_cheval_engine — profils (V9), à partir du score_expert ci-dessus
+        profils = comparer_chevaux(classement_expert)
+
+        # 4. decision_engine — synthèse finale (V8)
+        decision = analyser_chevaux(profils)
+        ticket_expert = generer_ticket(decision)
+        synthese = synthese_pronostiqueur(decision)
+
+        # 5. simulation_course_engine — scénarios et robustesse (V13)
+        favori_expert = ticket_expert["bases"][0] if ticket_expert.get("bases") else None
+        simulation = simuler_scenario(favori_expert, ticket_expert.get("outsiders"))
+        robustesse = evaluer_robustesse_ticket(ticket_expert, simulation.get("scenarios", []))
+
+        # 6. gestionnaire_ticket_engine — couverture (V12)
+        selection_ticket = {"selection": (ticket_expert.get("bases") or []) + (ticket_expert.get("outsiders") or [])}
+        couverture = evaluer_couverture(selection_ticket)
+
+        # 7. learning_turf — enregistrement du pronostic (V4), purement descriptif,
+        # non persisté (le module lui-même ne persiste rien).
+        pronostic = enregistrer_pronostic(ticket_expert.get("bases") or [], contexte=info_course)
+
+        # 8. score_expert_v2 — calcul complémentaire pondéré, à titre indicatif.
+        # Seuls indice_az et forme sont disponibles de façon fiable dans les
+        # données actuelles ; terrain/jockey/presse ne sont pas encore
+        # structurés en valeurs numériques ailleurs dans le projet et restent
+        # à 0 par défaut (signalé explicitement, sans rien inventer).
+        scores_v2 = [
+            {
+                "numero": c.get("numero"),
+                "nom": c.get("nom"),
+                "score_expert_v2": calculer_score_expert_v2(az=c.get("indice_az", 0), forme=c.get("forme", 0)),
+                "note": "Calcul partiel : terrain/jockey/presse non disponibles en valeurs numériques.",
+            }
+            for c in classement_az
+        ]
+
+        return {
+            "status": "success",
+            "source": source,
+            "classement_expert": classement_expert,
+            "avis_expert": avis_expert,
+            "profils": profils,
+            "decision": decision,
+            "ticket_expert": ticket_expert,
+            "synthese": synthese,
+            "simulation": simulation,
+            "robustesse_ticket": robustesse,
+            "couverture_ticket": couverture,
+            "pronostic_enregistre": pronostic,
+            "scores_expert_v2": scores_v2,
+        }
+
+    except HTTPException:
+        raise
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur pipeline expert : {erreur}")
