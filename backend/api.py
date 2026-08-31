@@ -854,6 +854,19 @@ def historique():
                     mettre_a_jour_arrivee(index, arrivee)
                     entree["arrivee"] = arrivee
 
+                    # Branchement additif : le même résultat, déjà récupéré
+                    # ci-dessus via la même API PMU publique déjà utilisée
+                    # ailleurs dans le projet, est aussi répercuté sur
+                    # l'archive PostgreSQL (colonne arrivee_json), qui
+                    # disposait déjà de archiver_arrivee() mais dont
+                    # personne ne l'appelait. N'affecte pas la mise à jour
+                    # JSON ci-dessus, qui reste inchangée.
+                    try:
+                        from archive_store import archiver_arrivee, _cle_course
+                        archiver_arrivee(_cle_course(info_course), arrivee)
+                    except Exception:
+                        pass
+
             except Exception:
                 pass
 
@@ -917,6 +930,39 @@ def api_analyse_complete(payload: dict):
     except Exception as e:
         print("Erreur analyse météo :", e)
 
+    # 5. Actualités hippiques (déjà importées en haut du fichier pour /api/actualites,
+    # mais jamais utilisées ici — branchement additif, sans rien changer d'existant).
+    res_actualites = []
+    try:
+        res_actualites = recuperer_actualites(8)
+    except Exception as e:
+        print("Erreur actualités :", e)
+
+    # 6. Modules complémentaires jusqu'ici non branchés sur cette route :
+    # expert_turf, pronostiqueur_engine, tactique_course_engine et
+    # autonomous_reasoning (via orchestrateur_turf.enrichir_modules_accompagnement,
+    # déjà utilisé pour l'assistant conversationnel). Purement additif, sous une
+    # clé dédiée : aucune clé existante de la réponse n'est modifiée.
+    modules_complementaires = {}
+    try:
+        from modules.orchestrateur_turf import enrichir_modules_accompagnement
+        classement_pour_ctx = res_moteur.get("chevaux", []) if isinstance(res_moteur, dict) else []
+        ctx_complementaire = enrichir_modules_accompagnement(
+            {"moteur": {"classement": classement_pour_ctx}, "course": info_course},
+            "",
+            [],
+        )
+        for cle in (
+            "expert_accompagnement", "expert_marche", "expert_performance",
+            "expert_conditions", "expert_valeur", "profils_chevaux",
+            "synthese_pronostiqueur", "tactique", "rythme_course",
+            "raisonnement_autonome", "tickets_autonomes", "comparaison_autonome_az",
+        ):
+            if ctx_complementaire.get(cle):
+                modules_complementaires[cle] = ctx_complementaire[cle]
+    except Exception as e:
+        print("Erreur modules complémentaires :", e)
+
     # Assemblage de la réponse globale
     return {
         "status": "success",
@@ -924,7 +970,9 @@ def api_analyse_complete(payload: dict):
         "analyse_moteur": res_moteur,
         "tendances_cotes": res_cotes.get("resultats", []),
         "consensus_presse": res_presse.get("consensus", []),
-        "impact_meteo": res_meteo.get("impact", "NEUTRE")
+        "impact_meteo": res_meteo.get("impact", "NEUTRE"),
+        "actualites": res_actualites,
+        "modules_complementaires": modules_complementaires,
     }
 
 
@@ -1358,3 +1406,103 @@ def classement_chevaux(limit: int = 10):
 
     except Exception as erreur:
         raise HTTPException(status_code=500, detail=f"Erreur Performance AZ : {erreur}")
+
+
+# =========================================================
+# PIPELINE EXPERT V8/V9/V12/V13 — branchement des modules complémentaires
+# jusqu'ici non reliés : engine_expert, analyse_cheval_engine, decision_engine,
+# simulation_course_engine, gestionnaire_ticket_engine, learning_turf,
+# score_expert_v2. Route entièrement nouvelle et additive : elle ne modifie
+# ni ne remplace /analyse, /analyse/complete, ni le moteur AZ (engine.py).
+# Chaque étape reste indépendante des scores AZ officiels.
+# =========================================================
+@router.get("/analyse/pipeline-expert")
+def analyse_pipeline_expert():
+    try:
+        from modules.engine_expert import analyser_course_expert, generer_avis_expert
+        from modules.analyse_cheval_engine import comparer_chevaux
+        from modules.decision_engine import analyser_chevaux, generer_ticket, synthese_pronostiqueur
+        from modules.simulation_course_engine import simuler_scenario, evaluer_robustesse_ticket
+        from modules.gestionnaire_ticket_engine import evaluer_couverture
+        from modules.learning_turf import enregistrer_pronostic
+        from modules.score_expert_v2 import score_expert as calculer_score_expert_v2
+
+        course, source = charger_course()
+        if not course:
+            raise HTTPException(status_code=503, detail="Aucune donnée de course disponible actuellement.")
+
+        chevaux = course.get("chevaux", [])
+        if not chevaux:
+            raise HTTPException(status_code=503, detail="Aucun cheval trouvé dans la course.")
+
+        info_course = {
+            "date": course.get("date"), "reunion": course.get("reunion"),
+            "course_numero": course.get("course_numero"), "hippodrome": course.get("hippodrome"),
+            "discipline": course.get("discipline", ""),
+        }
+
+        # 1. Moteur AZ (inchangé) — fournit indice_az/cote/forme à la chaîne experte.
+        res_moteur = lancer_analyse(chevaux, info_course)
+        classement_az = res_moteur.get("chevaux", []) if isinstance(res_moteur, dict) else []
+
+        # 2. engine_expert — score expert indépendant (V2)
+        expert = analyser_course_expert({"chevaux": classement_az})
+        classement_expert = expert.get("classement_expert", [])
+        avis_expert = [generer_avis_expert(c) for c in classement_expert[:3]]
+
+        # 3. analyse_cheval_engine — profils (V9), à partir du score_expert ci-dessus
+        profils = comparer_chevaux(classement_expert)
+
+        # 4. decision_engine — synthèse finale (V8)
+        decision = analyser_chevaux(profils)
+        ticket_expert = generer_ticket(decision)
+        synthese = synthese_pronostiqueur(decision)
+
+        # 5. simulation_course_engine — scénarios et robustesse (V13)
+        favori_expert = ticket_expert["bases"][0] if ticket_expert.get("bases") else None
+        simulation = simuler_scenario(favori_expert, ticket_expert.get("outsiders"))
+        robustesse = evaluer_robustesse_ticket(ticket_expert, simulation.get("scenarios", []))
+
+        # 6. gestionnaire_ticket_engine — couverture (V12)
+        selection_ticket = {"selection": (ticket_expert.get("bases") or []) + (ticket_expert.get("outsiders") or [])}
+        couverture = evaluer_couverture(selection_ticket)
+
+        # 7. learning_turf — enregistrement du pronostic (V4), purement descriptif,
+        # non persisté (le module lui-même ne persiste rien).
+        pronostic = enregistrer_pronostic(ticket_expert.get("bases") or [], contexte=info_course)
+
+        # 8. score_expert_v2 — calcul complémentaire pondéré, à titre indicatif.
+        # Seuls indice_az et forme sont disponibles de façon fiable dans les
+        # données actuelles ; terrain/jockey/presse ne sont pas encore
+        # structurés en valeurs numériques ailleurs dans le projet et restent
+        # à 0 par défaut (signalé explicitement, sans rien inventer).
+        scores_v2 = [
+            {
+                "numero": c.get("numero"),
+                "nom": c.get("nom"),
+                "score_expert_v2": calculer_score_expert_v2(az=c.get("indice_az", 0), forme=c.get("forme", 0)),
+                "note": "Calcul partiel : terrain/jockey/presse non disponibles en valeurs numériques.",
+            }
+            for c in classement_az
+        ]
+
+        return {
+            "status": "success",
+            "source": source,
+            "classement_expert": classement_expert,
+            "avis_expert": avis_expert,
+            "profils": profils,
+            "decision": decision,
+            "ticket_expert": ticket_expert,
+            "synthese": synthese,
+            "simulation": simulation,
+            "robustesse_ticket": robustesse,
+            "couverture_ticket": couverture,
+            "pronostic_enregistre": pronostic,
+            "scores_expert_v2": scores_v2,
+        }
+
+    except HTTPException:
+        raise
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur pipeline expert : {erreur}")
