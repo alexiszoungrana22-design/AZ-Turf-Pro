@@ -1,5 +1,6 @@
 from pathlib import Path
 import sys
+import asyncio
 
 # Ensure the backend directory is always on sys.path, including Render
 # executions where the working directory can differ from the module directory.
@@ -36,6 +37,30 @@ app.add_middleware(
 # Routes API
 
 app.include_router(router)
+
+# Scheduler PMU : synchronisation des arrivées et préparation anticipée
+# du programme de demain deux heures après la course principale du jour.
+_scheduler_task = None
+
+
+@app.on_event("startup")
+async def demarrer_scheduler_pmu():
+    global _scheduler_task
+    from scheduler_resultats import lancer_scheduler
+    if _scheduler_task is None or _scheduler_task.done():
+        _scheduler_task = lancer_scheduler()
+
+
+@app.on_event("shutdown")
+async def arreter_scheduler_pmu():
+    global _scheduler_task
+    if _scheduler_task is not None and not _scheduler_task.done():
+        _scheduler_task.cancel()
+        try:
+            await _scheduler_task
+        except asyncio.CancelledError:
+            pass
+    _scheduler_task = None
 
 # ==============================
 # Chemins du projet
