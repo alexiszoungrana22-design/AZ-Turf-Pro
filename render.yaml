@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: az-turf-pro
+    env: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      # Base de données PostgreSQL de l'archive (az_course_archive).
+      # Sans elle, l'archivage est simplement désactivé (non bloquant),
+      # mais aucune donnée n'est persistée entre les redéploiements.
+      - key: DATABASE_URL
+        sync: false
+
+      # Fournisseur IA du chatbot : "anthropic" ou "openai".
+      - key: AI_PROVIDER
+        value: anthropic
+
+      # Au moins l'une des deux clés doit être définie selon AI_PROVIDER.
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+      # Authentification des routes d'administration et de l'espace premium.
+      - key: AZ_ADMIN_API_KEY
+        sync: false
+      - key: AZ_PREMIUM_ACCESS_SECRET
+        sync: false
