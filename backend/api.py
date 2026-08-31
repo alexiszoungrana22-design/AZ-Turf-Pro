@@ -831,6 +831,19 @@ def historique():
         for index, entree in enumerate(entrees):
 
             if entree.get("arrivee"):
+                # Rattrapage additif : cette arrivée était déjà connue dans le
+                # JSON local (avant même le branchement de archiver_arrivee()
+                # ci-dessous), donc jamais poussée vers l'archive PostgreSQL —
+                # d'où des courses affichées "En attente" côté archive alors
+                # que le résultat était déjà là. Idempotent (simple UPDATE),
+                # sans risque à répéter à chaque appel.
+                try:
+                    from archive_store import archiver_arrivee, _cle_course
+                    info_course_connue = entree.get("course") or {}
+                    if info_course_connue:
+                        archiver_arrivee(_cle_course(info_course_connue), entree["arrivee"])
+                except Exception:
+                    pass
                 continue
 
             info_course = entree.get("course") or {}
