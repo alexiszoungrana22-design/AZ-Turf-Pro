@@ -1,0 +1,19 @@
+
+Modification minimale dans chatbot_turf.py
+
+Ajouter l'import :
+
+from modules.expert_turf import analyser_question_expert
+
+Puis avant :
+
+texte = _reponse_secours(question, contexte)
+
+mettre :
+
+texte = analyser_question_expert(question, contexte)
+
+if not texte:
+    texte = _reponse_secours(question, contexte)
+
+Le moteur historique reste inchangé.
