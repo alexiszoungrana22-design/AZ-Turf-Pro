@@ -22,7 +22,8 @@ Fonctions principales :
 =========================================================
 """
 
-from scoring import calculer_score_az
+from scoring import calculer_score_az, analyser_score_az
+from discipline_engine import normaliser_discipline, construire_contexte
 from ranking import classer_chevaux
 from quinte import generer_tickets_az
 from learning import enregistrer_course, lire_historique
@@ -166,9 +167,13 @@ def calculer_indice_premium(cheval, info_course=None, discipline="TROT", analyse
         5
     )
 
-    cote = _float(
+    cote_score = _float(
         cheval.get("cote", 5),
         5
+    )
+    cote_brute = _float(
+        cheval.get("cote_brute", cote_score),
+        cote_score
     )
 
     experience = _float(
@@ -223,7 +228,7 @@ def calculer_indice_premium(cheval, info_course=None, discipline="TROT", analyse
     bonus_outsider_chaud = 0.0
 
     if (
-        cote >= 10.0
+        cote_brute >= 10.0
         and (
             forme >= 7.0
             or regularite >= 7.0
@@ -240,9 +245,13 @@ def calculer_indice_premium(cheval, info_course=None, discipline="TROT", analyse
     info_c = info_course if isinstance(info_course, dict) else {}
 
     dist_course = int(_float(info_c.get("distance", 2000), 2000))
-    dist_pref = int(_float(cheval.get("distance_predilection", dist_course), dist_course))
+    dist_pref_raw = cheval.get("distance_predilection")
+    try:
+        dist_pref = float(dist_pref_raw) if dist_pref_raw not in (None, "") else None
+    except (TypeError, ValueError):
+        dist_pref = None
 
-    if abs(dist_course - dist_pref) <= 200:
+    if dist_pref is not None and abs(dist_course - dist_pref) <= 200:
         bonus_expert += 10.0
 
     deferre = str(cheval.get("deferre", "") or "").strip().upper()
@@ -283,7 +292,7 @@ def calculer_indice_premium(cheval, info_course=None, discipline="TROT", analyse
         indice_az
         + (forme * 1.35)
         + (regularite * 1.20)
-        + (cote * 1.10)
+        + (cote_score * 1.10)
         + (experience * 0.80)
         + (bonnes_places * 2.0)
         + bonus_outsider_chaud
@@ -338,6 +347,8 @@ def lancer_analyse(
         )
         or "TROT"
     )
+    discipline = normaliser_discipline(discipline)
+    contexte_scoring = construire_contexte(chevaux)
 
     # Nouvelle couche additive : elle n'alimente que le Premium.
     # Le classement AZ gratuit et son scoring restent inchangés.
@@ -458,12 +469,20 @@ def lancer_analyse(
 
         score_az = calculer_score_az(
             copie,
-            discipline=discipline
+            discipline=discipline,
+            contexte_course=contexte_scoring
         )
 
 
         copie["score_az"] = score_az
         copie["indice_az"] = score_az
+        details_score = analyser_score_az(
+            copie, discipline=discipline, contexte_course=contexte_scoring
+        )
+        copie["moteur_discipline"] = details_score.get("moteur")
+        copie["criteres_score_utilises"] = details_score.get("criteres_utilises", [])
+        copie["criteres_score_indisponibles"] = details_score.get("criteres_indisponibles", [])
+        copie["signaux_discipline"] = details_score.get("signaux", [])
 
 
         copie["indice_premium"] = (
@@ -596,6 +615,22 @@ def lancer_analyse(
         else {}
     )
 
+    # Provenance explicite : le frontend/chatbot peut distinguer une donnée
+    # réellement fournie d'une valeur neutre de secours.
+    total = max(1, len(classement))
+    nb_cotes_brutes = sum(1 for c in classement if c.get("cote_brute") not in (None, ""))
+    nb_jockey_stats = sum(1 for c in classement if c.get("reussite_jockey") not in (None, ""))
+    nb_variations = sum(1 for c in classement if c.get("variation_cote_pct") not in (None, ""))
+    qualite_donnees = {
+        "partants": f"{len(classement)}/{len(chevaux_valides) or total}",
+        "cotes_brutes": f"{nb_cotes_brutes}/{total}",
+        "statistiques_jockey_driver": f"{nb_jockey_stats}/{total}",
+        "variations_cotes": f"{nb_variations}/{total}",
+        "presse": "disponible" if analyse_complementaire.get("presse") and analyse_complementaire.get("presse", {}).get("consensus") else "non_documentee",
+        "meteo_piste": str(analyse_complementaire.get("meteo_piste", {}).get("impact", "NON_DOCUMENTE")),
+        "historique_performance": analyse_complementaire.get("performance", {}).get("courses_evaluees", 0),
+    }
+
 
     try:
 
@@ -680,6 +715,13 @@ def lancer_analyse(
         "message":
             "Analyse AZ Turf Pro terminée",
 
+        "discipline_normalisee": discipline,
+        "moteur_discipline": {
+            "code": discipline,
+            "nom": {"TROT": "AZ Attelé", "PLAT": "AZ Plat", "MONTE": "AZ Monté", "OBSTACLE": "AZ Obstacle"}.get(discipline, "AZ Attelé"),
+            "criteres": "spécialisés selon la discipline et renormalisés selon les données réellement disponibles",
+        },
+
         "chevaux":
             chevaux_affichage,
 
@@ -706,5 +748,10 @@ def lancer_analyse(
 
         # Résultats des modules complémentaires réellement exécutés.
         "analyse_complementaire": analyse_complementaire,
+        "qualite_donnees": qualite_donnees,
+        "interpretation_confiance": (
+            "Le champ confiance est une proximité de l'indice AZ au leader, "
+            "pas une probabilité statistique de victoire."
+        ),
 
     }
