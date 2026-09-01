@@ -1485,6 +1485,16 @@ def archive_performance():
             "taux_favori_gagnant": _taux(favoris_gagnants),
             "taux_selection_az": _taux(selections_reussies),
             "taux_selection_az_touche": _taux(selections_touchees),
+            # Alias additifs : historique.js (le seul script réellement chargé
+            # par historique.html — historique-performance.js ne l'est pas)
+            # attend ces noms de champs précis. Conservés en plus des
+            # précédents pour ne rien casser côté historique-performance.js
+            # si un jour cette page l'inclut.
+            "courses_analysees": courses_evaluees,
+            "courses_terminees": courses_evaluees,
+            "favori_taux": _taux(favoris_gagnants),
+            "selection_taux_gagnant": _taux(selections_reussies),
+            "selection_taux_touchee": _taux(selections_touchees),
         }
     except Exception as erreur:
         raise HTTPException(status_code=500, detail=f"Erreur Performance AZ : {erreur}")
