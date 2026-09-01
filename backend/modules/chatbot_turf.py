@@ -101,7 +101,7 @@ def _resume_classement(contexte: dict, limite: int = 20) -> str:
             f"({cheval.get('age', '-')} ans, {cheval.get('sexe', '-')}) — "
             f"jockey/driver : {driver}, "
             f"entraîneur : {cheval.get('entraineur', '-')} | "
-            f"cote {cheval.get('cote', '-')} (tendance {tendance}), "
+            f"cote {cheval.get('cote_brute', cheval.get('cote', '-'))} (tendance {tendance}), "
             f"indice AZ {cheval.get('indice_az', '-')}, "
             f"indice Premium {cheval.get('indice_premium', '-')}"
         )
@@ -116,7 +116,7 @@ def _resume_classement(contexte: dict, limite: int = 20) -> str:
                 ligne += f", régularité {regularite}/10"
             ligne += ")"
         ligne += (
-            f", gains carrière : {cheval.get('gains', cheval.get('gains_carriere_brute', '-'))}, "
+            f", gains carrière : {cheval.get('gains_carriere_brute', cheval.get('gains', '-'))}, "
             f"corde : {cheval.get('corde', '-')}, "
             f"ferrage : {cheval.get('deferre', '-')}"
         )
@@ -309,7 +309,8 @@ def _indice(cheval: dict) -> float:
 
 def _cote(cheval: dict) -> float:
     try:
-        return float(cheval.get("cote") or 0)
+        valeur = cheval.get("cote_brute", cheval.get("cote"))
+        return float(valeur or 0)
     except (TypeError, ValueError):
         return 0.0
 
@@ -388,7 +389,7 @@ def _analyser_favori(classement: list) -> str:
 
     return (
         f"🎯 **Favori AZ Turf Pro** : N°{top.get('numero')} **{top.get('nom')}** "
-        f"(Indice AZ {top.get('indice_az', '-')}, cote {top.get('cote', '-')}). {confiance}"
+        f"(Indice AZ {top.get('indice_az', '-')}, cote {top.get('cote_brute', top.get('cote', '-'))}). {confiance}"
         f"{argument_badges}{note_repos}"
     )
 
@@ -409,7 +410,7 @@ def _analyser_vulnerables(classement: list) -> str:
             if ecart < 1.5:
                 raisons.append(f"talonné de près par le N°{suivant.get('numero')} (écart de {round(ecart, 2)} pts)")
             if cote_elevee:
-                raisons.append(f"une cote qui reste élevée ({cheval.get('cote')})")
+                raisons.append(f"une cote qui reste élevée ({cheval.get('cote_brute', cheval.get('cote'))})")
             vulnerables.append(f"- N°{cheval.get('numero')} **{cheval.get('nom')}** : {', '.join(raisons)}.")
 
     if not vulnerables:
@@ -436,8 +437,8 @@ def _comparer_chevaux(classement: list, num_a: str, num_b: str) -> str:
         verdict = "Les deux chevaux sont à égalité d'indice — un vrai coin de table."
 
     return (
-        f"**N°{num_a} {a.get('nom')}** (indice {a.get('indice_az', '-')}, cote {a.get('cote', '-')}) "
-        f"vs **N°{num_b} {b.get('nom')}** (indice {b.get('indice_az', '-')}, cote {b.get('cote', '-')}) : {verdict}"
+        f"**N°{num_a} {a.get('nom')}** (indice {a.get('indice_az', '-')}, cote {a.get('cote_brute', a.get('cote', '-'))}) "
+        f"vs **N°{num_b} {b.get('nom')}** (indice {b.get('indice_az', '-')}, cote {b.get('cote_brute', b.get('cote', '-'))}) : {verdict}"
     )
 
 
@@ -459,8 +460,8 @@ def _ticket_prudent(classement: list) -> str:
     surs = sorted(classe, key=lambda c: (-c["_ia_score"], -float(c.get("regularite") or 0), _cote(c)))[:5]
     nums = [str(c.get("numero")) for c in surs]
     return (
-        "🛡️ **Ticket IA PRUDENT (indépendant)** : " + " - ".join(nums) + "\n"
-        f"Base IA : N°{surs[0].get('numero')} {surs[0].get('nom', '')} (score IA {surs[0]['_ia_score']}/10).\n"
+        "🛡️ **Ticket PRUDENT (analyse autonome)** : " + " - ".join(nums) + "\n"
+        f"Base : N°{surs[0].get('numero')} {surs[0].get('nom', '')} (score autonome {surs[0]['_ia_score']}/10).\n"
         "Priorité : forme, régularité — aucun outsider, calcul séparé de l'indice AZ."
     )
 
@@ -481,7 +482,7 @@ def _ticket_speculatif(classement: list) -> str:
         if outsiders else "• Aucun outsider à cote ≥ 12 avec des données suffisantes."
     )
     return (
-        "🎲 **Ticket IA SPÉCULATIF (indépendant, risqué)** : " + " - ".join(nums) + "\n\n"
+        "🎲 **Ticket SPÉCULATIF (analyse autonome, risqué)** : " + " - ".join(nums) + "\n\n"
         f"Outsiders réellement retenus :\n{outsiders_txt}\n\n"
         "Accepte davantage de risque — ne recopie pas le ticket AZ Turf Pro."
     )
@@ -501,7 +502,7 @@ def _ticket_mix(classement: list) -> str:
     combinaison = surs + outsiders
     nums = [str(c.get("numero")) for c in combinaison]
     return (
-        "⚖️ **Ticket IA MIX (équilibré, indépendant)** : " + " - ".join(nums) + "\n"
+        "⚖️ **Ticket MIX (analyse autonome, équilibré)** : " + " - ".join(nums) + "\n"
         "Combine les meilleures valeurs sûres (score IA) et 1 à 2 outsiders "
         "pour doser risque et régularité — calcul séparé de l'indice AZ."
     )
@@ -521,7 +522,7 @@ def _generer_scenarios(classement: list) -> str:
         f"place, devant N°{second.get('numero')} **{second.get('nom')}** et N°{troisieme.get('numero')} "
         f"**{troisieme.get('nom')}** — un ordre proche du classement AZ Turf Pro.\n\n"
         f"**Scénario surprise** : N°{outsider.get('numero')} **{outsider.get('nom')}** "
-        f"(cote {outsider.get('cote', '-')}) crée la sensation et vient bousculer le favori, "
+        f"(cote {outsider.get('cote_brute', outsider.get('cote', '-'))}) crée la sensation et vient bousculer le favori, "
         "profitant d'un faux rythme ou d'une méforme du leader."
     )
 
@@ -531,13 +532,17 @@ def _fiche_cheval(cheval: dict) -> str:
     forme = cheval.get("forme")
     regularite = cheval.get("regularite")
     tendance = cheval.get("tendance_cote") or cheval.get("tendance") or "-"
+    if isinstance(tendance, dict):
+        tendance = tendance.get("signal") or tendance.get("tendance") or "NON DOCUMENTÉE"
+    cote_affichee = cheval.get("cote_brute") if cheval.get("cote_brute") not in (None, "") else cheval.get("cote", "-")
+    gains_affiches = cheval.get("gains_carriere_brute") if cheval.get("gains_carriere_brute") not in (None, "") else cheval.get("gains", "-")
 
     fiche = (
         f"**N°{cheval.get('numero')} {cheval.get('nom')}** — "
         f"{cheval.get('age', '-')} ans, {cheval.get('sexe', '-')}\n"
         f"- Jockey/Driver : {driver} (réussite {cheval.get('reussite_jockey', '-')}%)\n"
         f"- Entraîneur : {cheval.get('entraineur', '-')} (confiance {cheval.get('confiance_entraineur', '-')})\n"
-        f"- Cote : {cheval.get('cote', '-')} (tendance {tendance}) | Indice AZ : {cheval.get('indice_az', '-')} | "
+        f"- Cote : {cote_affichee} (tendance {tendance}) | Indice AZ : {cheval.get('indice_az', '-')} | "
         f"Indice Premium : {cheval.get('indice_premium', '-')}\n"
         f"- Musique (forme récente) : {cheval.get('musique_brute', '-')}"
     )
@@ -566,6 +571,29 @@ def _fiche_cheval(cheval: dict) -> str:
     libelles = [b.get("libelle") for b in badges if isinstance(b, dict) and b.get("libelle")]
     if libelles:
         fiche += f"\n- Badges : {', '.join(libelles)}"
+
+    # Lecture experte déterministe : uniquement des constats déduits des
+    # données présentes, sans transformer un score en probabilité.
+    points_forts = []
+    points_attention = []
+    try:
+        f = float(forme) if forme is not None else None
+        r = float(regularite) if regularite is not None else None
+        if f is not None and f >= 8: points_forts.append(f"forme {f:g}/10")
+        elif f is not None and f <= 5: points_attention.append(f"forme {f:g}/10")
+        if r is not None and r >= 8: points_forts.append(f"régularité {r:g}/10")
+        elif r is not None and r <= 5: points_attention.append(f"régularité {r:g}/10")
+    except (TypeError, ValueError):
+        pass
+    if cheval.get("deferre") in ("D4", "DP", "DA", "DÉFERRÉ 4 PIEDS"):
+        points_forts.append(f"ferrage {cheval.get('deferre')}")
+    if libelles:
+        points_forts.extend(libelles[:2])
+    if points_forts:
+        fiche += "\n- Lecture : **Atouts** — " + ", ".join(dict.fromkeys(points_forts)) + "."
+    if points_attention:
+        fiche += "\n- Vigilance : " + ", ".join(dict.fromkeys(points_attention)) + "."
+    fiche += "\n- Interprétation : les indices AZ/Premium classent le profil ; ils ne constituent pas une probabilité de victoire."
 
     return fiche
 
@@ -790,7 +818,7 @@ def _rafraichir_cotes_pmu_direct(course_reference: dict) -> str | None:
             tendance = cheval.get("tendance_cote") or cheval.get("tendance") or "-"
             lignes.append(
                 f"N°{cheval.get('numero', '?')} {cheval.get('nom', '?')} : "
-                f"cote actuelle {cheval.get('cote', '-')} (tendance {tendance})"
+                f"cote actuelle {cheval.get('cote_brute', cheval.get('cote', '-'))} (tendance {tendance})"
             )
         if not lignes:
             return None
@@ -890,7 +918,7 @@ def _reponse_plan_local(question: str, contexte: dict) -> str | None:
         ia = sorted(classement, key=lambda c: __import__('modules.value_analysis', fromlist=['score_independant']).score_independant(c), reverse=True)
         top = ia[:5]
         if not top: return None
-        return ("🤖 **Mon analyse indépendante**\n"
+        return ("🤖 **Mon analyse autonome**\n"
                 + " — ".join(f"{i+1}. N°{c.get('numero')} {c.get('nom')}" for i,c in enumerate(top))
                 + "\n\nCette hiérarchie est calculée séparément des indices AZ/Premium à partir des données brutes disponibles.")
 
@@ -917,6 +945,52 @@ def _reponse_secours(question: str, contexte: dict) -> str:
     tickets = moteur.get("tickets", {})
     course = (contexte or {}).get("course", {}) or {}
 
+    # Priorités conversationnelles : une salutation ou une demande explicite
+    # de ticket/duo ne doit jamais être détournée par un plan générique.
+    if any(k in q for k in ("bonjour", "salut", "bonsoir", "hello", "coucou", "bjr")):
+        return (
+            "👋 Bonjour ! Je suis AZ Turf Pro. Je peux analyser la course, un cheval, "
+            "deux chevaux, les cotes, la tactique, les signaux Premium ou construire "
+            "un ticket. Dites-moi simplement ce que vous voulez savoir."
+        )
+
+    tk_priority = _extraire_tickets(tickets)
+
+    # Demande explicite sur un cheval : priorité à la fiche du partant.
+    # Cela évite qu'une intention générale de planification détourne la question.
+    numeros_cites = _re.findall(r"\b(\d{1,2})\b", q)
+    if numeros_cites and any(k in q for k in (
+        "explique", "fiche", "profil", "que vaut", "parle moi du",
+        "parle-moi du", "points forts", "points faibles", "atouts", "faiblesses",
+        "musique", "forme du", "jockey du", "driver du", "entraineur du", "entraîneur du"
+    )) and not any(k in q for k in ("compare", "versus", "contre")):
+        cheval = _trouver_cheval(classement, numeros_cites[0])
+        if cheval:
+            return _fiche_cheval(cheval)
+        return f"Je ne trouve pas le N°{numeros_cites[0]} dans les partants actuellement analysés."
+
+    if any(k in q for k in ("meilleur duo", "meilleur couple", "couplé gagnant", "couple gagnant", "couplé placé", "couple placé")):
+        paire = (tk_priority.get("couple_gagnant_place") or [None])[0]
+        if isinstance(paire, list) and len(paire) >= 2:
+            return f"🤝 **Meilleur duo Premium** : N°{paire[0]} - N°{paire[1]}."
+        paire_gratuite = tk_priority.get("couple_place_gratuit") or []
+        if len(paire_gratuite) >= 2:
+            return f"🤝 **Meilleur duo** : N°{paire_gratuite[0]} - N°{paire_gratuite[1]}."
+        if len(classement) >= 2:
+            return f"🤝 **Meilleur duo** : N°{classement[0].get('numero')} - N°{classement[1].get('numero')}."
+
+    if "champ réduit" in q or "champ reduit" in q:
+        champ = tk_priority.get("champ_reduit") or {}
+        if champ.get("disponible") and champ.get("format"):
+            return f"🔒 **Champ réduit Premium** : {champ['format']}"
+        return "Le champ réduit n'est pas disponible avec les partants actuellement analysés."
+
+    if "quinté" in q or "quinte" in q:
+        if "premium" in q and tk_priority.get("quinte_premium"):
+            return "💎 **Quinté Premium conseillé** : " + " - ".join(tk_priority["quinte_premium"])
+        if tk_priority.get("quinte_gratuit"):
+            return "💡 **Quinté gratuit conseillé** : " + " - ".join(tk_priority["quinte_gratuit"])
+
     plan_response = _reponse_plan_local(question, contexte)
     if plan_response:
         return plan_response
@@ -933,10 +1007,10 @@ def _reponse_secours(question: str, contexte: dict) -> str:
         else:
             az_label = "ticket AZ Turf Pro"
         return (
-            "⚔️ **Comparaison Ticket IA (indépendant) / Ticket AZ Turf Pro**\n\n"
-            f"🤖 Ticket IA : **{' - '.join(ticket_ia)}**\n"
+            "⚔️ **Comparaison analyse autonome / AZ Turf Pro**\n\n"
+            f"🤖 Analyse autonome : **{' - '.join(ticket_ia)}**\n"
             f"🏆 {az_label} : **{' - '.join(ticket_az) if ticket_az else 'non disponible'}**\n\n"
-            "Les deux sélections sont calculées séparément : l'IA n'utilise jamais "
+            "Les deux sélections sont calculées séparément : l'analyse autonome n'utilise jamais "
             "l'indice AZ, elle recalcule sa propre opinion à partir des statistiques brutes."
         )
 
@@ -1173,10 +1247,10 @@ def _reponse_secours(question: str, contexte: dict) -> str:
         return "Aucune combinaison Quinté disponible pour le moment."
 
     if any(k in q for k in ["outsider", "tocard", "surprise", "pépite", "pepite"]):
-        outsiders = [c for c in classement if float(c.get("cote", 0) or 0) >= 10.0]
+        outsiders = [c for c in classement if _cote(c) >= 10.0]
         if outsiders:
             c = outsiders[0]
-            return f"🔥 **Outsider à surveiller** : N°{c.get('numero')} **{c.get('nom')}** (Cote : {c.get('cote')})."
+            return f"🔥 **Outsider à surveiller** : N°{c.get('numero')} **{c.get('nom')}** (Cote : {c.get('cote_brute', c.get('cote'))})."
         return "Aucun outsider n'a été repéré avec un niveau de confiance suffisant."
 
     if "badge" in q or "signification" in q:

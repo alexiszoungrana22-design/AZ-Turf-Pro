@@ -20,7 +20,7 @@ def _score(c):
     for key in ("distance","jockey","classe","fraicheur"):
         v=num(r.get(key))
         if v is not None: vals.append(v/10 if v>10 else v)
-    cote=num(c.get("cote"))
+    cote=num(c.get("cote_brute", c.get("cote")))
     if cote is not None and cote>0:
         import math
         vals.append(max(0.0,min(10.0,10.0/(1+math.log(max(cote,1))))))

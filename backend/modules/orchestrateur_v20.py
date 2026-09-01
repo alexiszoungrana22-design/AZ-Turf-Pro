@@ -63,6 +63,10 @@ def detect_intent(question: str, history: list | None = None) -> str:
     q = norm(question)
     if not q:
         return "vide"
+    # Les salutations restent conversationnelles et ne doivent pas déclencher
+    # l'analyse autonome simplement parce qu'une course est chargée.
+    if re.fullmatch(r"(?:bonjour|salut|bonsoir|hello|coucou|bjr)(?:[ !.,-].*)?", q):
+        return "salutation"
     numbers = extract_numbers(question, history)
     if _contains(q, PHRASES["badges"]) and any(x in q for x in ("explique", "signifie", "veut dire", "definition", "quoi", "pourquoi", "comprendre", "correspond")):
         return "badges"
@@ -129,7 +133,7 @@ def _raw_score(c: dict) -> float:
     if regularite is not None: vals.append(regularite*0.25); weights.append(.25)
     jockey=f(c.get("reussite_jockey"))
     if jockey is not None: vals.append(max(0,min(10,jockey/10))*0.10); weights.append(.10)
-    cote=f(c.get("cote"))
+    cote=f(c.get("cote_brute", c.get("cote")))
     if cote is not None and cote>0:
         value=max(0,min(10,10/(1+math.log(max(cote,1)))))
         vals.append(value*.10); weights.append(.10)
@@ -199,11 +203,11 @@ def _response_for_intent(question, contexte, history=None):
         az=_extract_az_tickets(moteur)
         if not ia and not az: return _format_missing("Comparaison des tickets")
         common=[x for x in ia if x in az]
-        return ("⚔️ **Comparaison IA autonome / AZ Turf-Pro**\n\n"
-                f"🤖 IA autonome : **{' - '.join(ia) or 'indisponible'}**\n"
+        return ("⚔️ **Comparaison analyse autonome / AZ Turf-Pro**\n\n"
+                f"🤖 Analyse autonome : **{' - '.join(ia) or 'indisponible'}**\n"
                 f"🏆 AZ Turf-Pro : **{' - '.join(az) or 'indisponible'}**\n"
                 f"🤝 Convergences : **{' - '.join(common) or 'aucune'}**\n"
-                f"🔎 Différences IA : **{' - '.join(x for x in ia if x not in az) or 'aucune'}**\n"
+                f"🔎 Différences analyse autonome : **{' - '.join(x for x in ia if x not in az) or 'aucune'}**\n"
                 f"🔎 Différences AZ : **{' - '.join(x for x in az if x not in ia) or 'aucune'}**\n\n"
                 "Le classement autonome est recalculé à partir de variables brutes disponibles ; il ne lit pas l'indice AZ/Premium.")
 
