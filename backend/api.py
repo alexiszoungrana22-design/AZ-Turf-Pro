@@ -841,7 +841,9 @@ def historique():
                     from archive_store import archiver_arrivee, _cle_course
                     info_course_connue = entree.get("course") or {}
                     if info_course_connue:
-                        archiver_arrivee(_cle_course(info_course_connue), entree["arrivee"])
+                        # Seuls les 5 premiers comptent pour le Quinté — pas
+                        # tout le peloton.
+                        archiver_arrivee(_cle_course(info_course_connue), entree["arrivee"][:5])
                 except Exception:
                     pass
                 continue
@@ -876,7 +878,11 @@ def historique():
                     # JSON ci-dessus, qui reste inchangée.
                     try:
                         from archive_store import archiver_arrivee, _cle_course
-                        archiver_arrivee(_cle_course(info_course), arrivee)
+                        # Seuls les 5 premiers comptent pour le Quinté — pas
+                        # tout le peloton. La donnée JSON locale ci-dessus
+                        # (entree["arrivee"]) garde tout, seule l'archive
+                        # affichée dans "Courses archivées" est limitée.
+                        archiver_arrivee(_cle_course(info_course), arrivee[:5])
                     except Exception:
                         pass
 
@@ -1382,12 +1388,25 @@ def archive_synchroniser(limit: int = 100):
         traitees = 0
         mises_a_jour = 0
         deja_a_jour = 0
+        corrigees = 0
         ignorees_sans_identifiant = 0
         erreurs = []
 
         for ligne in lignes:
-            if ligne.get("arrivee_json"):
-                deja_a_jour += 1
+            arrivee_existante = ligne.get("arrivee_json")
+            if arrivee_existante:
+                # Rattrapage : les arrivées déjà enregistrées avant cette
+                # correction contenaient tout le peloton au lieu des 5
+                # premiers seulement (Quinté). On les recadre ici, sans
+                # rappeler PMU puisque la donnée est déjà connue.
+                if isinstance(arrivee_existante, list) and len(arrivee_existante) > 5:
+                    try:
+                        archiver_arrivee(ligne["course_key"], arrivee_existante[:5])
+                        corrigees += 1
+                    except Exception as erreur:
+                        erreurs.append(f"{ligne.get('course_key')}: {erreur}")
+                else:
+                    deja_a_jour += 1
                 continue
 
             date = ligne.get("date_course")
@@ -1402,7 +1421,8 @@ def archive_synchroniser(limit: int = 100):
             try:
                 arrivee = recuperer_arrivee_pmu(date, reunion, course_numero)
                 if arrivee:
-                    archiver_arrivee(ligne["course_key"], arrivee)
+                    # Seuls les 5 premiers comptent pour le Quinté.
+                    archiver_arrivee(ligne["course_key"], arrivee[:5])
                     mises_a_jour += 1
             except Exception as erreur:
                 erreurs.append(f"{ligne.get('course_key')}: {erreur}")
@@ -1411,6 +1431,7 @@ def archive_synchroniser(limit: int = 100):
             "status": "success",
             "courses_lues": len(lignes),
             "deja_a_jour": deja_a_jour,
+            "corrigees": corrigees,
             "traitees": traitees,
             "mises_a_jour": mises_a_jour,
             "ignorees_sans_identifiant": ignorees_sans_identifiant,
