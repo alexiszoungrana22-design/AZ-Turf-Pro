@@ -338,6 +338,43 @@ def obtenir_nombre_courses(participant):
 
 
 # =====================================
+# EXTRACTION CRITERES DISCIPLINAIRES
+# =====================================
+
+def _premier_numerique(objet, cles):
+    if not isinstance(objet, dict):
+        return None
+    for cle in cles:
+        valeur = objet.get(cle)
+        nombre = _extraire_valeur_numerique(valeur)
+        if nombre is not None:
+            return nombre
+    return None
+
+
+def obtenir_critere_participant(participant, cles):
+    return _premier_numerique(participant, cles)
+
+
+def obtenir_deferre(participant):
+    for cle in ("ferrure", "deferre", "deferrage", "ferrureLibelle", "ferrureCode"):
+        valeur = participant.get(cle)
+        if isinstance(valeur, dict):
+            valeur = valeur.get("libelle") or valeur.get("code") or valeur.get("nom")
+        if valeur not in (None, ""):
+            return str(valeur).strip()
+    return ""
+
+
+def obtenir_terrain_score(course):
+    terrain = obtenir_terrain(course)
+    texte = str(terrain or "").upper()
+    # Ce score reste volontairement non renseigné : le terrain de la course
+    # n'indique pas à lui seul l'aptitude individuelle du cheval.
+    return None if not texte or "NON DISPONIBLE" in texte else None
+
+
+# =====================================
 # TRANSFORMATION PARTICIPANT
 # =====================================
 
@@ -383,14 +420,15 @@ def transformer_participant(
     nombre_courses = obtenir_nombre_courses(participant)
     experience = calculer_experience(nombre_courses)
 
-    # Les scores internes restent sur 0-10. Les valeurs brutes sont conservées
-    # séparément afin de ne jamais afficher une cote normalisée comme une cote PMU.
-    distance_score = 5.0
-    terrain_score = 5.0
-    jockey_score = 5.0
-
-    # Exploite une statistique réelle si la réponse du fournisseur la contient.
-    # Sinon, on garde la valeur neutre 5/10 et on signale l'absence de donnée.
+    # Les critères individuels absents restent absents. Le moteur spécialisé
+    # renormalise les poids au lieu de leur attribuer artificiellement 5/10.
+    distance_score = obtenir_critere_participant(
+        participant, ("aptitudeDistance", "scoreDistance", "distanceScore")
+    )
+    terrain_score = obtenir_critere_participant(
+        participant, ("aptitudeTerrain", "scoreTerrain", "terrainScore")
+    )
+    jockey_score = None
     for cle in (
         "reussiteJockey", "reussiteDriver", "tauxReussiteJockey",
         "tauxReussiteDriver", "pourcentageReussiteJockey", "pourcentageReussiteDriver"
@@ -398,11 +436,37 @@ def transformer_participant(
         valeur = participant.get(cle)
         if valeur not in (None, ""):
             try:
-                jockey_score = limiter_score(float(valeur) / 10.0 if float(valeur) > 10 else float(valeur))
+                brut = float(valeur)
+                jockey_score = limiter_score(brut / 10.0 if brut > 10 else brut)
             except (TypeError, ValueError):
                 pass
-            break
+            if jockey_score is not None:
+                break
 
+    poids_brut = obtenir_critere_participant(participant, (
+        "poids", "poidsCheval", "poidsParticipant", "weight"
+    ))
+    valeur_handicap = obtenir_critere_participant(participant, (
+        "valeurHandicap", "valeur", "handicapValeur", "valeurHandicapCheval"
+    ))
+    corde = obtenir_critere_participant(participant, ("corde", "numCorde", "stalle", "stall"))
+    nombre_stalles = obtenir_critere_participant(course, ("nombreStalles", "nbStalles", "nombrePartantsStalles"))
+    monte_score = obtenir_critere_participant(participant, (
+        "aptitudeMonte", "scoreMonte", "reussiteMonte", "tauxReussiteMonte"
+    ))
+    if monte_score is not None and monte_score > 10:
+        monte_score = limiter_score(monte_score / 10.0)
+    elif monte_score is not None:
+        monte_score = limiter_score(monte_score)
+    obstacle_score = obtenir_critere_participant(participant, (
+        "aptitudeObstacle", "scoreObstacle", "reussiteObstacle", "tauxReussiteObstacle"
+    ))
+    if obstacle_score is not None and obstacle_score > 10:
+        obstacle_score = limiter_score(obstacle_score / 10.0)
+    elif obstacle_score is not None:
+        obstacle_score = limiter_score(obstacle_score)
+
+    deferre = obtenir_deferre(participant)
     terrain_info = obtenir_terrain(course)
 
     return {
@@ -421,6 +485,13 @@ def transformer_participant(
         "cote": cote,
         "distance": distance_score,
         "terrain": terrain_score,
+        "corde": corde,
+        "nombre_stalles": nombre_stalles,
+        "poids_brut": poids_brut,
+        "valeur_handicap": valeur_handicap,
+        "monte_score": monte_score,
+        "obstacle_score": obstacle_score,
+        "deferre": deferre,
         # Données brutes : elles sont destinées à l'affichage et aux règles
         # Premium/valeur, jamais à être confondues avec les scores.
         "cote_brute": cote_brute,
@@ -429,7 +500,7 @@ def transformer_participant(
         "distance_score": distance_score,
         "terrain_score": terrain_score,
         "jockey_score_source": jockey_score,
-        "reussite_jockey": (jockey_score * 10.0 if jockey_score != 5.0 else None),
+        "reussite_jockey": (jockey_score * 10.0 if jockey_score is not None else None),
         "terrain_info": terrain_info,
         "experience": experience,
         "musique_brute": musique,
@@ -619,7 +690,12 @@ def transformer_course(course, participants):
             "forme": "extraite_de_la_musique",
             "jockey_driver_stats": "fournies_si_presentes_par_source",
             "terrain_individuel": "non_documente_si_absent",
-            "distance_individuelle": "non_documentee_si_absente",
+            "distance_individuelle": "fournie_si_source",
+            "terrain_individuel": "fournie_si_source",
+            "poids": "fourni_si_source",
+            "valeur_handicap": "fournie_si_source",
+            "corde": "fournie_si_source",
+            "deferrage": "fourni_si_source",
         },
     }
 
@@ -922,7 +998,7 @@ def _contient_quinte(course):
 # RECHERCHE QUINTE+ DU JOUR
 # =====================================
 
-def trouver_quinte_du_jour(date):
+def trouver_quinte_du_jour(date, allow_fallback=True):
     """
     Parcourt les reunions et retourne (programme, reunion, course).
     Inclus un systeme de secours (fallback R1C1) si aucun QuintÃ©+ n'est Ã©tiquetÃ©.
@@ -974,12 +1050,46 @@ def trouver_quinte_du_jour(date):
             if _contient_quinte(course):
                 return programme, reunion, course
 
-    # 3. Fallback de securite
-    if premiere_course_fallback:
-        print(f"Note : Aucun QuintÃ©+ explicite trouvÃ© pour {date}. Utilisation de la course de secours {premiere_course_fallback[1]}")
+    # 3. Fallback de sécurité : conservé pour la compatibilité de la route
+    # historique. Les appels qui exigent un VRAI Quinté+ passent
+    # allow_fallback=False.
+    if allow_fallback and premiere_course_fallback:
+        print(f"Note : Aucun Quinté+ explicite trouvé pour {date}. Utilisation de la course de secours {premiere_course_fallback[1]}")
         return premiere_course_fallback
 
     return None, None, None
+
+
+# =====================================
+# QUINTÉ+ STRICT — SANS FALLBACK SUR UNE AUTRE COURSE
+# =====================================
+
+def charger_quinte_pmu_strict(date=None):
+    """Charge uniquement le Quinté+ explicitement identifié par PMU.
+
+    Contrairement à charger_course_pmu(), cette fonction ne peut jamais
+    retourner R1C1 (ou une autre première course) simplement parce qu'aucun
+    Quinté n'a été identifié. Elle est destinée aux demandes datées du
+    chatbot et aux écrans qui annoncent explicitement un Quinté+.
+    """
+    try:
+        date_normalisee = normaliser_date(date)
+        _programme, reunion, course = trouver_quinte_du_jour(
+            date_normalisee, allow_fallback=False
+        )
+        if not course or not reunion:
+            return None
+        numero = (
+            course.get("numOrdre")
+            or course.get("numCourse")
+            or course.get("numero")
+        )
+        if numero is None:
+            return None
+        return charger_course_pmu(date_normalisee, reunion, numero)
+    except Exception as erreur:
+        print("Erreur Quinté strict PMU :", erreur)
+        return None
 
 
 # =====================================

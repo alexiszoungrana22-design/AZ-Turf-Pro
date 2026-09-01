@@ -232,8 +232,8 @@ def version():
     """Petit indicateur pour vérifier facilement, depuis un navigateur,
     quelle version du code est réellement déployée sur ce serveur."""
     return {
-        "version": "v22-audit-fonctionnel",
-        "chatbot": "modules/chatbot_turf.py — moteur AZ conservé + orchestration locale V22",
+        "version": "v23-chatbot-dates-resultats",
+        "chatbot": "modules/chatbot_turf.py — dates réelles + Quinté strict + résultats PMU",
     }
 
 
