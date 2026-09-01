@@ -1362,6 +1362,65 @@ def archive_diagnostic():
 
 
 # =========================================================
+# SYNCHRONISATION DIRECTE DE L'ARCHIVE — corrige le fait que la
+# synchronisation via /historique dépend du fichier JSON local, dont les
+# entrées peuvent manquer de date/reunion/course_numero (constaté : 0
+# entrée synchronisable sur 4 lors du diagnostic). Cette route lit
+# directement l'archive PostgreSQL, qui a ces champs à coup sûr (ils
+# viennent du même info_course que celui utilisé pour archiver la course).
+# Additive : ne remplace ni /historique, ni son propre rattrapage déjà en
+# place. Aucune arrivée inventée : silencieusement ignoré si PMU ne
+# renvoie rien pour une course.
+# =========================================================
+@router.get("/archive/synchroniser")
+def archive_synchroniser(limit: int = 100):
+    try:
+        from archive_store import lire_archive_performance, archiver_arrivee
+        from pmu_source import recuperer_arrivee_pmu
+
+        lignes = lire_archive_performance(limit)
+        traitees = 0
+        mises_a_jour = 0
+        deja_a_jour = 0
+        ignorees_sans_identifiant = 0
+        erreurs = []
+
+        for ligne in lignes:
+            if ligne.get("arrivee_json"):
+                deja_a_jour += 1
+                continue
+
+            date = ligne.get("date_course")
+            reunion = ligne.get("reunion")
+            course_numero = ligne.get("course_numero")
+
+            if not (date and reunion and course_numero):
+                ignorees_sans_identifiant += 1
+                continue
+
+            traitees += 1
+            try:
+                arrivee = recuperer_arrivee_pmu(date, reunion, course_numero)
+                if arrivee:
+                    archiver_arrivee(ligne["course_key"], arrivee)
+                    mises_a_jour += 1
+            except Exception as erreur:
+                erreurs.append(f"{ligne.get('course_key')}: {erreur}")
+
+        return {
+            "status": "success",
+            "courses_lues": len(lignes),
+            "deja_a_jour": deja_a_jour,
+            "traitees": traitees,
+            "mises_a_jour": mises_a_jour,
+            "ignorees_sans_identifiant": ignorees_sans_identifiant,
+            "erreurs": erreurs,
+        }
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur synchronisation archive : {erreur}")
+
+
+# =========================================================
 # PERFORMANCE AZ — panneau "Performances AZ" de historique.html
 # (historique-performance.js appelle GET /api/archive/performance,
 # route absente jusqu'ici -> 404 constaté en production). Additive :
