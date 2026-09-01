@@ -166,9 +166,13 @@ def calculer_indice_premium(cheval, info_course=None, discipline="TROT", analyse
         5
     )
 
-    cote = _float(
+    cote_score = _float(
         cheval.get("cote", 5),
         5
+    )
+    cote_brute = _float(
+        cheval.get("cote_brute", cote_score),
+        cote_score
     )
 
     experience = _float(
@@ -223,7 +227,7 @@ def calculer_indice_premium(cheval, info_course=None, discipline="TROT", analyse
     bonus_outsider_chaud = 0.0
 
     if (
-        cote >= 10.0
+        cote_brute >= 10.0
         and (
             forme >= 7.0
             or regularite >= 7.0
@@ -283,7 +287,7 @@ def calculer_indice_premium(cheval, info_course=None, discipline="TROT", analyse
         indice_az
         + (forme * 1.35)
         + (regularite * 1.20)
-        + (cote * 1.10)
+        + (cote_score * 1.10)
         + (experience * 0.80)
         + (bonnes_places * 2.0)
         + bonus_outsider_chaud
@@ -596,6 +600,22 @@ def lancer_analyse(
         else {}
     )
 
+    # Provenance explicite : le frontend/chatbot peut distinguer une donnée
+    # réellement fournie d'une valeur neutre de secours.
+    total = max(1, len(classement))
+    nb_cotes_brutes = sum(1 for c in classement if c.get("cote_brute") not in (None, ""))
+    nb_jockey_stats = sum(1 for c in classement if c.get("reussite_jockey") not in (None, ""))
+    nb_variations = sum(1 for c in classement if c.get("variation_cote_pct") not in (None, ""))
+    qualite_donnees = {
+        "partants": f"{len(classement)}/{len(chevaux_valides) or total}",
+        "cotes_brutes": f"{nb_cotes_brutes}/{total}",
+        "statistiques_jockey_driver": f"{nb_jockey_stats}/{total}",
+        "variations_cotes": f"{nb_variations}/{total}",
+        "presse": "disponible" if analyse_complementaire.get("presse") and analyse_complementaire.get("presse", {}).get("consensus") else "non_documentee",
+        "meteo_piste": str(analyse_complementaire.get("meteo_piste", {}).get("impact", "NON_DOCUMENTE")),
+        "historique_performance": analyse_complementaire.get("performance", {}).get("courses_evaluees", 0),
+    }
+
 
     try:
 
@@ -706,5 +726,10 @@ def lancer_analyse(
 
         # Résultats des modules complémentaires réellement exécutés.
         "analyse_complementaire": analyse_complementaire,
+        "qualite_donnees": qualite_donnees,
+        "interpretation_confiance": (
+            "Le champ confiance est une proximité de l'indice AZ au leader, "
+            "pas une probabilité statistique de victoire."
+        ),
 
     }

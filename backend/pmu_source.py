@@ -383,9 +383,25 @@ def transformer_participant(
     nombre_courses = obtenir_nombre_courses(participant)
     experience = calculer_experience(nombre_courses)
 
+    # Les scores internes restent sur 0-10. Les valeurs brutes sont conservées
+    # séparément afin de ne jamais afficher une cote normalisée comme une cote PMU.
     distance_score = 5.0
     terrain_score = 5.0
     jockey_score = 5.0
+
+    # Exploite une statistique réelle si la réponse du fournisseur la contient.
+    # Sinon, on garde la valeur neutre 5/10 et on signale l'absence de donnée.
+    for cle in (
+        "reussiteJockey", "reussiteDriver", "tauxReussiteJockey",
+        "tauxReussiteDriver", "pourcentageReussiteJockey", "pourcentageReussiteDriver"
+    ):
+        valeur = participant.get(cle)
+        if valeur not in (None, ""):
+            try:
+                jockey_score = limiter_score(float(valeur) / 10.0 if float(valeur) > 10 else float(valeur))
+            except (TypeError, ValueError):
+                pass
+            break
 
     terrain_info = obtenir_terrain(course)
 
@@ -399,15 +415,23 @@ def transformer_participant(
         "performances": performances,
         "forme": forme,
         "regularite": regularite,
+        # Scores 0-10 utilisés par scoring.py.
         "gains": gains,
         "jockey_score": jockey_score,
         "cote": cote,
         "distance": distance_score,
         "terrain": terrain_score,
-        "terrain_info": terrain_info,
-        "experience": experience,
+        # Données brutes : elles sont destinées à l'affichage et aux règles
+        # Premium/valeur, jamais à être confondues avec les scores.
         "cote_brute": cote_brute,
         "gains_carriere_brute": obtenir_gains(participant),
+        "cote_score": cote,
+        "distance_score": distance_score,
+        "terrain_score": terrain_score,
+        "jockey_score_source": jockey_score,
+        "reussite_jockey": (jockey_score * 10.0 if jockey_score != 5.0 else None),
+        "terrain_info": terrain_info,
+        "experience": experience,
         "musique_brute": musique,
     }
 
@@ -590,6 +614,13 @@ def transformer_course(course, participants):
         "plus_joues": [],
         "source_plus_joues": "non disponible via API PMU",
         "source": "pmu_live",
+        "qualite_donnees": {
+            "cotes": "reelles" if any(c.get("cote_brute") is not None for c in chevaux) else "indisponibles",
+            "forme": "extraite_de_la_musique",
+            "jockey_driver_stats": "fournies_si_presentes_par_source",
+            "terrain_individuel": "non_documente_si_absent",
+            "distance_individuelle": "non_documentee_si_absente",
+        },
     }
 
 
@@ -636,7 +667,7 @@ def recuperer_programme(date, reunion=None):
 
     except Exception as erreur:
         if reunion is not None:
-            print(f"Erreur programme PMU R{reunion} :", erreur)
+            print(f"Erreur programme PMU {reunion_numero and "R" + reunion_numero or reunion} :", erreur)
         return None
 
 
