@@ -18,6 +18,7 @@ mots-clés pour ne jamais laisser le client sans réponse.
 import os
 import json
 import httpx
+from datetime import datetime, timedelta
 
 # Modules d'orchestration complémentaires : ils enrichissent le moteur existant
 # sans modifier ses scores ni ses routes API.
@@ -702,6 +703,187 @@ def _analyser_historique() -> str | None:
         return None
 
 
+
+def _course_pour_date_pmu(date_obj):
+    """Récupère le Quinté+ réel d'une date donnée, sans fallback démo.
+
+    Cette fonction est volontairement séparée de ``_contexte_assistant`` :
+    une demande portant sur demain/hier ne doit jamais recevoir les partants
+    de la course courante par erreur.
+    """
+    try:
+        from pmu_source import charger_quinte_pmu_strict
+        date_pmu = date_obj.strftime("%d%m%Y")
+        course = charger_quinte_pmu_strict(date_pmu)
+        if isinstance(course, dict) and course.get("chevaux"):
+            return course
+    except Exception:
+        pass
+    return None
+
+
+def _info_course_analyse(course):
+    return {
+        "date": course.get("date"),
+        "reunion": course.get("reunion"),
+        "course_numero": course.get("course_numero"),
+        "course": course.get("course", ""),
+        "hippodrome": course.get("hippodrome", ""),
+        "discipline": course.get("discipline", ""),
+        "distance": course.get("distance_course", ""),
+        "allocation": course.get("allocation", ""),
+        "heure_depart": course.get("heure_depart", ""),
+        "horaires": course.get("horaires", {}),
+        "non_partants": course.get("non_partants", []),
+        "plus_joues": course.get("plus_joues", []),
+    }
+
+
+def _course_ref(course):
+    reunion = str(course.get("reunion") or "-").strip()
+    numero = str(course.get("course_numero") or "-").strip()
+    if numero.upper().startswith("C"):
+        return f"{reunion}{numero.upper()}"
+    return f"{reunion}C{numero}"
+
+
+def _ticket_nums(tickets, cle):
+    valeur = (tickets or {}).get(cle)
+    if isinstance(valeur, list):
+        return [str(x.get("numero") if isinstance(x, dict) else x) for x in valeur if x is not None]
+    return []
+
+
+def _reponse_quinte_date(question: str) -> str | None:
+    """Analyse réellement le Quinté demandé pour demain.
+
+    Prioritaire sur tout LLM : aucune sélection de la course actuelle ne peut
+    être réutilisée pour demain. Si PMU n'est pas disponible, on refuse de
+    fabriquer un ticket.
+    """
+    q = str(question or "").lower().strip()
+    if "demain" not in q:
+        return None
+    mots_action = ("quinté", "quinte", "pronostic", "analyse", "analyser", "ticket", "course")
+    if not any(m in q for m in mots_action):
+        return None
+
+    demain = datetime.now() + timedelta(days=1)
+    course = _course_pour_date_pmu(demain)
+    if not course:
+        return (
+            "📅 **Quinté de demain**\n\n"
+            "Je ne peux pas encore construire le ticket : le programme PMU réel "
+            "de demain avec les partants n'est pas disponible au moment de la demande.\n\n"
+            "Je préfère ne donner aucun numéro plutôt que de reprendre par erreur "
+            "la course d'aujourd'hui."
+        )
+
+    try:
+        from engine import lancer_analyse
+        resultat = lancer_analyse(course.get("chevaux", []), _info_course_analyse(course))
+    except Exception:
+        return (
+            "📅 **Quinté de demain trouvé**, mais son analyse complète n'a pas pu "
+            "être calculée à cet instant. Aucun ticket fictif n'est affiché."
+        )
+
+    tickets = (resultat or {}).get("tickets") or {}
+    premium = tickets.get("premium") or {}
+    gratuit = tickets.get("gratuit") or {}
+    est_premium = "premium" in q
+    selection = _ticket_nums(premium, "quinte") if est_premium else _ticket_nums(gratuit, "quinte")
+    if not selection:
+        selection = _ticket_nums(premium, "selection_quinte")[:6] if est_premium else []
+
+    if not selection:
+        return (
+            f"📅 **{course.get('date', '-')} — {course.get('hippodrome', '-')} — "
+            f"{course.get('reunion', '-')}C{course.get('course_numero', '-')}**\n"
+            "Les partants réels sont disponibles, mais le moteur n'a pas produit "
+            "de sélection Quinté exploitable. Aucun numéro n'est inventé."
+        )
+
+    discipline = course.get("discipline") or "non précisée"
+    distance = course.get("distance_course") or "-"
+    heure = course.get("heure_depart") or "-"
+    libelle = "Quinté Premium" if est_premium else "Quinté gratuit"
+    return (
+        f"📅 **Quinté de demain — {course.get('date', '-')}**\n"
+        f"🏇 **{_course_ref(course)} — "
+        f"{course.get('hippodrome', '-')}**\n"
+        f"Discipline : **{discipline}** • Distance : **{distance} m** • Départ : **{heure}**\n"
+        f"Partants PMU récupérés : **{len(course.get('chevaux', []) or [])}**\n\n"
+        f"💡 **{libelle} conseillé :**\n**{' - '.join(selection)}**\n\n"
+        "Le ticket est calculé sur les partants PMU réellement récupérés pour demain ; "
+        "il ne reprend pas le classement de la course actuelle."
+    )
+
+
+def _reponse_arrivee_aujourdhui(question: str) -> str | None:
+    """Retourne l'arrivée officielle du Quinté du jour si elle est publiée."""
+    q = str(question or "").lower().strip()
+    if "aujourd" not in q or not any(m in q for m in ("arrivée", "arrivee", "résultat", "resultat")):
+        return None
+
+    aujourd_hui = datetime.now()
+    course = _course_pour_date_pmu(aujourd_hui)
+
+    # Le serveur peut avoir l'arrivée en historique même si PMU ne la renvoie
+    # plus au moment de la demande : on tente d'abord l'historique du jour.
+    try:
+        from learning import lire_historique
+        historique = lire_historique() or []
+        date_cible = aujourd_hui.strftime("%Y-%m-%d")
+        for entree in reversed(historique):
+            if not isinstance(entree, dict):
+                continue
+            date = str(entree.get("date") or (entree.get("course") or {}).get("date") or "")
+            arrivee = entree.get("arrivee_officielle") or entree.get("arrivee")
+            if arrivee and date.startswith(date_cible):
+                nums = [str(x.get("numero") if isinstance(x, dict) else x) for x in arrivee]
+                return (
+                    f"🏁 **Arrivée officielle enregistrée aujourd'hui**\n"
+                    f"{' - '.join(nums[:7])}\n\n"
+                    "Source : historique AZ Turf Pro synchronisé."
+                )
+    except Exception:
+        pass
+
+    if not course:
+        return (
+            "🏁 **Arrivée d'aujourd'hui**\n\n"
+            "Je ne peux pas vérifier le Quinté du jour : les données PMU réelles "
+            "ne sont pas accessibles actuellement. Aucun résultat n'est inventé."
+        )
+
+    try:
+        from pmu_source import recuperer_arrivee_pmu
+        arrivee = recuperer_arrivee_pmu(
+            course.get("date"), course.get("reunion"), course.get("course_numero")
+        )
+    except Exception:
+        arrivee = None
+
+    if arrivee:
+        nums = [str(x.get("numero") if isinstance(x, dict) else x) for x in arrivee]
+        return (
+            f"🏁 **Arrivée officielle du Quinté du jour**\n"
+            f"{_course_ref(course)} — "
+            f"{course.get('hippodrome', '-')}\n"
+            f"**{' - '.join(nums[:7])}**\n\n"
+            "Résultat récupéré depuis les données PMU."
+        )
+
+    return (
+        f"🏁 **Arrivée d'aujourd'hui — {_course_ref(course)} "
+        f"à {course.get('hippodrome', '-')}**\n\n"
+        "L'arrivée officielle n'est pas encore publiée dans les données PMU. "
+        "Cela signifie que le résultat n'est pas disponible pour le moment, pas "
+        "qu'aucune course n'a eu lieu."
+    )
+
+
 def _analyser_course_passee(question: str) -> str | None:
     """Regarde l'historique réel (learning.py) pour répondre sur une
     course passée : sa sélection, et — si l'arrivée officielle a été
@@ -1356,6 +1538,19 @@ def _resume_modules_accompagnement(contexte: dict) -> str:
 # =====================================
 
 def repondre_assistant_turf(question: str, contexte_analyse: dict = None, historique: list = None) -> dict:
+    # Les demandes datées sont traitées avant toute IA externe. Cela empêche un
+    # modèle de langage de répondre avec les partants de la course actuelle
+    # lorsqu'un utilisateur demande explicitement demain ou le résultat du jour.
+    try:
+        date_response = _reponse_quinte_date(question)
+        if date_response:
+            return {"status": "success", "question": question, "reponse": date_response, "source": "pmu_date_reelle"}
+        arrival_response = _reponse_arrivee_aujourdhui(question)
+        if arrival_response:
+            return {"status": "success", "question": question, "reponse": arrival_response, "source": "pmu_resultat_reel"}
+    except Exception:
+        pass
+
     contexte = contexte_analyse or {}
     try:
         contexte, plan = _enrichir_contexte_local(question, contexte)
