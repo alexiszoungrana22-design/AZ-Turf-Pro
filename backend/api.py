@@ -232,8 +232,8 @@ def version():
     """Petit indicateur pour vérifier facilement, depuis un navigateur,
     quelle version du code est réellement déployée sur ce serveur."""
     return {
-        "version": "v23-chatbot-dates-resultats",
-        "chatbot": "modules/chatbot_turf.py — dates réelles + Quinté strict + résultats PMU",
+        "version": "v22-audit-fonctionnel",
+        "chatbot": "modules/chatbot_turf.py — moteur AZ conservé + orchestration locale V22",
     }
 
 
@@ -1457,9 +1457,15 @@ def archive_synchroniser(limit: int = 100):
 #                                 sont TOUS contenus dans la sélection
 #                                 AZ (quinté, 7 numéros) — ticket
 #                                 entièrement "dans le jeu"
-#   - taux_selection_az_touche : AU MOINS UN des 5 premiers de
-#                                 l'arrivée réelle figure dans la
-#                                 sélection AZ — touché partiel
+#   - selection_taux_gagnant ("Gagnant dans la sélection AZ") :
+#                                 le VAINQUEUR réel (arrivee[0]) figure
+#                                 dans la sélection AZ
+#   - selection_taux_touchee ("Sélection AZ dans l'arrivée") :
+#                                 proportion MOYENNE des 5 premiers de
+#                                 l'arrivée qui figurent dans la sélection
+#                                 AZ (ex: 3 des 5 premiers présents -> 60%
+#                                 pour cette course, puis moyenne sur
+#                                 toutes les courses évaluées)
 # =========================================================
 @router.get("/archive/performance")
 def archive_performance():
@@ -1471,7 +1477,8 @@ def archive_performance():
         courses_evaluees = 0
         favoris_gagnants = 0
         selections_reussies = 0
-        selections_touchees = 0
+        gagnants_dans_selection = 0
+        somme_couverture = 0.0
 
         for ligne in lignes:
             arrivee = ligne.get("arrivee_json")
@@ -1494,18 +1501,22 @@ def archive_performance():
             if selection_num:
                 if top5.issubset(selection_num):
                     selections_reussies += 1
-                if top5 & selection_num:
-                    selections_touchees += 1
+                gagnant = arrivee_num[0] if arrivee_num else None
+                if gagnant and gagnant in selection_num:
+                    gagnants_dans_selection += 1
+                somme_couverture += len(top5 & selection_num) / len(top5) * 100
 
         def _taux(n):
             return round((n / courses_evaluees) * 100, 1) if courses_evaluees else None
+
+        taux_couverture = round(somme_couverture / courses_evaluees, 1) if courses_evaluees else None
 
         return {
             "status": "success",
             "courses_evaluees": courses_evaluees,
             "taux_favori_gagnant": _taux(favoris_gagnants),
             "taux_selection_az": _taux(selections_reussies),
-            "taux_selection_az_touche": _taux(selections_touchees),
+            "taux_selection_az_touche": taux_couverture,
             # Alias additifs : historique.js (le seul script réellement chargé
             # par historique.html — historique-performance.js ne l'est pas)
             # attend ces noms de champs précis. Conservés en plus des
@@ -1514,8 +1525,8 @@ def archive_performance():
             "courses_analysees": courses_evaluees,
             "courses_terminees": courses_evaluees,
             "favori_taux": _taux(favoris_gagnants),
-            "selection_taux_gagnant": _taux(selections_reussies),
-            "selection_taux_touchee": _taux(selections_touchees),
+            "selection_taux_gagnant": _taux(gagnants_dans_selection),
+            "selection_taux_touchee": taux_couverture,
         }
     except Exception as erreur:
         raise HTTPException(status_code=500, detail=f"Erreur Performance AZ : {erreur}")

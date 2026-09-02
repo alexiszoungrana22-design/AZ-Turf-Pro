@@ -1,29 +1,68 @@
 """
 AZ TURF PRO - SCORING AVANCÉ (Optimisé 85%)
 Fichier complet à remplacer : scoring.py
+
+Enrichi avec des critères propres à chacune des 4 spécialités reconnues par
+le PMU : Plat, Trot attelé, Trot monté, Obstacle (haies/steeple/cross).
+Auparavant, Attelé et Monté étaient confondus sous un seul bucket "TROT" ;
+ils ont des dynamiques différentes (le jockey pèse davantage en monté qu'en
+attelé) et sont désormais distingués. Le bonus corde (Plat) et le bonus
+déferrage (Trot) existaient déjà mais ne recevaient jamais de valeur car
+pmu_source.py n'extrayait pas ces champs — corrigé côté extraction, ce
+fichier peut donc désormais réellement les exploiter.
 """
+
+
+def classifier_discipline(discipline):
+    """Classe la discipline PMU brute en l'une des 4 spécialités reconnues :
+    "PLAT", "ATTELE", "MONTE", "OBSTACLE". Ne suppose jamais un format PMU
+    exact : classification par mots-clés (robuste aux variantes d'écriture),
+    avec un repli neutre si la donnée est absente ou non reconnue."""
+    disc = str(discipline or "").upper()
+    if "PLAT" in disc:
+        return "PLAT"
+    if "MONTE" in disc:
+        return "MONTE"
+    if "TROT" in disc or "ATTELE" in disc:
+        return "ATTELE"
+    if disc:
+        return "OBSTACLE"  # HAIES, STEEPLE-CHASE, CROSS, etc.
+    return "ATTELE"  # discipline inconnue : repli neutre (la plus courante en France)
+
 
 def calculer_score_az(cheval, discipline="TROT"):
     """
-    Calcule l'indice AZ avec pondération dynamique selon la discipline.
+    Calcule l'indice AZ avec pondération dynamique selon la spécialité.
     """
     score = 0
-    disc = str(discipline).upper()
+    specialite = classifier_discipline(discipline)
 
-    # --- 1. PONDÉRATION PAR DISCIPLINE ---
-    if "TROT" in disc:
+    # --- 1. PONDÉRATION PAR SPÉCIALITÉ ---
+    if specialite == "ATTELE":
+        # Le driver influence directement l'allure (pas de monte), le
+        # déferrage est un facteur technique déterminant.
         coef_forme = 4.5
         coef_regularite = 4.0
         coef_jockey = 3.5  # Driver
         coef_cote = 2.5
         coef_experience = 2.0
-    elif "PLAT" in disc:
+    elif specialite == "MONTE":
+        # Champs plus techniques et souvent plus réduits qu'à l'attelé ;
+        # le jockey (equilibre, tactique de course) pèse davantage, et les
+        # chevaux de monté sont en moyenne plus expérimentés.
+        coef_forme = 4.0
+        coef_regularite = 4.0
+        coef_jockey = 5.0  # Jockey (poids sur le dos, pilotage)
+        coef_cote = 2.5
+        coef_experience = 2.5
+    elif specialite == "PLAT":
         coef_forme = 5.5
         coef_regularite = 3.0
         coef_jockey = 4.0  # Jockey & Corde
         coef_cote = 3.0
         coef_experience = 1.5
-    else:  # OBSTACLE / HAIES / STEEPLE
+    else:  # OBSTACLE / HAIES / STEEPLE / CROSS
+        # L'expérience du saut et la régularité priment sur la pure vitesse.
         coef_forme = 4.0
         coef_regularite = 5.0
         coef_jockey = 3.0
@@ -40,17 +79,20 @@ def calculer_score_az(cheval, discipline="TROT"):
     score += cheval.get("terrain", 0) * 2.0
     score += cheval.get("experience", 0) * coef_experience
 
-    # --- 3. CRITÈRE OR AU TROT : DÉFERRAGE (D4, DP, DA) ---
-    if "TROT" in disc:
-        deferrage = str(cheval.get("deferre", "")).upper()
-        if deferrage in ["D4", "DÉFERRÉ 4 PIEDS", "D4_4"]:
+    # --- 3. CRITÈRE OR AU TROT (ATTELÉ ET MONTÉ) : DÉFERRAGE (D4, DP, DA) ---
+    # Utilise le code déjà normalisé par pmu_source.normaliser_deferrage() ;
+    # reste tolérant aux anciennes valeurs textuelles si jamais fournies
+    # directement (ex. tests, ou données saisies manuellement).
+    if specialite in ("ATTELE", "MONTE"):
+        deferrage = str(cheval.get("deferre", "") or "").strip().upper()
+        if deferrage in ("D4", "DÉFERRÉ 4 PIEDS", "D4_4"):
             score += 18.0  # Gros bonus pour déferré des 4
-        elif deferrage in ["DP", "DA", "DÉFERRÉ ANTÉRIEURS", "DÉFERRÉ POSTÉRIEURS"]:
+        elif deferrage in ("DP", "DA", "DÉFERRÉ ANTÉRIEURS", "DÉFERRÉ POSTÉRIEURS"):
             score += 9.0   # Bonus modéré pour déferré 2 pieds
 
-    # --- 4. CORDE / STALLE (PLAT) ---
-    if "PLAT" in disc:
-        num_corde = cheval.get("corde", 99)
+    # --- 4. CORDE / STALLE (PLAT UNIQUEMENT) ---
+    if specialite == "PLAT":
+        num_corde = cheval.get("corde")
         if isinstance(num_corde, (int, float)) and num_corde <= 4:
             score += 12.0  # Corde favorable (1 à 4)
 
