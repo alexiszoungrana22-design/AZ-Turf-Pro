@@ -13,6 +13,18 @@ fichier peut donc désormais réellement les exploiter.
 """
 
 
+def _num(valeur, defaut=0.0):
+    """Conversion sûre vers float : traite aussi bien une clé absente
+    qu'une valeur explicitement None ou vide (jamais renvoyée telle
+    quelle dans un calcul, contrairement à dict.get(cle, defaut))."""
+    if valeur is None or valeur == "":
+        return defaut
+    try:
+        return float(valeur)
+    except (TypeError, ValueError):
+        return defaut
+
+
 def classifier_discipline(discipline):
     """Classe la discipline PMU brute en l'une des 4 spécialités reconnues :
     "PLAT", "ATTELE", "MONTE", "OBSTACLE". Ne suppose jamais un format PMU
@@ -70,14 +82,19 @@ def calculer_score_az(cheval, discipline="TROT"):
         coef_experience = 4.0
 
     # --- 2. CALCUL DE BASE ---
-    score += cheval.get("forme", 0) * coef_forme
-    score += cheval.get("regularite", 0) * coef_regularite
-    score += cheval.get("gains", 0) * 2.5
-    score += cheval.get("jockey_score", 0) * coef_jockey
-    score += cheval.get("cote", 0) * coef_cote
-    score += cheval.get("distance", 0) * 2.5
-    score += cheval.get("terrain", 0) * 2.0
-    score += cheval.get("experience", 0) * coef_experience
+    # _num() protège contre une valeur explicitement None dans le dict (pas
+    # seulement une clé absente) : cheval.get("forme", 0) renvoie None, pas
+    # 0, si "forme" existe mais vaut None — ce qui faisait planter le calcul
+    # avec de vraies données PMU incomplètes (cote/forme non documentées
+    # pour certains partants).
+    score += _num(cheval.get("forme")) * coef_forme
+    score += _num(cheval.get("regularite")) * coef_regularite
+    score += _num(cheval.get("gains")) * 2.5
+    score += _num(cheval.get("jockey_score")) * coef_jockey
+    score += _num(cheval.get("cote")) * coef_cote
+    score += _num(cheval.get("distance")) * 2.5
+    score += _num(cheval.get("terrain")) * 2.0
+    score += _num(cheval.get("experience")) * coef_experience
 
     # --- 3. CRITÈRE OR AU TROT (ATTELÉ ET MONTÉ) : DÉFERRAGE (D4, DP, DA) ---
     # Utilise le code déjà normalisé par pmu_source.normaliser_deferrage() ;
