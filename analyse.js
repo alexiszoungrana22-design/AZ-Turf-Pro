@@ -621,11 +621,14 @@ async function chargerContexteAvance(){
     const r=await fetch(API,{cache:'no-store'}); if(!r.ok) return; const data=await r.json(); enrichirContexteAnalyse(data);
     const r2=await fetch('/api/analyse/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chevaux:data.chevaux||data.classement||[],info_course:data})});
     if(!r2.ok) return; const d=await r2.json();
-    const c=d.tendances_cotes||[]; const sig=c.find(x=>x.signal&&x.signal!=='NEUTRE');
+    const c=d.tendances_cotes||[]; const sig=c.find(x=>x.signal&&x.signal!=='NEUTRE'&&x.signal!=='NON_DOCUMENTE');
     const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v||'—'};
-    set('signal-cotes',sig?`${sig.signal} · N°${sig.numero}`:'Aucun signal fort'); set('signal-cotes-detail',sig?`${sig.nom||''} · variation ${sig.variation_pct??'—'} %`:'Aucun mouvement exploitable disponible.');
+    const libellesSignal={SMART_MONEY:'Forte baisse (smart money)',SOUTENU:'Cote en baisse',DELAISSE:'Cote en hausse'};
+    set('signal-cotes',sig?`${libellesSignal[sig.signal]||sig.signal} · N°${sig.numero}`:'Aucun signal fort'); set('signal-cotes-detail',sig?`${sig.nom||''} · variation ${sig.variation_pct??'—'} %`:'Pas de cote matinale enregistrée pour comparer les mouvements de marché.');
     const presse=d.consensus_presse||[]; set('signal-presse',presse.length?`${presse.length} avis disponibles`:'Non disponible'); set('signal-presse-detail',presse.length?'Consensus reçu depuis le module presse.':'Aucun consensus réel disponible.');
-    set('signal-piste',d.impact_meteo||'INCONNU'); set('signal-piste-detail',d.impact_meteo&&d.impact_meteo!=='NEUTRE'?'Impact transmis au contexte de course.':'Pas de signal terrain exploitable.');
+    const libellesImpact={NEUTRE:'Neutre',POTENTIELLEMENT_PERTURBANT:'Potentiellement perturbant',PLUTOT_FAVORABLE:'Plutôt favorable',NON_DOCUMENTE:'Non documenté',INCONNU:'Non documenté'};
+    const impactCode=d.impact_meteo||'NON_DOCUMENTE';
+    set('signal-piste',libellesImpact[impactCode]||impactCode); set('signal-piste-detail',impactCode!=='NEUTRE'&&impactCode!=='NON_DOCUMENTE'&&impactCode!=='INCONNU'?'Impact transmis au contexte de course.':'Pas de signal terrain exploitable.');
   }catch(e){ console.log('Contexte avancé indisponible',e); }
 }
 const _chargerAnalyseOrig=chargerAnalyse;
