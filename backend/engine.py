@@ -223,18 +223,25 @@ def calculer_indice_premium(cheval, info_course=None, discipline="TROT", analyse
     # -----------------------------------------------------
     # Bonus outsider chaud
     # -----------------------------------------------------
-
+    # CORRECTION : la condition précédente (cote >= 10 ET (forme >= 7 OU
+    # régularité >= 7)) se déclenchait pour environ 40% des chevaux d'une
+    # course type (vérifié : 5 chevaux sur 12 sur un jeu de données
+    # réaliste), avec un bonus fixe de +15 — suffisant pour effacer un
+    # écart d'Indice AZ légitime et faire remonter des outsiders peu
+    # fiables devant de vrais favoris. Resserré : les DEUX critères de
+    # forme doivent être réunis (pas l'un ou l'autre), le seuil de cote
+    # est relevé, et le bonus est réduit pour rester un simple coup de
+    # pouce sur une course serrée plutôt qu'un facteur qui redistribue le
+    # classement.
     bonus_outsider_chaud = 0.0
 
     if (
-        cote_brute >= 10.0
-        and (
-            forme >= 7.0
-            or regularite >= 7.0
-        )
+        cote_brute >= 12.0
+        and forme >= 7.5
+        and regularite >= 7.0
     ):
 
-        bonus_outsider_chaud = 15.0
+        bonus_outsider_chaud = 8.0
 
     # -----------------------------------------------------
     # Bonus Experts
@@ -243,11 +250,20 @@ def calculer_indice_premium(cheval, info_course=None, discipline="TROT", analyse
     bonus_expert = 0.0
     info_c = info_course if isinstance(info_course, dict) else {}
 
-    dist_course = int(_float(info_c.get("distance", 2000), 2000))
-    dist_pref = int(_float(cheval.get("distance_predilection", dist_course), dist_course))
-
-    if abs(dist_course - dist_pref) <= 200:
-        bonus_expert += 10.0
+    # CORRECTION : "distance_predilection" n'est jamais réellement fournie
+    # par les sources de données actuelles ; l'ancien code utilisait la
+    # distance de la course elle-même comme valeur par défaut, ce qui
+    # rendait l'écart toujours nul et donnait ce bonus à TOUS les chevaux
+    # sans exception — un signal présenté comme réel alors qu'il ne l'était
+    # jamais. Il ne s'applique désormais que si la donnée est vraiment
+    # connue (jamais inventée), sinon aucun bonus n'est appliqué plutôt
+    # que d'en simuler un.
+    dist_pref_brute = cheval.get("distance_predilection")
+    if dist_pref_brute not in (None, ""):
+        dist_course = int(_float(info_c.get("distance", 2000), 2000))
+        dist_pref = int(_float(dist_pref_brute, dist_course))
+        if abs(dist_course - dist_pref) <= 200:
+            bonus_expert += 10.0
 
     deferre = str(cheval.get("deferre", "") or "").strip().upper()
 

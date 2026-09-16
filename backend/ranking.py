@@ -57,5 +57,9 @@ def classer_chevaux(chevaux):
 
         # Plafonne la confiance (1er = 100%, suivants = max 99%)
         cheval["confiance"] = max(0, min(confiance, 99 if index > 1 else 100))
+        cheval["confiance_type"] = "proximite_indice_au_leader"
+        cheval["confiance_interpretation"] = (
+            "Proximité de l'indice AZ du leader, pas une probabilité de victoire."
+        )
 
     return classement

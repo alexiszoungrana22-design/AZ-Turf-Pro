@@ -443,6 +443,14 @@ def analyse():
                     "Course"
                 ),
 
+            # Le frontend (accueil.js) affiche "course" dans le titre et
+            # "nom_prix" dans le sous-titre ; sans ce champ, le sous-titre
+            # retombait sur "course" via son propre repli JS et affichait
+            # donc deux fois le même nom de course. Référence R/C, distincte
+            # du nom du prix déjà affiché juste au-dessus.
+            "nom_prix":
+                (f"R{reunion}/C{course_numero}" if reunion and course_numero else ""),
+
             "date":
                 date_course,
 
