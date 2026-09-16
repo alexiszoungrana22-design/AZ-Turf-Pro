@@ -203,9 +203,9 @@ def _response_for_intent(question, contexte, history=None):
         az=_extract_az_tickets(moteur)
         if not ia and not az: return _format_missing("Comparaison des tickets")
         common=[x for x in ia if x in az]
-        return ("⚔️ **Comparaison analyse autonome / AZ Turf-Pro**\n\n"
+        return ("⚔️ **Comparaison analyse autonome / AZ Turf Pro**\n\n"
                 f"🤖 Analyse autonome : **{' - '.join(ia) or 'indisponible'}**\n"
-                f"🏆 AZ Turf-Pro : **{' - '.join(az) or 'indisponible'}**\n"
+                f"🏆 AZ Turf Pro : **{' - '.join(az) or 'indisponible'}**\n"
                 f"🤝 Convergences : **{' - '.join(common) or 'aucune'}**\n"
                 f"🔎 Différences analyse autonome : **{' - '.join(x for x in ia if x not in az) or 'aucune'}**\n"
                 f"🔎 Différences AZ : **{' - '.join(x for x in az if x not in ia) or 'aucune'}**\n\n"
@@ -253,14 +253,38 @@ def _response_for_intent(question, contexte, history=None):
         rows=((ctx.get("tendances_cotes") or {}).get("resultats") or [])
         if not rows: return _format_missing("Cotes et mouvements de marché")
         rows=sorted(rows,key=lambda x: float(x.get("variation_pct",0) or 0))
+        libelles_signal={
+            "SMART_MONEY":"forte baisse de cote — mouvement de marché marqué",
+            "SOUTENU":"cote en baisse — cheval soutenu",
+            "DELAISSE":"cote en hausse — cheval délaissé",
+            "NEUTRE":"cote stable",
+        }
         lines=["💰 **Marché / cotes**"]
-        for r in rows[:7]: lines.append(f"N°{r.get('numero','-')} {r.get('nom','')} : {r.get('cote_direct','-')} • {r.get('variation_pct',0)} % • {r.get('signal','NEUTRE')}")
+        for r in rows[:7]:
+            signal = r.get("signal") or "NON_DOCUMENTE"
+            cote_direct = r.get("cote_direct")
+            cote_txt = f"cote {cote_direct}" if cote_direct not in (None, "") else "cote non disponible"
+            if signal == "NON_DOCUMENTE":
+                # Pas de cote matinale enregistrée pour comparer : on affiche
+                # la cote actuelle sans prétendre connaître une tendance.
+                lines.append(f"N°{r.get('numero','-')} {r.get('nom','')} : {cote_txt} (évolution non documentée)")
+            else:
+                variation = r.get("variation_pct", 0) or 0
+                lines.append(f"N°{r.get('numero','-')} {r.get('nom','')} : {cote_txt}, {variation:+.1f} % — {libelles_signal.get(signal, 'signal calculé par le moteur')}")
         return "\n".join(lines)
 
     if intent == "meteo":
         m=ctx.get("impact_meteo") or {}; etat=m.get("etat") or (course.get("terrain") if isinstance(course,dict) else None)
-        impact=m.get("impact") or "INCONNU"
-        return f"🌦️ **Piste / météo**\nÉtat : **{etat or 'non disponible'}**\nImpact détecté : **{impact}**" if etat or impact!="INCONNU" else _format_missing("Piste et météo")
+        impact=m.get("impact") or "NON_DOCUMENTE"
+        libelles_impact={
+            "NEUTRE":"pas d'incidence particulière identifiée",
+            "POTENTIELLEMENT_PERTURBANT":"peut perturber la course (terrain difficile ou changeant)",
+            "PLUTOT_FAVORABLE":"plutôt favorable à une course franche",
+            "NON_DOCUMENTE":"non documenté pour cette course",
+        }
+        if not etat and impact == "NON_DOCUMENTE":
+            return _format_missing("Piste et météo")
+        return f"🌦️ **Piste / météo**\nÉtat : **{etat or 'non disponible'}**\nImpact : {libelles_impact.get(impact, 'signal calculé par le moteur')}"
 
     if intent == "presse":
         p=ctx.get("consensus_presse") or {}; rows=p.get("consensus") or []
@@ -299,7 +323,7 @@ def _response_for_intent(question, contexte, history=None):
     if intent == "premium":
         return "💎 **Premium**\nPremium doit donner accès aux fonctions réellement disponibles : analyse approfondie, tickets Premium, assistant conversationnel, données complémentaires et suivi des performances lorsque les sources sont disponibles."
     if intent == "aide":
-        return "🏇 **Vous pouvez me parler librement.** Analysez une course, un cheval, deux chevaux, les cotes, la piste, la tactique, la presse, les actualités, l'historique, les badges, un ticket ou demandez une comparaison entre mon analyse autonome et AZ Turf-Pro. Vous n'avez pas besoin d'utiliser une commande exacte."
+        return "🏇 **Vous pouvez me parler librement.** Analysez une course, un cheval, deux chevaux, les cotes, la piste, la tactique, la presse, les actualités, l'historique, les badges, un ticket ou demandez une comparaison entre mon analyse autonome et AZ Turf Pro. Vous n'avez pas besoin d'utiliser une commande exacte."
     if intent == "general" and len(q.split()) <= 12:
         return "Je vous écoute. Décrivez simplement ce que vous voulez savoir sur la course ou un cheval ; je sélectionnerai les modules utiles à partir de votre demande."
     return None

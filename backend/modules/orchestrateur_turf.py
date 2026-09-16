@@ -318,7 +318,15 @@ def repondre(question: str, contexte: dict, historique: list | None = None) -> d
 
     if intent == "meteo":
         r=(contexte or {}).get("impact_meteo") or {}
-        return {"status":"success","reponse":f"🌦️ **Conditions**\nImpact : **{r.get('impact','INCONNU')}**\nDétails : {r.get('details') or r.get('raison') or 'Aucun détail supplémentaire disponible.'}","intent":intent,"source":"orchestrateur_local"}
+        _libelles_impact={
+            "NEUTRE":"pas d'incidence particulière identifiée",
+            "POTENTIELLEMENT_PERTURBANT":"peut perturber la course (terrain difficile ou changeant)",
+            "PLUTOT_FAVORABLE":"plutôt favorable à une course franche",
+            "INCONNU":"non documenté pour cette course",
+            "NON_DOCUMENTE":"non documenté pour cette course",
+        }
+        impact_code = r.get("impact", "NON_DOCUMENTE")
+        return {"status":"success","reponse":f"🌦️ **Conditions**\nImpact : {_libelles_impact.get(impact_code, 'signal calculé par le moteur')}\nDétails : {r.get('details') or r.get('raison') or 'Aucun détail supplémentaire disponible.'}","intent":intent,"source":"orchestrateur_local"}
 
     if intent == "scenario":
         r=(contexte or {}).get("tactique") or {}
