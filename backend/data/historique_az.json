@@ -846,5 +846,1553 @@
         "heure_arrivee": null,
         "publication_at": null,
         "publication_statut": "EN ATTENTE"
+    },
+    {
+        "date_analyse": "2026-09-16 21:29:26",
+        "date": "2026-07-24",
+        "course": {
+            "course": "Prix de Paris",
+            "date": "2026-07-24",
+            "reunion": "R1",
+            "course_numero": "C4",
+            "hippodrome": "Vincennes",
+            "discipline": "Trot Attelé",
+            "distance_course": 2700,
+            "allocation": 90000,
+            "chevaux": [
+                {
+                    "numero": 1,
+                    "nom": "Cheval AZ 1",
+                    "age": 6,
+                    "sexe": "M",
+                    "jockey": "Jockey 1",
+                    "entraineur": "Entraîneur 1",
+                    "performances": [
+                        3,
+                        5,
+                        2,
+                        7
+                    ],
+                    "forme": 8,
+                    "regularite": 7,
+                    "gains": 7,
+                    "jockey_score": 8,
+                    "cote": 7,
+                    "distance": 8,
+                    "terrain": 7,
+                    "experience": 8
+                },
+                {
+                    "numero": 2,
+                    "nom": "Cheval AZ 2",
+                    "age": 5,
+                    "sexe": "M",
+                    "jockey": "Jockey 2",
+                    "entraineur": "Entraîneur 2",
+                    "performances": [
+                        2,
+                        1,
+                        4,
+                        3
+                    ],
+                    "forme": 9,
+                    "regularite": 8,
+                    "gains": 8,
+                    "jockey_score": 7,
+                    "cote": 8,
+                    "distance": 9,
+                    "terrain": 8,
+                    "experience": 8
+                },
+                {
+                    "numero": 3,
+                    "nom": "Cheval AZ 3",
+                    "age": 6,
+                    "sexe": "M",
+                    "jockey": "Jockey 3",
+                    "entraineur": "Entraîneur 3",
+                    "performances": [
+                        1,
+                        1,
+                        2,
+                        3
+                    ],
+                    "forme": 10,
+                    "regularite": 9,
+                    "gains": 9,
+                    "jockey_score": 9,
+                    "cote": 9,
+                    "distance": 9,
+                    "terrain": 9,
+                    "experience": 10
+                },
+                {
+                    "numero": 4,
+                    "nom": "Cheval AZ 4",
+                    "age": 7,
+                    "sexe": "F",
+                    "jockey": "Jockey 4",
+                    "entraineur": "Entraîneur 4",
+                    "performances": [
+                        8,
+                        6,
+                        7,
+                        5
+                    ],
+                    "forme": 6,
+                    "regularite": 6,
+                    "gains": 6,
+                    "jockey_score": 7,
+                    "cote": 6,
+                    "distance": 7,
+                    "terrain": 6,
+                    "experience": 7
+                },
+                {
+                    "numero": 5,
+                    "nom": "Cheval AZ 5",
+                    "age": 5,
+                    "sexe": "M",
+                    "jockey": "Jockey 5",
+                    "entraineur": "Entraîneur 5",
+                    "performances": [
+                        2,
+                        3,
+                        1,
+                        5
+                    ],
+                    "forme": 9,
+                    "regularite": 8,
+                    "gains": 8,
+                    "jockey_score": 8,
+                    "cote": 9,
+                    "distance": 8,
+                    "terrain": 8,
+                    "experience": 9
+                },
+                {
+                    "numero": 6,
+                    "nom": "Cheval AZ 6",
+                    "age": 6,
+                    "sexe": "M",
+                    "jockey": "Jockey 6",
+                    "entraineur": "Entraîneur 6",
+                    "performances": [
+                        4,
+                        3,
+                        6,
+                        2
+                    ],
+                    "forme": 7,
+                    "regularite": 7,
+                    "gains": 7,
+                    "jockey_score": 8,
+                    "cote": 7,
+                    "distance": 7,
+                    "terrain": 8,
+                    "experience": 7
+                },
+                {
+                    "numero": 7,
+                    "nom": "Cheval AZ 7",
+                    "age": 5,
+                    "sexe": "F",
+                    "jockey": "Jockey 7",
+                    "entraineur": "Entraîneur 7",
+                    "performances": [
+                        3,
+                        2,
+                        5,
+                        1
+                    ],
+                    "forme": 8,
+                    "regularite": 8,
+                    "gains": 7,
+                    "jockey_score": 7,
+                    "cote": 8,
+                    "distance": 8,
+                    "terrain": 7,
+                    "experience": 8
+                },
+                {
+                    "numero": 8,
+                    "nom": "Cheval AZ 8",
+                    "age": 6,
+                    "sexe": "M",
+                    "jockey": "Jockey 8",
+                    "entraineur": "Entraîneur 8",
+                    "performances": [
+                        5,
+                        2,
+                        4,
+                        3
+                    ],
+                    "forme": 7,
+                    "regularite": 7,
+                    "gains": 6,
+                    "jockey_score": 8,
+                    "cote": 7,
+                    "distance": 8,
+                    "terrain": 7,
+                    "experience": 8
+                }
+            ],
+            "plus_joues": [
+                3,
+                5,
+                2,
+                7,
+                1,
+                6,
+                4,
+                8
+            ],
+            "source_plus_joues": "Turf.fr",
+            "non_partants": [
+                8
+            ]
+        },
+        "reunion": "R1",
+        "course_numero": "C4",
+        "hippodrome": "Vincennes",
+        "classement": [
+            {
+                "numero": 3,
+                "nom": "Cheval AZ 3",
+                "age": 6,
+                "sexe": "M",
+                "jockey": "Jockey 3",
+                "entraineur": "Entraîneur 3",
+                "performances": [
+                    1,
+                    1,
+                    2,
+                    3
+                ],
+                "forme": 10,
+                "regularite": 9,
+                "gains": 9,
+                "jockey_score": 9,
+                "cote": 9,
+                "distance": 9,
+                "terrain": 9,
+                "experience": 10,
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 242.0,
+                "indice_az": 242.0,
+                "indice_premium": 299.2,
+                "badges": [],
+                "radar": {
+                    "forme": 100.0,
+                    "distance": 100.0,
+                    "jockey": 30.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 1,
+                "raison": "⭐ Favori AZ : meilleur indice et profil prioritaire",
+                "confiance": 100,
+                "confiance_type": "proximite_indice_au_leader",
+                "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "analyse_valeur": {
+                    "numero": 3,
+                    "nom": "Cheval AZ 3",
+                    "score_independant": 8.43,
+                    "probabilite_indicative": 33.1,
+                    "cote": 9.0,
+                    "cote_fair_indicative": 3.02,
+                    "ecart_marche_pct": 198.0
+                },
+                "tendance_cote": {
+                    "numero": 3,
+                    "nom": "Cheval AZ 3",
+                    "cote_matin": null,
+                    "cote_direct": 9.0,
+                    "variation_pct": 0.0,
+                    "tendance": "NON_DOCUMENTE",
+                    "signal": "NON_DOCUMENTE"
+                }
+            },
+            {
+                "numero": 5,
+                "nom": "Cheval AZ 5",
+                "age": 5,
+                "sexe": "M",
+                "jockey": "Jockey 5",
+                "entraineur": "Entraîneur 5",
+                "performances": [
+                    2,
+                    3,
+                    1,
+                    5
+                ],
+                "forme": 9,
+                "regularite": 8,
+                "gains": 8,
+                "jockey_score": 8,
+                "cote": 9,
+                "distance": 8,
+                "terrain": 8,
+                "experience": 9,
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 215.0,
+                "indice_az": 215.0,
+                "indice_premium": 266.85,
+                "badges": [],
+                "radar": {
+                    "forme": 90.0,
+                    "distance": 100.0,
+                    "jockey": 30.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 2,
+                "raison": "🔥 Base solide : régularité et forte chance de podium",
+                "confiance": 89,
+                "confiance_type": "proximite_indice_au_leader",
+                "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "analyse_valeur": {
+                    "numero": 5,
+                    "nom": "Cheval AZ 5",
+                    "score_independant": 7.53,
+                    "probabilite_indicative": 17.0,
+                    "cote": 9.0,
+                    "cote_fair_indicative": 5.88,
+                    "ecart_marche_pct": 53.1
+                },
+                "tendance_cote": {
+                    "numero": 5,
+                    "nom": "Cheval AZ 5",
+                    "cote_matin": null,
+                    "cote_direct": 9.0,
+                    "variation_pct": 0.0,
+                    "tendance": "NON_DOCUMENTE",
+                    "signal": "NON_DOCUMENTE"
+                }
+            },
+            {
+                "numero": 2,
+                "nom": "Cheval AZ 2",
+                "age": 5,
+                "sexe": "M",
+                "jockey": "Jockey 2",
+                "entraineur": "Entraîneur 2",
+                "performances": [
+                    2,
+                    1,
+                    4,
+                    3
+                ],
+                "forme": 9,
+                "regularite": 8,
+                "gains": 8,
+                "jockey_score": 7,
+                "cote": 8,
+                "distance": 9,
+                "terrain": 8,
+                "experience": 8,
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 209.5,
+                "indice_az": 209.5,
+                "indice_premium": 259.45,
+                "badges": [],
+                "radar": {
+                    "forme": 90.0,
+                    "distance": 100.0,
+                    "jockey": 30.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 3,
+                "raison": "🔥 Base solide : régularité et forte chance de podium",
+                "confiance": 87,
+                "confiance_type": "proximite_indice_au_leader",
+                "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "analyse_valeur": {
+                    "numero": 2,
+                    "nom": "Cheval AZ 2",
+                    "score_independant": 7.47,
+                    "probabilite_indicative": 16.3,
+                    "cote": 8.0,
+                    "cote_fair_indicative": 6.15,
+                    "ecart_marche_pct": 30.1
+                },
+                "tendance_cote": {
+                    "numero": 2,
+                    "nom": "Cheval AZ 2",
+                    "cote_matin": null,
+                    "cote_direct": 8.0,
+                    "variation_pct": 0.0,
+                    "tendance": "NON_DOCUMENTE",
+                    "signal": "NON_DOCUMENTE"
+                }
+            },
+            {
+                "numero": 7,
+                "nom": "Cheval AZ 7",
+                "age": 5,
+                "sexe": "F",
+                "jockey": "Jockey 7",
+                "entraineur": "Entraîneur 7",
+                "performances": [
+                    3,
+                    2,
+                    5,
+                    1
+                ],
+                "forme": 8,
+                "regularite": 8,
+                "gains": 7,
+                "jockey_score": 7,
+                "cote": 8,
+                "distance": 8,
+                "terrain": 7,
+                "experience": 8,
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 198.0,
+                "indice_az": 198.0,
+                "indice_premium": 246.6,
+                "badges": [],
+                "radar": {
+                    "forme": 80.0,
+                    "distance": 100.0,
+                    "jockey": 30.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 4,
+                "raison": "🎯 Chance AZ : potentiel pour intégrer l'arrivée",
+                "confiance": 82,
+                "confiance_type": "proximite_indice_au_leader",
+                "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "analyse_valeur": {
+                    "numero": 7,
+                    "nom": "Cheval AZ 7",
+                    "score_independant": 6.95,
+                    "probabilite_indicative": 11.1,
+                    "cote": 8.0,
+                    "cote_fair_indicative": 9.04,
+                    "ecart_marche_pct": -11.5
+                },
+                "tendance_cote": {
+                    "numero": 7,
+                    "nom": "Cheval AZ 7",
+                    "cote_matin": null,
+                    "cote_direct": 8.0,
+                    "variation_pct": 0.0,
+                    "tendance": "NON_DOCUMENTE",
+                    "signal": "NON_DOCUMENTE"
+                }
+            },
+            {
+                "numero": 1,
+                "nom": "Cheval AZ 1",
+                "age": 6,
+                "sexe": "M",
+                "jockey": "Jockey 1",
+                "entraineur": "Entraîneur 1",
+                "performances": [
+                    3,
+                    5,
+                    2,
+                    7
+                ],
+                "forme": 8,
+                "regularite": 7,
+                "gains": 7,
+                "jockey_score": 8,
+                "cote": 7,
+                "distance": 8,
+                "terrain": 7,
+                "experience": 8,
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 189.0,
+                "indice_az": 189.0,
+                "indice_premium": 233.3,
+                "badges": [],
+                "radar": {
+                    "forme": 80.0,
+                    "distance": 100.0,
+                    "jockey": 30.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 5,
+                "raison": "🎯 Chance AZ : potentiel pour intégrer l'arrivée",
+                "confiance": 78,
+                "confiance_type": "proximite_indice_au_leader",
+                "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "analyse_valeur": {
+                    "numero": 1,
+                    "nom": "Cheval AZ 1",
+                    "score_independant": 6.85,
+                    "probabilite_indicative": 10.3,
+                    "cote": 7.0,
+                    "cote_fair_indicative": 9.74,
+                    "ecart_marche_pct": -28.1
+                },
+                "tendance_cote": {
+                    "numero": 1,
+                    "nom": "Cheval AZ 1",
+                    "cote_matin": null,
+                    "cote_direct": 7.0,
+                    "variation_pct": 0.0,
+                    "tendance": "NON_DOCUMENTE",
+                    "signal": "NON_DOCUMENTE"
+                }
+            },
+            {
+                "numero": 6,
+                "nom": "Cheval AZ 6",
+                "age": 6,
+                "sexe": "M",
+                "jockey": "Jockey 6",
+                "entraineur": "Entraîneur 6",
+                "performances": [
+                    4,
+                    3,
+                    6,
+                    2
+                ],
+                "forme": 7,
+                "regularite": 7,
+                "gains": 7,
+                "jockey_score": 8,
+                "cote": 7,
+                "distance": 7,
+                "terrain": 8,
+                "experience": 7,
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 182.0,
+                "indice_az": 182.0,
+                "indice_premium": 224.15,
+                "badges": [],
+                "radar": {
+                    "forme": 70.0,
+                    "distance": 100.0,
+                    "jockey": 30.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 6,
+                "raison": "💎 Outsider intéressant : peut surprendre",
+                "confiance": 75,
+                "confiance_type": "proximite_indice_au_leader",
+                "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "analyse_valeur": {
+                    "numero": 6,
+                    "nom": "Cheval AZ 6",
+                    "score_independant": 6.5,
+                    "probabilite_indicative": 7.9,
+                    "cote": 7.0,
+                    "cote_fair_indicative": 12.62,
+                    "ecart_marche_pct": -44.5
+                },
+                "tendance_cote": {
+                    "numero": 6,
+                    "nom": "Cheval AZ 6",
+                    "cote_matin": null,
+                    "cote_direct": 7.0,
+                    "variation_pct": 0.0,
+                    "tendance": "NON_DOCUMENTE",
+                    "signal": "NON_DOCUMENTE"
+                }
+            },
+            {
+                "numero": 4,
+                "nom": "Cheval AZ 4",
+                "age": 7,
+                "sexe": "F",
+                "jockey": "Jockey 4",
+                "entraineur": "Entraîneur 4",
+                "performances": [
+                    8,
+                    6,
+                    7,
+                    5
+                ],
+                "forme": 6,
+                "regularite": 6,
+                "gains": 6,
+                "jockey_score": 7,
+                "cote": 6,
+                "distance": 7,
+                "terrain": 6,
+                "experience": 7,
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 149.0,
+                "indice_az": 149.0,
+                "indice_premium": 176.5,
+                "badges": [],
+                "radar": {
+                    "forme": 60.0,
+                    "distance": 100.0,
+                    "jockey": 30.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 7,
+                "raison": "⚠️ Coup spéculatif",
+                "confiance": 62,
+                "confiance_type": "proximite_indice_au_leader",
+                "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "analyse_valeur": {
+                    "numero": 4,
+                    "nom": "Cheval AZ 4",
+                    "score_independant": 5.7,
+                    "probabilite_indicative": 4.4,
+                    "cote": 6.0,
+                    "cote_fair_indicative": 22.82,
+                    "ecart_marche_pct": -73.7
+                },
+                "tendance_cote": {
+                    "numero": 4,
+                    "nom": "Cheval AZ 4",
+                    "cote_matin": null,
+                    "cote_direct": 6.0,
+                    "variation_pct": 0.0,
+                    "tendance": "NON_DOCUMENTE",
+                    "signal": "NON_DOCUMENTE"
+                }
+            }
+        ],
+        "favori": {
+            "numero": 3,
+            "nom": "Cheval AZ 3",
+            "age": 6,
+            "sexe": "M",
+            "jockey": "Jockey 3",
+            "entraineur": "Entraîneur 3",
+            "performances": [
+                1,
+                1,
+                2,
+                3
+            ],
+            "forme": 10,
+            "regularite": 9,
+            "gains": 9,
+            "jockey_score": 9,
+            "cote": 9,
+            "distance": 9,
+            "terrain": 9,
+            "experience": 10,
+            "est_non_partant": false,
+            "statut": "PARTANT",
+            "score_az": 242.0,
+            "indice_az": 242.0,
+            "indice_premium": 299.2,
+            "badges": [],
+            "radar": {
+                "forme": 100.0,
+                "distance": 100.0,
+                "jockey": 30.0,
+                "classe": 20.0,
+                "fraicheur": 100.0
+            },
+            "rang": 1,
+            "raison": "⭐ Favori AZ : meilleur indice et profil prioritaire",
+            "confiance": 100,
+            "confiance_type": "proximite_indice_au_leader",
+            "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+            "analyse_valeur": {
+                "numero": 3,
+                "nom": "Cheval AZ 3",
+                "score_independant": 8.43,
+                "probabilite_indicative": 33.1,
+                "cote": 9.0,
+                "cote_fair_indicative": 3.02,
+                "ecart_marche_pct": 198.0
+            },
+            "tendance_cote": {
+                "numero": 3,
+                "nom": "Cheval AZ 3",
+                "cote_matin": null,
+                "cote_direct": 9.0,
+                "variation_pct": 0.0,
+                "tendance": "NON_DOCUMENTE",
+                "signal": "NON_DOCUMENTE"
+            }
+        },
+        "selection_az": [
+            "3",
+            "5",
+            "2",
+            "7",
+            "1",
+            "6",
+            "4"
+        ],
+        "selection_premium": [
+            "3",
+            "5",
+            "7",
+            "6",
+            "2",
+            "1",
+            "4"
+        ],
+        "tickets": {
+            "gratuit": {
+                "quinte": [
+                    "3",
+                    "5",
+                    "2",
+                    "7",
+                    "1",
+                    "6",
+                    "4"
+                ],
+                "deux_sur_quatre": [
+                    "3",
+                    "5",
+                    "2",
+                    "7"
+                ],
+                "couple_place": [
+                    "3",
+                    "5"
+                ]
+            },
+            "premium": {
+                "selection_quinte": [
+                    "3",
+                    "5",
+                    "7",
+                    "6",
+                    "2",
+                    "1",
+                    "4"
+                ],
+                "quinte": [
+                    "3",
+                    "5",
+                    "7",
+                    "6",
+                    "2",
+                    "1"
+                ],
+                "quarte": [
+                    "3",
+                    "5",
+                    "7",
+                    "6",
+                    "2"
+                ],
+                "trio": [
+                    "3",
+                    "5",
+                    "7"
+                ],
+                "couple_gagnant_place": [
+                    [
+                        "3",
+                        "5"
+                    ],
+                    [
+                        "3",
+                        "7"
+                    ],
+                    [
+                        "5",
+                        "7"
+                    ]
+                ],
+                "champ_reduit": {
+                    "format": "3-5-X-2-X / 7-1-6-4",
+                    "bases": [
+                        "3",
+                        "5",
+                        "X",
+                        "2",
+                        "X"
+                    ],
+                    "complements": [
+                        "7",
+                        "1",
+                        "6",
+                        "4"
+                    ],
+                    "disponible": true
+                },
+                "ticket_derniere_minute": {
+                    "selection": [
+                        "3",
+                        "5",
+                        "2",
+                        "7",
+                        "1",
+                        "6"
+                    ],
+                    "joker": "4",
+                    "format": "3-5-2-7-1-6"
+                },
+                "methode": "Indice Premium AZ Pro : valeur + forme + régularité + expérience, avec diversification des tickets.",
+                "message_fin": "🍀 Bonne chance ! Les tickets Premium sont générés séparément du ticket gratuit et la dernière minute est calculée indépendamment.",
+                "lecture_course": {
+                    "profil": {
+                        "discipline": "TROT ATTELÉ",
+                        "distance": 2700.0,
+                        "type_depart": "NON DOCUMENTÉ",
+                        "partants": 8,
+                        "lecture": [
+                            "distance de tenue",
+                            "peloton de 8 partants"
+                        ],
+                        "confiance": 0.55
+                    },
+                    "points_forts": [
+                        "forme récente suffisamment solide",
+                        "profil régulier",
+                        "couple jockey/entraîneur identifié dans les données"
+                    ],
+                    "points_attention": [],
+                    "methode": "Lecture contextuelle Premium : parcours + scénario + engagement + entourage + marché, sans remplacer l'Indice AZ existant."
+                }
+            }
+        },
+        "non_partants": [
+            "8"
+        ],
+        "arrivee": null,
+        "heure_arrivee": null,
+        "publication_at": null,
+        "publication_statut": "EN ATTENTE"
+    },
+    {
+        "date_analyse": "2026-09-10 20:27:08",
+        "date": "01092026",
+        "course": {
+            "reunion": "R1",
+            "course_numero": "1",
+            "hippodrome": "Vincennes",
+            "discipline": "TROT_ATTELE",
+            "date": "01092026"
+        },
+        "reunion": "R1",
+        "course_numero": "1",
+        "hippodrome": "Vincennes",
+        "classement": [
+            {
+                "numero": "11",
+                "nom": "Cheval11",
+                "forme": 8,
+                "regularite": 5,
+                "cote": 14.0,
+                "jockey": "X",
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 91.0,
+                "indice_az": 91.0,
+                "indice_premium": 156.2,
+                "badges": [],
+                "radar": {
+                    "forme": 80.0,
+                    "distance": 100.0,
+                    "jockey": 30.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 1,
+                "raison": "⭐ Favori AZ : meilleur indice et profil prioritaire",
+                "confiance": 100,
+                "confiance_type": "proximite_indice_au_leader",
+                "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "analyse_valeur": {
+                    "numero": "11",
+                    "nom": "Cheval11",
+                    "score_independant": 5.25,
+                    "probabilite_indicative": 10.8,
+                    "cote": 14.0,
+                    "cote_fair_indicative": 9.29,
+                    "ecart_marche_pct": 50.7
+                },
+                "tendance_cote": {
+                    "numero": "11",
+                    "nom": "Cheval11",
+                    "cote_matin": null,
+                    "cote_direct": 14.0,
+                    "variation_pct": 0.0,
+                    "tendance": "NON_DOCUMENTE",
+                    "signal": "NON_DOCUMENTE"
+                }
+            },
+            {
+                "numero": "10",
+                "nom": "Cheval10",
+                "forme": 7,
+                "regularite": 5,
+                "cote": 13.0,
+                "jockey": "X",
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 84.0,
+                "indice_az": 84.0,
+                "indice_premium": 146.75,
+                "badges": [],
+                "radar": {
+                    "forme": 70.0,
+                    "distance": 100.0,
+                    "jockey": 30.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 2,
+                "raison": "🔥 Base solide : régularité et forte chance de podium",
+                "confiance": 92,
+                "confiance_type": "proximite_indice_au_leader",
+                "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "analyse_valeur": {
+                    "numero": "10",
+                    "nom": "Cheval10",
+                    "score_independant": 5.0,
+                    "probabilite_indicative": 8.9,
+                    "cote": 13.0,
+                    "cote_fair_indicative": 11.17,
+                    "ecart_marche_pct": 16.4
+                },
+                "tendance_cote": {
+                    "numero": "10",
+                    "nom": "Cheval10",
+                    "cote_matin": null,
+                    "cote_direct": 13.0,
+                    "variation_pct": 0.0,
+                    "tendance": "NON_DOCUMENTE",
+                    "signal": "NON_DOCUMENTE"
+                }
+            },
+            {
+                "numero": "7",
+                "nom": "Cheval7",
+                "forme": 8,
+                "regularite": 5,
+                "cote": 10.0,
+                "jockey": "X",
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 81.0,
+                "indice_az": 81.0,
+                "indice_premium": 141.8,
+                "badges": [],
+                "radar": {
+                    "forme": 80.0,
+                    "distance": 100.0,
+                    "jockey": 30.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 3,
+                "raison": "🔥 Base solide : régularité et forte chance de podium",
+                "confiance": 89,
+                "confiance_type": "proximite_indice_au_leader",
+                "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "analyse_valeur": {
+                    "numero": "7",
+                    "nom": "Cheval7",
+                    "score_independant": 5.25,
+                    "probabilite_indicative": 10.8,
+                    "cote": 10.0,
+                    "cote_fair_indicative": 9.29,
+                    "ecart_marche_pct": 7.6
+                },
+                "tendance_cote": {
+                    "numero": "7",
+                    "nom": "Cheval7",
+                    "cote_matin": null,
+                    "cote_direct": 10.0,
+                    "variation_pct": 0.0,
+                    "tendance": "NON_DOCUMENTE",
+                    "signal": "NON_DOCUMENTE"
+                }
+            },
+            {
+                "numero": "12",
+                "nom": "Cheval12",
+                "forme": 5,
+                "regularite": 5,
+                "cote": 15.0,
+                "jockey": "X",
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 80.0,
+                "indice_az": 80.0,
+                "indice_premium": 123.25,
+                "badges": [],
+                "radar": {
+                    "forme": 50.0,
+                    "distance": 100.0,
+                    "jockey": 30.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 4,
+                "raison": "🎯 Chance AZ : potentiel pour intégrer l'arrivée",
+                "confiance": 88,
+                "confiance_type": "proximite_indice_au_leader",
+                "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "analyse_valeur": {
+                    "numero": "12",
+                    "nom": "Cheval12",
+                    "score_independant": 4.5,
+                    "probabilite_indicative": 6.2,
+                    "cote": 15.0,
+                    "cote_fair_indicative": 16.18,
+                    "ecart_marche_pct": -7.3
+                },
+                "tendance_cote": {
+                    "numero": "12",
+                    "nom": "Cheval12",
+                    "cote_matin": null,
+                    "cote_direct": 15.0,
+                    "variation_pct": 0.0,
+                    "tendance": "NON_DOCUMENTE",
+                    "signal": "NON_DOCUMENTE"
+                }
+            },
+            {
+                "numero": "9",
+                "nom": "Cheval9",
+                "forme": 6,
+                "regularite": 5,
+                "cote": 12.0,
+                "jockey": "X",
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 77.0,
+                "indice_az": 77.0,
+                "indice_premium": 118.3,
+                "badges": [],
+                "radar": {
+                    "forme": 60.0,
+                    "distance": 100.0,
+                    "jockey": 30.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 5,
+                "raison": "🎯 Chance AZ : potentiel pour intégrer l'arrivée",
+                "confiance": 85,
+                "confiance_type": "proximite_indice_au_leader",
+                "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "analyse_valeur": {
+                    "numero": "9",
+                    "nom": "Cheval9",
+                    "score_independant": 4.75,
+                    "probabilite_indicative": 7.4,
+                    "cote": 12.0,
+                    "cote_fair_indicative": 13.45,
+                    "ecart_marche_pct": -10.8
+                },
+                "tendance_cote": {
+                    "numero": "9",
+                    "nom": "Cheval9",
+                    "cote_matin": null,
+                    "cote_direct": 12.0,
+                    "variation_pct": 0.0,
+                    "tendance": "NON_DOCUMENTE",
+                    "signal": "NON_DOCUMENTE"
+                }
+            },
+            {
+                "numero": "6",
+                "nom": "Cheval6",
+                "forme": 7,
+                "regularite": 5,
+                "cote": 9.0,
+                "jockey": "X",
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 74.0,
+                "indice_az": 74.0,
+                "indice_premium": 117.35,
+                "badges": [],
+                "radar": {
+                    "forme": 70.0,
+                    "distance": 100.0,
+                    "jockey": 30.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 6,
+                "raison": "⚠️ Coup spéculatif",
+                "confiance": 81,
+                "confiance_type": "proximite_indice_au_leader",
+                "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "analyse_valeur": {
+                    "numero": "6",
+                    "nom": "Cheval6",
+                    "score_independant": 5.0,
+                    "probabilite_indicative": 8.9,
+                    "cote": 9.0,
+                    "cote_fair_indicative": 11.17,
+                    "ecart_marche_pct": -19.4
+                },
+                "tendance_cote": {
+                    "numero": "6",
+                    "nom": "Cheval6",
+                    "cote_matin": null,
+                    "cote_direct": 9.0,
+                    "variation_pct": 0.0,
+                    "tendance": "NON_DOCUMENTE",
+                    "signal": "NON_DOCUMENTE"
+                }
+            },
+            {
+                "numero": "3",
+                "nom": "Cheval3",
+                "forme": 8,
+                "regularite": 5,
+                "cote": 6.0,
+                "jockey": "X",
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 71.0,
+                "indice_az": 71.0,
+                "indice_premium": 112.4,
+                "badges": [],
+                "radar": {
+                    "forme": 80.0,
+                    "distance": 100.0,
+                    "jockey": 30.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 7,
+                "raison": "⚠️ Coup spéculatif",
+                "confiance": 78,
+                "confiance_type": "proximite_indice_au_leader",
+                "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "analyse_valeur": {
+                    "numero": "3",
+                    "nom": "Cheval3",
+                    "score_independant": 5.25,
+                    "probabilite_indicative": 10.8,
+                    "cote": 6.0,
+                    "cote_fair_indicative": 9.29,
+                    "ecart_marche_pct": -35.4
+                },
+                "tendance_cote": {
+                    "numero": "3",
+                    "nom": "Cheval3",
+                    "cote_matin": null,
+                    "cote_direct": 6.0,
+                    "variation_pct": 0.0,
+                    "tendance": "NON_DOCUMENTE",
+                    "signal": "NON_DOCUMENTE"
+                }
+            },
+            {
+                "numero": "8",
+                "nom": "Cheval8",
+                "forme": 5,
+                "regularite": 5,
+                "cote": 11.0,
+                "jockey": "X",
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 70.0,
+                "indice_az": 70.0,
+                "indice_premium": 108.85,
+                "badges": [],
+                "radar": {
+                    "forme": 50.0,
+                    "distance": 100.0,
+                    "jockey": 30.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 8,
+                "raison": "⚠️ Coup spéculatif",
+                "confiance": 77,
+                "confiance_type": "proximite_indice_au_leader",
+                "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "analyse_valeur": {
+                    "numero": "8",
+                    "nom": "Cheval8",
+                    "score_independant": 4.5,
+                    "probabilite_indicative": 6.2,
+                    "cote": 11.0,
+                    "cote_fair_indicative": 16.18,
+                    "ecart_marche_pct": -32.0
+                },
+                "tendance_cote": {
+                    "numero": "8",
+                    "nom": "Cheval8",
+                    "cote_matin": null,
+                    "cote_direct": 11.0,
+                    "variation_pct": 0.0,
+                    "tendance": "NON_DOCUMENTE",
+                    "signal": "NON_DOCUMENTE"
+                }
+            },
+            {
+                "numero": "5",
+                "nom": "Cheval5",
+                "forme": 6,
+                "regularite": 5,
+                "cote": 8.0,
+                "jockey": "X",
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 67.0,
+                "indice_az": 67.0,
+                "indice_premium": 103.9,
+                "badges": [],
+                "radar": {
+                    "forme": 60.0,
+                    "distance": 100.0,
+                    "jockey": 30.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 9,
+                "raison": "⚠️ Coup spéculatif",
+                "confiance": 74,
+                "confiance_type": "proximite_indice_au_leader",
+                "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "analyse_valeur": {
+                    "numero": "5",
+                    "nom": "Cheval5",
+                    "score_independant": 4.75,
+                    "probabilite_indicative": 7.4,
+                    "cote": 8.0,
+                    "cote_fair_indicative": 13.45,
+                    "ecart_marche_pct": -40.5
+                },
+                "tendance_cote": {
+                    "numero": "5",
+                    "nom": "Cheval5",
+                    "cote_matin": null,
+                    "cote_direct": 8.0,
+                    "variation_pct": 0.0,
+                    "tendance": "NON_DOCUMENTE",
+                    "signal": "NON_DOCUMENTE"
+                }
+            },
+            {
+                "numero": "2",
+                "nom": "Cheval2",
+                "forme": 7,
+                "regularite": 5,
+                "cote": 5.0,
+                "jockey": "X",
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 64.0,
+                "indice_az": 64.0,
+                "indice_premium": 102.95,
+                "badges": [],
+                "radar": {
+                    "forme": 70.0,
+                    "distance": 100.0,
+                    "jockey": 30.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 10,
+                "raison": "⚠️ Coup spéculatif",
+                "confiance": 70,
+                "confiance_type": "proximite_indice_au_leader",
+                "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "analyse_valeur": {
+                    "numero": "2",
+                    "nom": "Cheval2",
+                    "score_independant": 5.0,
+                    "probabilite_indicative": 8.9,
+                    "cote": 5.0,
+                    "cote_fair_indicative": 11.17,
+                    "ecart_marche_pct": -55.2
+                },
+                "tendance_cote": {
+                    "numero": "2",
+                    "nom": "Cheval2",
+                    "cote_matin": null,
+                    "cote_direct": 5.0,
+                    "variation_pct": 0.0,
+                    "tendance": "NON_DOCUMENTE",
+                    "signal": "NON_DOCUMENTE"
+                }
+            },
+            {
+                "numero": "4",
+                "nom": "Cheval4",
+                "forme": 5,
+                "regularite": 5,
+                "cote": 7.0,
+                "jockey": "X",
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 60.0,
+                "indice_az": 60.0,
+                "indice_premium": 94.45,
+                "badges": [],
+                "radar": {
+                    "forme": 50.0,
+                    "distance": 100.0,
+                    "jockey": 30.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 11,
+                "raison": "⚠️ Coup spéculatif",
+                "confiance": 66,
+                "confiance_type": "proximite_indice_au_leader",
+                "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "analyse_valeur": {
+                    "numero": "4",
+                    "nom": "Cheval4",
+                    "score_independant": 4.5,
+                    "probabilite_indicative": 6.2,
+                    "cote": 7.0,
+                    "cote_fair_indicative": 16.18,
+                    "ecart_marche_pct": -56.7
+                },
+                "tendance_cote": {
+                    "numero": "4",
+                    "nom": "Cheval4",
+                    "cote_matin": null,
+                    "cote_direct": 7.0,
+                    "variation_pct": 0.0,
+                    "tendance": "NON_DOCUMENTE",
+                    "signal": "NON_DOCUMENTE"
+                }
+            },
+            {
+                "numero": "1",
+                "nom": "Cheval1",
+                "forme": 6,
+                "regularite": 5,
+                "cote": 4.0,
+                "jockey": "X",
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 57.0,
+                "indice_az": 57.0,
+                "indice_premium": 89.5,
+                "badges": [],
+                "radar": {
+                    "forme": 60.0,
+                    "distance": 100.0,
+                    "jockey": 30.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 12,
+                "raison": "⚠️ Coup spéculatif",
+                "confiance": 63,
+                "confiance_type": "proximite_indice_au_leader",
+                "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "analyse_valeur": {
+                    "numero": "1",
+                    "nom": "Cheval1",
+                    "score_independant": 4.75,
+                    "probabilite_indicative": 7.4,
+                    "cote": 4.0,
+                    "cote_fair_indicative": 13.45,
+                    "ecart_marche_pct": -70.3
+                },
+                "tendance_cote": {
+                    "numero": "1",
+                    "nom": "Cheval1",
+                    "cote_matin": null,
+                    "cote_direct": 4.0,
+                    "variation_pct": 0.0,
+                    "tendance": "NON_DOCUMENTE",
+                    "signal": "NON_DOCUMENTE"
+                }
+            }
+        ],
+        "favori": {
+            "numero": "11",
+            "nom": "Cheval11",
+            "forme": 8,
+            "regularite": 5,
+            "cote": 14.0,
+            "jockey": "X",
+            "est_non_partant": false,
+            "statut": "PARTANT",
+            "score_az": 91.0,
+            "indice_az": 91.0,
+            "indice_premium": 156.2,
+            "badges": [],
+            "radar": {
+                "forme": 80.0,
+                "distance": 100.0,
+                "jockey": 30.0,
+                "classe": 20.0,
+                "fraicheur": 100.0
+            },
+            "rang": 1,
+            "raison": "⭐ Favori AZ : meilleur indice et profil prioritaire",
+            "confiance": 100,
+            "confiance_type": "proximite_indice_au_leader",
+            "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+            "analyse_valeur": {
+                "numero": "11",
+                "nom": "Cheval11",
+                "score_independant": 5.25,
+                "probabilite_indicative": 10.8,
+                "cote": 14.0,
+                "cote_fair_indicative": 9.29,
+                "ecart_marche_pct": 50.7
+            },
+            "tendance_cote": {
+                "numero": "11",
+                "nom": "Cheval11",
+                "cote_matin": null,
+                "cote_direct": 14.0,
+                "variation_pct": 0.0,
+                "tendance": "NON_DOCUMENTE",
+                "signal": "NON_DOCUMENTE"
+            }
+        },
+        "selection_az": [
+            "11",
+            "10",
+            "7",
+            "12",
+            "9",
+            "6",
+            "3"
+        ],
+        "selection_premium": [
+            "11",
+            "10",
+            "12",
+            "6",
+            "7",
+            "9",
+            "3",
+            "8"
+        ],
+        "tickets": {
+            "gratuit": {
+                "quinte": [
+                    "11",
+                    "10",
+                    "7",
+                    "12",
+                    "9",
+                    "6",
+                    "3"
+                ],
+                "deux_sur_quatre": [
+                    "11",
+                    "10",
+                    "7",
+                    "12"
+                ],
+                "couple_place": [
+                    "11",
+                    "10"
+                ]
+            },
+            "premium": {
+                "selection_quinte": [
+                    "11",
+                    "10",
+                    "12",
+                    "6",
+                    "7",
+                    "9",
+                    "3",
+                    "8"
+                ],
+                "quinte": [
+                    "11",
+                    "10",
+                    "12",
+                    "6",
+                    "7",
+                    "9"
+                ],
+                "quarte": [
+                    "11",
+                    "10",
+                    "12",
+                    "6",
+                    "7"
+                ],
+                "trio": [
+                    "11",
+                    "10",
+                    "12"
+                ],
+                "couple_gagnant_place": [
+                    [
+                        "11",
+                        "10"
+                    ],
+                    [
+                        "11",
+                        "12"
+                    ],
+                    [
+                        "10",
+                        "12"
+                    ]
+                ],
+                "champ_reduit": {
+                    "format": "11-10-X-7-X / 12-9-6-3",
+                    "bases": [
+                        "11",
+                        "10",
+                        "X",
+                        "7",
+                        "X"
+                    ],
+                    "complements": [
+                        "12",
+                        "9",
+                        "6",
+                        "3"
+                    ],
+                    "disponible": true
+                },
+                "ticket_derniere_minute": {
+                    "selection": [
+                        "11",
+                        "12",
+                        "10",
+                        "9",
+                        "7",
+                        "8"
+                    ],
+                    "joker": "6",
+                    "format": "11-12-10-9-7-8"
+                },
+                "methode": "Indice Premium AZ Pro : valeur + forme + régularité + expérience, avec diversification des tickets.",
+                "message_fin": "🍀 Bonne chance ! Les tickets Premium sont générés séparément du ticket gratuit et la dernière minute est calculée indépendamment.",
+                "lecture_course": {
+                    "profil": {
+                        "discipline": "TROT_ATTELE",
+                        "distance": 0.0,
+                        "type_depart": "NON DOCUMENTÉ",
+                        "partants": 12,
+                        "lecture": [
+                            "peloton de 12 partants"
+                        ],
+                        "confiance": 0.45
+                    },
+                    "points_forts": [
+                        "forme récente suffisamment solide"
+                    ],
+                    "points_attention": [],
+                    "methode": "Lecture contextuelle Premium : parcours + scénario + engagement + entourage + marché, sans remplacer l'Indice AZ existant."
+                }
+            }
+        },
+        "non_partants": [],
+        "arrivee": null,
+        "heure_arrivee": null,
+        "publication_at": null,
+        "publication_statut": "EN ATTENTE"
     }
 ]
