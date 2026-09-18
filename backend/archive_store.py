@@ -161,3 +161,85 @@ def lire_archive_performance(limit: int = 1000) -> list[dict]:
         return [dict(zip(cols, row)) for row in rows]
     finally:
         conn.close()
+
+
+def lire_archive_pour_calibration(limit: int = 2000) -> list[dict]:
+    """Lecture des données brutes par cheval (chevaux_json) associées à leur
+    arrivée réelle (arrivee_json) — seule matière première nécessaire pour
+    calculer une calibration honnête des coefficients de scoring.py, sans
+    rien inventer : uniquement des courses avec un résultat officiel
+    réellement enregistré."""
+    conn = _connexion()
+    try:
+        _init(conn)
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT course_key, chevaux_json, arrivee_json
+                FROM az_course_archive
+                WHERE arrivee_json IS NOT NULL
+                ORDER BY created_at DESC
+                LIMIT %s
+            """, (max(1, min(int(limit), 5000)),))
+            cols = [d.name for d in cur.description]
+            rows = cur.fetchall()
+        return [dict(zip(cols, row)) for row in rows]
+    finally:
+        conn.close()
+
+
+def _init_calibration(conn) -> None:
+    with conn.cursor() as cur:
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS az_calibration (
+                id BIGSERIAL PRIMARY KEY,
+                facteurs_json JSONB NOT NULL,
+                echantillon_courses INT NOT NULL,
+                echantillon_chevaux INT NOT NULL,
+                calcule_le TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            )
+        """)
+    conn.commit()
+
+
+def enregistrer_calibration(facteurs: dict, echantillon_courses: int, echantillon_chevaux: int) -> bool:
+    """Enregistre un nouveau calcul de calibration (conserve l'historique
+    des calculs précédents ; seul le plus récent est appliqué)."""
+    conn = _connexion()
+    try:
+        _init_calibration(conn)
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO az_calibration (facteurs_json, echantillon_courses, echantillon_chevaux)
+                VALUES (%s, %s, %s)
+            """, (Json(facteurs), int(echantillon_courses), int(echantillon_chevaux)))
+        conn.commit()
+        return True
+    finally:
+        conn.close()
+
+
+def lire_calibration() -> dict | None:
+    """Retourne la calibration la plus récente, ou None si aucune n'a
+    jamais été calculée (dans ce cas, scoring.py utilise ses coefficients
+    de base, sans aucun ajustement — comportement par défaut inchangé)."""
+    conn = _connexion()
+    try:
+        _init_calibration(conn)
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT facteurs_json, echantillon_courses, echantillon_chevaux, calcule_le
+                FROM az_calibration
+                ORDER BY calcule_le DESC
+                LIMIT 1
+            """)
+            row = cur.fetchone()
+        if not row:
+            return None
+        return {
+            "facteurs": row[0],
+            "echantillon_courses": row[1],
+            "echantillon_chevaux": row[2],
+            "calcule_le": row[3].isoformat() if row[3] else None,
+        }
+    finally:
+        conn.close()

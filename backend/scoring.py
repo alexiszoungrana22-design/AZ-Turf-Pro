@@ -42,12 +42,23 @@ def classifier_discipline(discipline):
     return "ATTELE"  # discipline inconnue : repli neutre (la plus courante en France)
 
 
-def calculer_score_az(cheval, discipline="TROT"):
+def calculer_score_az(cheval, discipline="TROT", calibration=None):
     """
     Calcule l'indice AZ avec pondération dynamique selon la spécialité.
+
+    calibration : dict optionnel de multiplicateurs par critère (ex:
+    {"forme": 1.08, "cote": 0.95, ...}), produit par
+    modules.learning_turf.calculer_calibration() à partir de l'historique
+    réel des courses archivées. Sans calibration (valeur par défaut),
+    comportement strictement identique à avant — aucun changement pour les
+    analyses tant qu'aucune calibration n'a été calculée.
     """
     score = 0
     specialite = classifier_discipline(discipline)
+    calibration = calibration or {}
+
+    def _cal(critere, coef):
+        return coef * calibration.get(critere, 1.0)
 
     # --- 1. PONDÉRATION PAR SPÉCIALITÉ ---
     if specialite == "ATTELE":
@@ -87,14 +98,17 @@ def calculer_score_az(cheval, discipline="TROT"):
     # 0, si "forme" existe mais vaut None — ce qui faisait planter le calcul
     # avec de vraies données PMU incomplètes (cote/forme non documentées
     # pour certains partants).
-    score += _num(cheval.get("forme")) * coef_forme
-    score += _num(cheval.get("regularite")) * coef_regularite
+    # _cal() applique un multiplicateur calibré sur l'historique réel s'il
+    # en existe un (sinon 1.0, comportement inchangé) — uniquement sur les
+    # 5 critères que learning_turf.calculer_calibration() sait évaluer.
+    score += _num(cheval.get("forme")) * _cal("forme", coef_forme)
+    score += _num(cheval.get("regularite")) * _cal("regularite", coef_regularite)
     score += _num(cheval.get("gains")) * 2.5
-    score += _num(cheval.get("jockey_score")) * coef_jockey
-    score += _num(cheval.get("cote")) * coef_cote
+    score += _num(cheval.get("jockey_score")) * _cal("jockey_score", coef_jockey)
+    score += _num(cheval.get("cote")) * _cal("cote", coef_cote)
     score += _num(cheval.get("distance")) * 2.5
     score += _num(cheval.get("terrain")) * 2.0
-    score += _num(cheval.get("experience")) * coef_experience
+    score += _num(cheval.get("experience")) * _cal("experience", coef_experience)
 
     # --- 3. CRITÈRE OR AU TROT (ATTELÉ ET MONTÉ) : DÉFERRAGE (D4, DP, DA) ---
     # Utilise le code déjà normalisé par pmu_source.normaliser_deferrage() ;
