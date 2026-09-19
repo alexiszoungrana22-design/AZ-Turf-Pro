@@ -387,6 +387,10 @@ function afficherResumeQuinte(periode){
     const label = document.getElementById("periode-course-label");
     if(label) label.textContent = textePeriode(periode);
 
+    const bandeauDemo = document.getElementById("bandeau-donnees-demo");
+    const estDemo = !!(data && (data.donnees_demo || data.source === "demo"));
+    if(bandeauDemo) bandeauDemo.style.display = estDemo ? "block" : "none";
+
     if(!data || data.disponible === false){
         ["meta-course","meta-nom-prix","meta-date","meta-discipline","meta-distance","meta-partants","meta-hippodrome","heure-depart-course"].forEach(id => {
             const el = document.getElementById(id);
