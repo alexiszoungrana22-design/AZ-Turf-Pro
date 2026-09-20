@@ -1450,6 +1450,56 @@ def archive_synchroniser(limit: int = 100):
 
 
 # =========================================================
+# CALIBRATION DU MOTEUR À PARTIR DE L'HISTORIQUE RÉEL
+# =========================================================
+# Recalcule les multiplicateurs de scoring.py à partir des courses
+# réellement archivées (chevaux_json + arrivee_json). En dessous de 30
+# courses avec résultat, aucun ajustement n'est appliqué (le moteur garde
+# ses coefficients de base). Une fois calculée, la calibration s'applique
+# AUTOMATIQUEMENT à toutes les analyses suivantes (engine.py la relit à
+# chaque appel) — inutile de la redéclencher à chaque fois, seulement
+# quand on veut la rafraîchir avec les courses les plus récentes.
+@router.get("/archive/calibrer")
+def archive_calibrer():
+    try:
+        from archive_store import lire_archive_pour_calibration, enregistrer_calibration
+        from modules.learning_turf import calculer_calibration
+
+        lignes = lire_archive_pour_calibration(2000)
+        resultat = calculer_calibration(lignes)
+
+        if resultat["status"] == "success":
+            enregistrer_calibration(
+                resultat["facteurs"],
+                resultat["echantillon_courses"],
+                resultat["echantillon_chevaux"],
+            )
+            resultat["appliquee"] = True
+        else:
+            resultat["appliquee"] = False
+
+        return resultat
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur calibration : {erreur}")
+
+
+@router.get("/archive/calibration")
+def archive_calibration_etat():
+    try:
+        from archive_store import lire_calibration
+        etat = lire_calibration()
+        if not etat:
+            return {
+                "status": "jamais_calculee",
+                "message": "Aucune calibration n'a encore été calculée. Le moteur utilise ses coefficients de base. Visitez /api/archive/calibrer pour la calculer.",
+                "facteurs": {},
+            }
+        return {"status": "success", **etat}
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur lecture calibration : {erreur}")
+
+
+# =========================================================
 # PERFORMANCE AZ — panneau "Performances AZ" de historique.html
 # (historique-performance.js appelle GET /api/archive/performance,
 # route absente jusqu'ici -> 404 constaté en production). Additive :

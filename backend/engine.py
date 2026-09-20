@@ -330,6 +330,21 @@ def lancer_analyse(
     Orchestre l'analyse complète d'une course.
     """
 
+    # Calibration issue de l'historique réel (modules.learning_turf +
+    # archive_store) : chargée une seule fois par analyse, jamais
+    # bloquante. Tant qu'aucune calibration n'a été calculée (ou que la
+    # base n'est pas configurée), calibration_facteurs reste vide et le
+    # moteur se comporte exactement comme avant.
+    calibration_facteurs = {}
+    try:
+        from archive_store import lire_calibration
+        _calib = lire_calibration()
+        if _calib:
+            calibration_facteurs = _calib.get("facteurs") or {}
+    except Exception:
+        calibration_facteurs = {}
+
+
     if not chevaux:
 
         return {
@@ -478,7 +493,8 @@ def lancer_analyse(
 
         score_az = calculer_score_az(
             copie,
-            discipline=discipline
+            discipline=discipline,
+            calibration=calibration_facteurs
         )
 
 
@@ -742,6 +758,12 @@ def lancer_analyse(
 
         # Résultats des modules complémentaires réellement exécutés.
         "analyse_complementaire": analyse_complementaire,
+
+        # Transparence : indique si une calibration issue de l'historique
+        # réel a été appliquée à cette analyse, et sur quels critères.
+        # Vide tant qu'aucune calibration n'a été calculée (voir
+        # /archive/calibrer) — comportement par défaut inchangé.
+        "calibration_appliquee": calibration_facteurs,
         "qualite_donnees": qualite_donnees,
         "interpretation_confiance": (
             "Le champ confiance est une proximité de l'indice AZ au leader, "

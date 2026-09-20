@@ -15,10 +15,21 @@ from datetime import datetime
 # CONFIGURATION
 # =====================================
 
-PMU_BASE_URL = (
-    "https://turfinfo.api.prd.pmutech.fr"
-    "/rest/client/61/programme"
-)
+# Le PMU ne documente pas officiellement cette API et a changé de
+# sous-domaine plusieurs fois au fil des années (offline.turfinfo.api.pmu.fr,
+# online.turfinfo.api.pmu.fr, turfinfo.api.prd.pmutech.fr...). Plutôt que de
+# parier sur un seul domaine qui peut cesser de répondre du jour au
+# lendemain, plusieurs candidats connus sont essayés dans l'ordre —
+# le premier qui répond correctement est utilisé pour cette requête.
+PMU_DOMAINES_CANDIDATS = [
+    "https://online.turfinfo.api.pmu.fr/rest/client/61/programme",
+    "https://turfinfo.api.prd.pmutech.fr/rest/client/61/programme",
+    "https://offline.turfinfo.api.pmu.fr/rest/client/61/programme",
+]
+
+# Conservé pour compatibilité avec tout code qui référencerait encore
+# PMU_BASE_URL directement — pointe vers le premier candidat.
+PMU_BASE_URL = PMU_DOMAINES_CANDIDATS[0]
 
 TIMEOUT = 8
 PARTANTS_MINIMUM_QUINTE = 10
@@ -32,6 +43,15 @@ def normaliser_date(date_val):
     """
     Normalise n'importe quel format de date (YYYY-MM-DD, DD/MM/YYYY, datetime, etc.)
     vers le format DDMMYYYY attendu par l'API PMU.
+
+    IMPORTANT : cette fonction doit être idempotente (rappelable plusieurs
+    fois sans effet de bord) car elle est appelée en cascade par plusieurs
+    fonctions du fichier (trouver_quinte_du_jour -> recuperer_programme,
+    par exemple). L'ancienne version convertissait aveuglément toute chaîne
+    de 8 chiffres commençant par "19" ou "20" en supposant du YYYYMMDD —
+    ce qui corrompait une date DÉJÀ en DDMMYYYY dès que le JOUR valait 19
+    ou 20 (ex: "19092026" devenait "26201909"). Un second appel sur une
+    date déjà correcte la détruisait silencieusement.
     """
     if not date_val:
         return datetime.now().strftime("%d%m%Y")
@@ -41,9 +61,24 @@ def normaliser_date(date_val):
 
     texte = str(date_val).replace("-", "").replace("/", "").replace(" ", "").strip()
 
-    # Si format YYYYMMDD (ex: 20260813) -> Convertir en DDMMYYYY (13082026)
+    # Si format YYYYMMDD (ex: 20260813) -> Convertir en DDMMYYYY (13082026).
+    # On ne convertit que si l'interprétation YYYYMMDD donne un mois/jour
+    # plausibles ET que l'interprétation DDMMYYYY, elle, ne l'est PAS —
+    # ce qui rend la fonction sûre à rappeler plusieurs fois de suite.
     if len(texte) == 8 and (texte.startswith("20") or texte.startswith("19")):
-        return f"{texte[6:8]}{texte[4:6]}{texte[0:4]}"
+        mois_si_yyyymmdd, jour_si_yyyymmdd = texte[4:6], texte[6:8]
+        yyyymmdd_plausible = (
+            mois_si_yyyymmdd.isdigit() and 1 <= int(mois_si_yyyymmdd) <= 12
+            and jour_si_yyyymmdd.isdigit() and 1 <= int(jour_si_yyyymmdd) <= 31
+        )
+        if yyyymmdd_plausible:
+            jour_si_ddmmyyyy, mois_si_ddmmyyyy = texte[0:2], texte[2:4]
+            ddmmyyyy_plausible = (
+                mois_si_ddmmyyyy.isdigit() and 1 <= int(mois_si_ddmmyyyy) <= 12
+                and jour_si_ddmmyyyy.isdigit() and 1 <= int(jour_si_ddmmyyyy) <= 31
+            )
+            if not ddmmyyyy_plausible:
+                return f"{texte[6:8]}{texte[4:6]}{texte[0:4]}"
 
     return texte
 
@@ -682,47 +717,65 @@ def transformer_course(course, participants):
 # RECUPERATION PROGRAMME
 # =====================================
 
+_domaine_pmu_actif = None  # mémorise le domaine qui a fonctionné la dernière fois
+
+
 def recuperer_programme(date, reunion=None):
+    global _domaine_pmu_actif
     date = normaliser_date(date)
 
-    if reunion is None:
-        url = f"{PMU_BASE_URL}/{date}"
-    else:
-        reunion_numero = (
-            str(reunion)
-            .upper()
-            .replace("R", "")
-            .strip()
-        )
-
+    def _construire_url(base):
+        if reunion is None:
+            return base + f"/{date}"
+        reunion_numero = str(reunion).upper().replace("R", "").strip()
         if not reunion_numero.isdigit():
             return None
+        return base + f"/{date}/R{reunion_numero}"
 
-        url = f"{PMU_BASE_URL}/{date}/R{reunion_numero}"
+    # On essaie d'abord le domaine qui a fonctionné la dernière fois (le cas
+    # normal, rapide), puis les autres candidats seulement si besoin.
+    candidats = PMU_DOMAINES_CANDIDATS
+    if _domaine_pmu_actif and _domaine_pmu_actif in candidats:
+        candidats = [_domaine_pmu_actif] + [d for d in candidats if d != _domaine_pmu_actif]
 
-    try:
-        response = requests.get(
-            url,
-            params={"specialisation": "INTERNET"},
-            timeout=TIMEOUT,
-            headers={
-                "Accept": "application/json",
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-            },
-        )
-
-        response.raise_for_status()
-        donnees = response.json()
-
-        if not isinstance(donnees, dict):
-            return None
-
-        return donnees
-
-    except Exception as erreur:
-        if reunion is not None:
-            print(f"Erreur programme PMU {reunion_numero and "R" + reunion_numero or reunion} :", erreur)
+    reunion_numero_txt = str(reunion).upper().replace("R", "").strip() if reunion is not None else None
+    if reunion is not None and not (reunion_numero_txt and reunion_numero_txt.isdigit()):
         return None
+
+    derniere_erreur = None
+    for base in candidats:
+        url = _construire_url(base)
+        if not url:
+            return None
+        try:
+            response = requests.get(
+                url,
+                params={"specialisation": "INTERNET"},
+                timeout=TIMEOUT,
+                headers={
+                    "Accept": "application/json",
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+                },
+            )
+            response.raise_for_status()
+            donnees = response.json()
+
+            if not isinstance(donnees, dict):
+                derniere_erreur = "réponse JSON inattendue"
+                continue
+
+            _domaine_pmu_actif = base  # ce domaine fonctionne, on le privilégiera la prochaine fois
+            return donnees
+
+        except Exception as erreur:
+            derniere_erreur = erreur
+            continue
+
+    if reunion is not None:
+        print(f"Erreur programme PMU R{reunion_numero_txt} (tous domaines) :", derniere_erreur)
+    else:
+        print(f"Erreur programme PMU {date} (tous domaines) :", derniere_erreur)
+    return None
 
 
 # =====================================
@@ -824,38 +877,49 @@ def recuperer_participants(date, reunion, course_numero):
     if not reunion_numero.isdigit() or not course_numero.isdigit():
         return []
 
-    url = (
-        f"{PMU_BASE_URL}/"
-        f"{date}/"
-        f"R{reunion_numero}/"
-        f"C{course_numero}/"
-        f"participants"
-    )
+    global _domaine_pmu_actif
+    candidats = PMU_DOMAINES_CANDIDATS
+    if _domaine_pmu_actif and _domaine_pmu_actif in candidats:
+        candidats = [_domaine_pmu_actif] + [d for d in candidats if d != _domaine_pmu_actif]
 
-    try:
-        response = requests.get(
-            url,
-            params={"specialisation": "INTERNET"},
-            timeout=TIMEOUT,
-            headers={
-                "Accept": "application/json",
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-            },
+    for base in candidats:
+        url = (
+            f"{base}/"
+            f"{date}/"
+            f"R{reunion_numero}/"
+            f"C{course_numero}/"
+            f"participants"
         )
 
-        response.raise_for_status()
-        donnees = response.json()
+        try:
+            response = requests.get(
+                url,
+                params={"specialisation": "INTERNET"},
+                timeout=TIMEOUT,
+                headers={
+                    "Accept": "application/json",
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+                },
+            )
 
-        if isinstance(donnees, dict):
-            participants = donnees.get("participants", [])
-            if isinstance(participants, list):
-                return participants
+            response.raise_for_status()
+            donnees = response.json()
 
-        if isinstance(donnees, list):
-            return donnees
+            resultat = None
+            if isinstance(donnees, dict):
+                participants = donnees.get("participants", [])
+                if isinstance(participants, list):
+                    resultat = participants
+            elif isinstance(donnees, list):
+                resultat = donnees
 
-    except Exception as erreur:
-        print("Erreur participants PMU :", erreur)
+            if resultat is not None:
+                _domaine_pmu_actif = base
+                return resultat
+
+        except Exception as erreur:
+            print(f"Erreur participants PMU ({base}) :", erreur)
+            continue
 
     return []
 
