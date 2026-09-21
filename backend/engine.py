@@ -299,12 +299,26 @@ def calculer_indice_premium(cheval, info_course=None, discipline="TROT", analyse
     # Calcul Premium
     # -----------------------------------------------------
 
+    # CORRECTION : forme et régularité étaient comptées jusqu'à 3 fois au
+    # total dans le pipeline Premium — une fois dans indice_az (déjà pondéré
+    # par discipline dans scoring.py), une deuxième fois ici (forme*1.35,
+    # regularite*1.20), une troisième fois dans bonus_contexte_course
+    # (race_analyzer._horse_context). Ce n'était pas une analyse
+    # supplémentaire : c'était le même signal amplifié plusieurs fois,
+    # déformant l'équilibre entre critères sans rien ajouter de nouveau.
+    # indice_az reste l'unique source de vérité pour forme/régularité ;
+    # les termes redondants ont été retirés ici (voir aussi
+    # race_analyzer._horse_context pour la 3e occurrence retirée).
+    #
+    # CORRECTION (même famille) : cote et expérience étaient elles aussi
+    # comptées deux fois — une fois dans indice_az, une deuxième fois ici
+    # (cote_score*1.10, experience*0.80). Retiré pour la même raison :
+    # indice_az reste l'unique source de vérité pour ces deux critères
+    # aussi. cote_score reste calculée ci-dessus car elle sert de repli
+    # pour cote_brute (utilisée par bonus_outsider_chaud) ; experience
+    # n'a plus d'autre usage dans cette fonction.
     indice_premium = (
         indice_az
-        + (forme * 1.35)
-        + (regularite * 1.20)
-        + (cote_score * 1.10)
-        + (experience * 0.80)
         + (bonnes_places * 2.0)
         + bonus_outsider_chaud
         + bonus_expert

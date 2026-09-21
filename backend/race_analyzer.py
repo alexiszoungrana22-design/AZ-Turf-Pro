@@ -112,14 +112,10 @@ def _horse_context(horse, course, profile):
             score -= 4.0
             risks.append("numéro potentiellement piégeux à l'autostart")
 
-    forme = _float(horse.get("forme", 0), 0)
-    regularite = _float(horse.get("regularite", 0), 0)
-    if forme >= 7:
-        score += 4.0
-        reasons.append("forme récente suffisamment solide")
-    if regularite >= 7:
-        score += 3.0
-        reasons.append("profil régulier")
+    # CORRECTION : forme et régularité étaient comptées ici une 3e fois
+    # (après indice_az et l'ancienne formule Premium) — retiré, voir
+    # engine.calculer_indice_premium pour le détail. indice_az reste
+    # l'unique source de vérité pour ces deux critères.
 
     # Déferrage : signal d'entourage, mais jamais preuve d'objectif à lui seul.
     deferre = _text(horse.get("deferre", ""))
