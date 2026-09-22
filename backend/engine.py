@@ -265,12 +265,13 @@ def calculer_indice_premium(cheval, info_course=None, discipline="TROT", analyse
         if abs(dist_course - dist_pref) <= 200:
             bonus_expert += 10.0
 
-    deferre = str(cheval.get("deferre", "") or "").strip().upper()
-
-    if deferre in ("D4", "DP_DG"):
-        bonus_expert += 12.0
-    elif deferre in ("DA", "DP"):
-        bonus_expert += 6.0
+    # CORRECTION : le déferrage était compté 3 fois au total dans le
+    # pipeline (scoring.calculer_score_az pour indice_az, ici dans
+    # bonus_expert, et dans race_analyzer._horse_context pour
+    # bonus_contexte_course) — même famille de problème que
+    # forme/régularité/cote/expérience ci-dessus. scoring.py reste
+    # l'unique source de vérité pour ce critère ; les deux occurrences
+    # redondantes ont été retirées (voir aussi race_analyzer._horse_context).
 
     # -----------------------------------------------------
     # Smart Money (variation de cote entre le matin et le direct)

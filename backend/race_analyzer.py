@@ -117,14 +117,9 @@ def _horse_context(horse, course, profile):
     # engine.calculer_indice_premium pour le détail. indice_az reste
     # l'unique source de vérité pour ces deux critères.
 
-    # Déferrage : signal d'entourage, mais jamais preuve d'objectif à lui seul.
-    deferre = _text(horse.get("deferre", ""))
-    if deferre in ("D4", "DÉFERRÉ 4 PIEDS", "D4_4"):
-        score += 5.0
-        reasons.append("configuration déferrée forte : signal d'entourage")
-    elif deferre in ("DP", "DA", "DP_DG", "DÉFERRÉ ANTÉRIEURS", "DÉFERRÉ POSTÉRIEURS"):
-        score += 2.5
-        reasons.append("déferrage : signal positif mais modéré")
+    # CORRECTION : le déferrage était lui aussi compté ici en plus
+    # d'indice_az (scoring.py) et de bonus_expert (engine.py) — retiré
+    # pour la même raison, voir engine.calculer_indice_premium.
 
     # Engagement : uniquement si les données existent réellement.
     engagement = _first(horse, ("engagement_score", "engagement", "engagement_qualite"), None)
