@@ -146,10 +146,16 @@ def generer_badges_et_radar(cheval, info_course=None):
 # INDICE PREMIUM
 # =========================================================
 
-def calculer_indice_premium(cheval, info_course=None, discipline="TROT", analyse_premium=None):
+def calculer_indice_premium(cheval, info_course=None, discipline="TROT", analyse_premium=None, calibration=None):
     """
     Calcule l'Indice Premium AZ Pro.
+
+    calibration : dict optionnel de multiplicateurs calculés à partir de
+    l'historique réel (modules.learning_turf.calculer_calibration), pour
+    les bonus Premium eux-mêmes (ex: "bonus_outsider_chaud"). Sans
+    calibration, comportement strictement identique à avant.
     """
+    calibration = calibration or {}
 
     indice_az = _float(
         cheval.get("indice_az", 0),
@@ -241,7 +247,7 @@ def calculer_indice_premium(cheval, info_course=None, discipline="TROT", analyse
         and regularite >= 7.0
     ):
 
-        bonus_outsider_chaud = 8.0
+        bonus_outsider_chaud = 8.0 * calibration.get("bonus_outsider_chaud", 1.0)
 
     # -----------------------------------------------------
     # Bonus Experts
@@ -437,6 +443,29 @@ def lancer_analyse(
 
     chevaux_valides = []
 
+    # Cotes du matin (pour le bonus Smart Money) : chargées une seule fois
+    # pour toute la course, jamais bloquant. Sans DATABASE_URL configurée
+    # ou en cas d'erreur, cotes_matin reste vide et variation_cote_pct
+    # vaudra simplement 0 pour tous les chevaux (comportement inchangé).
+    cotes_matin = {}
+    try:
+        from archive_store import obtenir_cotes_matin, _cle_course
+        course_key_pour_cotes = _cle_course(info_course) if isinstance(info_course, dict) else None
+        if course_key_pour_cotes:
+            cotes_brutes_actuelles = {}
+            for _c in chevaux:
+                if not isinstance(_c, dict):
+                    continue
+                _num = _c.get("numero")
+                if _num is None:
+                    continue
+                _cs = _float(_c.get("cote", 5), 5)
+                _cb = _float(_c.get("cote_brute", _cs), _cs)
+                cotes_brutes_actuelles[str(_num)] = _cb
+            cotes_matin = obtenir_cotes_matin(course_key_pour_cotes, cotes_brutes_actuelles)
+    except Exception:
+        cotes_matin = {}
+
 
     for cheval in chevaux:
 
@@ -456,6 +485,17 @@ def lancer_analyse(
         numero_str = _numero_str(
             numero
         )
+
+        # Injecte la cote du matin réellement observée (voir ci-dessus) et
+        # la variation calculée à partir d'elle — alimente enfin le bonus
+        # Smart Money, jusqu'ici toujours à 0 faute de donnée.
+        if numero_str in cotes_matin and "cote_matin_brute" not in copie:
+            _cote_matin = cotes_matin[numero_str]
+            copie["cote_matin_brute"] = _cote_matin
+            _cs = _float(copie.get("cote", 5), 5)
+            _cote_directe = _float(copie.get("cote_brute", _cs), _cs)
+            if _cote_matin:
+                copie["variation_cote_pct"] = round(((_cote_directe - _cote_matin) / _cote_matin) * 100, 2)
 
 
         statut_original = str(
@@ -522,7 +562,8 @@ def lancer_analyse(
                 copie,
                 info_course=info_course,
                 discipline=discipline,
-                analyse_premium=analyse_premium
+                analyse_premium=analyse_premium,
+                calibration=calibration_facteurs
             )
         )
 

@@ -116,10 +116,11 @@ def calculer_score_az(cheval, discipline="TROT", calibration=None):
     # directement (ex. tests, ou données saisies manuellement).
     if specialite in ("ATTELE", "MONTE"):
         deferrage = str(cheval.get("deferre", "") or "").strip().upper()
+        facteur_deferrage = calibration.get("bonus_deferrage", 1.0)
         if deferrage in ("D4", "DÉFERRÉ 4 PIEDS", "D4_4"):
-            score += 18.0  # Gros bonus pour déferré des 4
+            score += 18.0 * facteur_deferrage  # Gros bonus pour déferré des 4
         elif deferrage in ("DP", "DA", "DÉFERRÉ ANTÉRIEURS", "DÉFERRÉ POSTÉRIEURS"):
-            score += 9.0   # Bonus modéré pour déferré 2 pieds
+            score += 9.0 * facteur_deferrage   # Bonus modéré pour déferré 2 pieds
 
     # --- 4. CORDE / STALLE (PLAT UNIQUEMENT) ---
     if specialite == "PLAT":

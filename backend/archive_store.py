@@ -243,3 +243,71 @@ def lire_calibration() -> dict | None:
         }
     finally:
         conn.close()
+
+
+# =====================================
+# COTES DU MATIN — pour le bonus "Smart Money"
+# =====================================
+# Le bonus Smart Money (variation de cote entre le matin et le direct)
+# existait dans le calcul du Ticket Premium mais ne recevait jamais de
+# valeur : personne n'enregistrait la cote observée la première fois
+# qu'une course est chargée. Cette table capture cette première
+# observation par cheval et par course — la toute première fois qu'une
+# course est analysée, sa cote du moment devient "la cote du matin" pour
+# le reste de la journée ; les analyses suivantes la comparent à la cote
+# alors en direct. Aucune donnée inventée : uniquement ce qui a été
+# réellement observé.
+
+def _init_cote_matin(conn) -> None:
+    with conn.cursor() as cur:
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS az_cote_matin (
+                course_key TEXT NOT NULL,
+                numero TEXT NOT NULL,
+                cote_matin DOUBLE PRECISION NOT NULL,
+                enregistre_le TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                PRIMARY KEY (course_key, numero)
+            )
+        """)
+    conn.commit()
+
+
+def obtenir_cotes_matin(course_key: str, chevaux_cotes: dict) -> dict:
+    """chevaux_cotes : {numero: cote_brute_actuelle}.
+
+    Retourne {numero: cote_matin} — la cote enregistrée pour la première
+    observation de chaque cheval sur cette course. Si un cheval n'a
+    jamais été vu pour cette course_key, sa cote actuelle est enregistrée
+    comme cote du matin (aucun historique inventé, seulement la première
+    vraie observation) et c'est cette valeur qui est retournée.
+    """
+    if not course_key or not chevaux_cotes:
+        return {}
+
+    conn = _connexion()
+    try:
+        _init_cote_matin(conn)
+        resultat = {}
+        with conn.cursor() as cur:
+            for numero, cote_actuelle in chevaux_cotes.items():
+                if cote_actuelle is None:
+                    continue
+                numero = str(numero)
+                cur.execute(
+                    "SELECT cote_matin FROM az_cote_matin WHERE course_key=%s AND numero=%s",
+                    (course_key, numero),
+                )
+                ligne = cur.fetchone()
+                if ligne:
+                    resultat[numero] = ligne[0]
+                else:
+                    cur.execute(
+                        "INSERT INTO az_cote_matin (course_key, numero, cote_matin) "
+                        "VALUES (%s, %s, %s) ON CONFLICT (course_key, numero) DO NOTHING",
+                        (course_key, numero, float(cote_actuelle)),
+                    )
+                    resultat[numero] = float(cote_actuelle)
+        conn.commit()
+        return resultat
+    finally:
+        conn.close()

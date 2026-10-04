@@ -103,13 +103,17 @@ def _horse_context(horse, course, profile):
             risks.append("distance éloignée de sa préférence déclarée")
 
     # Le numéro n'est interprété que lorsque la configuration du départ est connue.
+    # Renforcé : contrairement à forme/régularité/déferrage/cote (retirés
+    # d'ici car déjà comptés via indice_az), ce signal est réel, propre à
+    # l'autostart, et ne fait doublon avec aucun autre critère du moteur —
+    # il mérite donc un poids plus visible qu'un simple ajustement mineur.
     numero = int(_float(horse.get("numero", 0), 0))
     if numero and _is_autostart(course):
         if numero in (2, 3, 4, 5):
-            score += 5.0
+            score += 8.0
             reasons.append("numéro favorable au placement à l'autostart")
         elif numero in (1, 8, 9, 10, 11, 16):
-            score -= 4.0
+            score -= 6.0
             risks.append("numéro potentiellement piégeux à l'autostart")
 
     # CORRECTION : forme et régularité étaient comptées ici une 3e fois
@@ -121,23 +125,14 @@ def _horse_context(horse, course, profile):
     # d'indice_az (scoring.py) et de bonus_expert (engine.py) — retiré
     # pour la même raison, voir engine.calculer_indice_premium.
 
-    # Engagement : uniquement si les données existent réellement.
-    engagement = _first(horse, ("engagement_score", "engagement", "engagement_qualite"), None)
-    if engagement is not None:
-        engagement_value = _float(engagement, 0)
-        score += max(-8.0, min(10.0, (engagement_value - 50.0) * 0.20))
-        if engagement_value >= 75:
-            reasons.append("engagement signalé comme particulièrement favorable")
-        elif engagement_value <= 35:
-            risks.append("engagement signalé comme délicat")
-
-    # Catégorie : si la source fournit explicitement le changement, on l'utilise.
-    if horse.get("hausse_de_categorie") is True:
-        score -= 7.0
-        risks.append("hausse de catégorie")
-    elif horse.get("baisse_de_categorie") is True:
-        score += 6.0
-        reasons.append("retour dans une catégorie plus favorable")
+    # CORRECTION : "engagement" et "hausse/baisse de catégorie" ont été
+    # retirés — vérifié (recherche sur la structure réelle des données
+    # PMU) qu'aucun champ de ce type n'existe dans les données PMU
+    # réellement disponibles. Ces bonus ne se sont donc jamais déclenchés
+    # depuis leur écriture, et ne le pourront jamais sans une nouvelle
+    # source de données. Laisser du code qui ne s'exécute jamais donne
+    # une fausse impression d'analyse ; il vaut mieux le retirer
+    # franchement que le garder comme façade.
 
     # Marché : utilisé comme information de contexte, jamais comme preuve de forme.
     cote = _float(horse.get("cote", 0), 0)
