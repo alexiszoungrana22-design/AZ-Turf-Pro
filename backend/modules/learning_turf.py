@@ -80,6 +80,15 @@ def calculer_calibration(lignes_archive, seuil_min=SEUIL_MIN_COURSES):
     Retourne un dict avec le statut, la taille de l'échantillon, et les
     facteurs calculés — jamais un facteur inventé sans donnée suffisante."""
     observations = {c: {"place": [], "non_place": []} for c in CRITERES_CALIBRABLES}
+    # Signaux binaires Premium : on compare le taux de placement des
+    # chevaux qui déclenchent le signal à ceux qui ne le déclenchent pas —
+    # logique différente des critères continus ci-dessus (moyennes), mais
+    # même philosophie : jamais d'ajustement sans échantillon suffisant,
+    # toujours borné à ±20%.
+    signaux_binaires = {
+        "bonus_outsider_chaud": {"avec": 0, "sans": 0, "avec_place": 0, "sans_place": 0},
+        "bonus_deferrage": {"avec": 0, "sans": 0, "avec_place": 0, "sans_place": 0},
+    }
     courses_utilisables = 0
 
     for ligne in lignes_archive or []:
@@ -107,6 +116,34 @@ def calculer_calibration(lignes_archive, seuil_min=SEUIL_MIN_COURSES):
                     continue
                 cible = observations[critere]["place" if place else "non_place"]
                 cible.append(valeur)
+
+            # Mêmes conditions de déclenchement que dans le moteur réel
+            # (voir engine.calculer_indice_premium et scoring.calculer_score_az).
+            try:
+                cote_brute = float(cheval.get("cote_brute", cheval.get("cote", 0)) or 0)
+            except (TypeError, ValueError):
+                cote_brute = 0.0
+            try:
+                forme_v = float(cheval.get("forme", 0) or 0)
+            except (TypeError, ValueError):
+                forme_v = 0.0
+            try:
+                regularite_v = float(cheval.get("regularite", 0) or 0)
+            except (TypeError, ValueError):
+                regularite_v = 0.0
+            declenche_outsider = cote_brute >= 12.0 and forme_v >= 7.5 and regularite_v >= 7.0
+            deferre_v = str(cheval.get("deferre", "") or "").strip().upper()
+            declenche_deferrage = deferre_v in ("D4", "DA", "DP")
+
+            for nom_signal, declenche in (
+                ("bonus_outsider_chaud", declenche_outsider),
+                ("bonus_deferrage", declenche_deferrage),
+            ):
+                bucket = signaux_binaires[nom_signal]
+                cle = "avec" if declenche else "sans"
+                bucket[cle] += 1
+                if place:
+                    bucket[cle + "_place"] += 1
 
     echantillon_chevaux = sum(
         len(o["place"]) + len(o["non_place"]) for o in observations.values()
@@ -156,6 +193,42 @@ def calculer_calibration(lignes_archive, seuil_min=SEUIL_MIN_COURSES):
             "moyenne_chevaux_non_places": round(moyenne_non_place, 2),
             "observations_places": len(places),
             "observations_non_places": len(non_places),
+        }
+
+    # Signaux binaires Premium (taux de placement avec/sans le signal,
+    # au lieu d'une moyenne — la logique du signal est différente : soit
+    # il se déclenche, soit non).
+    taux_place_general = None
+    total_chevaux_vus = sum(b["avec"] + b["sans"] for b in signaux_binaires.values())
+    if total_chevaux_vus:
+        # Référence générale : taux de placement moyen tous chevaux vus,
+        # utilisée quand le bucket "sans" est trop petit pour être fiable.
+        total_places = sum(b["avec_place"] + b["sans_place"] for b in signaux_binaires.values())
+        taux_place_general = total_places / total_chevaux_vus
+
+    for nom_signal, bucket in signaux_binaires.items():
+        if bucket["avec"] < 10:
+            facteurs[nom_signal] = 1.0
+            details[nom_signal] = {"statut": "donnees_insuffisantes_pour_ce_signal", "observations_avec_signal": bucket["avec"]}
+            continue
+
+        taux_avec = bucket["avec_place"] / bucket["avec"]
+        taux_sans = (bucket["sans_place"] / bucket["sans"]) if bucket["sans"] >= 10 else taux_place_general
+
+        if not taux_sans:
+            facteurs[nom_signal] = 1.0
+            details[nom_signal] = {"statut": "signal_nul"}
+            continue
+
+        ecart_relatif = (taux_avec - taux_sans) / (taux_avec + taux_sans)
+        multiplicateur = 1.0 + max(-BORNE_AJUSTEMENT, min(BORNE_AJUSTEMENT, ecart_relatif))
+        facteurs[nom_signal] = round(multiplicateur, 4)
+        details[nom_signal] = {
+            "statut": "calibre",
+            "taux_placement_avec_signal": round(taux_avec, 3),
+            "taux_placement_sans_signal": round(taux_sans, 3),
+            "observations_avec_signal": bucket["avec"],
+            "observations_sans_signal": bucket["sans"],
         }
 
     return {
