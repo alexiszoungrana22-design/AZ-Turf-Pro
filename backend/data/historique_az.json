@@ -848,7 +848,7 @@
         "publication_statut": "EN ATTENTE"
     },
     {
-        "date_analyse": "2026-09-16 21:29:26",
+        "date_analyse": "2026-10-12 06:10:04",
         "date": "2026-07-24",
         "course": {
             "course": "Prix de Paris",
@@ -1079,9 +1079,9 @@
                 "experience": 10,
                 "est_non_partant": false,
                 "statut": "PARTANT",
-                "score_az": 242.0,
-                "indice_az": 242.0,
-                "indice_premium": 299.2,
+                "score_az": 243.54,
+                "indice_az": 243.54,
+                "indice_premium": 251.54,
                 "badges": [],
                 "radar": {
                     "forme": 100.0,
@@ -1098,11 +1098,11 @@
                 "analyse_valeur": {
                     "numero": 3,
                     "nom": "Cheval AZ 3",
-                    "score_independant": 8.43,
-                    "probabilite_indicative": 33.1,
+                    "score_independant": 8.537,
+                    "probabilite_indicative": 34.7,
                     "cote": 9.0,
-                    "cote_fair_indicative": 3.02,
-                    "ecart_marche_pct": 198.0
+                    "cote_fair_indicative": 2.88,
+                    "ecart_marche_pct": 212.5
                 },
                 "tendance_cote": {
                     "numero": 3,
@@ -1137,9 +1137,9 @@
                 "experience": 9,
                 "est_non_partant": false,
                 "statut": "PARTANT",
-                "score_az": 215.0,
-                "indice_az": 215.0,
-                "indice_premium": 266.85,
+                "score_az": 217.13,
+                "indice_az": 217.13,
+                "indice_premium": 223.13,
                 "badges": [],
                 "radar": {
                     "forme": 90.0,
@@ -1156,11 +1156,11 @@
                 "analyse_valeur": {
                     "numero": 5,
                     "nom": "Cheval AZ 5",
-                    "score_independant": 7.53,
-                    "probabilite_indicative": 17.0,
+                    "score_independant": 7.637,
+                    "probabilite_indicative": 17.8,
                     "cote": 9.0,
-                    "cote_fair_indicative": 5.88,
-                    "ecart_marche_pct": 53.1
+                    "cote_fair_indicative": 5.61,
+                    "ecart_marche_pct": 60.4
                 },
                 "tendance_cote": {
                     "numero": 5,
@@ -1195,9 +1195,9 @@
                 "experience": 8,
                 "est_non_partant": false,
                 "statut": "PARTANT",
-                "score_az": 209.5,
-                "indice_az": 209.5,
-                "indice_premium": 259.45,
+                "score_az": 207.24,
+                "indice_az": 207.24,
+                "indice_premium": 213.24,
                 "badges": [],
                 "radar": {
                     "forme": 90.0,
@@ -1208,17 +1208,17 @@
                 },
                 "rang": 3,
                 "raison": "🔥 Base solide : régularité et forte chance de podium",
-                "confiance": 87,
+                "confiance": 85,
                 "confiance_type": "proximite_indice_au_leader",
                 "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
                 "analyse_valeur": {
                     "numero": 2,
                     "nom": "Cheval AZ 2",
-                    "score_independant": 7.47,
-                    "probabilite_indicative": 16.3,
+                    "score_independant": 7.399,
+                    "probabilite_indicative": 14.9,
                     "cote": 8.0,
-                    "cote_fair_indicative": 6.15,
-                    "ecart_marche_pct": 30.1
+                    "cote_fair_indicative": 6.7,
+                    "ecart_marche_pct": 19.4
                 },
                 "tendance_cote": {
                     "numero": 2,
@@ -1253,9 +1253,9 @@
                 "experience": 8,
                 "est_non_partant": false,
                 "statut": "PARTANT",
-                "score_az": 198.0,
-                "indice_az": 198.0,
-                "indice_premium": 246.6,
+                "score_az": 198.58,
+                "indice_az": 198.58,
+                "indice_premium": 204.58,
                 "badges": [],
                 "radar": {
                     "forme": 80.0,
@@ -1272,11 +1272,11 @@
                 "analyse_valeur": {
                     "numero": 7,
                     "nom": "Cheval AZ 7",
-                    "score_independant": 6.95,
+                    "score_independant": 7.001,
                     "probabilite_indicative": 11.1,
                     "cote": 8.0,
-                    "cote_fair_indicative": 9.04,
-                    "ecart_marche_pct": -11.5
+                    "cote_fair_indicative": 8.99,
+                    "ecart_marche_pct": -11.0
                 },
                 "tendance_cote": {
                     "numero": 7,
@@ -1311,9 +1311,9 @@
                 "experience": 8,
                 "est_non_partant": false,
                 "statut": "PARTANT",
-                "score_az": 189.0,
-                "indice_az": 189.0,
-                "indice_premium": 233.3,
+                "score_az": 188.87,
+                "indice_az": 188.87,
+                "indice_premium": 192.87,
                 "badges": [],
                 "radar": {
                     "forme": 80.0,
@@ -1330,11 +1330,11 @@
                 "analyse_valeur": {
                     "numero": 1,
                     "nom": "Cheval AZ 1",
-                    "score_independant": 6.85,
-                    "probabilite_indicative": 10.3,
+                    "score_independant": 6.869,
+                    "probabilite_indicative": 10.1,
                     "cote": 7.0,
-                    "cote_fair_indicative": 9.74,
-                    "ecart_marche_pct": -28.1
+                    "cote_fair_indicative": 9.92,
+                    "ecart_marche_pct": -29.4
                 },
                 "tendance_cote": {
                     "numero": 1,
@@ -1369,9 +1369,9 @@
                 "experience": 7,
                 "est_non_partant": false,
                 "statut": "PARTANT",
-                "score_az": 182.0,
-                "indice_az": 182.0,
-                "indice_premium": 224.15,
+                "score_az": 180.83,
+                "indice_az": 180.83,
+                "indice_premium": 184.83,
                 "badges": [],
                 "radar": {
                     "forme": 70.0,
@@ -1382,17 +1382,17 @@
                 },
                 "rang": 6,
                 "raison": "💎 Outsider intéressant : peut surprendre",
-                "confiance": 75,
+                "confiance": 74,
                 "confiance_type": "proximite_indice_au_leader",
                 "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
                 "analyse_valeur": {
                     "numero": 6,
                     "nom": "Cheval AZ 6",
-                    "score_independant": 6.5,
-                    "probabilite_indicative": 7.9,
+                    "score_independant": 6.432,
+                    "probabilite_indicative": 7.3,
                     "cote": 7.0,
-                    "cote_fair_indicative": 12.62,
-                    "ecart_marche_pct": -44.5
+                    "cote_fair_indicative": 13.71,
+                    "ecart_marche_pct": -48.9
                 },
                 "tendance_cote": {
                     "numero": 6,
@@ -1427,9 +1427,9 @@
                 "experience": 7,
                 "est_non_partant": false,
                 "statut": "PARTANT",
-                "score_az": 149.0,
-                "indice_az": 149.0,
-                "indice_premium": 176.5,
+                "score_az": 147.8,
+                "indice_az": 147.8,
+                "indice_premium": 147.8,
                 "badges": [],
                 "radar": {
                     "forme": 60.0,
@@ -1440,17 +1440,17 @@
                 },
                 "rang": 7,
                 "raison": "⚠️ Coup spéculatif",
-                "confiance": 62,
+                "confiance": 61,
                 "confiance_type": "proximite_indice_au_leader",
                 "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
                 "analyse_valeur": {
                     "numero": 4,
                     "nom": "Cheval AZ 4",
-                    "score_independant": 5.7,
-                    "probabilite_indicative": 4.4,
+                    "score_independant": 5.638,
+                    "probabilite_indicative": 4.1,
                     "cote": 6.0,
-                    "cote_fair_indicative": 22.82,
-                    "ecart_marche_pct": -73.7
+                    "cote_fair_indicative": 24.68,
+                    "ecart_marche_pct": -75.7
                 },
                 "tendance_cote": {
                     "numero": 4,
@@ -1486,9 +1486,9 @@
             "experience": 10,
             "est_non_partant": false,
             "statut": "PARTANT",
-            "score_az": 242.0,
-            "indice_az": 242.0,
-            "indice_premium": 299.2,
+            "score_az": 243.54,
+            "indice_az": 243.54,
+            "indice_premium": 251.54,
             "badges": [],
             "radar": {
                 "forme": 100.0,
@@ -1505,11 +1505,11 @@
             "analyse_valeur": {
                 "numero": 3,
                 "nom": "Cheval AZ 3",
-                "score_independant": 8.43,
-                "probabilite_indicative": 33.1,
+                "score_independant": 8.537,
+                "probabilite_indicative": 34.7,
                 "cote": 9.0,
-                "cote_fair_indicative": 3.02,
-                "ecart_marche_pct": 198.0
+                "cote_fair_indicative": 2.88,
+                "ecart_marche_pct": 212.5
             },
             "tendance_cote": {
                 "numero": 3,
@@ -1649,8 +1649,6 @@
                         "confiance": 0.55
                     },
                     "points_forts": [
-                        "forme récente suffisamment solide",
-                        "profil régulier",
                         "couple jockey/entraîneur identifié dans les données"
                     ],
                     "points_attention": [],
@@ -2384,6 +2382,176 @@
                     "points_forts": [
                         "forme récente suffisamment solide"
                     ],
+                    "points_attention": [],
+                    "methode": "Lecture contextuelle Premium : parcours + scénario + engagement + entourage + marché, sans remplacer l'Indice AZ existant."
+                }
+            }
+        },
+        "non_partants": [],
+        "arrivee": null,
+        "heure_arrivee": null,
+        "publication_at": null,
+        "publication_statut": "EN ATTENTE"
+    },
+    {
+        "date_analyse": "2026-10-12 06:10:04",
+        "date": null,
+        "course": {
+            "reunion": "R1",
+            "course_numero": "1",
+            "hippodrome": "Vincennes",
+            "discipline": "TROT_ATTELE"
+        },
+        "reunion": "R1",
+        "course_numero": "1",
+        "hippodrome": "Vincennes",
+        "classement": [
+            {
+                "numero": "3",
+                "nom": "Bella Vista",
+                "forme": 8,
+                "regularite": 7,
+                "cote": 3.2,
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 95.73,
+                "indice_az": 95.73,
+                "indice_premium": 95.73,
+                "badges": [],
+                "radar": {
+                    "forme": 80.0,
+                    "distance": 100.0,
+                    "jockey": 30.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 1,
+                "raison": "⭐ Favori AZ : meilleur indice et profil prioritaire",
+                "confiance": 100,
+                "confiance_type": "proximite_indice_au_leader",
+                "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "analyse_valeur": {
+                    "numero": "3",
+                    "nom": "Bella Vista",
+                    "score_independant": 6.022,
+                    "probabilite_indicative": 100.0,
+                    "cote": 3.2,
+                    "cote_fair_indicative": 1.0,
+                    "ecart_marche_pct": 220.0
+                },
+                "tendance_cote": {
+                    "numero": "3",
+                    "nom": "Bella Vista",
+                    "cote_matin": null,
+                    "cote_direct": 3.2,
+                    "variation_pct": 0.0,
+                    "tendance": "NON_DOCUMENTE",
+                    "signal": "NON_DOCUMENTE"
+                }
+            }
+        ],
+        "favori": {
+            "numero": "3",
+            "nom": "Bella Vista",
+            "forme": 8,
+            "regularite": 7,
+            "cote": 3.2,
+            "est_non_partant": false,
+            "statut": "PARTANT",
+            "score_az": 95.73,
+            "indice_az": 95.73,
+            "indice_premium": 95.73,
+            "badges": [],
+            "radar": {
+                "forme": 80.0,
+                "distance": 100.0,
+                "jockey": 30.0,
+                "classe": 20.0,
+                "fraicheur": 100.0
+            },
+            "rang": 1,
+            "raison": "⭐ Favori AZ : meilleur indice et profil prioritaire",
+            "confiance": 100,
+            "confiance_type": "proximite_indice_au_leader",
+            "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+            "analyse_valeur": {
+                "numero": "3",
+                "nom": "Bella Vista",
+                "score_independant": 6.022,
+                "probabilite_indicative": 100.0,
+                "cote": 3.2,
+                "cote_fair_indicative": 1.0,
+                "ecart_marche_pct": 220.0
+            },
+            "tendance_cote": {
+                "numero": "3",
+                "nom": "Bella Vista",
+                "cote_matin": null,
+                "cote_direct": 3.2,
+                "variation_pct": 0.0,
+                "tendance": "NON_DOCUMENTE",
+                "signal": "NON_DOCUMENTE"
+            }
+        },
+        "selection_az": [
+            "3"
+        ],
+        "selection_premium": [
+            "3"
+        ],
+        "tickets": {
+            "gratuit": {
+                "quinte": [
+                    "3"
+                ],
+                "deux_sur_quatre": [
+                    "3"
+                ],
+                "couple_place": [
+                    "3"
+                ]
+            },
+            "premium": {
+                "selection_quinte": [
+                    "3"
+                ],
+                "quinte": [
+                    "3"
+                ],
+                "quarte": [
+                    "3"
+                ],
+                "trio": [
+                    "3"
+                ],
+                "couple_gagnant_place": [],
+                "champ_reduit": {
+                    "format": "",
+                    "bases": [],
+                    "complements": [],
+                    "disponible": false
+                },
+                "ticket_derniere_minute": {
+                    "selection": [
+                        "3"
+                    ],
+                    "joker": null,
+                    "format": "3"
+                },
+                "methode": "Indice Premium AZ Pro : valeur + forme + régularité + expérience, avec diversification des tickets.",
+                "message_fin": "🍀 Bonne chance ! Les tickets Premium sont générés séparément du ticket gratuit et la dernière minute est calculée indépendamment.",
+                "lecture_course": {
+                    "profil": {
+                        "discipline": "TROT_ATTELE",
+                        "distance": 0.0,
+                        "type_depart": "NON DOCUMENTÉ",
+                        "partants": 1,
+                        "lecture": [
+                            "peloton de 1 partants"
+                        ],
+                        "confiance": 0.45
+                    },
+                    "points_forts": [],
                     "points_attention": [],
                     "methode": "Lecture contextuelle Premium : parcours + scénario + engagement + entourage + marché, sans remplacer l'Indice AZ existant."
                 }
