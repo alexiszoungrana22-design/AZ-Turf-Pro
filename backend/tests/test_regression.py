@@ -445,3 +445,62 @@ class TestAZTurfPro(unittest.TestCase):
         avec_calib = calculer_indice_premium(outsider, info_course, calibration={"bonus_outsider_chaud": 0.8})
         assert round(sans_calib - avec_calib, 2) == 1.6
         assert calculer_indice_premium(outsider, info_course) == calculer_indice_premium(outsider, info_course, calibration={})
+
+
+    def test_aucun_faux_quinte_plus_ne_se_substitue(self):
+        # Cahier des charges, section 8 : "ne jamais fabriquer un faux
+        # Quinté+". L'ancien code substituait silencieusement la première
+        # course trouvée (ex. R1C1) à la place d'un vrai Quinté+ absent,
+        # et la présentait comme si c'en était un.
+        import pmu_source
+        ancien = pmu_source.recuperer_programme
+        try:
+            def faux_programme(date, reunion=None):
+                if reunion is None:
+                    return None
+                if reunion == "R1":
+                    return {"programme": {"reunions": [{"numOfficiel": 1, "courses": [
+                        {"libelle": "Prix des Hippodromes de France", "nombreDeclaresPartants": 14}
+                    ]}]}}
+                return None
+            pmu_source.recuperer_programme = faux_programme
+            resultat = pmu_source.trouver_quinte_du_jour("22092026")
+            assert resultat == (None, None, None), "ne doit plus jamais substituer une course quelconque"
+
+            def vrai_programme(date, reunion=None):
+                if reunion is None:
+                    return None
+                if reunion == "R1":
+                    return {"programme": {"reunions": [{"numOfficiel": 1, "courses": [
+                        {"libelle": "Prix de Paris", "nombreDeclaresPartants": 16, "quintePlus": True}
+                    ]}]}}
+                return None
+            pmu_source.recuperer_programme = vrai_programme
+            resultat2 = pmu_source.trouver_quinte_du_jour("22092026")
+            assert resultat2[2]["quintePlus"] is True, "un vrai Quinté+ doit toujours être détecté"
+        finally:
+            pmu_source.recuperer_programme = ancien
+
+
+    def test_distance_et_terrain_ne_sont_plus_des_constantes_inventees(self):
+        # Cahier des charges, sections 2 et 4 : "une donnée absente ne doit
+        # pas automatiquement devenir 5/10". distance_score/terrain_score
+        # étaient figés à 5.0 pour TOUS les chevaux de TOUTES les courses,
+        # sans exception — jamais une vraie donnée. Ils ne doivent plus
+        # jamais apparaître dans les données PMU extraites, et le poids
+        # total du score doit rester équivalent (redistribué, pas perdu).
+        from pmu_source import transformer_participant
+        from scoring import calculer_score_az
+        participant = {"numPmu": 1, "nom": "TEST", "musique": "1p2p3p",
+                       "gainsParticipant": {"gainsCarriere": 50000}, "nombreCourses": 10}
+        cheval = transformer_participant(participant, {}, {1: {"score": 5.0, "cote": 10.0}}, {1: 5.0})
+        assert "distance" not in cheval
+        assert "terrain" not in cheval
+        assert "distance_score" not in cheval
+        assert "terrain_score" not in cheval
+
+        # Poids total préservé par redistribution (voir calcul dans scoring.py).
+        cheval_neutre = {"forme": 1, "regularite": 1, "gains": 1, "jockey_score": 1, "cote": 1, "experience": 1}
+        poids_avant = 4.5 + 4.0 + 2.5 + 3.5 + 2.5 + 2.0 + 2.5 + 2.0  # ATTELE, distance/terrain inclus
+        score = calculer_score_az(cheval_neutre, "TROT_ATTELE")
+        assert abs(score - poids_avant) < 0.5
