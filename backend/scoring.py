@@ -101,14 +101,28 @@ def calculer_score_az(cheval, discipline="TROT", calibration=None):
     # _cal() applique un multiplicateur calibré sur l'historique réel s'il
     # en existe un (sinon 1.0, comportement inchangé) — uniquement sur les
     # 5 critères que learning_turf.calculer_calibration() sait évaluer.
-    score += _num(cheval.get("forme")) * _cal("forme", coef_forme)
-    score += _num(cheval.get("regularite")) * _cal("regularite", coef_regularite)
-    score += _num(cheval.get("gains")) * 2.5
-    score += _num(cheval.get("jockey_score")) * _cal("jockey_score", coef_jockey)
-    score += _num(cheval.get("cote")) * _cal("cote", coef_cote)
-    score += _num(cheval.get("distance")) * 2.5
-    score += _num(cheval.get("terrain")) * 2.0
-    score += _num(cheval.get("experience")) * _cal("experience", coef_experience)
+    #
+    # CORRECTION (cahier des charges, section 2 et 4) : "distance" et
+    # "terrain" étaient des constantes figées à 5.0 pour CHAQUE cheval de
+    # CHAQUE course, sans exception — jamais une vraie donnée calculée.
+    # Ce n'était pas "une valeur neutre en l'absence de donnée", c'était
+    # une fausse analyse déguisée en vraie (le cahier des charges interdit
+    # explicitement ce cas précis). pmu_source.py ne les fournit plus du
+    # tout ; leur poids (2.5 + 2.0 = 4.5 par cheval) est redistribué
+    # proportionnellement sur les critères réellement calculés à partir de
+    # vraies données, pour chaque spécialité, plutôt que supprimé en
+    # silence (ce qui aurait fait chuter tous les scores d'une même
+    # course de façon égale, sans rien changer au classement, mais aurait
+    # rendu les chiffres moins lisibles d'une analyse à l'autre).
+    poids_reel_total = coef_forme + coef_regularite + coef_jockey + coef_cote + coef_experience + 2.5
+    facteur_redistribution = (poids_reel_total + 4.5) / poids_reel_total
+
+    score += _num(cheval.get("forme")) * _cal("forme", coef_forme) * facteur_redistribution
+    score += _num(cheval.get("regularite")) * _cal("regularite", coef_regularite) * facteur_redistribution
+    score += _num(cheval.get("gains")) * 2.5 * facteur_redistribution
+    score += _num(cheval.get("jockey_score")) * _cal("jockey_score", coef_jockey) * facteur_redistribution
+    score += _num(cheval.get("cote")) * _cal("cote", coef_cote) * facteur_redistribution
+    score += _num(cheval.get("experience")) * _cal("experience", coef_experience) * facteur_redistribution
 
     # --- 3. CRITÈRE OR AU TROT (ATTELÉ ET MONTÉ) : DÉFERRAGE (D4, DP, DA) ---
     # Utilise le code déjà normalisé par pmu_source.normaliser_deferrage() ;

@@ -420,8 +420,16 @@ def transformer_participant(
 
     # Les scores internes restent sur 0-10. Les valeurs brutes sont conservées
     # séparément afin de ne jamais afficher une cote normalisée comme une cote PMU.
-    distance_score = 5.0
-    terrain_score = 5.0
+    #
+    # CORRECTION (cahier des charges, section 2 et 4) : "distance_score"
+    # et "terrain_score" étaient figés à 5.0 pour CHAQUE cheval de CHAQUE
+    # course, sans exception — aucune aptitude distance ou terrain n'est
+    # réellement calculable à partir des données PMU actuellement
+    # disponibles (pas d'historique de performance par distance/terrain
+    # par cheval). Plutôt que de simuler une analyse qui n'existe pas,
+    # ces deux critères ne sont plus fournis du tout ; scoring.py et
+    # value_analysis.py redistribuent leur poids sur les critères
+    # réellement mesurés.
     jockey_score = 5.0
 
     # Exploite une statistique réelle si la réponse du fournisseur la contient.
@@ -471,15 +479,11 @@ def transformer_participant(
         "gains": gains,
         "jockey_score": jockey_score,
         "cote": cote,
-        "distance": distance_score,
-        "terrain": terrain_score,
         # Données brutes : elles sont destinées à l'affichage et aux règles
         # Premium/valeur, jamais à être confondues avec les scores.
         "cote_brute": cote_brute,
         "gains_carriere_brute": obtenir_gains(participant),
         "cote_score": cote,
-        "distance_score": distance_score,
-        "terrain_score": terrain_score,
         "jockey_score_source": jockey_score,
         "reussite_jockey": (jockey_score * 10.0 if jockey_score != 5.0 else None),
         "terrain_info": terrain_info,
@@ -991,11 +995,11 @@ def _extraire_types_paris(course):
 
 def _contient_quinte(course):
     """
-    Detection securisee du QuintÃ©+ :
+    Detection securisee du Quinte+ :
     1. Booleens et drapeaux explicites (quintePlus, evenement, grandPrix)
     2. Types de paris
     3. Nom et libelle de la course
-    Ne renvoie PAS False prematurely.
+    Ne renvoie pas False prematurement.
     """
     if not isinstance(course, dict):
         return False
@@ -1042,8 +1046,13 @@ def _contient_quinte(course):
 
 def trouver_quinte_du_jour(date):
     """
-    Parcourt les reunions et retourne (programme, reunion, course).
-    Inclus un systeme de secours (fallback R1C1) si aucun QuintÃ©+ n'est Ã©tiquetÃ©.
+    Parcourt les reunions et retourne (programme, reunion, course) pour la
+    course réellement étiquetée Quinté+ par PMU ce jour-là.
+
+    CORRECTION : ne contient plus de repli silencieux vers une course
+    quelconque (ex. R1C1) présentée à tort comme le Quinté+. Si aucune
+    course n'est réellement étiquetée Quinté+, retourne (None, None, None) —
+    voir plus bas pour ce que cela déclenche en aval.
     """
     date = normaliser_date(date)
 
@@ -1092,10 +1101,23 @@ def trouver_quinte_du_jour(date):
             if _contient_quinte(course):
                 return programme, reunion, course
 
-    # 3. Fallback de securite
+    # CORRECTION : l'ancien comportement substituait silencieusement la
+    # première course trouvée (souvent R1C1) à la place d'un vrai Quinté+
+    # absent, et la présentait à l'utilisateur comme si c'en était un —
+    # sans aucun signal distinctif. Interdit explicitement par le cahier
+    # des charges : "ne jamais fabriquer un faux Quinté+". Quand aucune
+    # course n'est réellement étiquetée Quinté+ ce jour-là, on retourne
+    # honnêtement (None, None, None) ; charger_course_pmu() en aval
+    # renvoie alors None, ce qui déclenche le mécanisme déjà existant de
+    # repli vers les données de démonstration — avec son bandeau
+    # d'avertissement explicite côté frontend — au lieu d'un mensonge
+    # silencieux.
     if premiere_course_fallback:
-        print(f"Note : Aucun QuintÃ©+ explicite trouvÃ© pour {date}. Utilisation de la course de secours {premiere_course_fallback[1]}")
-        return premiere_course_fallback
+        print(
+            f"Aucune course explicitement étiquetée Quinté+ trouvée pour {date} "
+            f"(une course existe bien, réunion {premiere_course_fallback[1]}, "
+            f"mais n'est pas marquée Quinté+ — non utilisée)."
+        )
 
     return None, None, None
 
@@ -1117,7 +1139,7 @@ def charger_course_pmu(
             programme, reunion_trouvee, course = trouver_quinte_du_jour(date)
 
             if not course:
-                print("Aucun QuintÃ©+ PMU trouve pour", date)
+                print("Aucun Quinte+ PMU trouve pour", date)
                 return None
 
             reunion = reunion_trouvee
