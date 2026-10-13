@@ -10,14 +10,20 @@ def _num(v, default=0.0):
 
 def score_independant(cheval: dict) -> float:
     # Ne lit jamais indice_az / indice_premium.
+    # CORRECTION (cahier des charges, section 2 et 4) : "distance" et
+    # "terrain" n'étaient jamais de vraies données — pmu_source.py ne les
+    # fournit plus (voir scoring.py pour le détail). Un défaut de 5 pour
+    # une donnée qui n'existe tout simplement jamais revient à fabriquer
+    # une fausse analyse ; leur poids est redistribué proportionnellement
+    # sur les critères réellement mesurés, plutôt que simulé.
+    poids_restants = [0.25, 0.20, 0.10, 0.08, 0.05]
+    facteur = (sum(poids_restants) + 0.12 + 0.10) / sum(poids_restants)
     vals = [
-        (_num(cheval.get("forme"), 5), 0.25),
-        (_num(cheval.get("regularite"), 5), 0.20),
-        (_num(cheval.get("distance"), 5), 0.12),
-        (_num(cheval.get("terrain"), 5), 0.10),
-        (_num(cheval.get("jockey_score"), 5), 0.10),
-        (_num(cheval.get("experience"), 5), 0.08),
-        (_num(cheval.get("gains"), 5), 0.05),
+        (_num(cheval.get("forme"), 5), 0.25 * facteur),
+        (_num(cheval.get("regularite"), 5), 0.20 * facteur),
+        (_num(cheval.get("jockey_score"), 5), 0.10 * facteur),
+        (_num(cheval.get("experience"), 5), 0.08 * facteur),
+        (_num(cheval.get("gains"), 5), 0.05 * facteur),
     ]
     return round(sum(v*w for v,w in vals), 3)
 
