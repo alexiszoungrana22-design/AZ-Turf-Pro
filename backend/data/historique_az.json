@@ -848,7 +848,7 @@
         "publication_statut": "EN ATTENTE"
     },
     {
-        "date_analyse": "2026-10-12 06:10:04",
+        "date_analyse": "2026-10-25 05:29:49",
         "date": "2026-07-24",
         "course": {
             "course": "Prix de Paris",
@@ -1047,10 +1047,7 @@
                 4,
                 8
             ],
-            "source_plus_joues": "Turf.fr",
-            "non_partants": [
-                8
-            ]
+            "source_plus_joues": "Turf.fr"
         },
         "reunion": "R1",
         "course_numero": "C4",
@@ -1095,14 +1092,15 @@
                 "confiance": 100,
                 "confiance_type": "proximite_indice_au_leader",
                 "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "proximite_au_leader": 100,
                 "analyse_valeur": {
                     "numero": 3,
                     "nom": "Cheval AZ 3",
                     "score_independant": 8.537,
-                    "probabilite_indicative": 34.7,
+                    "probabilite_indicative": 32.3,
                     "cote": 9.0,
-                    "cote_fair_indicative": 2.88,
-                    "ecart_marche_pct": 212.5
+                    "cote_fair_indicative": 3.1,
+                    "ecart_marche_pct": 190.3
                 },
                 "tendance_cote": {
                     "numero": 3,
@@ -1153,14 +1151,15 @@
                 "confiance": 89,
                 "confiance_type": "proximite_indice_au_leader",
                 "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "proximite_au_leader": 89,
                 "analyse_valeur": {
                     "numero": 5,
                     "nom": "Cheval AZ 5",
                     "score_independant": 7.637,
-                    "probabilite_indicative": 17.8,
+                    "probabilite_indicative": 16.6,
                     "cote": 9.0,
-                    "cote_fair_indicative": 5.61,
-                    "ecart_marche_pct": 60.4
+                    "cote_fair_indicative": 6.04,
+                    "ecart_marche_pct": 49.0
                 },
                 "tendance_cote": {
                     "numero": 5,
@@ -1211,14 +1210,15 @@
                 "confiance": 85,
                 "confiance_type": "proximite_indice_au_leader",
                 "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "proximite_au_leader": 85,
                 "analyse_valeur": {
                     "numero": 2,
                     "nom": "Cheval AZ 2",
                     "score_independant": 7.399,
-                    "probabilite_indicative": 14.9,
+                    "probabilite_indicative": 13.9,
                     "cote": 8.0,
-                    "cote_fair_indicative": 6.7,
-                    "ecart_marche_pct": 19.4
+                    "cote_fair_indicative": 7.2,
+                    "ecart_marche_pct": 11.1
                 },
                 "tendance_cote": {
                     "numero": 2,
@@ -1269,14 +1269,15 @@
                 "confiance": 82,
                 "confiance_type": "proximite_indice_au_leader",
                 "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "proximite_au_leader": 82,
                 "analyse_valeur": {
                     "numero": 7,
                     "nom": "Cheval AZ 7",
                     "score_independant": 7.001,
-                    "probabilite_indicative": 11.1,
+                    "probabilite_indicative": 10.3,
                     "cote": 8.0,
-                    "cote_fair_indicative": 8.99,
-                    "ecart_marche_pct": -11.0
+                    "cote_fair_indicative": 9.67,
+                    "ecart_marche_pct": -17.3
                 },
                 "tendance_cote": {
                     "numero": 7,
@@ -1327,14 +1328,15 @@
                 "confiance": 78,
                 "confiance_type": "proximite_indice_au_leader",
                 "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "proximite_au_leader": 78,
                 "analyse_valeur": {
                     "numero": 1,
                     "nom": "Cheval AZ 1",
                     "score_independant": 6.869,
-                    "probabilite_indicative": 10.1,
+                    "probabilite_indicative": 9.4,
                     "cote": 7.0,
-                    "cote_fair_indicative": 9.92,
-                    "ecart_marche_pct": -29.4
+                    "cote_fair_indicative": 10.66,
+                    "ecart_marche_pct": -34.3
                 },
                 "tendance_cote": {
                     "numero": 1,
@@ -1385,18 +1387,78 @@
                 "confiance": 74,
                 "confiance_type": "proximite_indice_au_leader",
                 "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "proximite_au_leader": 74,
                 "analyse_valeur": {
                     "numero": 6,
                     "nom": "Cheval AZ 6",
                     "score_independant": 6.432,
-                    "probabilite_indicative": 7.3,
+                    "probabilite_indicative": 6.8,
                     "cote": 7.0,
-                    "cote_fair_indicative": 13.71,
-                    "ecart_marche_pct": -48.9
+                    "cote_fair_indicative": 14.74,
+                    "ecart_marche_pct": -52.5
                 },
                 "tendance_cote": {
                     "numero": 6,
                     "nom": "Cheval AZ 6",
+                    "cote_matin": null,
+                    "cote_direct": 7.0,
+                    "variation_pct": 0.0,
+                    "tendance": "NON_DOCUMENTE",
+                    "signal": "NON_DOCUMENTE"
+                }
+            },
+            {
+                "numero": 8,
+                "nom": "Cheval AZ 8",
+                "age": 6,
+                "sexe": "M",
+                "jockey": "Jockey 8",
+                "entraineur": "Entraîneur 8",
+                "performances": [
+                    5,
+                    2,
+                    4,
+                    3
+                ],
+                "forme": 7,
+                "regularite": 7,
+                "gains": 6,
+                "jockey_score": 8,
+                "cote": 7,
+                "distance": 8,
+                "terrain": 7,
+                "experience": 8,
+                "est_non_partant": false,
+                "statut": "PARTANT",
+                "score_az": 180.21,
+                "indice_az": 180.21,
+                "indice_premium": 184.21,
+                "badges": [],
+                "radar": {
+                    "forme": 70.0,
+                    "distance": 100.0,
+                    "jockey": 30.0,
+                    "classe": 20.0,
+                    "fraicheur": 100.0
+                },
+                "rang": 7,
+                "raison": "💎 Outsider intéressant : peut surprendre",
+                "confiance": 74,
+                "confiance_type": "proximite_indice_au_leader",
+                "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "proximite_au_leader": 74,
+                "analyse_valeur": {
+                    "numero": 8,
+                    "nom": "Cheval AZ 8",
+                    "score_independant": 6.472,
+                    "probabilite_indicative": 7.0,
+                    "cote": 7.0,
+                    "cote_fair_indicative": 14.31,
+                    "ecart_marche_pct": -51.1
+                },
+                "tendance_cote": {
+                    "numero": 8,
+                    "nom": "Cheval AZ 8",
                     "cote_matin": null,
                     "cote_direct": 7.0,
                     "variation_pct": 0.0,
@@ -1438,19 +1500,20 @@
                     "classe": 20.0,
                     "fraicheur": 100.0
                 },
-                "rang": 7,
+                "rang": 8,
                 "raison": "⚠️ Coup spéculatif",
                 "confiance": 61,
                 "confiance_type": "proximite_indice_au_leader",
                 "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "proximite_au_leader": 61,
                 "analyse_valeur": {
                     "numero": 4,
                     "nom": "Cheval AZ 4",
                     "score_independant": 5.638,
-                    "probabilite_indicative": 4.1,
+                    "probabilite_indicative": 3.8,
                     "cote": 6.0,
-                    "cote_fair_indicative": 24.68,
-                    "ecart_marche_pct": -75.7
+                    "cote_fair_indicative": 26.53,
+                    "ecart_marche_pct": -77.4
                 },
                 "tendance_cote": {
                     "numero": 4,
@@ -1502,14 +1565,15 @@
             "confiance": 100,
             "confiance_type": "proximite_indice_au_leader",
             "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+            "proximite_au_leader": 100,
             "analyse_valeur": {
                 "numero": 3,
                 "nom": "Cheval AZ 3",
                 "score_independant": 8.537,
-                "probabilite_indicative": 34.7,
+                "probabilite_indicative": 32.3,
                 "cote": 9.0,
-                "cote_fair_indicative": 2.88,
-                "ecart_marche_pct": 212.5
+                "cote_fair_indicative": 3.1,
+                "ecart_marche_pct": 190.3
             },
             "tendance_cote": {
                 "numero": 3,
@@ -1528,7 +1592,7 @@
             "7",
             "1",
             "6",
-            "4"
+            "8"
         ],
         "selection_premium": [
             "3",
@@ -1537,6 +1601,7 @@
             "6",
             "2",
             "1",
+            "8",
             "4"
         ],
         "tickets": {
@@ -1548,7 +1613,7 @@
                     "7",
                     "1",
                     "6",
-                    "4"
+                    "8"
                 ],
                 "deux_sur_quatre": [
                     "3",
@@ -1569,6 +1634,7 @@
                     "6",
                     "2",
                     "1",
+                    "8",
                     "4"
                 ],
                 "quinte": [
@@ -1606,7 +1672,7 @@
                     ]
                 ],
                 "champ_reduit": {
-                    "format": "3-5-X-2-X / 7-1-6-4",
+                    "format": "3-5-X-2-X / 7-1-6-8",
                     "bases": [
                         "3",
                         "5",
@@ -1618,7 +1684,7 @@
                         "7",
                         "1",
                         "6",
-                        "4"
+                        "8"
                     ],
                     "disponible": true
                 },
@@ -1631,7 +1697,7 @@
                         "1",
                         "6"
                     ],
-                    "joker": "4",
+                    "joker": "8",
                     "format": "3-5-2-7-1-6"
                 },
                 "methode": "Indice Premium AZ Pro : valeur + forme + régularité + expérience, avec diversification des tickets.",
@@ -1656,9 +1722,7 @@
                 }
             }
         },
-        "non_partants": [
-            "8"
-        ],
+        "non_partants": [],
         "arrivee": null,
         "heure_arrivee": null,
         "publication_at": null,
@@ -2394,7 +2458,7 @@
         "publication_statut": "EN ATTENTE"
     },
     {
-        "date_analyse": "2026-10-12 06:10:04",
+        "date_analyse": "2026-10-25 05:29:49",
         "date": null,
         "course": {
             "reunion": "R1",
@@ -2430,6 +2494,7 @@
                 "confiance": 100,
                 "confiance_type": "proximite_indice_au_leader",
                 "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+                "proximite_au_leader": 100,
                 "analyse_valeur": {
                     "numero": "3",
                     "nom": "Bella Vista",
@@ -2474,6 +2539,7 @@
             "confiance": 100,
             "confiance_type": "proximite_indice_au_leader",
             "confiance_interpretation": "Proximité de l'indice AZ du leader, pas une probabilité de victoire.",
+            "proximite_au_leader": 100,
             "analyse_valeur": {
                 "numero": "3",
                 "nom": "Bella Vista",
