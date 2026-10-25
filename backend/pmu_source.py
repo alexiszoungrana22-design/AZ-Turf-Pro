@@ -141,6 +141,17 @@ def calculer_forme(positions):
 # =====================================
 
 def calculer_regularite(positions):
+    """
+    CORRECTION (cahier des charges, section 4) : "distinguer bonne
+    régularité et régularité médiocre". L'ancienne formule ne mesurait
+    que l'écart-type des positions — un cheval qui finit constamment
+    8e-9e-8e-9e-8e (très régulier, mais médiocre) obtenait exactement le
+    même score qu'un cheval qui finit constamment 1er-2e-1er-2e-1er
+    (très régulier ET bon). La régularité combine désormais deux
+    composantes à parts égales : la constance (écart-type, formule
+    d'origine inchangée) ET la qualité de la moyenne obtenue (finir
+    régulièrement devant vaut mieux que finir régulièrement derrière).
+    """
     if len(positions) < 2:
         return 5.0
 
@@ -153,7 +164,12 @@ def calculer_regularite(positions):
     ) / len(recentes)
 
     ecart_type = math.sqrt(variance)
-    return limiter_score(10.0 - ecart_type)
+    constance = limiter_score(10.0 - ecart_type)
+
+    # Qualité de la moyenne : 1re place moyenne -> 10, 10e place moyenne -> 1.
+    qualite_moyenne = limiter_score(10.0 - (moyenne - 1.0))
+
+    return round((constance + qualite_moyenne) / 2.0, 2)
 
 
 # =====================================
@@ -408,12 +424,21 @@ def transformer_participant(
 
     forme = calculer_forme(performances)
     regularite = calculer_regularite(performances)
+    # Suivi réel vs défaut, pour confiance_donnees (cahier des charges,
+    # section 6) : forme/régularité ne reposent sur une vraie donnée que
+    # si un historique de courses (musique) a pu être extrait.
+    forme_reelle = bool(performances)
 
     gains = scores_gains.get(numero, 5.0)
+    gains_reel = numero in scores_gains
 
     cote_data = scores_cotes.get(numero, {})
     cote = cote_data.get("score", 5.0)
     cote_brute = cote_data.get("cote")
+    # calculer_scores_cotes() renvoie {"score": 5.0, "cote": None} pour un
+    # cheval sans cote réelle : seul cote_brute indique si la cote existe
+    # vraiment, pas la présence d'un score (toujours renseigné).
+    cote_reelle = cote_brute is not None
 
     nombre_courses = obtenir_nombre_courses(participant)
     experience = calculer_experience(nombre_courses)
@@ -431,6 +456,7 @@ def transformer_participant(
     # value_analysis.py redistribuent leur poids sur les critères
     # réellement mesurés.
     jockey_score = 5.0
+    jockey_score_reel = False
 
     # Exploite une statistique réelle si la réponse du fournisseur la contient.
     # Sinon, on garde la valeur neutre 5/10 et on signale l'absence de donnée.
@@ -442,6 +468,7 @@ def transformer_participant(
         if valeur not in (None, ""):
             try:
                 jockey_score = limiter_score(float(valeur) / 10.0 if float(valeur) > 10 else float(valeur))
+                jockey_score_reel = True
             except (TypeError, ValueError):
                 pass
             break
@@ -492,6 +519,17 @@ def transformer_participant(
         # Critères spécifiques par spécialité (Plat / Trot attelé / Trot monté).
         "corde": corde,
         "deferre": deferre,
+        # CORRECTION (cahier des charges, section 6) : "confiance" était
+        # jusqu'ici une simple comparaison de score (voir ranking.py),
+        # jamais une vraie mesure de fiabilité des données. confiance_donnees
+        # indique, sur les 4 critères qui peuvent réellement manquer
+        # (forme/régularité, jockey, cote, gains ; l'expérience est
+        # toujours réelle, un cheval novice en est une donnée véridique),
+        # combien reposent sur une vraie observation plutôt qu'une valeur
+        # neutre par défaut.
+        "confiance_donnees": round(
+            (int(forme_reelle) + int(jockey_score_reel) + int(cote_reelle) + int(gains_reel)) / 4 * 100
+        ),
     }
 
 
