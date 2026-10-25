@@ -504,3 +504,40 @@ class TestAZTurfPro(unittest.TestCase):
         poids_avant = 4.5 + 4.0 + 2.5 + 3.5 + 2.5 + 2.0 + 2.5 + 2.0  # ATTELE, distance/terrain inclus
         score = calculer_score_az(cheval_neutre, "TROT_ATTELE")
         assert abs(score - poids_avant) < 0.5
+
+
+    def test_regularite_distingue_bon_et_mauvais(self):
+        # Cahier des charges, section 4 : "distinguer bonne régularité et
+        # régularité médiocre". L'ancienne formule ne mesurait que
+        # l'écart-type : un cheval constamment 8e-9e obtenait exactement
+        # le même score qu'un cheval constamment 1er-2e.
+        from pmu_source import calculer_regularite
+        mauvais = calculer_regularite([8, 9, 8, 9, 8])
+        bon = calculer_regularite([1, 2, 1, 2, 1])
+        assert bon > mauvais + 2.5, f"écart insuffisant entre bon ({bon}) et mauvais ({mauvais})"
+
+
+    def test_confiance_separee_en_notions_distinctes(self):
+        # Cahier des charges, section 6 : "ne pas appeler confiance une
+        # simple comparaison du score avec le meilleur score". "confiance"
+        # est conservée (le frontend en dépend) mais proximite_au_leader,
+        # confiance_donnees et score_robustesse existent désormais
+        # séparément, et aucune fausse probabilité de victoire n'est exposée.
+        from pmu_source import transformer_participant
+        from ranking import classer_chevaux
+        complet = {"numPmu": 1, "nom": "COMPLET", "musique": "1p2p1p2p", "reussiteJockey": 25,
+                   "gainsParticipant": {"gainsCarriere": 50000}, "nombreCourses": 10}
+        vide = {"numPmu": 2, "nom": "VIDE", "musique": "", "nombreCourses": 0}
+        scores_cotes = {1: {"score": 8.0, "cote": 3.0}, 2: {"score": 5.0, "cote": None}}
+        c1 = transformer_participant(complet, {}, scores_cotes, {1: 7.0})
+        c2 = transformer_participant(vide, {}, scores_cotes, {1: 7.0})
+        assert c1["confiance_donnees"] == 100
+        assert c2["confiance_donnees"] == 0, "aucune donnée réelle -> 0, jamais une valeur neutre déguisée"
+
+        c1["indice_az"] = 150
+        c2["indice_az"] = 150
+        classement = classer_chevaux([c1, c2])
+        assert all(c["confiance"] == c["proximite_au_leader"] for c in classement)
+        robustesse = {c["nom"]: c["score_robustesse"] for c in classement}
+        assert robustesse["COMPLET"] > robustesse["VIDE"] + 30
+        assert "probabilite_victoire" not in classement[0]
