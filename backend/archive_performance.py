@@ -36,11 +36,14 @@ def calculer_performance(courses: list[dict]) -> dict:
             "selection_taux_gagnant": 0.0,
             "selection_touchee": 0,
             "selection_taux_touchee": 0.0,
+            "taux_couverture_moyenne_top5": 0.0,
+            "taux_top5_complet": 0.0,
         }
 
     favori_gagnant = 0
     selection_gagnant = 0
-    selection_touchee = 0
+    somme_couverture_top5 = 0.0
+    top5_complet = 0
 
     for course in terminees:
         arrivee = _nums(course.get("arrivee_json"))
@@ -57,8 +60,12 @@ def calculer_performance(courses: list[dict]) -> dict:
         selection = _nums(course.get("selection_az_json"))
         if gagnant is not None and gagnant in selection:
             selection_gagnant += 1
-        if selection and any(numero in arrivee for numero in selection):
-            selection_touchee += 1
+        top5 = arrivee[:5]
+        if selection and top5:
+            couverts = sum(1 for numero in top5 if numero in selection)
+            somme_couverture_top5 += couverts / len(top5) * 100
+            if all(numero in selection for numero in top5):
+                top5_complet += 1
 
     pct = lambda n: round((n / total) * 100, 2)
     return {
@@ -69,6 +76,8 @@ def calculer_performance(courses: list[dict]) -> dict:
         "favori_taux": pct(favori_gagnant),
         "selection_contient_gagnant": selection_gagnant,
         "selection_taux_gagnant": pct(selection_gagnant),
-        "selection_touchee": selection_touchee,
-        "selection_taux_touchee": pct(selection_touchee),
+        "selection_touchee": round(somme_couverture_top5 / 100 * total),
+        "selection_taux_touchee": round(somme_couverture_top5 / total, 2),
+        "taux_couverture_moyenne_top5": round(somme_couverture_top5 / total, 2),
+        "taux_top5_complet": pct(top5_complet),
     }

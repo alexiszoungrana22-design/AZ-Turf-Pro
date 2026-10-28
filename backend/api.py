@@ -1512,18 +1512,14 @@ def archive_calibration_etat():
 #   - taux_favori_gagnant      : le favori AZ (classement[0]) est le
 #                                 vainqueur réel (arrivee[0])
 #   - taux_selection_az        : les 5 premiers de l'arrivée réelle
-#                                 sont TOUS contenus dans la sélection
-#                                 AZ (quinté, 7 numéros) — ticket
-#                                 entièrement "dans le jeu"
+#                                 sont TOUS contenus dans la sélection AZ.
+#                                 Indicateur strict de couverture complète du Top 5.
 #   - selection_taux_gagnant ("Gagnant dans la sélection AZ") :
 #                                 le VAINQUEUR réel (arrivee[0]) figure
 #                                 dans la sélection AZ
-#   - selection_taux_touchee ("Sélection AZ dans l'arrivée") :
-#                                 proportion MOYENNE des 5 premiers de
-#                                 l'arrivée qui figurent dans la sélection
-#                                 AZ (ex: 3 des 5 premiers présents -> 60%
-#                                 pour cette course, puis moyenne sur
-#                                 toutes les courses évaluées)
+#   - selection_taux_touchee : proportion moyenne des 5 premiers officiels
+#                                 présents dans la sélection AZ. Ce n'est PAS
+#                                 un taux de courses "touchées".
 # =========================================================
 @router.get("/archive/performance")
 def archive_performance():
@@ -1575,6 +1571,8 @@ def archive_performance():
             "taux_favori_gagnant": _taux(favoris_gagnants),
             "taux_selection_az": _taux(selections_reussies),
             "taux_selection_az_touche": taux_couverture,
+            "taux_couverture_moyenne_top5": taux_couverture,
+            "taux_top5_complet": _taux(selections_reussies),
             # Alias additifs : historique.js (le seul script réellement chargé
             # par historique.html — historique-performance.js ne l'est pas)
             # attend ces noms de champs précis. Conservés en plus des
