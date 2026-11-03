@@ -1,0 +1,30 @@
+AZ TURF PRO — PATCH VALIDATION APPRENTISSAGE (LECTURE SEULE)
+
+Contenu à intégrer dans le projet existant, sans remplacer le dépôt complet :
+- backend/api.py : ajoute GET /api/archive/validation-apprentissage (admin seulement)
+- backend/archive_store.py : ajoute une lecture chronologique de l'archive, sans écriture
+- backend/modules/learning_validation.py : compare référence et facteurs candidats
+- backend/tests/test_learning_validation.py : tests ciblés
+
+SÉCURITÉ ET COMPORTEMENT
+- La route exige l'en-tête X-Admin-Key, avec la valeur de AZ_ADMIN_API_KEY configurée sur Render.
+- Aucun facteur candidat n'est enregistré dans az_calibration.
+- Aucun facteur candidat n'est activé dans scoring.py ou engine.py.
+- Aucun enregistrement de course ou résultat n'est modifié.
+- Les courses sans date ISO YYYY-MM-DD sont exclues car elles ne permettent pas de garantir l'ordre chronologique.
+- Découpage : 70 % des courses les plus anciennes pour calculer les facteurs, 30 % des plus récentes pour les tester.
+
+TESTS EFFECTUÉS LOCALEMENT
+- py_compile : réussi pour api.py, archive_store.py, learning_validation.py et le test.
+- test_learning_validation.py : 3 tests réussis.
+- test_regression.py : 30 tests réussis.
+- PostgreSQL Render réel : NON testé depuis cet environnement.
+
+INTÉGRATION
+Copier les 4 fichiers aux mêmes chemins dans le dépôt existant, en conservant le reste du projet.
+Ne pas remplacer scoring.py, engine.py, la base PostgreSQL ou les variables Render.
+Après déploiement, appeler la route avec l'en-tête X-Admin-Key :
+GET https://az-turf-pro.onrender.com/api/archive/validation-apprentissage
+
+IMPORTANT
+Ce patch est un outil de mesure uniquement. Un résultat favorable sur un historique réel devra encore être examiné avant toute décision de changer les coefficients actifs.

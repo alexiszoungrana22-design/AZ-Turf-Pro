@@ -187,6 +187,35 @@ def lire_archive_pour_calibration(limit: int = 2000) -> list[dict]:
         conn.close()
 
 
+def lire_archive_pour_validation(limit: int = 5000) -> list[dict]:
+    """Lit les courses terminées dans l'ordre chronologique pour un test
+    hors-échantillon. Lecture seule : aucune écriture dans PostgreSQL.
+
+    Seules les dates ISO YYYY-MM-DD sont retenues : sans date exploitable,
+    impossible de garantir un découpage temporel honnête. created_at et id
+    départagent les courses ayant la même date.
+    """
+    conn = _connexion()
+    try:
+        _init(conn)
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT course_key, date_course, course_json, chevaux_json, arrivee_json,
+                       created_at, id
+                FROM az_course_archive
+                WHERE arrivee_json IS NOT NULL
+                  AND chevaux_json IS NOT NULL
+                  AND date_course ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}'
+                ORDER BY date_course ASC, created_at ASC, id ASC
+                LIMIT %s
+            """, (max(1, min(int(limit), 5000)),))
+            cols = [d.name for d in cur.description]
+            rows = cur.fetchall()
+        return [dict(zip(cols, row)) for row in rows]
+    finally:
+        conn.close()
+
+
 def _init_calibration(conn) -> None:
     with conn.cursor() as cur:
         cur.execute("""

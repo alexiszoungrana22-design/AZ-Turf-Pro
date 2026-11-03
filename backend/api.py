@@ -1483,6 +1483,27 @@ def archive_calibrer():
         raise HTTPException(status_code=500, detail=f"Erreur calibration : {erreur}")
 
 
+@router.get("/archive/validation-apprentissage")
+def archive_validation_apprentissage(
+    x_admin_key: str | None = Header(default=None, alias="X-Admin-Key")
+):
+    """Évalue les facteurs candidats sur des courses chronologiquement
+    postérieures à l'échantillon d'apprentissage. Endpoint admin, lecture seule.
+    N'enregistre et n'active jamais les facteurs candidats.
+    """
+    _require_admin(x_admin_key)
+    try:
+        from archive_store import lire_archive_pour_validation
+        from modules.learning_validation import evaluer_calibration_hors_echantillon
+
+        lignes = lire_archive_pour_validation(5000)
+        return evaluer_calibration_hors_echantillon(lignes)
+    except HTTPException:
+        raise
+    except Exception as erreur:
+        raise HTTPException(status_code=500, detail=f"Erreur validation apprentissage : {erreur}")
+
+
 @router.get("/archive/calibration")
 def archive_calibration_etat():
     try:
