@@ -5,7 +5,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from modules.learning_validation import evaluer_calibration_hors_echantillon
+from learning_validation import evaluer_calibration_hors_echantillon
 
 
 class TestLearningValidation(unittest.TestCase):

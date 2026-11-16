@@ -3,7 +3,7 @@ AZ TURF PRO — PATCH VALIDATION APPRENTISSAGE (LECTURE SEULE)
 Contenu à intégrer dans le projet existant, sans remplacer le dépôt complet :
 - backend/api.py : ajoute GET /api/archive/validation-apprentissage (admin seulement)
 - backend/archive_store.py : ajoute une lecture chronologique de l'archive, sans écriture
-- backend/modules/learning_validation.py : compare référence et facteurs candidats
+- backend/learning_validation.py : compare référence et facteurs candidats
 - backend/tests/test_learning_validation.py : tests ciblés
 
 SÉCURITÉ ET COMPORTEMENT

@@ -68,6 +68,19 @@ router = APIRouter(
 )
 
 
+def _declencher_calibration_automatique_sans_bloquer():
+    """Déclencheur additif : une erreur d'apprentissage ne bloque jamais l'API."""
+    try:
+        from auto_calibration import executer_calibration_automatique
+        resultat = executer_calibration_automatique()
+        if resultat.get("status") == "erreur":
+            print("[AZ calibration automatique]", resultat.get("message", "erreur inconnue"))
+        return resultat
+    except Exception as erreur:
+        print("[AZ calibration automatique]", str(erreur))
+        return {"status": "erreur", "message": str(erreur)}
+
+
 # =====================================
 # CHARGEMENT COURSE LOCALE
 # =====================================
@@ -890,7 +903,9 @@ def historique():
                         # tout le peloton. La donnée JSON locale ci-dessus
                         # (entree["arrivee"]) garde tout, seule l'archive
                         # affichée dans "Courses archivées" est limitée.
-                        archiver_arrivee(_cle_course(info_course), arrivee[:5])
+                        enregistree = archiver_arrivee(_cle_course(info_course), arrivee[:5])
+                        if enregistree:
+                            _declencher_calibration_automatique_sans_bloquer()
                     except Exception:
                         pass
 
@@ -1430,8 +1445,10 @@ def archive_synchroniser(limit: int = 100):
                 arrivee = recuperer_arrivee_pmu(date, reunion, course_numero)
                 if arrivee:
                     # Seuls les 5 premiers comptent pour le Quinté.
-                    archiver_arrivee(ligne["course_key"], arrivee[:5])
+                    enregistree = archiver_arrivee(ligne["course_key"], arrivee[:5])
                     mises_a_jour += 1
+                    if enregistree:
+                        _declencher_calibration_automatique_sans_bloquer()
             except Exception as erreur:
                 erreurs.append(f"{ligne.get('course_key')}: {erreur}")
 
