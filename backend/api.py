@@ -1494,7 +1494,7 @@ def archive_validation_apprentissage(
     _require_admin(x_admin_key)
     try:
         from archive_store import lire_archive_pour_validation
-        from modules.learning_validation import evaluer_calibration_hors_echantillon
+        from learning_validation import evaluer_calibration_hors_echantillon
 
         lignes = lire_archive_pour_validation(5000)
         return evaluer_calibration_hors_echantillon(lignes)

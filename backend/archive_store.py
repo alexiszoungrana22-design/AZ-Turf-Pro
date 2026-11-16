@@ -197,7 +197,6 @@ def lire_archive_pour_validation(limit: int = 5000) -> list[dict]:
     """
     conn = _connexion()
     try:
-        _init(conn)
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT course_key, date_course, course_json, chevaux_json, arrivee_json,
