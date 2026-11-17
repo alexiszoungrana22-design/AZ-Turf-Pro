@@ -182,12 +182,74 @@
       });
       panel.appendChild(list);
       panel.appendChild(element("p", "horses-source", "Source : programme officiel PMU. Les cotes peuvent ne pas être publiées."));
+
+      const analyseButton = element("button", "course-analyse-button", "Lancer l'analyse AZ de cette course");
+      analyseButton.type = "button";
+      analyseButton.addEventListener("click", () => loadCourseAnalysis(date, reunion, course, panel, analyseButton));
+      panel.appendChild(analyseButton);
       button.textContent = "Masquer les partants";
     } catch (error) {
       panel.replaceChildren(element("p", "horses-error", `${error.message} Aucun partant de démonstration n’est affiché.`));
       button.textContent = "Réessayer";
     } finally {
       button.disabled = false;
+    }
+  }
+
+  async function loadCourseAnalysis(date, reunion, course, panel, button) {
+    button.disabled = true;
+    button.textContent = "Analyse AZ en cours…";
+    let output = panel.querySelector(".course-analysis-result");
+    if (output) output.remove();
+    output = element("section", "course-analysis-result");
+    output.setAttribute("aria-live", "polite");
+    output.appendChild(element("p", "horses-loading", "Le moteur AZ analyse les partants officiels de cette course…"));
+    panel.appendChild(output);
+
+    try {
+      const query = new URLSearchParams({date, reunion: String(reunion), course: String(course)});
+      const response = await fetch(`https://az-turf-pro.onrender.com/api/analyse/course?${query.toString()}`, {cache:"no-store"});
+      let data = {};
+      try { data = await response.json(); } catch (_) {}
+      if (!response.ok) throw new Error(data.detail || `Erreur du serveur (${response.status})`);
+      if (data.source !== "pmu_live" || data.donnees_demo !== false || !Array.isArray(data.classement)) {
+        throw new Error("L'analyse reçue ne correspond pas à une course PMU confirmée.");
+      }
+
+      output.replaceChildren();
+      output.appendChild(element("h4", "analysis-title", `Analyse AZ — ${data.course || `R${reunion}/C${course}`}`));
+      output.appendChild(element("p", "analysis-course-meta", [data.hippodrome, data.heure_depart ? `Départ ${data.heure_depart}` : "", data.distance ? `${data.distance} m` : ""].filter(Boolean).join(" · ") || "Informations de course non renseignées"));
+      output.appendChild(element("p", "analysis-source", "Analyse calculée sur les partants PMU de cette course précise."));
+      const ranking = element("ol", "analysis-ranking");
+      data.classement.slice(0, 8).forEach((horse, index) => {
+        const item = element("li", "analysis-ranking-item");
+        item.appendChild(element("span", "analysis-rank", `${index + 1}.`));
+        const identity = element("span", "analysis-horse-name", `${horse.numero ?? "–"} — ${horse.nom || "Nom non renseigné"}`);
+        item.appendChild(identity);
+        if (horse.indice_az !== undefined && horse.indice_az !== null) item.appendChild(element("strong", "analysis-index", `Indice AZ ${horse.indice_az}`));
+        ranking.appendChild(item);
+      });
+      output.appendChild(ranking);
+      const freeTickets = data.tickets && data.tickets.gratuit ? data.tickets.gratuit : {};
+      const ticketSection = element("div", "analysis-free-tickets");
+      ticketSection.appendChild(element("h5", "analysis-ticket-heading", "Tickets gratuits AZ"));
+      const ticketDefinitions = [
+        ["Quinté", freeTickets.quinte],
+        ["2 sur 4", freeTickets.deux_sur_quatre],
+        ["Couplé placé", freeTickets.couple_place]
+      ];
+      let displayedTicket = false;
+      ticketDefinitions.forEach(([label, numbers]) => {
+        if (!Array.isArray(numbers) || !numbers.length) return;
+        displayedTicket = true;
+        ticketSection.appendChild(element("p", "analysis-ticket-line", `${label} : ${numbers.join(" - ")}`));
+      });
+      if (displayedTicket) output.appendChild(ticketSection);
+    } catch (error) {
+      output.replaceChildren(element("p", "horses-error", `${error.message} Aucun résultat fictif n'est affiché.`));
+    } finally {
+      button.disabled = false;
+      button.textContent = "Relancer l'analyse AZ";
     }
   }
 

@@ -54,3 +54,17 @@
 .horse-status { color:#a12d2d; font-size:11px; font-weight:900; }
 .horses-source,.horses-loading { margin:9px 0 0; color:#64748b; font-size:11px; }
 .horses-error { margin:8px 0 0; color:#a12d2d; font-size:13px; }
+.course-analyse-button { display:block; width:100%; margin-top:10px; min-height:42px; padding:10px 14px; border:1px solid #1f6b45; border-radius:8px; background:#1f6b45; color:#fff; font-weight:800; cursor:pointer; }
+.course-analyse-button:disabled { opacity:.65; cursor:wait; }
+.course-analysis-result { margin-top:13px; padding:13px; border:1px solid #cfe2d5; border-radius:9px; background:#f7fcf8; }
+.analysis-title { margin:0 0 5px; color:#173d2b; font-size:16px; }
+.analysis-course-meta,.analysis-source { margin:5px 0; color:#64748b; font-size:12px; }
+.analysis-ranking { display:flex; flex-direction:column; gap:7px; margin:12px 0 0; padding:0; list-style:none; }
+.analysis-ranking-item { display:flex; align-items:center; gap:8px; min-width:0; padding:8px; border-bottom:1px solid #e2ece5; }
+.analysis-rank { flex:0 0 22px; color:#17613b; font-weight:900; }
+.analysis-horse-name { flex:1; min-width:0; color:#1e293b; font-size:13px; overflow-wrap:anywhere; }
+.analysis-index { flex:0 0 auto; color:#17613b; font-size:12px; }
+.analysis-tickets-note { margin:10px 0 0; color:#64748b; font-size:11px; }
+.analysis-free-tickets { margin-top:12px; padding-top:10px; border-top:1px solid #dce9df; }
+.analysis-ticket-heading { margin:0 0 7px; color:#173d2b; font-size:13px; }
+.analysis-ticket-line { margin:5px 0; color:#263548; font-size:13px; font-weight:700; }
