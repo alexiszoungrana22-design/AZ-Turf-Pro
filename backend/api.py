@@ -722,6 +722,85 @@ def analyse():
 
 
 # =====================================
+# ANALYSE D'UNE COURSE CHOISIE — ROUTE ADDITIVE
+# =====================================
+@router.get("/analyse/course")
+def analyse_course(date: str = None, reunion: str = None, course: str = None):
+    """Analyse une course précise du programme PMU avec le moteur AZ existant.
+
+    Cette route additive ne change pas /api/analyse : elle charge uniquement
+    la réunion/course demandée et transmet les chevaux au même moteur.
+    Aucune donnée locale de démonstration n'est utilisée en secours.
+    """
+    if not reunion or not course:
+        raise HTTPException(status_code=400, detail="Les paramètres reunion et course sont obligatoires.")
+
+    reunion_numero = str(reunion).upper().strip().removeprefix("R")
+    course_numero = str(course).upper().strip().removeprefix("C")
+    if not reunion_numero.isdigit() or not course_numero.isdigit():
+        raise HTTPException(status_code=400, detail="Réunion ou numéro de course invalide.")
+
+    date_demandee = date or datetime.now().strftime("%Y-%m-%d")
+    try:
+        date_pmu = normaliser_date(date_demandee)
+        course_data = charger_course_pmu(date_pmu, reunion_numero, course_numero)
+        if not isinstance(course_data, dict) or not course_data.get("chevaux"):
+            raise HTTPException(status_code=404, detail="Les chevaux de cette course ne sont pas disponibles auprès du PMU.")
+
+        chevaux = course_data["chevaux"]
+        info_course = {
+            "date": course_data.get("date") or date_pmu,
+            "reunion": course_data.get("reunion") or reunion_numero,
+            "course_numero": course_data.get("course_numero") or course_numero,
+            "course": course_data.get("course", ""),
+            "hippodrome": course_data.get("hippodrome", ""),
+            "discipline": course_data.get("discipline", ""),
+            "distance": course_data.get("distance_course", ""),
+            "allocation": course_data.get("allocation", ""),
+            "heure_depart": course_data.get("heure_depart", ""),
+            "horaires": course_data.get("horaires", {}),
+            "non_partants": course_data.get("non_partants", []),
+            "plus_joues": course_data.get("plus_joues", []),
+        }
+        resultat = lancer_analyse(chevaux, info_course=info_course)
+        if not isinstance(resultat, dict) or not resultat.get("chevaux"):
+            raise HTTPException(status_code=502, detail="Le moteur AZ n'a pas pu établir le classement de cette course.")
+
+        classement = resultat["chevaux"]
+        reunion_finale = course_data.get("reunion") or reunion_numero
+        course_finale = course_data.get("course_numero") or course_numero
+        return {
+            "message": "Analyse AZ Turf terminée",
+            "source": "pmu_live",
+            "donnees_demo": False,
+            "course": course_data.get("course", "Course"),
+            "nom_prix": f"R{reunion_finale}/C{course_finale}",
+            "date": course_data.get("date") or date_pmu,
+            "reunion": reunion_finale,
+            "course_numero": course_finale,
+            "heure_depart": course_data.get("heure_depart", ""),
+            "horaires": course_data.get("horaires", {}),
+            "hippodrome": course_data.get("hippodrome", ""),
+            "discipline": course_data.get("discipline", ""),
+            "distance": course_data.get("distance_course", ""),
+            "allocation": course_data.get("allocation", ""),
+            "non_partants": course_data.get("non_partants", []),
+            "plus_joues": course_data.get("plus_joues", []),
+            "source_plus_joues": course_data.get("source_plus_joues", "Non disponible"),
+            "partants": len(chevaux),
+            "chevaux": classement,
+            "classement": classement,
+            "favori": classement[0],
+            "tickets": resultat.get("tickets", {}),
+        }
+    except HTTPException:
+        raise
+    except Exception as erreur:
+        print("Erreur analyse course choisie :", erreur)
+        raise HTTPException(status_code=500, detail="Erreur pendant l'analyse de la course sélectionnée.")
+
+
+# =====================================
 # CREATION ABONNEMENT PREMIUM
 # =====================================
 
