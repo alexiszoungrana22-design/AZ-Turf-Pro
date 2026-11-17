@@ -257,6 +257,70 @@ def programme(date: str = None, reunion: str = None):
         raise HTTPException(status_code=502, detail="Impossible de lire le programme PMU actuellement.")
 
 
+@router.get("/programme/partants")
+def programme_partants(date: str = None, reunion: str = None, course: str = None):
+    """Retourne les chevaux réels d'une course précise du programme PMU.
+
+    Route additive et indépendante de /api/partants : elle ne lance pas le
+    moteur de pronostic, ne lit pas les données de démonstration et ne modifie
+    ni les routes existantes ni le stockage.
+    """
+    date_demandee = date or datetime.now().strftime("%Y-%m-%d")
+    if not reunion or not course:
+        raise HTTPException(status_code=400, detail="Les paramètres reunion et course sont obligatoires.")
+
+    reunion_numero = str(reunion).upper().strip()
+    course_numero = str(course).upper().strip()
+    if reunion_numero.startswith("R"):
+        reunion_numero = reunion_numero[1:]
+    if course_numero.startswith("C"):
+        course_numero = course_numero[1:]
+    if not reunion_numero.isdigit() or not course_numero.isdigit():
+        raise HTTPException(status_code=400, detail="Réunion ou numéro de course invalide.")
+
+    try:
+        date_pmu = normaliser_date(date_demandee)
+        donnees = charger_course_pmu(date_pmu, reunion_numero, course_numero)
+        if not isinstance(donnees, dict) or not donnees.get("chevaux"):
+            raise HTTPException(status_code=404, detail="Les partants de cette course ne sont pas disponibles auprès du PMU.")
+
+        non_partants = [str(n) for n in (donnees.get("non_partants") or [])]
+        chevaux = []
+        for cheval in donnees.get("chevaux", []):
+            if not isinstance(cheval, dict):
+                continue
+            numero = cheval.get("numero")
+            chevaux.append({
+                "numero": numero,
+                "nom": cheval.get("nom") or "Nom non renseigné",
+                "age": cheval.get("age"),
+                "sexe": cheval.get("sexe") or "",
+                "jockey": cheval.get("jockey") or "",
+                "entraineur": cheval.get("entraineur") or "",
+                "musique": cheval.get("musique_brute") or "",
+                "cote": cheval.get("cote_brute"),
+                "statut": "Non-partant" if str(numero) in non_partants else "Partant",
+            })
+
+        return {
+            "source": "pmu_live",
+            "date": date_demandee,
+            "reunion": f"R{reunion_numero}",
+            "course": f"C{course_numero}",
+            "nom_course": donnees.get("course") or "",
+            "hippodrome": donnees.get("hippodrome") or "",
+            "heure_depart": donnees.get("heure_depart") or "",
+            "nombre_partants": len(chevaux),
+            "non_partants": non_partants,
+            "chevaux": chevaux,
+        }
+    except HTTPException:
+        raise
+    except Exception as erreur:
+        print("Erreur récupération partants du programme PMU :", erreur)
+        raise HTTPException(status_code=502, detail="Impossible de récupérer les partants PMU actuellement.")
+
+
 def _course_est_quinte(course):
     """Détection locale prudente du libellé Quinté+ pour l'affichage du programme."""
     try:
