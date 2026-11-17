@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#ffffff">
+  <title>Programme des courses - AZ Turf Pro</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style-ameliorations-turf.css?v=1">
+  <link rel="stylesheet" href="programme.css?v=1">
+</head>
+<body>
+<header class="top-header">
+  <div class="brand-zone"><div class="logo">🏇 <span>AZ Turf Pro</span></div></div>
+  <nav class="top-menu">
+    <a href="index.html">🏠 Accueil</a>
+    <a href="programme.html" class="active">📅 Programme</a>
+    <a href="analyse.html">📊 Analyse</a>
+    <a href="ticket.html">📰 Journal</a>
+    <a href="historique.html">🏆 Historique</a>
+  </nav>
+  <a href="forfaits.html" class="btn-vip">💎 Premium</a>
+</header>
+
+<main class="content programme-page">
+  <section class="programme-heading">
+    <p class="programme-eyebrow">PROGRAMME OFFICIEL</p>
+    <h1>Programme des courses</h1>
+    <p>Consulte les réunions et les courses disponibles à la date choisie.</p>
+  </section>
+
+  <section class="programme-controls" aria-label="Choisir une date">
+    <button type="button" id="date-previous" class="programme-nav">‹ Hier</button>
+    <label for="programme-date">Date du programme</label>
+    <input type="date" id="programme-date">
+    <button type="button" id="date-next" class="programme-nav">Demain ›</button>
+    <button type="button" id="date-today" class="programme-today">Aujourd’hui</button>
+  </section>
+
+  <div id="programme-status" class="programme-status" role="status" aria-live="polite">Chargement du programme…</div>
+  <section id="programme-summary" class="programme-summary" hidden></section>
+  <nav id="programme-meetings" class="programme-meetings" aria-label="Réunions"></nav>
+  <section id="programme-results" class="programme-results" aria-live="polite"></section>
+</main>
+
+<footer class="bottom-menu">
+  <a href="index.html"><span class="menu-icon">🏡</span><span>Accueil</span></a>
+  <a href="programme.html" class="active"><span class="menu-icon">📅</span><span>Programme</span></a>
+  <a href="analyse.html"><span class="menu-icon">📊</span><span>Analyse</span></a>
+  <a href="historique.html"><span class="menu-icon">🏆</span><span>Historique</span></a>
+</footer>
+<script src="programme.js?v=1"></script>
+</body>
+</html>

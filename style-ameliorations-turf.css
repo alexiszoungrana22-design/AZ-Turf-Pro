@@ -1,0 +1,161 @@
+/*
+ * AZ Turf Pro — couche visuelle progressive inspirée des bonnes pratiques
+ * de lisibilité observées sur les sites hippiques (programme, réunion,
+ * Quinté, partants, cotes et résultats).
+ * Cette feuille ne modifie ni les données, ni les identifiants DOM, ni les scripts.
+ */
+:root {
+  --az-green: #176b45;
+  --az-green-dark: #105437;
+  --az-gold: #c49a3a;
+  --az-ink: #24312b;
+  --az-muted: #68756e;
+  --az-line: #dce5df;
+  --az-paper: #ffffff;
+  --az-canvas: #f3f6f3;
+}
+
+html { background: var(--az-canvas); }
+body {
+  background: var(--az-canvas) !important;
+  color: var(--az-ink) !important;
+  padding-bottom: max(76px, env(safe-area-inset-bottom)) !important;
+}
+.content { max-width: 1040px; padding: 16px 14px 24px; }
+
+.top-header {
+  background: var(--az-paper) !important;
+  color: var(--az-ink);
+  border-bottom: 1px solid var(--az-line) !important;
+  box-shadow: 0 2px 8px rgba(24, 50, 35, .06);
+  gap: 14px;
+}
+.logo span { color: var(--az-green-dark) !important; }
+.mini-countdown { color: var(--az-green) !important; }
+.top-menu { gap: 16px; }
+.top-menu a { color: #526158 !important; padding: 8px 2px; }
+.top-menu a.active { color: var(--az-green) !important; border-bottom: 2px solid var(--az-gold); }
+.btn-vip {
+  background: var(--az-green) !important;
+  color: #fff !important;
+  border-radius: 5px !important;
+  padding: 9px 14px;
+}
+
+.card {
+  background: var(--az-paper) !important;
+  color: var(--az-ink) !important;
+  border: 1px solid var(--az-line);
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(24, 50, 35, .045) !important;
+  margin-bottom: 14px;
+  padding: 16px;
+}
+.card h2 {
+  color: var(--az-green-dark) !important;
+  border-bottom: 1px solid var(--az-line) !important;
+  font-size: 16px;
+  letter-spacing: .01em;
+  padding-bottom: 9px;
+  margin-bottom: 13px;
+}
+
+.pmu-clone-header { border-top: 3px solid var(--az-green) !important; }
+.clone-tabs { background: #e9efeb !important; gap: 1px; }
+.clone-tab {
+  background: #e9efeb !important;
+  color: #526158 !important;
+  border: 0 !important;
+  border-bottom: 3px solid transparent !important;
+  padding: 13px 6px;
+}
+.clone-tab.active {
+  background: #fff !important;
+  color: var(--az-green-dark) !important;
+  border-bottom: 3px solid var(--az-gold) !important;
+}
+.clone-body { padding: 18px 16px !important; gap: 7px !important; }
+.clone-title { color: var(--az-muted) !important; font: 600 14px/1.35 'Segoe UI', system-ui, sans-serif !important; }
+.clone-subtitle { color: var(--az-ink) !important; font: 800 21px/1.25 'Segoe UI', system-ui, sans-serif !important; }
+.clone-date { color: var(--az-muted) !important; font: 600 13px/1.4 'Segoe UI', system-ui, sans-serif !important; }
+.clone-info-text { color: var(--az-muted) !important; }
+.clone-footer { border-top-color: var(--az-line) !important; }
+.clone-timer { color: var(--az-green) !important; }
+.heure-depart-course { background: #edf5ef !important; color: var(--az-green-dark) !important; border-radius: 4px !important; }
+
+.analyse-az-container { gap: 12px; }
+.az-box {
+  background: #f8faf8 !important;
+  border: 1px solid var(--az-line) !important;
+  border-radius: 6px !important;
+  padding: 13px;
+}
+.az-numero {
+  width: auto !important;
+  min-width: 38px;
+  height: auto !important;
+  min-height: 34px;
+  padding: 5px 10px;
+  border-radius: 4px !important;
+  display: inline-flex;
+  background: var(--az-green) !important;
+}
+.outsider-numero { background: #a86b20 !important; }
+.favori-az { border-left: 3px solid var(--az-green) !important; }
+.outsider-az { border-left: 3px solid var(--az-gold) !important; }
+
+.table-container { border: 1px solid var(--az-line); border-radius: 6px; }
+table { color: var(--az-ink); }
+th { background: #edf2ee !important; color: #34483b; white-space: nowrap; }
+th, td { padding: 10px 9px !important; }
+tbody tr:nth-child(even) { background: #fafcfb; }
+tbody tr:hover { background: #f0f6f1; }
+
+.popular-horizontal { display: flex; flex-wrap: wrap; gap: 7px; }
+.popular-horizontal .popular-number {
+  min-width: 34px;
+  padding: 7px 10px;
+  border-radius: 4px !important;
+  background: #edf4ee !important;
+  color: var(--az-green-dark) !important;
+  border: 1px solid #d6e4d9;
+  font-weight: 800;
+}
+
+.pub-box { overflow: hidden; }
+.pub-box h2 { padding: 14px 16px 8px; }
+.slider-pub img { max-height: 230px; object-fit: contain; background: #fff; }
+.pub-overlay { max-width: 100%; }
+.news-bar {
+  background: #eaf1eb !important;
+  color: var(--az-green-dark) !important;
+  border: 1px solid var(--az-line);
+  border-radius: 5px !important;
+  padding: 12px;
+}
+
+.bottom-menu {
+  background: rgba(255,255,255,.98) !important;
+  border-top: 1px solid var(--az-line) !important;
+  box-shadow: 0 -2px 10px rgba(24,50,35,.06);
+  padding: 9px 0 max(9px, env(safe-area-inset-bottom)) !important;
+}
+.bottom-menu a { color: #66736b !important; }
+.bottom-menu a.active { color: var(--az-green) !important; }
+
+@media (min-width: 760px) {
+  .content { padding-top: 22px; }
+  .clone-body { padding: 22px 24px !important; }
+}
+@media (max-width: 600px) {
+  .content { padding: 10px 9px 18px; }
+  .card { padding: 13px; }
+  .pmu-clone-header { padding: 0 !important; }
+  .clone-tab { font-size: 11px; padding: 12px 3px; }
+  .clone-subtitle { font-size: 18px !important; }
+  .clone-footer { justify-content: center; }
+  .clone-badges { gap: 5px; }
+  .pmu-badge { padding: 3px 6px; }
+  .table-container { -webkit-overflow-scrolling: touch; }
+  table { min-width: 700px; }
+}
