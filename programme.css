@@ -37,3 +37,20 @@
  .programme-controls button { width:100%; }
  .course-details { gap:9px; }
 }
+
+.course-horses-button { margin-top:14px; min-height:40px; padding:9px 14px; border:1px solid #b8d8c3; border-radius:8px; background:#eaf6ee; color:#17613b; font-weight:800; cursor:pointer; }
+.course-horses-button:disabled { opacity:.65; cursor:wait; }
+.course-horses-panel { margin-top:13px; padding-top:12px; border-top:1px solid #e2e8f0; }
+.horses-header { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; margin-bottom:9px; color:#173d2b; font-size:13px; }
+.horses-non-runners { color:#a12d2d; font-weight:700; }
+.horses-list { display:flex; flex-direction:column; gap:7px; }
+.horse-row { display:flex; align-items:center; gap:9px; min-width:0; padding:9px; border:1px solid #e8edf0; border-radius:8px; background:#fbfdfb; }
+.horse-row.is-non-runner { opacity:.62; background:#fff5f4; }
+.horse-number { display:grid; place-items:center; flex:0 0 29px; height:29px; border-radius:6px; background:#1f6b45; color:#fff; font-weight:900; }
+.horse-identity { display:flex; flex:1; flex-direction:column; min-width:0; gap:3px; }
+.horse-name { color:#1e293b; font-size:13px; }
+.horse-meta { color:#64748b; font-size:11px; overflow-wrap:anywhere; }
+.horse-odds { flex:0 0 auto; color:#334155; font-size:12px; }
+.horse-status { color:#a12d2d; font-size:11px; font-weight:900; }
+.horses-source,.horses-loading { margin:9px 0 0; color:#64748b; font-size:11px; }
+.horses-error { margin:8px 0 0; color:#a12d2d; font-size:13px; }

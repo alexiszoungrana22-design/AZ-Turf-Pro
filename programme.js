@@ -119,10 +119,76 @@
         details.appendChild(item);
       });
       card.appendChild(details);
+
+      const horseButton = element("button", "course-horses-button", "Voir les partants");
+      horseButton.type = "button";
+      horseButton.addEventListener("click", () => loadCourseHorses(date, meeting.numero, course.numero, card, horseButton));
+      card.appendChild(horseButton);
       courseList.appendChild(card);
     });
     if (!(meeting.courses || []).length) courseList.appendChild(element("p","empty-courses","Aucune course publiée pour cette réunion."));
     results.appendChild(courseList);
+  }
+
+  async function loadCourseHorses(date, reunion, course, card, button) {
+    let panel = card.querySelector(".course-horses-panel");
+    if (panel) {
+      panel.remove();
+      button.textContent = "Voir les partants";
+      return;
+    }
+    if (reunion == null || course == null) {
+      setStatus("Les identifiants de cette course ne sont pas fournis par le programme PMU.", "error");
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Chargement des partants…";
+    panel = element("section", "course-horses-panel");
+    panel.setAttribute("aria-live", "polite");
+    panel.appendChild(element("p", "horses-loading", "Récupération des partants officiels PMU…"));
+    card.appendChild(panel);
+
+    try {
+      const query = new URLSearchParams({date, reunion: String(reunion), course: String(course)});
+      const response = await fetch(`${API_PROGRAMME}/partants?${query.toString()}`, {cache:"no-store"});
+      let data = {};
+      try { data = await response.json(); } catch (_) {}
+      if (!response.ok) throw new Error(data.detail || `Erreur du serveur (${response.status})`);
+      if (data.source !== "pmu_live" || !Array.isArray(data.chevaux)) throw new Error("Les données reçues ne sont pas des partants PMU confirmés.");
+
+      panel.replaceChildren();
+      const header = element("div", "horses-header");
+      header.appendChild(element("strong", "", `${data.chevaux.length} cheval(aux)`));
+      if (data.non_partants && data.non_partants.length) {
+        header.appendChild(element("span", "horses-non-runners", `Non-partants : ${data.non_partants.join(", ")}`));
+      }
+      panel.appendChild(header);
+
+      const list = element("div", "horses-list");
+      data.chevaux.forEach(horse => {
+        const row = element("article", `horse-row${horse.statut === "Non-partant" ? " is-non-runner" : ""}`);
+        row.appendChild(element("span", "horse-number", horse.numero ?? "–"));
+        const identity = element("div", "horse-identity");
+        identity.appendChild(element("strong", "horse-name", horse.nom || "Nom non renseigné"));
+        const details = [horse.age ? `${horse.age} ans` : "", horse.sexe, horse.jockey ? `Jockey : ${horse.jockey}` : "", horse.entraineur ? `Entraîneur : ${horse.entraineur}` : "", horse.musique ? `Musique : ${horse.musique}` : ""]
+          .filter(Boolean).join(" · ");
+        if (details) identity.appendChild(element("span", "horse-meta", details));
+        row.appendChild(identity);
+        const odds = horse.cote !== null && horse.cote !== undefined && horse.cote !== "" ? horse.cote : "—";
+        row.appendChild(element("strong", "horse-odds", `Cote ${odds}`));
+        if (horse.statut === "Non-partant") row.appendChild(element("span", "horse-status", "NP"));
+        list.appendChild(row);
+      });
+      panel.appendChild(list);
+      panel.appendChild(element("p", "horses-source", "Source : programme officiel PMU. Les cotes peuvent ne pas être publiées."));
+      button.textContent = "Masquer les partants";
+    } catch (error) {
+      panel.replaceChildren(element("p", "horses-error", `${error.message} Aucun partant de démonstration n’est affiché.`));
+      button.textContent = "Réessayer";
+    } finally {
+      button.disabled = false;
+    }
   }
 
   document.getElementById("date-previous").addEventListener("click", () => {
