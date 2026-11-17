@@ -45,7 +45,7 @@ from models import (
     ActivationRequest
 )
 
-from pmu_source import charger_course_pmu
+from pmu_source import charger_course_pmu, recuperer_programme, normaliser_date
 
 from lonab_source import recuperer_journal_lonab, diagnostiquer_journal_lonab
 
@@ -190,6 +190,83 @@ def charger_course():
 # =====================================
 # PARTANTS — ROUTE ADDITIVE
 # =====================================
+@router.get("/programme")
+def programme(date: str = None, reunion: str = None):
+    """Retourne le programme officiel PMU d'une date, sans lancer le moteur AZ.
+
+    Route additive : elle ne modifie ni /api/analyse ni le stockage PostgreSQL.
+    Les champs absents de la source restent vides plutôt que d'être inventés.
+    Date acceptée : YYYY-MM-DD ou DD/MM/YYYY.
+    """
+    date_demandee = date or datetime.now().strftime("%Y-%m-%d")
+    try:
+        date_pmu = normaliser_date(date_demandee)
+        donnees = recuperer_programme(date_pmu, reunion=reunion)
+        if not isinstance(donnees, dict):
+            raise HTTPException(status_code=503, detail="Programme PMU indisponible pour cette date.")
+
+        racine = donnees.get("programme") if isinstance(donnees.get("programme"), dict) else donnees
+        reunions_source = racine.get("reunions") or donnees.get("reunions") or []
+        if not isinstance(reunions_source, list):
+            reunions_source = []
+
+        reunions = []
+        for r in reunions_source:
+            if not isinstance(r, dict):
+                continue
+            numero_r = r.get("numOfficiel") or r.get("numReunion") or r.get("numero")
+            code_r = (f"R{numero_r}" if numero_r not in (None, "") else "")
+            courses_source = r.get("courses") if isinstance(r.get("courses"), list) else []
+            courses = []
+            for c in courses_source:
+                if not isinstance(c, dict):
+                    continue
+                numero_c = c.get("numOrdre") or c.get("numCourse") or c.get("numero")
+                courses.append({
+                    "numero": numero_c,
+                    "code": f"C{numero_c}" if numero_c not in (None, "") else "",
+                    "nom": c.get("libelle") or c.get("nom") or "",
+                    "heure_depart": c.get("heureDepart") or c.get("heureDepartCourse") or c.get("heure") or c.get("heureDepartPrevue") or "",
+                    "hippodrome": c.get("hippodrome") or c.get("nomHippodrome") or r.get("hippodrome") or "",
+                    "discipline": c.get("discipline") or c.get("typeCourse") or "",
+                    "distance": c.get("distance") or c.get("distanceCourse") or c.get("distanceMetres") or "",
+                    "allocation": c.get("montantPrix") or c.get("allocation") or "",
+                    "nombre_partants": c.get("nombreDeclaresPartants") or c.get("nombrePartants") or c.get("nbPartants"),
+                    "statut": c.get("statut") or c.get("etat") or "",
+                    "quinte": _course_est_quinte(c),
+                })
+            reunions.append({
+                "numero": numero_r,
+                "code": code_r,
+                "hippodrome": r.get("hippodrome") or r.get("nomHippodrome") or "",
+                "courses": courses,
+            })
+
+        return {
+            "date": date_demandee,
+            "date_pmu": date_pmu,
+            "source": "pmu_live",
+            "reunions": reunions,
+            "nombre_reunions": len(reunions),
+            "nombre_courses": sum(len(r["courses"]) for r in reunions),
+        }
+    except HTTPException:
+        raise
+    except Exception as erreur:
+        print("Erreur programme PMU :", erreur)
+        raise HTTPException(status_code=502, detail="Impossible de lire le programme PMU actuellement.")
+
+
+def _course_est_quinte(course):
+    """Détection locale prudente du libellé Quinté+ pour l'affichage du programme."""
+    try:
+        from pmu_source import _contient_quinte
+        return bool(_contient_quinte(course))
+    except Exception:
+        texte = " ".join(str(course.get(k) or "") for k in ("libelle", "nom", "typePari")).upper()
+        return "QUINTE" in texte or "QUINTÉ" in texte
+
+
 @router.get("/partants")
 def partants():
     """Retourne les partants analysés sans modifier /api/analyse."""
