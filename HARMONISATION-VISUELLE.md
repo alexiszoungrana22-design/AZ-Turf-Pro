@@ -21,3 +21,7 @@ Cette livraison ajoute `harmonisation.css` comme couche de présentation commune
 - Contrôle structurel des 20 pages HTML réussi.
 
 Les tests locaux ne remplacent pas un essai sur le site déployé. Aucune modification n'a été publiée sur GitHub ou Render.
+
+
+## Correction de navigation mobile
+Sur écran mobile, la navigation haute est masquée lorsque la barre basse mobile est présente. La barre basse devient la navigation principale. Sur ordinateur, la barre basse est masquée et la navigation haute reste disponible. Aucun fichier Python, JavaScript ou aucune donnée de base n’a été modifié pour cette correction.
