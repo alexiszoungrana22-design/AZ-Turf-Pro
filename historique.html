@@ -23,7 +23,8 @@
 .az-empty{padding:18px 4px;color:#64748b}
 @media(max-width:600px){.az-performance-grid{grid-template-columns:1fr 1fr}.az-performance-head h2,.az-archive h2{font-size:21px}.az-metric strong{font-size:21px}.az-refresh{font-size:13px}}
 </style>
-<link href="harmonisation.css?v=1" rel="stylesheet"/></head>
+<link href="harmonisation.css?v=1" rel="stylesheet"/>
+<link href="historique-refonte.css?v=1" rel="stylesheet"/></head>
 <body>
 <header class="top-header">
 <div class="logo">🏇 <span>AZ Turf Pro</span></div>
@@ -34,14 +35,16 @@
 <a class="active" href="historique.html">🏆 Historique</a>
 </nav>
 </header>
-<main class="content">
+<main class="content az-history-page">
 <section class="card az-history-intro">
-<h2>🏆 Historique</h2>
+<div class="az-history-kicker">ARCHIVES &amp; RÉSULTATS</div>
+<h2>🏆 Historique des courses</h2>
 <p>Retrouvez les analyses archivées, les arrivées officielles et les performances réelles d'AZ Turf Pro.</p>
 </section>
 <section class="card az-performance" id="az-archive-performance">
 <div class="az-performance-head">
 <div>
+<div class="az-section-kicker">INDICATEURS</div>
 <h2>📊 Performances AZ</h2>
 <p>Calculées uniquement sur les courses ayant une arrivée officielle.</p>
 </div>
@@ -56,6 +59,7 @@
 </div>
 </section>
 <section class="card az-archive">
+<div class="az-section-kicker">CONSULTATION</div>
 <h2>📚 Courses archivées</h2>
 <div class="table-container">
 <table>
