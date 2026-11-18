@@ -1,0 +1,52 @@
+/* AZ Turf Pro — Historique V4 : couche visuelle additive, sans logique métier */
+.az-history-page{padding-top:22px!important;padding-bottom:28px!important}
+.az-history-page .card{padding:22px!important;margin-bottom:18px!important}
+.az-history-intro{position:relative;overflow:hidden;border-top:4px solid var(--az-green)!important;background:linear-gradient(115deg,#fff 0%,#f5faf6 100%)!important}
+.az-history-kicker,.az-section-kicker{font-size:10px;letter-spacing:1.5px;font-weight:850;color:var(--az-gold);margin-bottom:7px}
+.az-history-intro h2{font-size:clamp(23px,4vw,30px)!important;border:0!important;padding:0!important;margin:0 0 8px!important;color:var(--az-green-dark)!important}
+.az-history-intro p{max-width:680px;color:#66756d;line-height:1.65;font-size:14px}
+.az-performance-head{align-items:center!important;border-bottom:1px solid var(--az-border)!important;padding-bottom:16px!important;margin-bottom:16px!important}
+.az-performance-head h2,.az-archive h2{font-size:21px!important;color:var(--az-green-dark)!important;border:0!important;padding:0!important;margin:0!important}
+.az-performance-head p{font-size:13px!important;line-height:1.5;color:var(--az-muted)!important}
+.az-refresh{background:var(--az-green)!important;border-radius:9px!important;padding:10px 15px!important;white-space:nowrap}
+.az-performance-state{font-size:13px;color:var(--az-muted)!important;margin:0 0 13px}
+.az-performance-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important}
+.az-metric{background:#f8fbf9!important;border:1px solid #e1ebe4!important;border-radius:12px!important;padding:15px!important;min-width:0}
+.az-metric span{font-size:12px!important;line-height:1.4;color:#64756b!important;min-height:34px}
+.az-metric strong{font-size:clamp(21px,2.5vw,27px)!important;color:var(--az-green-dark)!important;font-variant-numeric:tabular-nums}
+.az-archive h2{margin-bottom:15px!important}
+.az-archive .table-container{overflow-x:auto;border:1px solid var(--az-border);border-radius:11px}
+.az-archive table{min-width:680px;width:100%;background:#fff;font-size:13px}
+.az-archive th{padding:13px 12px!important;text-transform:uppercase;font-size:10px;letter-spacing:.6px;white-space:nowrap}
+.az-archive td{padding:13px 12px!important;vertical-align:middle;line-height:1.5;color:#34483c}
+.az-archive tbody tr:nth-child(even){background:#fbfdfb}
+.az-archive tbody tr:hover{background:#f1f8f3}
+.az-archive td strong{font-weight:800}
+.az-status.done{color:#147545}.az-status.pending{display:inline-block;padding:4px 8px;border-radius:20px;background:#fff6df;color:#946500;font-size:11px}
+.az-empty{padding:22px!important;text-align:center;color:var(--az-muted)!important}
+@media(max-width:760px){
+ .az-history-page{padding:12px 11px 22px!important}
+ .az-history-page .card{padding:17px!important;margin-bottom:13px!important}
+ .az-history-intro h2{font-size:23px!important}
+ .az-performance-head{align-items:stretch!important;flex-direction:column}
+ .az-refresh{width:100%}
+ .az-performance-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+ .az-metric{padding:12px!important}
+ .az-metric span{font-size:11px!important;min-height:31px}
+ .az-metric strong{font-size:22px!important}
+ .az-archive .table-container{overflow:visible;border:0}
+ .az-archive table,.az-archive tbody{display:block;min-width:0;width:100%}
+ .az-archive thead{display:none}
+ .az-archive tbody tr{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;background:#fff!important;border:1px solid var(--az-border);border-radius:12px;margin:0 0 11px;padding:8px 12px;box-shadow:0 3px 12px rgba(24,55,38,.045)}
+ .az-archive tbody td{display:block;min-width:0;border:0!important;padding:8px 0!important;overflow-wrap:anywhere;font-size:12px}
+ .az-archive tbody td::before{display:block;margin-bottom:3px;color:#839087;font-size:9px;font-weight:850;letter-spacing:.65px;text-transform:uppercase}
+ .az-archive tbody td:nth-child(1)::before{content:"DATE"}
+ .az-archive tbody td:nth-child(2)::before{content:"COURSE"}
+ .az-archive tbody td:nth-child(3)::before{content:"FAVORI"}
+ .az-archive tbody td:nth-child(4)::before{content:"SÉLECTION PREMIUM"}
+ .az-archive tbody td:nth-child(5){grid-column:1/-1;border-top:1px solid #edf2ee!important;margin-top:3px;padding-top:10px!important}
+ .az-archive tbody td:nth-child(5)::before{content:"ARRIVÉE OFFICIELLE"}
+ .az-archive tbody td:nth-child(2){font-size:12px}
+ .az-archive tbody tr td[colspan]{grid-column:1/-1;text-align:center;padding:17px!important}
+}
+@media(max-width:360px){.az-performance-grid{grid-template-columns:1fr 1fr!important}.az-metric strong{font-size:20px!important}}
