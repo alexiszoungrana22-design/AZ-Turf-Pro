@@ -239,3 +239,39 @@ def calculer_calibration(lignes_archive, seuil_min=SEUIL_MIN_COURSES):
         "facteurs": facteurs,
         "details": details,
     }
+
+
+def calculer_calibrations_par_discipline(lignes_archive, seuil_min=SEUIL_MIN_COURSES):
+    """Calibre séparément chaque spécialité à partir des seules courses archivées.
+
+    Les groupes trop petits ne produisent aucun facteur actif. Le retour garde
+    aussi un facteur global de compatibilité pour les anciennes lectures.
+    """
+    from scoring import classifier_discipline
+
+    groupes = {}
+    for ligne in lignes_archive or []:
+        course = ligne.get("course_json") or {}
+        discipline_brute = (course.get("specialite") or course.get("discipline")
+                            or course.get("type_course") or "")
+        discipline = classifier_discipline(discipline_brute)
+        groupes.setdefault(discipline, []).append(ligne)
+
+    resultats = {}
+    for discipline, lignes in groupes.items():
+        resultat = calculer_calibration(lignes, seuil_min=seuil_min)
+        if resultat.get("status") == "success":
+            resultats[discipline] = resultat.get("facteurs") or {}
+
+    return {
+        "status": "success" if resultats else "donnees_insuffisantes",
+        "facteurs_par_discipline": resultats,
+        "details_par_discipline": {
+            discipline: {
+                "status": calculer_calibration(lignes, seuil_min=seuil_min).get("status"),
+                "courses": len(lignes),
+            }
+            for discipline, lignes in groupes.items()
+        },
+        "disciplines_calibrees": sorted(resultats),
+    }
