@@ -68,7 +68,17 @@ async function chargerAnalyse(){
 
         afficher("meta-hippodrome", data.hippodrome);
         afficher("meta-course", data.course);
-        afficher("meta-discipline", data.discipline);
+        // Libellé public : éviter d'afficher les codes techniques de la source PMU.
+        const disciplinesLisibles = {
+            "ATTELE_TROT_ATTELE": "Trot attelé",
+            "MONTE_TROT_MONTE": "Trot monté",
+            "PLAT_GALOP_PLAT": "Galop - plat",
+            "OBSTACLE_HAIES": "Obstacle - haies",
+            "OBSTACLE_STEEPLE": "Obstacle - steeple-chase"
+        };
+        const disciplineBrute = String(data.discipline || "").trim();
+        const disciplineAffichee = disciplinesLisibles[disciplineBrute.toUpperCase()] || disciplineBrute.replace(/_/g, " ").toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase());
+        afficher("meta-discipline", disciplineAffichee);
         afficher("meta-distance", data.distance ? data.distance + " m" : "-");
         afficher("meta-partants", data.partants);
 

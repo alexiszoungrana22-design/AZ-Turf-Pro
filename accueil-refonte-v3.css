@@ -1,0 +1,73 @@
+/* AZ Turf Pro — Accueil V3 : finition mobile et hiérarchie visuelle */
+:root {
+  --home-forest: #176b43;
+  --home-forest-dark: #104d32;
+  --home-muted: #68786e;
+  --home-line: #dce6df;
+}
+
+/* Réserver la place du menu fixe pour que le dernier contenu reste accessible. */
+body:has(.pmu-clone-header) main.content {
+  padding-bottom: 112px !important;
+}
+
+/* Bloc course : informations regroupées et lecture plus rapide. */
+.pmu-clone-header { border-radius: 13px !important; }
+.clone-body {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 6px !important;
+  padding: 15px 17px 16px !important;
+}
+.clone-title {
+  color: var(--home-muted) !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  line-height: 1.35 !important;
+}
+.clone-subtitle {
+  margin: 0 !important;
+  color: var(--home-forest-dark) !important;
+  font-size: clamp(17px, 2.1vw, 21px) !important;
+  line-height: 1.25 !important;
+  font-weight: 800 !important;
+}
+.clone-date { margin-top: 0 !important; font-size: 11px !important; }
+.clone-infos { margin-top: 3px !important; gap: 8px !important; }
+.clone-info-text { font-size: 12px !important; line-height: 1.4 !important; overflow-wrap: anywhere; }
+.clone-footer { margin-top: 7px !important; padding-top: 10px !important; gap: 9px !important; }
+.clone-timer { min-height: 34px; }
+.heure-depart-course { padding: 6px 10px !important; font-size: 12px !important; }
+.clone-badges { display: flex !important; flex-wrap: wrap !important; gap: 6px !important; }
+.pmu-badge { padding: 5px 9px !important; }
+
+/* Publicité : format bannière, sans prendre le dessus sur la course. */
+.pub-box { padding-bottom: 8px !important; }
+.slider-pub { margin: 0 12px !important; }
+.slider-pub img {
+  width: 100% !important;
+  max-height: 145px !important;
+  object-fit: contain !important;
+}
+.pub-overlay { padding: 8px 11px 10px !important; }
+.pub-overlay h3 { font-size: 14px !important; }
+.pub-overlay p { font-size: 11px !important; }
+.slider-dots { padding: 5px 0 0 !important; }
+
+/* Navigation fixe : hauteur maîtrisée et contenu non masqué. */
+.bottom-menu { z-index: 50 !important; }
+@media (max-width: 600px) {
+  body:has(.pmu-clone-header) main.content { padding: 10px 10px 118px !important; }
+  .clone-body { padding: 13px 13px 14px !important; }
+  .clone-subtitle { font-size: 17px !important; }
+  .clone-infos { align-items: flex-start !important; }
+  .clone-info-text { font-size: 11px !important; }
+  .clone-footer { gap: 8px !important; }
+  .clone-badges { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .pmu-badge { min-width: 0 !important; padding: 6px 2px !important; text-align: center !important; }
+  .pmu-badge span { font-size: 10px !important; white-space: nowrap !important; }
+  .slider-pub img { max-height: 125px !important; }
+  .pub-box h2 { padding: 11px 13px 8px !important; }
+  .bottom-menu { min-height: 62px !important; }
+}
