@@ -883,10 +883,32 @@ def abonnement(
 ):
 
     try:
+        # Les tarifs officiels sont définis côté serveur : les valeurs
+        # envoyées par le navigateur ne peuvent pas modifier le prix.
+        offres_autorisees = {
+            "Semaine": {"prix": 25000, "duree": 7},
+            "1 Mois": {"prix": 75000, "duree": 30},
+            "3 Mois": {"prix": 150000, "duree": 90},
+        }
+        paiements_autorises = {"Orange Money", "Moov Money", "Wave"}
+        offre = offres_autorisees.get((data.offre or "").strip())
+        if offre is None:
+            raise HTTPException(status_code=400, detail="Forfait inconnu. Veuillez choisir une formule disponible.")
+        paiement = (data.paiement or "").strip()
+        if paiement not in paiements_autorises:
+            raise HTTPException(status_code=400, detail="Moyen de paiement non reconnu.")
+        telephone = re.sub(r"\s+", "", (data.telephone or ""))
+        if not re.fullmatch(r"(?:\+?226)?[0-9]{8}", telephone):
+            raise HTTPException(status_code=400, detail="Numéro de téléphone invalide.")
 
-        resultat = creer_abonnement(
-            data.model_dump()
-        )
+        donnees_abonnement = data.model_dump()
+        donnees_abonnement.update({
+            "telephone": telephone,
+            "prix": offre["prix"],
+            "duree": offre["duree"],
+            "paiement": paiement,
+        })
+        resultat = creer_abonnement(donnees_abonnement)
 
         return {
 
@@ -898,6 +920,8 @@ def abonnement(
 
         }
 
+    except HTTPException:
+        raise
     except Exception as erreur:
 
         raise HTTPException(
