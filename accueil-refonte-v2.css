@@ -1,0 +1,231 @@
+/* AZ Turf Pro — Accueil V2
+   Refonte strictement visuelle : aucune donnée, route, logique ou fonction JS modifiée. */
+:root {
+  --home-forest: #176b43;
+  --home-forest-dark: #104d32;
+  --home-gold: #bd9847;
+  --home-ink: #24372c;
+  --home-muted: #68786e;
+  --home-line: #dce6df;
+  --home-soft: #edf4ef;
+}
+
+body:has(.pmu-clone-header) {
+  background: #f4f7f5 !important;
+  color: var(--home-ink) !important;
+}
+body:has(.pmu-clone-header) main.content {
+  width: min(1120px, 100%) !important;
+  padding: 16px 16px 34px !important;
+}
+body:has(.pmu-clone-header) .card {
+  margin: 0 0 15px !important;
+  border: 1px solid var(--home-line) !important;
+  border-radius: 13px !important;
+  background: #fff !important;
+  box-shadow: 0 3px 12px rgba(25, 58, 39, .045) !important;
+}
+body:has(.pmu-clone-header) .card h2 {
+  margin: 0 0 13px !important;
+  padding: 0 0 10px !important;
+  border-bottom: 1px solid #e7ede9 !important;
+  color: var(--home-forest-dark) !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  letter-spacing: .01em;
+}
+
+/* En-tête mobile : marque et accès Premium équilibrés. */
+@media (max-width: 760px) {
+  body:has(.pmu-clone-header) .top-header {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 7px 10px !important;
+    min-height: 0 !important;
+    padding: 10px 14px !important;
+  }
+  body:has(.pmu-clone-header) .top-header .brand-zone {
+    display: flex !important;
+    width: auto !important;
+    min-width: 0 !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 2px !important;
+  }
+  body:has(.pmu-clone-header) .top-header .logo { line-height: 1.1; white-space: nowrap; }
+  body:has(.pmu-clone-header) .top-header .logo span {
+    color: var(--home-forest) !important;
+    font-size: 21px !important;
+    font-weight: 850 !important;
+  }
+  body:has(.pmu-clone-header) .top-header .mini-countdown {
+    margin: 2px 0 0 !important;
+    color: var(--home-forest) !important;
+    font-size: 11px !important;
+    font-weight: 750 !important;
+  }
+  body:has(.pmu-clone-header) .top-header > .btn-vip {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    align-self: center !important;
+    margin: 0 !important;
+    padding: 10px 13px !important;
+    border-radius: 9px !important;
+    font-size: 12px !important;
+    white-space: nowrap;
+  }
+}
+
+/* Carte Quinté : informations condensées et immédiatement lisibles. */
+.pmu-clone-header {
+  overflow: hidden !important;
+  border-top: 3px solid var(--home-forest) !important;
+}
+.clone-day-heading {
+  padding: 11px 17px !important;
+  background: var(--home-soft) !important;
+  color: var(--home-forest-dark) !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  letter-spacing: .12em !important;
+}
+.clone-body {
+  display: flex !important;
+  align-items: stretch !important;
+  gap: 7px !important;
+  padding: 17px 19px 18px !important;
+  text-align: left !important;
+}
+.clone-title { color: var(--home-muted) !important; font-size: 13px !important; font-weight: 650 !important; line-height: 1.4 !important; }
+.clone-subtitle {
+  color: var(--home-ink) !important;
+  font-size: clamp(19px, 2.5vw, 25px) !important;
+  font-weight: 850 !important;
+  line-height: 1.22 !important;
+  text-align: left !important;
+}
+.clone-date { color: var(--home-muted) !important; font-size: 12px !important; }
+.clone-infos {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 9px !important;
+  margin: 5px 0 0 !important;
+}
+.icon-cheval { flex: 0 0 auto; }
+.clone-info-text { color: #53645a !important; font-size: 13px !important; line-height: 1.5 !important; text-align: left !important; }
+.clone-footer {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  gap: 12px !important;
+  margin-top: 9px !important;
+  padding-top: 12px !important;
+  border-top: 1px solid var(--home-line) !important;
+}
+.clone-timer { display: flex !important; align-items: center !important; gap: 8px !important; color: var(--home-forest) !important; }
+.heure-depart-course {
+  margin: 0 !important;
+  padding: 7px 11px !important;
+  border: 1px solid #e0ebe3 !important;
+  border-radius: 7px !important;
+  background: #f0f6f1 !important;
+  color: var(--home-forest-dark) !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+}
+.clone-badges {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-start !important;
+  gap: 7px !important;
+}
+.pmu-badge {
+  padding: 5px 10px !important;
+  transform: none !important;
+  border: 1px solid #dce8df !important;
+  border-radius: 6px !important;
+  background: #f2f6f3 !important;
+}
+.pmu-badge span {
+  display: block !important;
+  transform: none !important;
+  color: #315640 !important;
+  font-size: 11px !important;
+  font-style: normal !important;
+  font-weight: 750 !important;
+}
+.badge-quinte { border-color: #d7c28e !important; background: #fbf6e9 !important; }
+.badge-quinte span { color: #795d1d !important; }
+
+/* Publicité : un encart partenaire compact, sans dominer l'accueil. */
+.pub-box { padding: 0 0 8px !important; }
+.pub-box h2 {
+  margin: 0 0 10px !important;
+  padding: 14px 16px 10px !important;
+  font-size: 16px !important;
+}
+.slider-pub {
+  margin: 0 13px !important;
+  overflow: hidden !important;
+  border: 1px solid #e5ebe7;
+  border-radius: 9px !important;
+  background: #f8faf8 !important;
+}
+.slider-pub img {
+  display: block !important;
+  width: 100% !important;
+  max-height: 190px !important;
+  height: auto !important;
+  object-fit: contain !important;
+  background: #fff !important;
+  transition: opacity .25s ease;
+}
+.pub-overlay {
+  padding: 10px 13px 12px !important;
+  border-top: 1px solid #e8eee9;
+  background: #fff !important;
+  color: var(--home-ink) !important;
+}
+.pub-overlay h3 { margin: 0 0 3px !important; color: var(--home-forest-dark) !important; font-size: 15px !important; }
+.pub-overlay p { margin: 0 !important; color: var(--home-muted) !important; font-size: 12px !important; line-height: 1.45 !important; }
+.slider-dots { padding: 8px 0 2px !important; }
+
+/* Modules d'analyse : même langage graphique, sans pastilles décoratives. */
+.analyse-az-container { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 12px !important; }
+.az-box { min-width: 0; padding: 14px !important; border: 1px solid var(--home-line) !important; border-radius: 10px !important; background: #fbfcfb !important; }
+.az-box h3 { font-size: 14px !important; }
+.az-box h4 { color: var(--home-ink) !important; font-size: 15px !important; overflow-wrap: anywhere; }
+.az-box p { color: #5b6b61 !important; font-size: 12px !important; line-height: 1.5 !important; }
+.az-numero { width: auto !important; height: auto !important; min-width: 38px !important; min-height: 34px !important; padding: 4px 9px !important; border-radius: 6px !important; }
+.confiance-box, .surveillance-box, .tendance-box { padding: 16px !important; }
+.table-container { max-width: 100%; overflow-x: auto !important; border: 1px solid var(--home-line); border-radius: 8px; -webkit-overflow-scrolling: touch; }
+.table-container table { min-width: 760px; }
+.news-bar { border: 1px solid var(--home-line) !important; border-left: 3px solid var(--home-gold) !important; border-radius: 8px !important; background: #edf4ef !important; color: var(--home-forest-dark) !important; }
+
+@media (max-width: 600px) {
+  body:has(.pmu-clone-header) main.content { padding: 11px 10px 24px !important; }
+  body:has(.pmu-clone-header) .card { margin-bottom: 12px !important; }
+  .clone-body { padding: 15px 14px 16px !important; }
+  .clone-subtitle { font-size: 19px !important; }
+  .clone-info-text { font-size: 12px !important; }
+  .clone-badges { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; gap: 6px !important; }
+  .pmu-badge { min-width: 0; padding: 6px 3px !important; text-align: center; }
+  .pmu-badge span { font-size: 10px !important; white-space: nowrap; }
+  .slider-pub { margin: 0 10px !important; }
+  .slider-pub img { max-height: 170px !important; }
+  .pub-box h2 { padding: 13px 14px 9px !important; }
+  .pub-overlay { padding: 9px 11px 10px !important; }
+  .analyse-az-container { grid-template-columns: 1fr !important; }
+  .az-box { padding: 12px !important; }
+  .bottom-menu { min-height: 66px; }
+  .bottom-menu a { font-size: 10px !important; }
+  .bottom-menu .menu-icon { font-size: 18px !important; }
+}
+
+@media (min-width: 761px) {
+  body:has(.pmu-clone-header) .top-header { flex-wrap: nowrap !important; }
+  body:has(.pmu-clone-header) .top-menu { margin-left: auto !important; }
+}
