@@ -188,13 +188,30 @@ def lire_archive_pour_calibration(limit: int = 2000) -> list[dict]:
 
 
 def lire_archive_pour_validation(limit: int = 5000) -> list[dict]:
-    """Lit les courses terminées dans l'ordre chronologique pour un test
-    hors-échantillon. Lecture seule : aucune écriture dans PostgreSQL.
+    """Lit les courses terminées dans l'ordre chronologique.
 
-    Seules les dates ISO YYYY-MM-DD sont retenues : sans date exploitable,
-    impossible de garantir un découpage temporel honnête. created_at et id
-    départagent les courses ayant la même date.
+    Les dates sont normalisées en Python afin de ne pas exclure les archives
+    historiques dont la date n'est pas strictement au format ISO.
+    Lecture seule : aucune donnée PostgreSQL n'est modifiée.
     """
+    from datetime import date
+
+    def normaliser_date(value):
+        if value is None:
+            return None
+        texte = str(value).strip()
+        if not texte:
+            return None
+        candidats = (texte[:10], texte)
+        formats = ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y", "%Y%m%d")
+        for candidat in candidats:
+            for fmt in formats:
+                try:
+                    return datetime.strptime(candidat, fmt).date().isoformat()
+                except (TypeError, ValueError):
+                    pass
+        return None
+
     conn = _connexion()
     try:
         with conn.cursor() as cur:
@@ -202,15 +219,23 @@ def lire_archive_pour_validation(limit: int = 5000) -> list[dict]:
                 SELECT course_key, date_course, course_json, chevaux_json, arrivee_json,
                        created_at, id
                 FROM az_course_archive
-                WHERE arrivee_json IS NOT NULL
-                  AND chevaux_json IS NOT NULL
-                  AND date_course ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}'
-                ORDER BY date_course ASC, created_at ASC, id ASC
+                WHERE arrivee_json IS NOT NULL AND chevaux_json IS NOT NULL
+                ORDER BY created_at ASC, id ASC
                 LIMIT %s
             """, (max(1, min(int(limit), 5000)),))
             cols = [d.name for d in cur.description]
-            rows = cur.fetchall()
-        return [dict(zip(cols, row)) for row in rows]
+            rows = [dict(zip(cols, row)) for row in cur.fetchall()]
+        valides = []
+        for row in rows:
+            date_iso = normaliser_date(row.get("date_course"))
+            if not date_iso:
+                course = row.get("course_json") or {}
+                date_iso = normaliser_date(course.get("date") or course.get("date_course"))
+            if date_iso:
+                row["date_course_normalisee"] = date_iso
+                valides.append(row)
+        valides.sort(key=lambda r: (r["date_course_normalisee"], r.get("created_at"), r.get("id") or 0))
+        return valides
     finally:
         conn.close()
 

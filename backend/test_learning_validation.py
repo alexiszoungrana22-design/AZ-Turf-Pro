@@ -44,6 +44,8 @@ class TestLearningValidation(unittest.TestCase):
         self.assertEqual(result["courses_apprentissage"], 31)
         self.assertEqual(result["courses_test_evaluees"], 14)
         self.assertIn("taux_gagnant_dans_top5", result["candidate"])
+        self.assertIn("premium", result["candidate_detail"])
+        self.assertIn("ATTELE", result["facteurs_candidats"]["facteurs_par_discipline"])
 
 
 if __name__ == "__main__":

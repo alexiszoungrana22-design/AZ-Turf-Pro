@@ -77,8 +77,8 @@ def executer_calibration_automatique():
             }
 
         ecarts = evaluation.get("ecart_points") or {}
-        # Exiger +1 point de couverture moyenne, sans dégradation supérieure
-        # à 1 point sur le gagnant dans le top 5 ni sur le Quinté complet.
+        # Exiger un gain de couverture AZ ET Premium, sans régression
+        # significative sur le gagnant ni sur le top 5 complet.
         favorable = calibration_candidate_acceptee(ecarts)
         if not favorable:
             _memoriser_evaluation(conn_verrou, nombre)
@@ -130,13 +130,26 @@ def _memoriser_evaluation(conn, nombre: int) -> None:
 
 
 def calibration_candidate_acceptee(ecarts: dict) -> bool:
-    """Politique d'activation testable sans base de données."""
+    """Politique d'activation : progrès simultané AZ et Premium.
+
+    Compatibilité avec l'ancien format plat conservée pour les tests/outils
+    historiques, mais le nouveau format exige les deux validations.
+    """
     ecarts = ecarts or {}
     try:
-        return (
-            float(ecarts.get("couverture_moyenne_top5", 0)) >= 1.0
-            and float(ecarts.get("taux_gagnant_dans_top5", 0)) >= -1.0
-            and float(ecarts.get("taux_top5_complet", 0)) >= -1.0
-        )
-    except (TypeError, ValueError):
+        if "az" not in ecarts or "premium" not in ecarts:
+            return (
+                float(ecarts.get("couverture_moyenne_top5", 0)) >= 1.0
+                and float(ecarts.get("taux_gagnant_dans_top5", 0)) >= -1.0
+                and float(ecarts.get("taux_top5_complet", 0)) >= -1.0
+            )
+        for bloc in (ecarts["az"], ecarts["premium"]):
+            if float(bloc.get("couverture_arrivee_top5", 0)) < 1.0:
+                return False
+            if float(bloc.get("taux_gagnant_dans_selection", 0)) < -1.0:
+                return False
+            if float(bloc.get("taux_top5_complet", 0)) < -1.0:
+                return False
+        return True
+    except (TypeError, ValueError, KeyError):
         return False

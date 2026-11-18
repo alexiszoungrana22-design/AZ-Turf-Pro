@@ -156,6 +156,18 @@ def calculer_indice_premium(cheval, info_course=None, discipline="TROT", analyse
     calibration, comportement strictement identique à avant.
     """
     calibration = calibration or {}
+    # Les bonus Premium utilisent les facteurs de la même spécialité que
+    # l'Indice AZ. Les anciennes calibrations plates restent compatibles.
+    try:
+        from scoring import classifier_discipline
+        specialite_premium = classifier_discipline(discipline)
+        facteurs_discipline = calibration.get("facteurs_par_discipline")
+        if isinstance(facteurs_discipline, dict):
+            calibration = facteurs_discipline.get(specialite_premium, {})
+        elif isinstance(calibration.get(specialite_premium), dict):
+            calibration = calibration.get(specialite_premium) or {}
+    except Exception:
+        pass
 
     indice_az = _float(
         cheval.get("indice_az", 0),

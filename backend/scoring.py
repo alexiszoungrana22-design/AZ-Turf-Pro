@@ -56,6 +56,13 @@ def calculer_score_az(cheval, discipline="TROT", calibration=None):
     score = 0
     specialite = classifier_discipline(discipline)
     calibration = calibration or {}
+    # Nouveau format : facteurs isolés par spécialité. Ancien format plat
+    # conservé pour assurer la compatibilité avec les calibrations existantes.
+    facteurs_discipline = calibration.get("facteurs_par_discipline") if isinstance(calibration, dict) else None
+    if isinstance(facteurs_discipline, dict):
+        calibration = facteurs_discipline.get(specialite, {})
+    elif isinstance(calibration.get(specialite), dict):
+        calibration = calibration.get(specialite) or {}
 
     def _cal(critere, coef):
         return coef * calibration.get(critere, 1.0)

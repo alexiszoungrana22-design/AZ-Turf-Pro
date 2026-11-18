@@ -1,5 +1,6 @@
 from pathlib import Path
 import sys
+import asyncio
 
 # Ensure the backend directory is always on sys.path, including Render
 # executions where the working directory can differ from the module directory.
@@ -36,6 +37,35 @@ app.add_middleware(
 # Routes API
 
 app.include_router(router)
+
+# Synchronisation autonome des arrivées : tâche unique par processus Render.
+# Elle est non bloquante et ne démarre que dans le processus API.
+_scheduler_task = None
+
+
+@app.on_event("startup")
+async def demarrer_scheduler_arrivees():
+    global _scheduler_task
+    try:
+        from scheduler_resultats import lancer_scheduler
+        if _scheduler_task is None or _scheduler_task.done():
+            _scheduler_task = lancer_scheduler()
+    except Exception as erreur:
+        print("[AZ scheduler] démarrage impossible (API conservée) :", erreur)
+
+
+@app.on_event("shutdown")
+async def arreter_scheduler_arrivees():
+    global _scheduler_task
+    if _scheduler_task is not None:
+        _scheduler_task.cancel()
+        try:
+            await _scheduler_task
+        except asyncio.CancelledError:
+            pass
+        except Exception:
+            pass
+        _scheduler_task = None
 
 # ==============================
 # Chemins du projet

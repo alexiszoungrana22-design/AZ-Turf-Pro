@@ -1771,24 +1771,14 @@ def archive_synchroniser(limit: int = 100):
 # quand on veut la rafraîchir avec les courses les plus récentes.
 @router.get("/archive/calibrer")
 def archive_calibrer():
+    """Lance le cycle de calibration sécurisé (validation AZ + Premium).
+
+    Le chemin historique est conservé, mais aucun facteur candidat n'est
+    appliqué sans validation chronologique hors-échantillon favorable.
+    """
     try:
-        from archive_store import lire_archive_pour_calibration, enregistrer_calibration
-        from modules.learning_turf import calculer_calibration
-
-        lignes = lire_archive_pour_calibration(2000)
-        resultat = calculer_calibration(lignes)
-
-        if resultat["status"] == "success":
-            enregistrer_calibration(
-                resultat["facteurs"],
-                resultat["echantillon_courses"],
-                resultat["echantillon_chevaux"],
-            )
-            resultat["appliquee"] = True
-        else:
-            resultat["appliquee"] = False
-
-        return resultat
+        from auto_calibration import executer_calibration_automatique
+        return executer_calibration_automatique()
     except Exception as erreur:
         raise HTTPException(status_code=500, detail=f"Erreur calibration : {erreur}")
 
