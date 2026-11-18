@@ -55,7 +55,7 @@ from modules.chatbot_turf import repondre_assistant_turf
 
 import json
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from modules.cotes_history import analyser_tendances_cotes
 from modules.pronos_presse import analyser_consensus_presse
@@ -190,6 +190,45 @@ def charger_course():
 # =====================================
 # PARTANTS — ROUTE ADDITIVE
 # =====================================
+def _programme_texte(value):
+    """Extrait un libellé lisible des objets imbriqués renvoyés par le PMU."""
+    if value is None:
+        return ""
+    if isinstance(value, (str, int, float)):
+        return str(value).strip()
+    if isinstance(value, dict):
+        for key in ("libelle", "nom", "nomHippodrome", "libelleLong", "libelleCourt", "label", "name", "valeur", "value", "code"):
+            candidate = value.get(key)
+            if isinstance(candidate, (str, int, float)) and str(candidate).strip():
+                return str(candidate).strip()
+        return ""
+    return ""
+
+
+def _programme_heure(value):
+    """Convertit les horodatages PMU en heure lisible, sans afficher les millisecondes."""
+    if isinstance(value, dict):
+        for key in ("dateHeure", "dateHeureDepart", "heureDepart", "heure", "timestamp", "value"):
+            if value.get(key) not in (None, ""):
+                value = value[key]
+                break
+    if isinstance(value, (int, float)) or (isinstance(value, str) and value.strip().isdigit()):
+        try:
+            stamp = float(value)
+            if stamp > 100000000000:
+                return datetime.fromtimestamp(stamp / 1000, timezone.utc).strftime("%H:%M")
+            if stamp > 1000000000:
+                return datetime.fromtimestamp(stamp, timezone.utc).strftime("%H:%M")
+        except (ValueError, OverflowError, OSError):
+            return ""
+    if isinstance(value, str):
+        texte = value.strip()
+        # Les heures déjà formatées (ex. 12h55 ou 12:55) restent inchangées.
+        if texte:
+            return texte
+    return ""
+
+
 @router.get("/programme")
 def programme(date: str = None, reunion: str = None):
     """Retourne le programme officiel PMU d'une date, sans lancer le moteur AZ.
@@ -226,8 +265,8 @@ def programme(date: str = None, reunion: str = None):
                     "numero": numero_c,
                     "code": f"C{numero_c}" if numero_c not in (None, "") else "",
                     "nom": c.get("libelle") or c.get("nom") or "",
-                    "heure_depart": c.get("heureDepart") or c.get("heureDepartCourse") or c.get("heure") or c.get("heureDepartPrevue") or "",
-                    "hippodrome": c.get("hippodrome") or c.get("nomHippodrome") or r.get("hippodrome") or "",
+                    "heure_depart": _programme_heure(c.get("heureDepart") or c.get("heureDepartCourse") or c.get("heure") or c.get("heureDepartPrevue") or c.get("dateHeureDepart")),
+                    "hippodrome": _programme_texte(c.get("hippodrome") or c.get("nomHippodrome") or r.get("hippodrome") or r.get("nomHippodrome")),
                     "discipline": c.get("discipline") or c.get("typeCourse") or "",
                     "distance": c.get("distance") or c.get("distanceCourse") or c.get("distanceMetres") or "",
                     "allocation": c.get("montantPrix") or c.get("allocation") or "",
@@ -238,7 +277,7 @@ def programme(date: str = None, reunion: str = None):
             reunions.append({
                 "numero": numero_r,
                 "code": code_r,
-                "hippodrome": r.get("hippodrome") or r.get("nomHippodrome") or "",
+                "hippodrome": _programme_texte(r.get("hippodrome") or r.get("nomHippodrome") or r.get("libelle")),
                 "courses": courses,
             })
 
@@ -1494,7 +1533,7 @@ def quintes_periodes():
     """Retourne le programme disponible pour hier, aujourd'hui et demain.
     Route additive destinée à l'accueil ; aucune route existante n'est modifiée.
     """
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, timezone
     result={}
     for key,delta in (("hier",-1),("aujourdhui",0),("demain",1)):
         course,source=_charger_course_pour_date(datetime.now()+timedelta(days=delta))
