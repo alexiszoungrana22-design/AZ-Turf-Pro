@@ -279,7 +279,6 @@ const publicites = [
     { image: "images/pub1.jpg", titre: "AZ Turf Pro Premium", texte: "Analyses spécialisées et tickets exclusifs" },
     { image: "images/pub2.jpg", titre: "Analyse du Quinté", texte: "Des pronostics basés sur les performances" },
     { image: "images/pub3.jpg", titre: "Abonnement Premium", texte: "Accédez aux sélections avancées" },
-    { image: "images/pub4.jpg", titre: "Votre publicité ici", texte: "Un espace dédié aux partenaires" },
     { image: "images/pub5.jpg", titre: "AZ Turf Pro", texte: "Une analyse professionnelle au service des pronostics" }
 ];
 
