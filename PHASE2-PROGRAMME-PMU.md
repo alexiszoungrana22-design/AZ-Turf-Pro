@@ -62,3 +62,13 @@ La page `programme.html` permet maintenant de demander les partants d'une course
 - Si les données PMU de la course ne sont pas disponibles, la route renvoie une erreur explicite. Aucun repli sur `courses.json` n'est effectué pour une course choisie.
 - Dans la page Programme, le classement AZ et les tickets gratuits calculés pour cette course sont affichés sous les partants. Les tickets Premium ne sont pas exposés dans cet écran.
 - La route historique `GET /api/analyse` n'est pas modifiée. Aucun changement de schéma PostgreSQL, de paiement ou d'abonnement.
+
+
+## Correctifs d'affichage — 18 novembre 2026
+
+- Conversion des objets hippodrome PMU en libellés lisibles (plus d'affichage `[object Object]`).
+- Conversion des horodatages PMU en heures `HH:MM` (ex. `1795006500000` devient `12:55` en UTC, comme fourni par la source).
+- Suppression du texte littéral `\n` entre les feuilles de style de l'accueil.
+- Nettoyage des valeurs sentinelles « Donnée indisponible » dans les champs complémentaires du bandeau Quinté, sans inventer de contenu.
+- Ajout d'une feuille de style claire et responsive pour la page Analyse afin de séparer les libellés et les valeurs sur mobile.
+- Les routes existantes, le moteur de calcul et le stockage PostgreSQL restent inchangés.

@@ -1,0 +1,31 @@
+/* Harmonisation claire et lisible de la page Analyse sur mobile */
+body.analyse-page { background:#f3f6f3; color:#263548; }
+.analyse-page .top-header { background:#fff; border-bottom:1px solid #dce5df; }
+.analyse-page .logo span { color:#17613b; }
+.analyse-page .top-menu a { color:#526174; }
+.analyse-page .top-menu a.active { color:#17613b; }
+.analyse-page .btn-vip { border-radius:9px; background:#176b49; }
+.analyse-page .page-container { max-width:980px; margin:0 auto; padding:14px; }
+.analyse-page .card { background:#fff; color:#263548; border:1px solid #e0e8e2; box-shadow:0 2px 8px rgba(25,55,38,.05); border-radius:14px; margin-bottom:14px; }
+.analyse-page .card h2 { color:#173d2b; }
+.analyse-page .section-head { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:8px; }
+.analyse-page .context-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 18px; }
+.analyse-page .context-grid > div { display:flex; flex-direction:column; align-items:flex-start; gap:4px; min-width:0; line-height:1.35; }
+.analyse-page .context-grid span { color:#64748b; font-size:13px; }
+.analyse-page .context-grid strong { display:block; max-width:100%; color:#263548; font-size:15px; overflow-wrap:anywhere; }
+.analyse-page .signal-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.analyse-page .signal-box { min-width:0; padding:10px; border:1px solid #e5ece7; border-radius:9px; background:#fbfdfb; line-height:1.4; }
+.analyse-page .signal-box > span,.analyse-page .signal-box > strong,.analyse-page .signal-box > small { display:block; margin:3px 0; overflow-wrap:anywhere; }
+.analyse-page .signal-box > span { color:#526174; }
+.analyse-page .signal-box > strong { color:#173d2b; }
+.analyse-page .signal-box > small { color:#64748b; }
+.analyse-page .bottom-menu { background:#fff; border-top:1px solid #dce5df; }
+@media(max-width:600px) {
+ .analyse-page .page-container { padding:10px; }
+ .analyse-page .context-grid,.analyse-page .signal-grid { grid-template-columns:1fr 1fr; gap:12px; }
+ .analyse-page .context-grid strong { font-size:14px; }
+ .analyse-page .section-head { gap:6px; }
+}
+@media(max-width:380px) {
+ .analyse-page .context-grid,.analyse-page .signal-grid { grid-template-columns:1fr; }
+}

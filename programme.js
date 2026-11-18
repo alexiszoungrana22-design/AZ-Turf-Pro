@@ -33,6 +33,25 @@
     return node;
   }
 
+  function displayLabel(value, fallback) {
+    if (value && typeof value === "object") {
+      value = value.libelle || value.nom || value.nomHippodrome || value.libelleLong || value.libelleCourt || value.label || value.name || value.code || "";
+    }
+    return value === null || value === undefined || String(value).trim() === "" ? fallback : String(value).trim();
+  }
+
+  function formatDeparture(value) {
+    if (value && typeof value === "object") {
+      value = value.dateHeure || value.dateHeureDepart || value.heureDepart || value.heure || value.timestamp || value.value || "";
+    }
+    if (typeof value === "number" || (typeof value === "string" && /^\d{10,13}$/.test(value.trim()))) {
+      const numeric = Number(value);
+      const date = new Date(numeric > 100000000000 ? numeric : numeric * 1000);
+      if (!Number.isNaN(date.getTime())) return new Intl.DateTimeFormat("fr-FR", {hour:"2-digit", minute:"2-digit", timeZone:"UTC"}).format(date);
+    }
+    return displayLabel(value, "Horaire non publié");
+  }
+
   function formatDate(value) {
     const [y,m,d] = value.split("-").map(Number);
     return new Intl.DateTimeFormat("fr-FR", {weekday:"long", day:"numeric", month:"long", year:"numeric"})
@@ -78,7 +97,7 @@
     meetings.replaceChildren();
     reunions.forEach((meeting, index) => {
       const button = element("button", `meeting-tab${index===selectedMeeting?" active":""}`,
-        `${meeting.code || `R${meeting.numero ?? index+1}`} · ${meeting.hippodrome || "Hippodrome non renseigné"}`);
+        `${meeting.code || `R${meeting.numero ?? index+1}`} · ${displayLabel(meeting.hippodrome, "Hippodrome non renseigné")}`);
       button.type = "button";
       button.setAttribute("aria-pressed", String(index===selectedMeeting));
       button.addEventListener("click", () => {
@@ -92,7 +111,7 @@
     if (selectedMeeting === null || !reunions[selectedMeeting]) return;
     const meeting = reunions[selectedMeeting];
     const heading = element("h2", "meeting-heading",
-      `${meeting.code || `Réunion ${meeting.numero ?? ""}`} — ${meeting.hippodrome || "Hippodrome non renseigné"}`);
+      `${meeting.code || `Réunion ${meeting.numero ?? ""}`} — ${displayLabel(meeting.hippodrome, "Hippodrome non renseigné")}`);
     results.appendChild(heading);
     const courseList = element("div", "course-list");
     (meeting.courses || []).forEach(course => {
@@ -105,7 +124,7 @@
       card.appendChild(element("h3", "course-name", course.nom || "Nom de course non renseigné"));
       const details = element("div", "course-details");
       const facts = [
-        ["Départ", course.heure_depart || "Horaire non publié"],
+        ["Départ", formatDeparture(course.heure_depart)],
         ["Distance", course.distance ? `${course.distance} m` : "Non renseignée"],
         ["Partants", course.nombre_partants ?? "Non renseigné"],
         ["Discipline", course.discipline || "Non renseignée"],
