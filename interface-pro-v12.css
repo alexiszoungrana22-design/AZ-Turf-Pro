@@ -1,0 +1,21 @@
+/* AZ Turf Pro — ajustements V12 après contrôle sur téléphone.
+   Couche CSS uniquement : aucune logique métier modifiée. */
+:root{--azp-green:#176b43;--azp-deep:#105536;--azp-pale:#e8f4ec;--azp-line:#d9e4dd;--azp-ink:#1f2937;--azp-muted:#64748b}
+body:has(.pmu-clone-header) .pmu-clone-header .pmu-badge{background:rgba(255,255,255,.18)!important;border:1px solid rgba(255,255,255,.48)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.12)!important}
+body:has(.pmu-clone-header) .pmu-clone-header .pmu-badge span{color:#fff!important;font-size:11px!important;font-weight:850!important;letter-spacing:.1px!important;text-shadow:0 1px 1px rgba(0,0,0,.22)!important;opacity:1!important}
+body:has(.pmu-clone-header) .pmu-clone-header .clone-info-text{color:#fff!important}
+body:has(.pmu-clone-header) .pmu-clone-header .clone-infos{align-items:center!important;justify-content:center!important;margin:4px 0!important;min-height:0!important}
+body:has(.pmu-clone-header) .pmu-clone-header .clone-body{gap:5px!important;padding:14px 16px 13px!important}
+body:has(.pmu-clone-header) .pmu-clone-header .clone-footer{margin-top:5px!important;padding-top:9px!important;gap:8px!important}
+body:has(.pmu-clone-header) .pmu-clone-header .clone-title{margin:0!important}
+body:has(.pmu-clone-header) .pmu-clone-header .clone-subtitle{margin:0!important}
+body:has(.pmu-clone-header) .pmu-clone-header .clone-date{margin:0!important}
+body:has(.pmu-clone-header) .pmu-clone-header .clone-info-text span:empty{display:none!important}
+@media(max-width:760px){
+ body:has(.pmu-clone-header) .pmu-clone-header .clone-body{padding:12px 12px 12px!important}
+ body:has(.pmu-clone-header) .pmu-clone-header .clone-footer{flex-direction:column!important;align-items:stretch!important;margin-top:4px!important;padding-top:8px!important}
+ body:has(.pmu-clone-header) .pmu-clone-header .clone-timer{justify-content:center!important}
+ body:has(.pmu-clone-header) .pmu-clone-header .clone-badges{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important;width:100%!important}
+ body:has(.pmu-clone-header) .pmu-clone-header .pmu-badge{min-width:0!important;padding:7px 3px!important;text-align:center!important}
+ body:has(.pmu-clone-header) .pmu-clone-header .pmu-badge span{font-size:10px!important;white-space:nowrap!important}
+}
