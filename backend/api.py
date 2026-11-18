@@ -205,6 +205,38 @@ def _programme_texte(value):
     return ""
 
 
+def _programme_arrivee(course):
+    """Extrait l'ordre d'arrivée publié par le PMU, sans créer de résultat."""
+    if not isinstance(course, dict):
+        return []
+    brut = (
+        course.get("ordreArrivee")
+        or course.get("ordreArriveeOfficiel")
+        or course.get("arriveeOfficielle")
+        or course.get("arrivee")
+        or course.get("resultat")
+    )
+    if not brut:
+        return []
+    if isinstance(brut, dict):
+        brut = brut.get("ordre") or brut.get("chevaux") or brut.get("arrivee") or []
+    if not isinstance(brut, list):
+        brut = [brut]
+
+    arrivee = []
+    for element in brut:
+        groupe = element if isinstance(element, list) else [element]
+        for cheval in groupe:
+            if isinstance(cheval, dict):
+                numero = (cheval.get("numero") or cheval.get("numPmu")
+                          or cheval.get("numeroCheval") or cheval.get("numéro"))
+            else:
+                numero = cheval
+            if numero not in (None, ""):
+                arrivee.append(str(numero).strip())
+    return arrivee
+
+
 def _programme_heure(value):
     """Convertit les horodatages PMU en heure lisible, sans afficher les millisecondes."""
     if isinstance(value, dict):
@@ -273,6 +305,7 @@ def programme(date: str = None, reunion: str = None):
                     "nombre_partants": c.get("nombreDeclaresPartants") or c.get("nombrePartants") or c.get("nbPartants"),
                     "statut": c.get("statut") or c.get("etat") or "",
                     "quinte": _course_est_quinte(c),
+                    "arrivee_officielle": _programme_arrivee(c),
                 })
             reunions.append({
                 "numero": numero_r,
