@@ -234,7 +234,8 @@ def _programme_arrivee(course):
                 numero = cheval
             if numero not in (None, ""):
                 arrivee.append(str(numero).strip())
-    return arrivee
+    # La page Programme ne présente que les cinq premières places.
+    return arrivee[:5]
 
 
 def _programme_heure(value):
