@@ -367,80 +367,13 @@ function afficherChevauxSurveiller(data){
 
 
 // =====================================
-// QUINTÉ HIER / JOUR / DEMAIN
+// QUINTÉ DU JOUR UNIQUEMENT
+// La course du jour est chargée par /api/analyse dans chargerAnalyse().
+// Les fenêtres hier et demain ont été retirées de l'accueil.
 // =====================================
-let quintesPeriodes = {};
-let periodeActive = "jour";
-
-function textePeriode(periode){
-    return periode === "hier" ? "d'hier" : periode === "demain" ? "de demain" : "du jour";
-}
-
-function afficherResumeQuinte(periode){
-    periodeActive = periode;
-    const data = periode === "jour" ? window.courseDuJourData : quintesPeriodes[periode];
-
-    document.querySelectorAll(".clone-tab").forEach(tab => {
-        tab.classList.toggle("active", tab.dataset.periode === periode);
-    });
-
-    const label = document.getElementById("periode-course-label");
-    if(label) label.textContent = textePeriode(periode);
-
-    const bandeauDemo = document.getElementById("bandeau-donnees-demo");
-    const estDemo = !!(data && (data.donnees_demo || data.source === "demo"));
-    if(bandeauDemo) bandeauDemo.style.display = estDemo ? "block" : "none";
-
-    if(!data || data.disponible === false){
-        ["meta-course","meta-nom-prix","meta-date","meta-discipline","meta-distance","meta-partants","meta-hippodrome","heure-depart-course"].forEach(id => {
-            const el = document.getElementById(id);
-            if(el) el.textContent = id === "heure-depart-course" ? "Départ : indisponible" : "Donnée indisponible";
-        });
-        return;
-    }
-
-    const afficher = (id, valeur) => {
-        const el = document.getElementById(id);
-        const texte = valeur === null || valeur === undefined ? "" : String(valeur).trim();
-        const indisponible = /^(donn[ée]e? indisponible|non disponible|indisponible)$/i.test(texte);
-        if(el) el.textContent = indisponible || !texte ? "" : texte;
-    };
-
-    afficher("meta-course", data.course || "Quinté+");
-    afficher("meta-nom-prix", data.nom_prix || "");
-    afficher("meta-date", data.date || "");
-    afficher("meta-discipline", data.discipline || "-");
-    afficher("meta-distance", data.distance ? `${data.distance} m` : "-");
-    afficher("meta-partants", data.partants || "-");
-    afficher("meta-hippodrome", data.hippodrome || "-");
-    afficherHeureDepartCourse(data);
-}
-
-async function chargerQuintesPeriodes(){
-    const tabs = document.querySelectorAll(".clone-tab[data-periode]");
-    if(!tabs.length) return;
-
-    try{
-        const response = await fetch("/api/quintes-periodes");
-        if(!response.ok) throw new Error("Erreur API Quinté périodes");
-        quintesPeriodes = await response.json();
-    }catch(error){
-        console.log("Quinté hier/demain indisponible", error);
-        quintesPeriodes = {};
-    }
-
-    tabs.forEach(tab => {
-        tab.addEventListener("click", () => afficherResumeQuinte(tab.dataset.periode));
-    });
-
-    // Le jour reste l'onglet actif par défaut et continue d'être alimenté
-    // par /api/analyse comme avant.
-    afficherResumeQuinte("jour");
-}
 
 document.addEventListener("DOMContentLoaded", () => {
     chargerAnalyse();
-    chargerQuintesPeriodes();
     setInterval(changerPublicite, 4000);
 });
                                                                                                                
