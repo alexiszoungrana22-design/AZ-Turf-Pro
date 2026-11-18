@@ -1,0 +1,38 @@
+/* AZ Turf Pro — Journal Hippique V5 : couche visuelle additive */
+.journal-page{background:#f3f6f4!important;color:#24332b!important;padding-bottom:88px!important}
+.journal-page .top-header{position:sticky;top:0;z-index:100;background:#fff!important;border-bottom:1px solid #dce6df!important;box-shadow:0 2px 12px rgba(24,55,38,.06)!important;gap:14px;min-height:64px}
+.journal-page .brand-zone{display:flex;flex-direction:column;gap:2px}
+.journal-page .logo span{color:#176b43!important;font-weight:850}
+.journal-page .mini-countdown{color:#98752e!important;font-size:12px;font-weight:750}
+.journal-page .top-menu{gap:6px;flex-wrap:wrap}
+.journal-page .top-menu a{padding:8px 10px;border-radius:9px;color:#52645a!important;font-size:13px}
+.journal-page .top-menu a[href="ticket.html"]{background:#eaf4ee;color:#176b43!important}
+.journal-page .content{max-width:1060px;margin:0 auto;padding:18px 14px 28px}
+.journal-page .content>.card{background:#fff!important;color:#24332b!important;border:1px solid #dce6df!important;border-radius:15px!important;box-shadow:0 5px 18px rgba(24,55,38,.055)!important;padding:20px!important;margin:0 0 14px!important}
+.journal-page .content>.card:first-child{background:linear-gradient(115deg,#fff 0%,#f0f7f2 100%)!important;border-left:4px solid #176b43!important}
+.journal-page h1{color:#176b43!important;font-size:clamp(22px,4vw,30px)!important;line-height:1.2;margin-bottom:8px}
+.journal-page h2{color:#176b43!important;font-size:18px!important;margin-bottom:12px;padding-bottom:9px;border-bottom:1px solid #e6eee8}
+.journal-page p{color:#58685e;line-height:1.65}
+.journal-page .journal-box,#dernieres-arrivees,#rapports-courses,#actualites-hippiques{min-width:0;overflow-wrap:anywhere}
+.journal-page .journal-box{background:#f8fbf9;border:1px solid #e3ece5;border-radius:11px;padding:14px}
+.journal-page #journal-lonab>p,.journal-page #dernieres-arrivees>p,.journal-page #rapports-courses>p{margin:7px 0}
+.journal-page .resultat-lonab{background:#f8fbf9;border:1px solid #e1ebe4;border-left:4px solid #176b43;border-radius:10px;padding:13px 15px;margin:10px 0;color:#33483a;line-height:1.7}
+.journal-page .resultat-lonab strong{color:#176b43}
+.journal-page .actualite-az-turf{border:1px solid #e1ebe4!important;border-radius:12px!important;background:#fbfdfb!important;color:#33483a;padding:15px!important;overflow-wrap:anywhere}
+.journal-page .content ul{padding-left:22px;line-height:1.8;color:#52645a}
+.journal-page .btn-vip,.journal-page .premium-access a{display:inline-flex;align-items:center;justify-content:center;background:#176b43!important;color:#fff!important;text-decoration:none;border-radius:9px;padding:11px 15px;font-weight:700;max-width:100%}
+.journal-page .premium-access{background:linear-gradient(110deg,#fff,#f7f3e8)!important;border-color:#e7dcc0!important}
+.journal-page .premium-access h2{color:#876b2d!important}
+.journal-page .bottom-menu{background:#fff!important;border-top:1px solid #dce6df!important;box-shadow:0 -3px 14px rgba(24,55,38,.06)!important}
+.journal-page .bottom-menu a{color:#52645a!important;font-weight:650}
+@media(max-width:640px){
+ .journal-page .top-header{padding:10px 12px!important;align-items:flex-start;flex-direction:column}
+ .journal-page .top-menu{width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+ .journal-page .top-menu a{text-align:center;padding:8px 3px;font-size:11px!important;white-space:nowrap}
+ .journal-page .content{padding:12px 10px 22px}
+ .journal-page .content>.card{padding:15px!important;border-radius:12px!important}
+ .journal-page h2{font-size:16px!important}
+ .journal-page .bottom-menu{display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding:8px 4px;}
+ .journal-page .bottom-menu a{font-size:11px;text-align:center;padding:6px 2px;white-space:nowrap}
+ .journal-page .btn-vip,.journal-page .premium-access a{width:100%;text-align:center}
+}

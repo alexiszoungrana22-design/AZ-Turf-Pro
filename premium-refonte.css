@@ -1,0 +1,59 @@
+/* AZ Turf Pro — harmonisation des espaces Premium V6 */
+:root{--az-green:#176b43;--az-green-dark:#105334;--az-gold:#c99a2e;--az-ink:#172b22;--az-muted:#64746b;--az-line:#e4ebe6;--az-soft:#f4f8f5;--az-white:#fff}
+body.page-forfaits,body.page-espace-premium,body.page-mon-abonnement,body.page-abonnement,body.page-activation,body.page-ticket-premium,body.page-live-premium{background:#f3f7f4!important;color:var(--az-ink)!important;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif!important;padding-bottom:76px!important}
+.page-forfaits .top-header,.page-espace-premium .top-header,.page-mon-abonnement .top-header,.page-abonnement .top-header,.page-activation .top-header,.page-ticket-premium .premium-header{background:#fff!important;color:var(--az-ink)!important;border-bottom:1px solid var(--az-line)!important;box-shadow:0 3px 14px rgba(20,55,36,.06)!important}
+.page-forfaits .logo,.page-espace-premium .logo,.page-mon-abonnement .logo,.page-abonnement .logo,.page-activation .logo,.page-ticket-premium .premium-logo{color:var(--az-green)!important;font-weight:850!important;letter-spacing:-.3px}
+.page-forfaits .top-menu a,.page-espace-premium .top-menu a,.page-mon-abonnement .top-menu a,.page-abonnement .top-menu a,.page-activation .top-menu a,.page-ticket-premium .top-menu a,.page-live-premium .az-global-nav a{color:#43564a!important;font-weight:650!important;text-decoration:none!important}
+.page-forfaits .top-menu a:hover,.page-espace-premium .top-menu a:hover,.page-mon-abonnement .top-menu a:hover,.page-abonnement .top-menu a:hover,.page-activation .top-menu a:hover,.page-ticket-premium .top-menu a:hover{color:var(--az-green)!important}
+.page-forfaits .content,.page-espace-premium .content,.page-mon-abonnement .content,.page-abonnement .content,.page-activation .content{width:min(100% - 28px,920px)!important;max-width:920px!important;margin:24px auto 34px!important}
+.page-forfaits .card,.page-espace-premium .card,.page-mon-abonnement .card,.page-abonnement .card,.page-activation .card,.page-ticket-premium .premium-card,.page-live-premium .ticket-box{background:#fff!important;color:var(--az-ink)!important;border:1px solid var(--az-line)!important;border-radius:16px!important;box-shadow:0 5px 18px rgba(20,55,36,.055)!important;padding:clamp(17px,3vw,25px)!important;margin-bottom:16px!important}
+.page-forfaits h1,.page-forfaits h2,.page-espace-premium h1,.page-espace-premium h2,.page-mon-abonnement h1,.page-mon-abonnement h2,.page-abonnement h1,.page-abonnement h2,.page-activation h1,.page-activation h2,.page-ticket-premium h1,.page-ticket-premium h2,.page-live-premium h1,.page-live-premium h2{color:var(--az-green-dark)!important;letter-spacing:-.25px}
+.page-forfaits p,.page-espace-premium p,.page-mon-abonnement p,.page-abonnement p,.page-activation p,.page-ticket-premium p,.page-live-premium p{line-height:1.55}
+.page-forfaits .forfaits-grille{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr))!important;gap:14px!important;margin-top:18px!important}
+.page-forfaits .forfait-carte{background:linear-gradient(180deg,#fff,#fbfdfb)!important;border:1px solid var(--az-line)!important;border-radius:15px!important;padding:20px 16px!important;text-align:left!important;box-shadow:0 3px 12px rgba(20,55,36,.04)!important}
+.page-forfaits .forfait-carte.selectionne{border:2px solid var(--az-gold)!important;box-shadow:0 0 0 3px rgba(201,154,46,.12)!important}
+.page-forfaits .forfait-nom{color:var(--az-green-dark)!important;font-size:17px!important}
+.page-forfaits .forfait-prix{color:#9a7019!important;font-size:27px!important;font-weight:850!important}
+.page-forfaits .forfait-duree{color:var(--az-muted)!important}
+.page-forfaits button,.page-forfaits #bloc-paiement button,.page-espace-premium .btn-action,.page-mon-abonnement .btn-action,.page-activation .btn-action,.page-ticket-premium .btn-vip,.page-abonnement button{background:var(--az-green)!important;background-image:none!important;color:#fff!important;border:0!important;border-radius:10px!important;min-height:44px!important;font-weight:750!important;box-shadow:0 3px 9px rgba(23,107,67,.14)!important}
+.page-forfaits button:hover,.page-espace-premium .btn-action:hover,.page-mon-abonnement .btn-action:hover,.page-activation .btn-action:hover{background:var(--az-green-dark)!important}
+.page-forfaits input,.page-forfaits select,.page-activation .input-premium,.page-abonnement input,.page-abonnement select{width:100%;min-height:46px;box-sizing:border-box;border:1px solid #cbd8ce!important;border-radius:10px!important;background:#fff!important;color:var(--az-ink)!important;padding:11px 13px!important;font-size:16px!important;margin:6px 0 14px}
+.page-forfaits label,.page-activation label{display:block;font-weight:700;color:#405448;margin-top:8px}
+.page-forfaits #bloc-paiement,.page-activation #recap-forfait{background:#f8fbf8!important;border:1px solid var(--az-line)!important;border-radius:12px!important;padding:14px!important}
+.page-espace-premium .content{max-width:760px!important}
+.page-espace-premium .content .card:first-child{padding:clamp(22px,5vw,38px)!important}
+.page-espace-premium .btn-action{display:flex!important;align-items:center;justify-content:center;text-decoration:none!important}
+.page-mon-abonnement .badge-status{border-radius:7px!important;padding:7px 11px!important;letter-spacing:.2px}
+.page-mon-abonnement .btn-admin{background:#edf4ef!important;color:var(--az-green-dark)!important;border:1px solid #cbdccf!important;box-shadow:none!important}
+.page-activation .methode-paiement{background:#f8fbf8!important;border:1px solid var(--az-line)!important;border-radius:12px!important;padding:15px!important;margin:10px 0!important}
+.page-activation .methode-paiement span{overflow-wrap:anywhere}
+.page-ticket-premium .premium-header{padding:16px clamp(14px,3vw,28px)!important}
+.page-ticket-premium .premium-title{max-width:1000px;margin:14px auto 8px!important;text-align:left!important}
+.page-ticket-premium .premium-title h1{font-size:clamp(23px,4vw,32px)!important;margin-bottom:5px!important}
+.page-ticket-premium .premium-title p{color:var(--az-muted)!important}
+.page-ticket-premium .premium-menu{background:#fff!important;border-top:1px solid var(--az-line)!important;border-bottom:1px solid var(--az-line)!important}
+.page-ticket-premium .premium-container{width:min(100% - 26px,1000px)!important;margin:20px auto 32px!important}
+.page-ticket-premium .premium-card h2{font-size:18px!important;margin:0 0 12px!important}
+.page-ticket-premium .ticket-premium-box{background:#f8fbf8!important;border:1px solid #e0e9e2!important;border-left:4px solid var(--az-gold)!important;border-radius:12px!important;padding:14px!important;margin:12px 0!important}
+.page-ticket-premium .ticket-premium-box h3{color:var(--az-green-dark)!important;font-size:15px!important}
+.page-ticket-premium .numero-cheval{display:inline-flex!important;align-items:center;justify-content:center;width:auto!important;min-width:34px!important;height:34px!important;line-height:1!important;padding:0 9px!important;border-radius:8px!important;background:#e8f1eb!important;color:var(--az-green-dark)!important;border:1px solid #cbdccf!important;box-shadow:none!important;margin:3px!important}
+.page-ticket-premium .numero-ticket{line-height:2.1!important;overflow-wrap:anywhere}
+.page-ticket-premium #btn-toggle-tableau,.page-live-premium #btn-toggle-tableau{background:var(--az-green)!important;border-radius:9px!important;box-shadow:none!important}
+.page-ticket-premium #conteneur-tableau,.page-live-premium #conteneur-tableau{max-width:100%;overflow-x:auto!important;border-radius:10px}
+.page-ticket-premium table,.page-live-premium table{min-width:600px;border:1px solid var(--az-line)!important}
+.page-ticket-premium th,.page-ticket-premium td,.page-live-premium th,.page-live-premium td{padding:10px 12px!important;border-bottom:1px solid var(--az-line)!important}
+.page-live-premium .az-global-nav{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#fff!important;border-bottom:1px solid var(--az-line)!important;padding:12px 16px!important;box-shadow:0 3px 14px rgba(20,55,36,.05)}
+.page-live-premium .az-brand{color:var(--az-green)!important;font-weight:850}
+.page-live-premium main{width:min(100% - 26px,980px);margin:22px auto}
+.page-live-premium .ticket-box{border-left:4px solid var(--az-gold)!important;background:#fff!important}
+.page-forfaits .bottom-menu,.page-espace-premium .bottom-menu,.page-mon-abonnement .bottom-menu,.page-abonnement .bottom-menu,.page-activation .bottom-menu,.page-ticket-premium .bottom-menu{background:rgba(255,255,255,.97)!important;border-top:1px solid var(--az-line)!important;box-shadow:0 -4px 15px rgba(20,55,36,.06)!important;backdrop-filter:blur(10px)}
+.page-forfaits .bottom-menu a,.page-espace-premium .bottom-menu a,.page-mon-abonnement .bottom-menu a,.page-abonnement .bottom-menu a,.page-activation .bottom-menu a,.page-ticket-premium .bottom-menu a{color:#53665a!important;font-weight:650!important}
+.page-forfaits .bottom-menu a.active,.page-espace-premium .bottom-menu a.active,.page-mon-abonnement .bottom-menu a.active,.page-abonnement .bottom-menu a.active,.page-activation .bottom-menu a.active,.page-ticket-premium .bottom-menu a.active{color:var(--az-green)!important}
+@media(max-width:600px){
+ .page-forfaits .top-menu,.page-espace-premium .top-menu,.page-mon-abonnement .top-menu,.page-abonnement .top-menu,.page-activation .top-menu{gap:8px!important;flex-wrap:wrap}
+ .page-forfaits .content,.page-espace-premium .content,.page-mon-abonnement .content,.page-abonnement .content,.page-activation .content{width:calc(100% - 20px)!important;margin:14px auto 24px!important}
+ .page-ticket-premium .premium-container{width:calc(100% - 18px)!important;margin:12px auto 24px!important}
+ .page-ticket-premium .premium-menu{overflow-x:auto!important;white-space:nowrap!important;justify-content:flex-start!important}
+ .page-ticket-premium .premium-card{padding:15px!important}
+ .page-live-premium .az-global-nav{gap:10px!important;font-size:13px}
+}
