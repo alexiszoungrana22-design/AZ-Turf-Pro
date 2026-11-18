@@ -401,11 +401,13 @@ function afficherResumeQuinte(periode){
 
     const afficher = (id, valeur) => {
         const el = document.getElementById(id);
-        if(el) el.textContent = valeur ?? "-";
+        const texte = valeur === null || valeur === undefined ? "" : String(valeur).trim();
+        const indisponible = /^(donn[ée]e? indisponible|non disponible|indisponible)$/i.test(texte);
+        if(el) el.textContent = indisponible || !texte ? "" : texte;
     };
 
     afficher("meta-course", data.course || "Quinté+");
-    afficher("meta-nom-prix", data.nom_prix || data.course || "");
+    afficher("meta-nom-prix", data.nom_prix || "");
     afficher("meta-date", data.date || "");
     afficher("meta-discipline", data.discipline || "-");
     afficher("meta-distance", data.distance ? `${data.distance} m` : "-");
