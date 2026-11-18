@@ -142,7 +142,7 @@
       // Les arrivées ne sont affichées que lorsqu'elles sont fournies par la source PMU.
       // Pour une date passée sans résultat publié, on indique clairement l'attente.
       if (date < today()) {
-        const arrival = Array.isArray(course.arrivee_officielle) ? course.arrivee_officielle : [];
+        const arrival = Array.isArray(course.arrivee_officielle) ? course.arrivee_officielle.slice(0, 5) : [];
         const arrivalPanel = element("section", `course-arrival${arrival.length ? " is-published" : " is-pending"}`);
         arrivalPanel.appendChild(element("strong", "course-arrival-title", "Arrivée officielle"));
         arrivalPanel.appendChild(element("p", "course-arrival-numbers",
