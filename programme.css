@@ -68,3 +68,11 @@
 .analysis-free-tickets { margin-top:12px; padding-top:10px; border-top:1px solid #dce9df; }
 .analysis-ticket-heading { margin:0 0 7px; color:#173d2b; font-size:13px; }
 .analysis-ticket-line { margin:5px 0; color:#263548; font-size:13px; font-weight:700; }
+
+/* Arrivées officielles des courses passées */
+.course-arrival { margin-top:14px; padding:12px 13px; border-radius:9px; border:1px solid #d9e6dc; background:#f7faf8; }
+.course-arrival-title { display:block; color:#173d2b; font-size:13px; font-weight:900; }
+.course-arrival-numbers { margin:7px 0 0; color:#17613b; font-size:18px; line-height:1.45; font-weight:900; overflow-wrap:anywhere; }
+.course-arrival-source { display:block; margin-top:5px; color:#64748b; font-size:11px; }
+.course-arrival.is-pending { background:#fffaf0; border-color:#f0dfb7; }
+.course-arrival.is-pending .course-arrival-numbers { color:#805b13; font-size:13px; font-weight:700; }

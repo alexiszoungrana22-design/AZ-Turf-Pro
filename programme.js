@@ -139,6 +139,18 @@
       });
       card.appendChild(details);
 
+      // Les arrivées ne sont affichées que lorsqu'elles sont fournies par la source PMU.
+      // Pour une date passée sans résultat publié, on indique clairement l'attente.
+      if (date < today()) {
+        const arrival = Array.isArray(course.arrivee_officielle) ? course.arrivee_officielle : [];
+        const arrivalPanel = element("section", `course-arrival${arrival.length ? " is-published" : " is-pending"}`);
+        arrivalPanel.appendChild(element("strong", "course-arrival-title", "Arrivée officielle"));
+        arrivalPanel.appendChild(element("p", "course-arrival-numbers",
+          arrival.length ? arrival.join(" – ") : "Arrivée officielle en attente de publication"));
+        if (arrival.length) arrivalPanel.appendChild(element("span", "course-arrival-source", "Source : programme officiel PMU"));
+        card.appendChild(arrivalPanel);
+      }
+
       const horseButton = element("button", "course-horses-button", "Voir les partants");
       horseButton.type = "button";
       horseButton.addEventListener("click", () => loadCourseHorses(date, meeting.numero, course.numero, card, horseButton));
