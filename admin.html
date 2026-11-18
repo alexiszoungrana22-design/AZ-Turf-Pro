@@ -1,163 +1,129 @@
 <!DOCTYPE html>
+
 <html lang="fr">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administration - AZ Turf Pro</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="admin.css">
-</head>
-
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Administration - AZ Turf Pro</title>
+<link href="style.css" rel="stylesheet"/>
+<link href="admin.css" rel="stylesheet"/>
+<link href="harmonisation.css?v=1" rel="stylesheet"/></head>
 <body>
-
 <header class="header-az">
-    <div class="logo-area">
-        <h1>⚙️ AZ Turf Pro Admin</h1>
-        <p>Tableau de bord professionnel</p>
-    </div>
+<div class="logo-area">
+<h1>⚙️ AZ Turf Pro Admin</h1>
+<p>Tableau de bord professionnel</p>
+</div>
 </header>
-
 <nav class="menu">
-    <a href="index.html">🏠 Accueil</a>
-    <a href="analyse.html">📊 Analyse</a>
-    <a href="ticket-premium.html">🎟️ Premium VIP</a>
-    <a href="mon-abonnement.html">🔑 Compte</a>
+<a href="index.html">🏠 Accueil</a>
+<a href="analyse.html">📊 Analyse</a>
+<a href="ticket-premium.html">🎟️ Premium VIP</a>
+<a href="mon-abonnement.html">🔑 Compte</a>
 </nav>
-
 <main class="home-content">
-
-    <section class="course-card">
-        <h2>📊 Tableau de bord administrateur</h2>
-        <p>Gestion et suivi de la plateforme AZ Turf Pro</p>
-
-        <!-- CONNEXION ADMIN -->
-        <div id="admin-login" style="margin-top: 15px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-            <input type="password" id="admin-key-input" placeholder="Clé administrateur" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc;">
-            <button class="btn-vip" onclick="connexionAdmin()">🔐 Se connecter</button>
-            <span id="admin-login-message"></span>
-        </div>
-
-        <div id="admin-actions" style="display: none; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px;">
-            <button class="btn-vip" onclick="actualiserAdmin()">
+<section class="course-card">
+<h2>📊 Tableau de bord administrateur</h2>
+<p>Gestion et suivi de la plateforme AZ Turf Pro</p>
+<!-- CONNEXION ADMIN -->
+<div id="admin-login" style="margin-top: 15px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+<input id="admin-key-input" placeholder="Clé administrateur" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc;" type="password"/>
+<button class="btn-vip" onclick="connexionAdmin()">🔐 Se connecter</button>
+<span id="admin-login-message"></span>
+</div>
+<div id="admin-actions" style="display: none; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px;">
+<button class="btn-vip" onclick="actualiserAdmin()">
                 🔄 Actualiser les données
             </button>
-
-            <!-- BOUTON ACCÈS DIRECT ADMIN -->
-            <button class="btn-vip" onclick="accederVIPAdmin()" style="background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #ffffff;">
+<!-- BOUTON ACCÈS DIRECT ADMIN -->
+<button class="btn-vip" onclick="accederVIPAdmin()" style="background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #ffffff;">
                 👑 Voir les Tickets VIP (Accès Admin)
             </button>
-
-            <button class="btn-vip" onclick="deconnexionAdmin()" style="background: #6b7280; color: #fff;">
+<button class="btn-vip" onclick="deconnexionAdmin()" style="background: #6b7280; color: #fff;">
                 🚪 Déconnexion
             </button>
-        </div>
-    </section>
-
-    <section class="ticket-container">
-
-        <!-- STATISTIQUES -->
-        <div class="box premium">
-            <h2>📈 Total abonnements</h2>
-            <p id="total-abonnements">0</p>
-        </div>
-
-        <div class="box premium">
-            <h2>⭐ Premium actifs</h2>
-            <p id="nombre-premium">0</p>
-        </div>
-
-        <div class="box premium">
-            <h2>💳 Paiements en attente</h2>
-            <p id="paiements-attente">0</p>
-        </div>
-
-        <div class="box premium">
-            <h2>❌ Abonnements expirés</h2>
-            <p id="abonnements-expire">0</p>
-        </div>
-
-        <!-- VERIFICATION PREMIUM -->
-        <div class="box premium">
-            <h2>👥 Vérification Premium</h2>
-            <p style="margin-top: 10px;">Téléphone utilisateur :</p>
-            <input type="text" id="telephone-premium" placeholder="Numéro téléphone">
-
-            <button class="btn-vip" onclick="verifierUtilisateurPremium()">
+</div>
+</section>
+<section class="ticket-container">
+<!-- STATISTIQUES -->
+<div class="box premium">
+<h2>📈 Total abonnements</h2>
+<p id="total-abonnements">0</p>
+</div>
+<div class="box premium">
+<h2>⭐ Premium actifs</h2>
+<p id="nombre-premium">0</p>
+</div>
+<div class="box premium">
+<h2>💳 Paiements en attente</h2>
+<p id="paiements-attente">0</p>
+</div>
+<div class="box premium">
+<h2>❌ Abonnements expirés</h2>
+<p id="abonnements-expire">0</p>
+</div>
+<!-- VERIFICATION PREMIUM -->
+<div class="box premium">
+<h2>👥 Vérification Premium</h2>
+<p style="margin-top: 10px;">Téléphone utilisateur :</p>
+<input id="telephone-premium" placeholder="Numéro téléphone" type="text"/>
+<button class="btn-vip" onclick="verifierUtilisateurPremium()">
                 🔍 Vérifier
             </button>
-
-            <p id="resultat-premium">Aucune vérification</p>
-        </div>
-
-        <!-- VALIDATION PAIEMENT (étape 1 : avant activation) -->
-        <div class="box premium">
-            <h2>💰 Valider un paiement reçu</h2>
-            <p style="margin-top: 10px;">Téléphone utilisateur :</p>
-            <input type="text" id="validation-telephone" placeholder="Numéro téléphone">
-
-            <p style="margin-top: 10px;">Référence reçue (Orange/Moov/Wave) :</p>
-            <input type="text" id="validation-reference" placeholder="Référence paiement">
-
-            <button class="btn-vip" onclick="validerPaiement()">
+<p id="resultat-premium">Aucune vérification</p>
+</div>
+<!-- VALIDATION PAIEMENT (étape 1 : avant activation) -->
+<div class="box premium">
+<h2>💰 Valider un paiement reçu</h2>
+<p style="margin-top: 10px;">Téléphone utilisateur :</p>
+<input id="validation-telephone" placeholder="Numéro téléphone" type="text"/>
+<p style="margin-top: 10px;">Référence reçue (Orange/Moov/Wave) :</p>
+<input id="validation-reference" placeholder="Référence paiement" type="text"/>
+<button class="btn-vip" onclick="validerPaiement()">
                 💰 Confirmer réception du paiement
             </button>
-
-            <p id="resultat-validation">Aucune validation</p>
-        </div>
-
-        <!-- ACTIVATION PREMIUM -->
-        <div class="box premium">
-            <h2>⚡ Activation Premium</h2>
-            <p style="margin-top: 10px;">Téléphone utilisateur :</p>
-            <input type="text" id="activation-telephone" placeholder="Numéro téléphone">
-
-            <p style="margin-top: 10px;">Référence paiement :</p>
-            <input type="text" id="activation-reference" placeholder="Référence paiement">
-
-            <button class="btn-vip" onclick="activerPremium()">
+<p id="resultat-validation">Aucune validation</p>
+</div>
+<!-- ACTIVATION PREMIUM -->
+<div class="box premium">
+<h2>⚡ Activation Premium</h2>
+<p style="margin-top: 10px;">Téléphone utilisateur :</p>
+<input id="activation-telephone" placeholder="Numéro téléphone" type="text"/>
+<p style="margin-top: 10px;">Référence paiement :</p>
+<input id="activation-reference" placeholder="Référence paiement" type="text"/>
+<button class="btn-vip" onclick="activerPremium()">
                 ✅ Activer Premium
             </button>
-
-            <p id="resultat-activation">Aucune activation</p>
-        </div>
-
-        <!-- ANALYSE -->
-        <div class="box premium">
-            <h2>🏇 Analyse du jour</h2>
-            <p>API d'analyse : <span id="etat-api">Vérification...</span></p>
-        </div>
-
-        <!-- LISTE ABONNEMENTS -->
-        <div class="box premium">
-            <h2>📋 Liste des abonnements</h2>
-            <div id="liste-abonnements">Aucun abonnement affiché</div>
-        </div>
-
-        <!-- PUBLICITES -->
-        <div class="box premium">
-            <h2>📢 Publicités</h2>
-            <p>Gestion des bannières publicitaires AZ Turf Pro.</p>
-            <button class="btn-vip" style="margin-top: 10px;">Gérer les bannières</button>
-        </div>
-
-        <!-- PARAMETRES -->
-        <div class="box premium">
-            <h2>⚙️ Paramètres</h2>
-            <p>Configuration générale de la plateforme.</p>
-        </div>
-
-    </section>
-
+<p id="resultat-activation">Aucune activation</p>
+</div>
+<!-- ANALYSE -->
+<div class="box premium">
+<h2>🏇 Analyse du jour</h2>
+<p>API d'analyse : <span id="etat-api">Vérification...</span></p>
+</div>
+<!-- LISTE ABONNEMENTS -->
+<div class="box premium">
+<h2>📋 Liste des abonnements</h2>
+<div id="liste-abonnements">Aucun abonnement affiché</div>
+</div>
+<!-- PUBLICITES -->
+<div class="box premium">
+<h2>📢 Publicités</h2>
+<p>Gestion des bannières publicitaires AZ Turf Pro.</p>
+<button class="btn-vip" style="margin-top: 10px;">Gérer les bannières</button>
+</div>
+<!-- PARAMETRES -->
+<div class="box premium">
+<h2>⚙️ Paramètres</h2>
+<p>Configuration générale de la plateforme.</p>
+</div>
+</section>
 </main>
-
 <footer>
-    <p>AZ Turf Pro - Administration</p>
+<p>AZ Turf Pro - Administration</p>
 </footer>
-
 <script src="auth.js"></script>
 <script src="admin.js"></script>
-
 <script>
     function actualiserAdmin() {
         if (typeof chargerStatistiquesAdmin === "function") chargerStatistiquesAdmin();
@@ -202,6 +168,5 @@
 
     document.addEventListener("DOMContentLoaded", majAffichageConnexion);
 </script>
-
 </body>
 </html>

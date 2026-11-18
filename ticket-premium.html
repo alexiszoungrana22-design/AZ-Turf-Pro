@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="fr">
 
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Espace Ticket Premium - AZ Turf Pro</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="ticket-premium.css">
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<title>Espace Ticket Premium - AZ Turf Pro</title>
+<link href="style.css" rel="stylesheet"/>
+<link href="ticket-premium.css" rel="stylesheet"/>
+<style>
         /* RÈGLE ANTI-CONFLIT : RENDS LE MASQUAGE ABSOLU */
         .zone-masquee {
             display: none !important;
@@ -80,168 +80,138 @@
             display: inline-block; 
         }
     </style>
-</head>
-
+<link href="harmonisation.css?v=1" rel="stylesheet"/></head>
 <body>
-
 <header class="premium-header">
-    <div class="premium-logo">
+<div class="premium-logo">
         🏇 AZ Turf Pro
     </div>
-
-    <!-- BOUTON TABLEAU EN DIRECT -->
-    <button id="btn-toggle-tableau" style="background: #10b981; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; margin: 15px 0; display: flex; align-items: center; gap: 8px;">
+<!-- BOUTON TABLEAU EN DIRECT -->
+<button id="btn-toggle-tableau" style="background: #10b981; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; margin: 15px 0; display: flex; align-items: center; gap: 8px;">
         📊 Afficher le Tableau des Partants (Live)
     </button>
-
-    <!-- TABLEAU LIVE DYNAMIQUE -->
-    <div id="conteneur-tableau" class="zone-masquee" style="margin-top: 15px; overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; background: #ffffff; color: #000000; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-            <thead>
-                <tr style="background: #f1f5f9; text-align: left; font-size: 14px; color: #334155;">
-                    <th style="padding: 12px;">Rang</th>
-                    <th style="padding: 12px;">N°</th>
-                    <th style="padding: 12px;">Cheval</th>
-                    <th style="padding: 12px;">Indice AZ</th>
-                    <th style="padding: 12px;">Confiance</th>
-                    <th style="padding: 12px;">Tendance</th>
-                </tr>
-            </thead>
-            <tbody id="all-horses">
-                <!-- Données injectées dynamiquement par ticket-premium.js -->
-            </tbody>
-        </table>
-    </div>
-
-    <div class="premium-title">
-        <h1>Espace Ticket Premium</h1>
-        <p>Analyse spécialisée et combinaisons exclusives</p>
-    </div>
+<!-- TABLEAU LIVE DYNAMIQUE -->
+<div class="zone-masquee" id="conteneur-tableau" style="margin-top: 15px; overflow-x: auto;">
+<table style="width: 100%; border-collapse: collapse; background: #ffffff; color: #000000; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+<thead>
+<tr style="background: #f1f5f9; text-align: left; font-size: 14px; color: #334155;">
+<th style="padding: 12px;">Rang</th>
+<th style="padding: 12px;">N°</th>
+<th style="padding: 12px;">Cheval</th>
+<th style="padding: 12px;">Indice AZ</th>
+<th style="padding: 12px;">Confiance</th>
+<th style="padding: 12px;">Tendance</th>
+</tr>
+</thead>
+<tbody id="all-horses">
+<!-- Données injectées dynamiquement par ticket-premium.js -->
+</tbody>
+</table>
+</div>
+<div class="premium-title">
+<h1>Espace Ticket Premium</h1>
+<p>Analyse spécialisée et combinaisons exclusives</p>
+</div>
 </header>
-
 <nav class="top-menu premium-menu">
-    <a href="index.html">🏠 Accueil</a>
-    <a href="analyse.html">📊 Analyse</a>
-    <a href="ticket-premium.html" class="active">🎟️ Ticket VIP</a>
-    <a href="chatbot.html">🤖 Assistant</a>
-    <a href="mon-abonnement.html">🔑 Compte</a>
+<a href="index.html">🏠 Accueil</a>
+<a href="analyse.html">📊 Analyse</a>
+<a class="active" href="ticket-premium.html">🎟️ Ticket VIP</a>
+<a href="chatbot.html">🤖 Assistant</a>
+<a href="mon-abonnement.html">🔑 Compte</a>
 </nav>
-
 <main class="premium-container">
-
-    <!-- 🔒 1. BLOCAGE (masqué seulement une fois l'abonnement confirmé) -->
-    <div id="message-blocage" class="premium-card" style="text-align: center;">
-        <h2>🔒 Accès Premium indisponible</h2>
-        <p style="color: #4b5563; margin-bottom: 15px;">Votre abonnement n'est pas actif ou votre référence doit être validée.</p>
-        <a href="activation.html" class="btn-vip">🔑 Activer ma Référence</a>
-        <a href="mon-abonnement.html" style="display: block; margin-top: 12px; color: #0f172a; font-weight: bold; text-decoration: none;">👑 Espace Compte / Admin</a>
-    </div>
-
-    <!-- 🔓 2. CONTENU VIP (masqué par défaut, affiché seulement si abonnement actif confirmé) -->
-    <div id="contenu-premium" class="zone-masquee">
-
-        <div class="premium-back" style="margin-bottom: 15px;">
-            <a href="mon-abonnement.html" style="color: #d97706; text-decoration: none; font-weight: bold;">⬅ Retour à mon compte</a>
-        </div>
-
-        <section class="premium-card">
-            <h2>⭐ AZ Turf Pro Premium</h2>
-            <p style="color: #334155;">Vos sélections exclusives basées sur l'analyse des performances.</p>
-        </section>
-
-        <!-- SÉLECTION DU JOUR -->
-        <section class="premium-card">
-            <h2>🏇 Sélection Premium du jour</h2>
-            <div id="selection-premium" class="chevaux-premium" style="color: #000000; font-weight: bold; font-size: 18px; margin-top: 10px;">
+<!-- 🔒 1. BLOCAGE (masqué seulement une fois l'abonnement confirmé) -->
+<div class="premium-card" id="message-blocage" style="text-align: center;">
+<h2>🔒 Accès Premium indisponible</h2>
+<p style="color: #4b5563; margin-bottom: 15px;">Votre abonnement n'est pas actif ou votre référence doit être validée.</p>
+<a class="btn-vip" href="activation.html">🔑 Activer ma Référence</a>
+<a href="mon-abonnement.html" style="display: block; margin-top: 12px; color: #0f172a; font-weight: bold; text-decoration: none;">👑 Espace Compte / Admin</a>
+</div>
+<!-- 🔓 2. CONTENU VIP (masqué par défaut, affiché seulement si abonnement actif confirmé) -->
+<div class="zone-masquee" id="contenu-premium">
+<div class="premium-back" style="margin-bottom: 15px;">
+<a href="mon-abonnement.html" style="color: #d97706; text-decoration: none; font-weight: bold;">⬅ Retour à mon compte</a>
+</div>
+<section class="premium-card">
+<h2>⭐ AZ Turf Pro Premium</h2>
+<p style="color: #334155;">Vos sélections exclusives basées sur l'analyse des performances.</p>
+</section>
+<!-- SÉLECTION DU JOUR -->
+<section class="premium-card">
+<h2>🏇 Sélection Premium du jour</h2>
+<div class="chevaux-premium" id="selection-premium" style="color: #000000; font-weight: bold; font-size: 18px; margin-top: 10px;">
                 Chargement...
             </div>
-        </section>
-
-        <!-- EXPLICATION DES CHOIX -->
-        <section class="premium-card">
-            <h2>🧠 Pourquoi ces chevaux ?</h2>
-            <div id="explication-premium" style="color: #1e293b; font-size: 15px; margin-top: 10px;">
+</section>
+<!-- EXPLICATION DES CHOIX -->
+<section class="premium-card">
+<h2>🧠 Pourquoi ces chevaux ?</h2>
+<div id="explication-premium" style="color: #1e293b; font-size: 15px; margin-top: 10px;">
                 Chargement...
             </div>
-        </section>
-
-        <!-- COMBINAISONS TICKETS PREMIUM -->
-        <section class="premium-card tickets-premium">
-            <h2>🏆 Vos Tickets Premium</h2>
-
-            <div class="ticket-premium-box">
-                <h3>🏆 Quinté Premium</h3>
-                <div id="quinte-premium" class="numero-ticket">Chargement...</div>
-            </div>
-
-            <div class="ticket-premium-box">
-                <h3>🥇 Quarté Premium</h3>
-                <div id="quarte-premium" class="numero-ticket">Chargement...</div>
-            </div>
-
-            <div class="ticket-premium-box">
-                <h3>🎯 Trio Premium</h3>
-                <div id="trio-premium" class="numero-ticket">Chargement...</div>
-            </div>
-
-            <div class="ticket-premium-box">
-                <h3>🤝 Couplé Gagnant / Placé</h3>
-                <div id="couple-premium" class="numero-ticket">Chargement...</div>
-            </div>
-
-            <div class="ticket-premium-box">
-                <h3>🔒 Champ réduit Premium</h3>
-                <div id="champ-reduit-premium" class="numero-ticket">Chargement...</div>
-            </div>
-        </section>
-
-        <!-- DERNIÈRE MINUTE -->
-        <section class="premium-card">
-            <h2>⚡ Dernière minute</h2>
-            <div id="derniere-minute-premium" style="color: #000000; font-weight: bold; margin-top: 10px;">
+</section>
+<!-- COMBINAISONS TICKETS PREMIUM -->
+<section class="premium-card tickets-premium">
+<h2>🏆 Vos Tickets Premium</h2>
+<div class="ticket-premium-box">
+<h3>🏆 Quinté Premium</h3>
+<div class="numero-ticket" id="quinte-premium">Chargement...</div>
+</div>
+<div class="ticket-premium-box">
+<h3>🥇 Quarté Premium</h3>
+<div class="numero-ticket" id="quarte-premium">Chargement...</div>
+</div>
+<div class="ticket-premium-box">
+<h3>🎯 Trio Premium</h3>
+<div class="numero-ticket" id="trio-premium">Chargement...</div>
+</div>
+<div class="ticket-premium-box">
+<h3>🤝 Couplé Gagnant / Placé</h3>
+<div class="numero-ticket" id="couple-premium">Chargement...</div>
+</div>
+<div class="ticket-premium-box">
+<h3>🔒 Champ réduit Premium</h3>
+<div class="numero-ticket" id="champ-reduit-premium">Chargement...</div>
+</div>
+</section>
+<!-- DERNIÈRE MINUTE -->
+<section class="premium-card">
+<h2>⚡ Dernière minute</h2>
+<div id="derniere-minute-premium" style="color: #000000; font-weight: bold; margin-top: 10px;">
                 Chargement...
             </div>
-        </section>
-
-        <!-- ANALYSE COMPLETE -->
-        <section class="premium-card analyse-premium-zone">
-            <h2>📈 Analyse Premium</h2>
-            <div id="analyse-premium" style="color: #1e293b; margin-top: 10px;">
+</section>
+<!-- ANALYSE COMPLETE -->
+<section class="premium-card analyse-premium-zone">
+<h2>📈 Analyse Premium</h2>
+<div id="analyse-premium" style="color: #1e293b; margin-top: 10px;">
                 Chargement...
             </div>
-        </section>
-
-        <!-- MESSAGE SPECIAL VIP -->
-        <section class="premium-card">
-            <h2>🍀 Message Premium</h2>
-            <p id="message-premium" style="color: #000000; font-weight: 500; margin-top: 10px;">
+</section>
+<!-- MESSAGE SPECIAL VIP -->
+<section class="premium-card">
+<h2>🍀 Message Premium</h2>
+<p id="message-premium" style="color: #000000; font-weight: 500; margin-top: 10px;">
                 Chargement...
             </p>
-        </section>
-
-    </div>
-
+</section>
+</div>
 </main>
-
 <!-- ACCÈS RAPIDE À L'ASSISTANT -->
-<a href="chatbot.html"
-   aria-label="Ouvrir l'Assistant AZ Turf Pro"
-   style="position:fixed;right:16px;bottom:72px;z-index:9999;display:flex;align-items:center;gap:8px;padding:12px 16px;border-radius:999px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;text-decoration:none;font-weight:800;font-size:14px;box-shadow:0 6px 18px rgba(15,23,42,.25);-webkit-tap-highlight-color:transparent;touch-action:manipulation;">
+<a aria-label="Ouvrir l'Assistant AZ Turf Pro" href="chatbot.html" style="position:fixed;right:16px;bottom:72px;z-index:9999;display:flex;align-items:center;gap:8px;padding:12px 16px;border-radius:999px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;text-decoration:none;font-weight:800;font-size:14px;box-shadow:0 6px 18px rgba(15,23,42,.25);-webkit-tap-highlight-color:transparent;touch-action:manipulation;">
     🤖 Assistant AZ
 </a>
-
 <footer class="bottom-menu">
-    <a href="index.html">🏠 Accueil</a>
-    <a href="analyse.html">📊 Analyse</a>
-    <a href="ticket-premium.html" class="active">🎟️ Ticket VIP</a>
-    <a href="chatbot.html">🤖 Assistant</a>
-    <a href="mon-abonnement.html">🔑 Compte</a>
+<a href="index.html">🏠 Accueil</a>
+<a href="analyse.html">📊 Analyse</a>
+<a class="active" href="ticket-premium.html">🎟️ Ticket VIP</a>
+<a href="chatbot.html">🤖 Assistant</a>
+<a href="mon-abonnement.html">🔑 Compte</a>
 </footer>
-
 <!-- Toute la logique est dans ticket-premium.js (fichier externe) -->
 <script src="auth.js"></script>
 <script src="ticket-premium.js?v=1"></script>
 <script src="modules-az.js"></script>
 </body>
-          </html>
-          
+</html>

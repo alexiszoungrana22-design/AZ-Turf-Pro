@@ -1,19 +1,18 @@
 <!DOCTYPE html>
+
 <html lang="fr">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0f172a">
-
-    <meta name="description" content="AZ Turf Pro - Choisissez votre forfait Premium">
-    <title>AZ Turf Pro - Choisir un abonnement</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="modules-az.css">
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="yes" name="mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="#176b43" name="theme-color"/>
+<meta content="AZ Turf Pro - Choisissez votre forfait Premium" name="description"/>
+<title>AZ Turf Pro - Choisir un abonnement</title>
+<link href="style.css" rel="stylesheet"/>
+<link href="modules-az.css" rel="stylesheet"/>
+<style>
         .forfaits-grille {
             display: grid;
             gap: 14px;
@@ -106,80 +105,64 @@
             text-align: center;
         }
     </style>
-</head>
-
+<link href="harmonisation.css?v=1" rel="stylesheet"/></head>
 <body>
-
 <header class="top-header">
-    <div class="brand-zone">
-        <div class="logo">
+<div class="brand-zone">
+<div class="logo">
             🏇 <span>AZ Turf Pro</span>
-        </div>
-    </div>
-
-    <nav class="top-menu">
-        <a href="index.html">🏠 Accueil</a>
-        <a href="mon-abonnement.html">🔑 Compte</a>
-    </nav>
+</div>
+</div>
+<nav class="top-menu">
+<a href="index.html">🏠 Accueil</a>
+<a href="mon-abonnement.html">🔑 Compte</a>
+</nav>
 </header>
-
 <main class="content">
-
-    <section class="card">
-        <h2>💎 Choisissez votre forfait Premium</h2>
-        <p style="color:#475569; font-size: 14px; margin-bottom: 14px;">
+<section class="card">
+<h2>💎 Choisissez votre forfait Premium</h2>
+<p style="color:#475569; font-size: 14px; margin-bottom: 14px;">
             Sélectionnez l'offre qui vous convient, puis indiquez votre numéro
             pour recevoir les instructions de paiement.
         </p>
-
-        <div class="forfaits-grille" id="grille-forfaits">
-            <div class="forfait-carte" data-offre="Semaine" data-prix="25000" data-duree="7">
-                <div class="forfait-nom">1 Semaine</div>
-                <div class="forfait-prix">25 000 FCFA</div>
-                <div class="forfait-duree">Valable 7 jours</div>
-                <button type="button">Choisir ce forfait</button>
-            </div>
-
-            <div class="forfait-carte" data-offre="1 Mois" data-prix="75000" data-duree="30">
-                <div class="forfait-nom">1 Mois</div>
-                <div class="forfait-prix">75 000 FCFA</div>
-                <div class="forfait-duree">Valable 30 jours</div>
-                <button type="button">Choisir ce forfait</button>
-            </div>
-
-            <div class="forfait-carte" data-offre="3 Mois" data-prix="150000" data-duree="90">
-                <div class="forfait-nom">3 Mois</div>
-                <div class="forfait-prix">150 000 FCFA</div>
-                <div class="forfait-duree">Valable 90 jours</div>
-                <button type="button">Choisir ce forfait</button>
-            </div>
-        </div>
-    </section>
-
-    <section class="card" id="bloc-paiement">
-        <h2>📱 Vos coordonnées</h2>
-
-        <p style="font-size: 14px; color:#334155;">
+<div class="forfaits-grille" id="grille-forfaits">
+<div class="forfait-carte" data-duree="7" data-offre="Semaine" data-prix="25000">
+<div class="forfait-nom">1 Semaine</div>
+<div class="forfait-prix">25 000 FCFA</div>
+<div class="forfait-duree">Valable 7 jours</div>
+<button type="button">Choisir ce forfait</button>
+</div>
+<div class="forfait-carte" data-duree="30" data-offre="1 Mois" data-prix="75000">
+<div class="forfait-nom">1 Mois</div>
+<div class="forfait-prix">75 000 FCFA</div>
+<div class="forfait-duree">Valable 30 jours</div>
+<button type="button">Choisir ce forfait</button>
+</div>
+<div class="forfait-carte" data-duree="90" data-offre="3 Mois" data-prix="150000">
+<div class="forfait-nom">3 Mois</div>
+<div class="forfait-prix">150 000 FCFA</div>
+<div class="forfait-duree">Valable 90 jours</div>
+<button type="button">Choisir ce forfait</button>
+</div>
+</div>
+</section>
+<section class="card" id="bloc-paiement">
+<h2>📱 Vos coordonnées</h2>
+<p style="font-size: 14px; color:#334155;">
             Forfait choisi : <strong id="recap-forfait">-</strong>
-        </p>
-
-        <label for="tel-input">Numéro de téléphone :</label>
-        <input type="tel" id="tel-input" placeholder="Ex. 07 00 00 00 00">
-
-        <label for="paiement-select">Moyen de paiement :</label>
-        <select id="paiement-select">
-            <option value="Orange Money">Orange Money</option>
-            <option value="Moov Money">Moov Money</option>
-            <option value="Wave">Wave</option>
-        </select>
-
-        <button type="button" onclick="validerForfait()">Continuer vers le paiement</button>
-
-        <p id="message-forfait"></p>
-    </section>
-
+</p>
+<label for="tel-input">Numéro de téléphone :</label>
+<input id="tel-input" placeholder="Ex. 07 00 00 00 00" type="tel"/>
+<label for="paiement-select">Moyen de paiement :</label>
+<select id="paiement-select">
+<option value="Orange Money">Orange Money</option>
+<option value="Moov Money">Moov Money</option>
+<option value="Wave">Wave</option>
+</select>
+<button onclick="validerForfait()" type="button">Continuer vers le paiement</button>
+<p id="message-forfait"></p>
+</section>
 </main>
-
 <script>
     let forfaitChoisi = null;
     const API_ABONNEMENT = "https://az-turf-pro.onrender.com/api/abonnement";
@@ -244,6 +227,5 @@
         }
     }
 </script>
-
 </body>
 </html>

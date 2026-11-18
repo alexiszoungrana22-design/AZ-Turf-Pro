@@ -1,51 +1,54 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon abonnement - AZ Turf Pro</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Importation de FontAwesome pour les icônes professionnelles -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
-
-    <header class="top-header">
-        <div class="logo">
-            <i class="fas fa-horse-head"></i> <span>AZ Turf Pro</span>
-        </div>
-        <a href="abonnement.html" class="btn-vip"><i class="fas fa-crown"></i> Premium</a>
-    </header>
-
-    <main class="content">
-        <section class="card">
-            <h1><i class="fas fa-user-shield"></i> Mon Espace Premium</h1>
-            <p style="color: var(--text-muted);">Gérez votre abonnement et consultez votre statut d'accès aux tickets exclusifs.</p>
-        </section>
-
-        <section class="card">
-            <div id="infos-abonnement">
-                <p><i class="fas fa-spinner fa-spin"></i> Chargement sécurisé de vos données...</p>
-            </div>
-        </section>
-
-        <section class="card" id="renouvellement" style="display:none; text-align: center;">
-            <h2><i class="fas fa-sync-alt"></i> Action requise</h2>
-            <p style="margin-bottom: 15px; color: var(--text-muted);">Votre accès Premium n'est pas actif ou a expiré.</p>
-            <button onclick="renouveler()" style="background: linear-gradient(135deg, #D4AF37, #AA8000); color: #000; border: none;">
-                <i class="fas fa-gem"></i> Activer mon accès Premium
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mon abonnement - AZ Turf Pro</title>
+<link href="style.css" rel="stylesheet"/>
+<!-- Importation de FontAwesome pour les icônes professionnelles -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="harmonisation.css?v=1" rel="stylesheet"/></head>
+<body><header aria-label="Navigation principale" class="az-global-nav">
+<span class="az-brand">🏇 AZ Turf Pro</span>
+<a href="index.html">Accueil</a>
+<a href="programme.html">Programme</a>
+<a href="analyse.html">Analyse</a>
+<a href="ticket.html">Journal</a>
+<a href="historique.html">Historique</a>
+<a href="forfaits.html">Premium</a>
+</header>
+<header class="top-header">
+<div class="logo">
+<i class="fas fa-horse-head"></i> <span>AZ Turf Pro</span>
+</div>
+<a class="btn-vip" href="abonnement.html"><i class="fas fa-crown"></i> Premium</a>
+</header>
+<main class="content">
+<section class="card">
+<h1><i class="fas fa-user-shield"></i> Mon Espace Premium</h1>
+<p style="color: var(--text-muted);">Gérez votre abonnement et consultez votre statut d'accès aux tickets exclusifs.</p>
+</section>
+<section class="card">
+<div id="infos-abonnement">
+<p><i class="fas fa-spinner fa-spin"></i> Chargement sécurisé de vos données...</p>
+</div>
+</section>
+<section class="card" id="renouvellement" style="display:none; text-align: center;">
+<h2><i class="fas fa-sync-alt"></i> Action requise</h2>
+<p style="margin-bottom: 15px; color: var(--text-muted);">Votre accès Premium n'est pas actif ou a expiré.</p>
+<button onclick="renouveler()" style="background: linear-gradient(135deg, #D4AF37, #AA8000); color: #000; border: none;">
+<i class="fas fa-gem"></i> Activer mon accès Premium
             </button>
-        </section>
-    </main>
-
-    <footer class="bottom-menu">
-        <a href="index.html"><i class="fas fa-home"></i> Accueil</a>
-        <a href="analyse.html"><i class="fas fa-chart-bar"></i> Analyse</a>
-        <a href="abonnement.html"><i class="fas fa-gem"></i> Premium</a>
-        <a href="mon-abonnement.html" class="active"><i class="fas fa-user"></i> Compte</a>
-    </footer>
-
-    <script>
+</section>
+</main>
+<footer class="bottom-menu">
+<a href="index.html"><i class="fas fa-home"></i> Accueil</a>
+<a href="analyse.html"><i class="fas fa-chart-bar"></i> Analyse</a>
+<a href="abonnement.html"><i class="fas fa-gem"></i> Premium</a>
+<a class="active" href="mon-abonnement.html"><i class="fas fa-user"></i> Compte</a>
+</footer>
+<script>
         const API = "https://az-turf-pro.onrender.com/api/premium/";
 
         function formaterDate(dateString) {

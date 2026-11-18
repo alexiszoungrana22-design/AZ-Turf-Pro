@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="fr">
 
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon Compte - AZ Turf Pro</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mon Compte - AZ Turf Pro</title>
+<link href="style.css" rel="stylesheet"/>
+<style>
         .card { 
             background-color: #ffffff; 
             color: #000000; 
@@ -44,78 +44,63 @@
             font-size: 13px;
         }
     </style>
-</head>
-
+<link href="harmonisation.css?v=1" rel="stylesheet"/></head>
 <body>
-
 <header class="top-header">
-    <div class="logo">
+<div class="logo">
         🏇 <span>AZ Turf Pro</span>
-    </div>
-
-    <nav class="top-menu">
-        <a href="index.html">🏠 Accueil</a>
-        <a href="analyse.html">📊 Analyse</a>
-        <a href="ticket-premium.html">🎟️ Ticket VIP</a>
-        <a href="mon-abonnement.html" class="active">🔑 Compte</a>
-    </nav>
+</div>
+<nav class="top-menu">
+<a href="index.html">🏠 Accueil</a>
+<a href="analyse.html">📊 Analyse</a>
+<a href="ticket-premium.html">🎟️ Ticket VIP</a>
+<a class="active" href="mon-abonnement.html">🔑 Compte</a>
+</nav>
 </header>
-
 <main class="content">
-
-    <!-- EN-TÊTE MON COMPTE -->
-    <section class="card">
-        <h1 style="color: #0f172a; margin-bottom: 8px; font-size: 22px;">🔑 Mon Compte</h1>
-        <p style="color: #4b5563; font-size: 14px;">Gérez votre statut d'accès aux pronostics VIP.</p>
-    </section>
-
-    <!-- ÉTAT DE L'ABONNEMENT -->
-    <section class="card">
-        <h2 style="color: #0f172a; font-size: 18px; margin-bottom: 12px;">📌 Mon Statut Actuel</h2>
-        
-        <div style="margin-bottom: 12px;">
-            <span style="font-size: 14px; color: #4b5563;">Numéro de téléphone :</span><br>
-            <strong id="user-phone" style="font-size: 18px; color: #000000;">Chargement...</strong>
-        </div>
-
-        <div style="margin-bottom: 15px;">
-            <span style="font-size: 14px; color: #4b5563;">Statut de l'accès VIP :</span><br>
-            <span id="user-status" class="badge-status" style="background-color: #f3f4f6; color: #4b5563; margin-top: 5px;">
+<!-- EN-TÊTE MON COMPTE -->
+<section class="card">
+<h1 style="color: #0f172a; margin-bottom: 8px; font-size: 22px;">🔑 Mon Compte</h1>
+<p style="color: #4b5563; font-size: 14px;">Gérez votre statut d'accès aux pronostics VIP.</p>
+</section>
+<!-- ÉTAT DE L'ABONNEMENT -->
+<section class="card">
+<h2 style="color: #0f172a; font-size: 18px; margin-bottom: 12px;">📌 Mon Statut Actuel</h2>
+<div style="margin-bottom: 12px;">
+<span style="font-size: 14px; color: #4b5563;">Numéro de téléphone :</span><br/>
+<strong id="user-phone" style="font-size: 18px; color: #000000;">Chargement...</strong>
+</div>
+<div style="margin-bottom: 15px;">
+<span style="font-size: 14px; color: #4b5563;">Statut de l'accès VIP :</span><br/>
+<span class="badge-status" id="user-status" style="background-color: #f3f4f6; color: #4b5563; margin-top: 5px;">
                 Vérification...
             </span>
-        </div>
-
-        <a href="activation.html" class="btn-action">
+</div>
+<a class="btn-action" href="activation.html">
             💳 Activer / Renouveler un abonnement
         </a>
-    </section>
-
-    <!-- SECTION INTÉGRÉE : ACCÈS ADMINISTRATEUR -->
-    <section class="card" style="border: 2px solid #0f172a; background-color: #ffffff;">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-            <h2 style="color: #0f172a; font-size: 18px; margin: 0;">👑 Espace Administrateur</h2>
-            <span style="background-color: #fef3c7; color: #92400e; font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: bold;">Réservé</span>
-        </div>
-        
-        <p style="color: #4b5563; font-size: 13px; margin-bottom: 12px;">
+</section>
+<!-- SECTION INTÉGRÉE : ACCÈS ADMINISTRATEUR -->
+<section class="card" style="border: 2px solid #0f172a; background-color: #ffffff;">
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+<h2 style="color: #0f172a; font-size: 18px; margin: 0;">👑 Espace Administrateur</h2>
+<span style="background-color: #fef3c7; color: #92400e; font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: bold;">Réservé</span>
+</div>
+<p style="color: #4b5563; font-size: 13px; margin-bottom: 12px;">
             Accédez à la gestion des abonnements, validation des paiements et prévisualisation VIP.
         </p>
-
-        <!-- BOUTON D'ACCÈS DU TABLEAU DE BORD ADMIN -->
-        <button onclick="ouvrirModeAdmin()" class="btn-action btn-admin">
+<!-- BOUTON D'ACCÈS DU TABLEAU DE BORD ADMIN -->
+<button class="btn-action btn-admin" onclick="ouvrirModeAdmin()">
             ⚙️ Ouvrir le Tableau de Bord Admin
         </button>
-    </section>
-
+</section>
 </main>
-
 <footer class="bottom-menu">
-    <a href="index.html">🏠 Accueil</a>
-    <a href="analyse.html">📊 Analyse</a>
-    <a href="ticket-premium.html">🎟️ Ticket VIP</a>
-    <a href="mon-abonnement.html" class="active">🔑 Compte</a>
+<a href="index.html">🏠 Accueil</a>
+<a href="analyse.html">📊 Analyse</a>
+<a href="ticket-premium.html">🎟️ Ticket VIP</a>
+<a class="active" href="mon-abonnement.html">🔑 Compte</a>
 </footer>
-
 <script>
     // Statut Premium : source de vérité = serveur, jamais localStorage.
     const phone = localStorage.getItem("AZ_TURF_TELEPHONE") || "Non renseigné";
@@ -160,6 +145,5 @@
         window.location.href = "admin.html";
     }
 </script>
-
 </body>
 </html>

@@ -1,129 +1,60 @@
 <!DOCTYPE html>
+
 <html lang="fr">
-
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>AZ Turf Pro - Discussion</title>
-
-<link rel="stylesheet" href="style.css">
-
-</head>
-
-
+<link href="style.css" rel="stylesheet"/>
+<link href="harmonisation.css?v=1" rel="stylesheet"/></head>
 <body>
-
-
 <header class="header">
-
 <h1 class="logo">
 AZ Turf Pro
 </h1>
-
-
-<a href="ticket.html" class="vip-btn">
+<a class="vip-btn" href="ticket.html">
 ⭐ Espace Premium
 </a>
-
 </header>
-
-
-
 <main class="container">
-
-
 <section class="comment-card">
-
-
 <h2>💬 Discussion AZ Turf Pro</h2>
-
-
 <p>
 Partagez vos avis, vos analyses et vos impressions sur les courses.
 </p>
-
-
-<input 
-type="text" 
-id="pseudo"
-placeholder="Votre pseudo"
->
-
-
-<textarea 
-id="message"
-placeholder="Votre commentaire">
+<input id="pseudo" placeholder="Votre pseudo" type="text"/>
+<textarea id="message" placeholder="Votre commentaire">
 </textarea>
-
-
-
 <button onclick="ajouterCommentaire()">
 Envoyer
 </button>
-
-
 </section>
-
-
-
 <section class="comment-card">
-
-
 <h2>🗨️ Commentaires</h2>
-
-
 <div id="listeCommentaires">
-
 <p>
 Aucun commentaire pour le moment.
 </p>
-
 </div>
-
-
 </section>
-
-
 </main>
-
-
-
-
 <nav class="menu-vertical">
-
 <a href="index.html">
 🏠 Accueil
 </a>
-
-
 <a href="partants.html">
 🤖 Analyse
 </a>
-
-
 <a href="#">
 🎫 Tickets
 </a>
-
-
 <a href="arrivee.html">
 🏆 Résultats
 </a>
-
-
 <a href="commentaires.html">
 💬 Discussion
 </a>
-
-
 </nav>
-
-
-
-
-
 <script>
 
 function ajouterCommentaire(){
@@ -174,9 +105,5 @@ document.getElementById("message").value="";
 
 
 </script>
-
-
-
 </body>
-
 </html>

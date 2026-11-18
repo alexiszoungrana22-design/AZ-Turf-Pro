@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>AZ Turf Pro - Assistant Premium</title>
-<link rel="stylesheet" href="style.css">
+<link href="style.css" rel="stylesheet"/>
 <style>
 .chatbot-card{max-width:900px;margin:0 auto;padding:18px}
 .chatbot-toolbar{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
@@ -25,32 +26,32 @@
 #chat-form button:disabled{opacity:.6;cursor:not-allowed}
 .chat-note{font-size:13px;color:#64748b}
 </style>
-</head>
+<link href="harmonisation.css?v=1" rel="stylesheet"/></head>
 <body>
 <header class="top-header">
-  <div class="brand-zone"><div class="logo">🏇 <span>AZ Turf Pro</span></div></div>
-  <nav class="top-menu">
-    <a href="index.html">🏠 Accueil</a>
-    <a href="analyse.html">📊 Analyse</a>
-    <a href="chatbot.html" class="active">🤖 Assistant Chatbot</a>
-    <a href="backtest.html">📈 Backtest</a>
-  </nav>
+<div class="brand-zone"><div class="logo">🏇 <span>AZ Turf Pro</span></div></div>
+<nav class="top-menu">
+<a href="index.html">🏠 Accueil</a>
+<a href="analyse.html">📊 Analyse</a>
+<a class="active" href="chatbot.html">🤖 Assistant Chatbot</a>
+<a href="backtest.html">📈 Backtest</a>
+</nav>
 </header>
 <main class="content">
 <section class="card chatbot-card">
-  <div class="chatbot-toolbar">
-    <button id="chat-back" type="button">← Retour</button>
-    <button id="chat-clear" type="button">🗑️ Nouvelle conversation</button>
-  </div>
-  <h2>🤖 Assistant Chatbot AZ Turf Pro</h2>
-  <p>Assistant conversationnel Premium avec réponse progressive, historique local, Markdown et suggestions rapides.</p>
-  <p class="chat-note">🔐 La nouvelle interface interactive utilise l'accès Premium sécurisé côté serveur.</p>
-  <div id="quick-actions"></div>
-  <div id="chat-log" aria-live="polite"></div>
-  <form id="chat-form">
-    <input id="chat-question" class="chat-input" required autocomplete="off" placeholder="Ex. Quel est le favori ?">
-    <button type="submit">Envoyer</button>
-  </form>
+<div class="chatbot-toolbar">
+<button id="chat-back" type="button">← Retour</button>
+<button id="chat-clear" type="button">🗑️ Nouvelle conversation</button>
+</div>
+<h2>🤖 Assistant Chatbot AZ Turf Pro</h2>
+<p>Assistant conversationnel Premium avec réponse progressive, historique local, Markdown et suggestions rapides.</p>
+<p class="chat-note">🔐 La nouvelle interface interactive utilise l'accès Premium sécurisé côté serveur.</p>
+<div id="quick-actions"></div>
+<div aria-live="polite" id="chat-log"></div>
+<form id="chat-form">
+<input autocomplete="off" class="chat-input" id="chat-question" placeholder="Ex. Quel est le favori ?" required=""/>
+<button type="submit">Envoyer</button>
+</form>
 </section>
 </main>
 <script src="auth.js"></script>
