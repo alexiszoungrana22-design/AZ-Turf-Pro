@@ -1,0 +1,66 @@
+/* AZ Turf Pro — interface professionnelle V11
+   Couche visuelle additive : aucune logique métier ni donnée modifiée. */
+:root{--azp-green:#176b43;--azp-deep:#105536;--azp-pale:#e8f4ec;--azp-line:#d9e4dd;--azp-ink:#1f2937;--azp-muted:#64748b}
+html{background:#f1f3f7!important}
+body:has(.pmu-clone-header){background:#f1f3f7!important;color:var(--azp-ink)!important;padding-bottom:calc(92px + env(safe-area-inset-bottom))!important}
+body:has(.pmu-clone-header) .top-header{background:var(--azp-green)!important;color:#fff!important;border:0!important;box-shadow:0 3px 14px #0d402b26!important;min-height:68px;padding:10px 18px!important}
+body:has(.pmu-clone-header) .top-header .logo span{color:#fff!important;font-size:21px!important;letter-spacing:.1px}
+body:has(.pmu-clone-header) .mini-countdown{color:#ffdf86!important}
+body:has(.pmu-clone-header) .btn-vip{background:#f4bd36!important;color:#263238!important;border:0!important;border-radius:10px!important;font-weight:850!important;padding:10px 16px!important}
+body:has(.pmu-clone-header) main.content{width:min(1120px,100%)!important;padding:16px 14px 120px!important}
+body:has(.pmu-clone-header) .card{background:#fff!important;border:1px solid var(--azp-line)!important;border-radius:14px!important;box-shadow:0 3px 13px #173c2910!important;margin-bottom:14px!important;color:var(--azp-ink)!important}
+body:has(.pmu-clone-header) .card h2{color:var(--azp-green)!important;border-bottom:1px solid #e7eee9!important;font-size:17px!important;font-weight:850!important;padding:2px 2px 9px!important}
+/* Bloc course : bandeau vert et informations groupées */
+body:has(.pmu-clone-header) .pmu-clone-header{overflow:hidden!important;padding:0!important;border:0!important;border-radius:15px!important;background:linear-gradient(145deg,#176b43 0%,#105536 100%)!important;color:#fff!important;box-shadow:0 7px 20px #12452f25!important}
+body:has(.pmu-clone-header) .clone-day-heading{background:#0f5033!important;color:#fff!important;padding:11px 16px!important;text-align:center!important;font-size:13px!important;letter-spacing:1.1px!important;font-weight:900!important;border-bottom:1px solid #ffffff24!important}
+body:has(.pmu-clone-header) .clone-body{padding:17px 18px 16px!important;gap:7px!important;text-align:center!important;color:#fff!important}
+body:has(.pmu-clone-header) .clone-title{color:#d9f1e2!important;font:700 13px/1.35 system-ui,sans-serif!important}
+body:has(.pmu-clone-header) .clone-subtitle{color:#fff!important;font:850 clamp(19px,3vw,25px)/1.2 system-ui,sans-serif!important;text-transform:none!important}
+body:has(.pmu-clone-header) .clone-date{color:#e1f2e7!important;font:700 14px/1.35 system-ui,sans-serif!important}
+body:has(.pmu-clone-header) .clone-infos{display:flex!important;justify-content:center!important;flex-wrap:wrap!important;gap:7px!important;margin:7px 0!important}
+body:has(.pmu-clone-header) .clone-info-text{color:#fff!important;font-size:12px!important;font-weight:700!important;line-height:1.45!important}
+body:has(.pmu-clone-header) .clone-footer{border-top:1px solid #ffffff35!important;padding-top:11px!important;margin-top:5px!important;justify-content:center!important}
+body:has(.pmu-clone-header) .clone-timer{color:#fff!important}
+body:has(.pmu-clone-header) .heure-depart-course{background:#ffffff20!important;color:#fff!important;border:1px solid #ffffff45!important}
+body:has(.pmu-clone-header) .clone-badges{gap:6px!important}
+body:has(.pmu-clone-header) .pmu-badge{border:1px solid #ffffff35!important;border-radius:7px!important;transform:none!important;background:#ffffff1c!important;padding:5px 9px!important}
+body:has(.pmu-clone-header) .pmu-badge span{transform:none!important;font-style:normal!important;font-size:10px!important}
+/* Publicité discrète, image non recadrée */
+body:has(.pmu-clone-header) .pub-box{padding:12px!important}
+body:has(.pmu-clone-header) .slider-pub{margin:0!important;border-radius:10px!important;overflow:hidden!important;background:#f5f7f6!important}
+body:has(.pmu-clone-header) .slider-pub img{display:block!important;width:100%!important;height:auto!important;max-height:155px!important;object-fit:contain!important;margin:auto!important}
+body:has(.pmu-clone-header) .pub-overlay{background:linear-gradient(transparent,#0c3325b8)!important;padding:22px 12px 10px!important}
+body:has(.pmu-clone-header) .pub-overlay h3,body:has(.pmu-clone-header) .pub-overlay p{color:#fff!important}
+/* Sections d'analyse */
+body:has(.pmu-clone-header) .analyse-az-container{gap:10px!important}
+body:has(.pmu-clone-header) .az-box{border:1px solid var(--azp-line)!important;border-radius:11px!important;background:#f8fbf9!important;padding:13px!important}
+body:has(.pmu-clone-header) .az-box h3{color:var(--azp-green)!important;font-size:14px!important}
+body:has(.pmu-clone-header) .az-numero{border-radius:8px!important;width:34px!important;height:34px!important;background:var(--azp-green)!important}
+/* Tableau des partants : lignes aérées et lisibles */
+body:has(.pmu-clone-header) .table-container{overflow-x:auto!important;border:1px solid var(--azp-line)!important;border-radius:10px!important}
+body:has(.pmu-clone-header) table{min-width:760px!important;background:#fff!important}
+body:has(.pmu-clone-header) table th{background:#e8f4ec!important;color:#174c34!important;font-size:11px!important;white-space:nowrap!important}
+body:has(.pmu-clone-header) table td{font-size:12px!important;color:#263548!important;padding:10px 8px!important}
+body:has(.pmu-clone-header) table tbody tr:nth-child(even){background:#edf7f0!important}
+body:has(.pmu-clone-header) table tbody tr:hover{background:#e2f2e7!important}
+body:has(.pmu-clone-header) .badge-indice{background:#e1f2e7!important;color:#176b43!important;border-radius:6px!important;padding:3px 7px!important;font-weight:850!important}
+/* Navigation basse : style onglets et espace de sécurité */
+body:has(.pmu-clone-header) .bottom-menu{display:none!important}
+@media(max-width:760px){
+ body:has(.pmu-clone-header) .bottom-menu{display:flex!important;position:fixed!important;left:0!important;right:0!important;bottom:0!important;z-index:1000!important;min-height:66px!important;align-items:center!important;justify-content:space-around!important;gap:2px!important;padding:7px 4px calc(7px + env(safe-area-inset-bottom))!important;background:#fffffff7!important;border-top:1px solid #dbe4de!important;box-shadow:0 -4px 16px #173c2912!important;backdrop-filter:blur(10px)!important}
+ body:has(.pmu-clone-header) .bottom-menu a{flex:1 1 0!important;min-width:0!important;color:#657487!important;font-size:10px!important;font-weight:750!important;gap:3px!important}
+ body:has(.pmu-clone-header) .bottom-menu a.active{color:var(--azp-green)!important}
+ body:has(.pmu-clone-header) .bottom-menu .menu-icon{font-size:19px!important}
+ body:has(.pmu-clone-header) main.content{padding:10px 10px calc(94px + env(safe-area-inset-bottom))!important}
+ body:has(.pmu-clone-header) .clone-body{padding:14px 12px!important}
+ body:has(.pmu-clone-header) .clone-subtitle{font-size:19px!important}
+ body:has(.pmu-clone-header) .clone-info-text{font-size:11px!important}
+ body:has(.pmu-clone-header) .clone-badges{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;width:100%!important}
+ body:has(.pmu-clone-header) .pmu-badge{text-align:center!important;padding:6px 2px!important}
+ body:has(.pmu-clone-header) .pmu-badge span{font-size:9px!important}
+ body:has(.pmu-clone-header) .slider-pub img{max-height:125px!important}
+ body:has(.pmu-clone-header) .analyse-az-container{display:grid!important;grid-template-columns:1fr 1fr!important}
+ body:has(.pmu-clone-header) .az-box{min-width:0!important}
+ body:has(.pmu-clone-header) .card{margin-bottom:11px!important;padding:12px!important}
+}
+@media(max-width:380px){body:has(.pmu-clone-header) .analyse-az-container{grid-template-columns:1fr!important}}
