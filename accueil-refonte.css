@@ -1,0 +1,179 @@
+/* AZ TURF PRO — accueil V1 : couche visuelle uniquement.
+   Aucun identifiant, contenu métier ou comportement JavaScript n'est modifié. */
+.home-page,
+body:has(> header.top-header) { --home-green:#176b43; --home-green-dark:#105536; --home-gold:#c5a04a; }
+
+/* En-tête compact : marque, compte à rebours et accès Premium restent visibles. */
+@media (max-width:760px) {
+  body:has(> header.top-header) .top-header {
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    gap:8px 10px !important;
+    padding:9px 13px !important;
+    min-height:68px;
+  }
+  body:has(> header.top-header) .top-header .brand-zone {
+    width:auto !important;
+    min-width:0;
+    display:flex !important;
+    flex-direction:column;
+    align-items:flex-start !important;
+    justify-content:center;
+    gap:1px;
+  }
+  body:has(> header.top-header) .top-header .logo { white-space:nowrap; line-height:1.15; }
+  body:has(> header.top-header) .top-header .logo span { font-size:20px !important; }
+  body:has(> header.top-header) .top-header .mini-countdown { margin-top:3px; font-size:10px; }
+  body:has(> header.top-header) .top-header > .btn-vip {
+    grid-column:2;
+    grid-row:1;
+    margin:0 !important;
+    padding:10px 13px !important;
+    font-size:12px !important;
+    white-space:nowrap;
+  }
+}
+
+/* Fond, largeur et rythme vertical de l'accueil. */
+body:has(.pmu-clone-header) { background:#f2f6f3 !important; }
+body:has(.pmu-clone-header) main.content {
+  width:min(1120px,100%) !important;
+  padding:18px 16px 28px !important;
+}
+body:has(.pmu-clone-header) .card {
+  border:1px solid #dfe8e2 !important;
+  border-radius:14px !important;
+  box-shadow:0 5px 18px rgba(24,55,38,.055) !important;
+  margin-bottom:16px !important;
+}
+body:has(.pmu-clone-header) .card h2 {
+  color:#174d34 !important;
+  font-size:17px !important;
+  font-weight:800 !important;
+  letter-spacing:.01em;
+  border-bottom:1px solid #e4ebe6 !important;
+  padding-bottom:10px !important;
+  margin-bottom:14px !important;
+}
+
+/* Bandeau de la course principale : lecture en trois niveaux. */
+.pmu-clone-header { overflow:hidden; border-top:4px solid #176b43 !important; }
+.clone-day-heading {
+  background:#eaf3ed !important;
+  color:#17613d !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+  letter-spacing:.11em;
+  padding:11px 16px !important;
+}
+.clone-body { padding:20px !important; }
+.clone-title { color:#65756b !important; font-size:13px !important; font-weight:700 !important; }
+.clone-subtitle { color:#183d2b !important; font-size:clamp(20px,3vw,27px) !important; font-weight:850 !important; line-height:1.2 !important; }
+.clone-date { color:#6b7a71 !important; font-size:13px !important; }
+.clone-infos { margin-top:10px; }
+.clone-info-text { color:#53645a !important; font-size:13px !important; }
+.clone-footer { border-top:1px solid #e2eae4 !important; padding-top:13px !important; margin-top:14px !important; }
+.heure-depart-course { background:#eaf4ed !important; color:#145b39 !important; border-radius:7px !important; padding:7px 10px !important; font-weight:800 !important; }
+.clone-badges { gap:6px !important; }
+.pmu-badge { border-radius:6px !important; }
+
+/* Publicité : visuel centré, sans recadrage agressif. */
+.pub-box { padding:0 !important; }
+.pub-box h2 { padding:16px 17px 10px !important; margin:0 0 8px !important; }
+.slider-pub { margin:0 12px; overflow:hidden; border-radius:10px; background:#fff; }
+.slider-pub img { display:block; width:100%; max-height:250px !important; object-fit:contain !important; }
+.pub-overlay { border-radius:0 0 10px 10px; }
+.slider-dots { padding:10px 0 13px; }
+
+/* Sélections : deux blocs de même importance, avec repères sobres. */
+.analyse-az-container { display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px !important; }
+.az-box {
+  min-width:0;
+  background:#f8fbf9 !important;
+  border:1px solid #e0e9e3 !important;
+  border-radius:11px !important;
+  padding:15px !important;
+}
+.az-box h3 { font-size:14px !important; margin-bottom:10px; }
+.az-box h4 { color:#203c2d !important; font-size:15px !important; overflow-wrap:anywhere; }
+.az-box p { color:#58685e; font-size:12px; line-height:1.5; }
+.az-numero {
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  min-width:42px !important;
+  min-height:38px !important;
+  width:auto !important;
+  height:auto !important;
+  padding:5px 11px !important;
+  border-radius:8px !important;
+  background:#176b43 !important;
+  color:#fff !important;
+  font-size:20px !important;
+  font-weight:900 !important;
+}
+.outsider-numero { background:#a87524 !important; }
+.favori-az { border-left:4px solid #176b43 !important; }
+.outsider-az { border-left:4px solid #c5a04a !important; }
+
+/* Indice de confiance et zones de suivi. */
+.confiance-box { background:linear-gradient(110deg,#fff 0%,#f6faf7 100%) !important; }
+.confiance-score {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:76px;
+  color:#176b43;
+  font-size:38px !important;
+  font-weight:900;
+}
+#message-confiance { color:#5c6b62; text-align:center; }
+#chevaux-surveiller { color:#46584d; line-height:1.65; }
+
+/* Tableau : conserver toutes les colonnes, avec défilement horizontal maîtrisé. */
+.table-container {
+  max-width:100%;
+  overflow-x:auto !important;
+  border:1px solid #e0e8e2 !important;
+  border-radius:9px !important;
+  -webkit-overflow-scrolling:touch;
+}
+.table-container table { min-width:760px; width:100%; }
+.table-container th { background:#edf4ef !important; color:#294a36 !important; }
+.table-container td { color:#35463b; }
+.popular-horizontal { gap:8px !important; }
+.popular-horizontal .popular-number { border-radius:7px !important; }
+.tendance-box #course-tendance { color:#4e5e54; line-height:1.65; }
+.news-bar {
+  border:1px solid #dce8df !important;
+  border-left:4px solid #c5a04a !important;
+  border-radius:10px !important;
+  background:#eaf3ed !important;
+  color:#24543a !important;
+  line-height:1.55;
+}
+
+@media (max-width:600px) {
+  body:has(.pmu-clone-header) main.content { padding:12px 10px 24px !important; }
+  body:has(.pmu-clone-header) .card { margin-bottom:13px !important; }
+  .clone-body { padding:16px 14px !important; }
+  .clone-subtitle { font-size:19px !important; }
+  .clone-infos { align-items:flex-start; }
+  .clone-info-text { line-height:1.5; }
+  .clone-footer { display:flex; flex-direction:column; align-items:flex-start; gap:10px; }
+  .clone-badges { display:flex; flex-wrap:wrap; }
+  .analyse-az-container { grid-template-columns:1fr !important; }
+  .az-box { padding:13px !important; }
+  .pub-box h2 { padding:14px 14px 8px !important; }
+  .slider-pub { margin:0 9px; }
+  .slider-pub img { max-height:205px !important; }
+  .confiance-score { min-height:64px; font-size:32px !important; }
+  .news-bar { font-size:13px; }
+}
+
+@media (min-width:761px) {
+  body:has(.pmu-clone-header) .top-header { flex-wrap:nowrap; }
+  body:has(.pmu-clone-header) .brand-zone { flex:0 0 auto; }
+  body:has(.pmu-clone-header) .top-menu { margin-left:auto; }
+}
