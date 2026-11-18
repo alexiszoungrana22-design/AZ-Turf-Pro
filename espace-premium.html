@@ -1,109 +1,27 @@
 <!DOCTYPE html>
-
 <html lang="fr">
 <head>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#176b43"/>
 <title>Espace Premium - AZ Turf Pro</title>
 <link href="style.css" rel="stylesheet"/>
-<style>
-        .form-group { margin-bottom: 15px; text-align: left; }
-        .form-group label { display: block; font-weight: bold; margin-bottom: 6px; color: #1e293b; font-size: 14px; }
-        .form-control { width: 100%; padding: 14px; border: 2px solid #cbd5e1; border-radius: 10px; font-size: 16px; box-sizing: border-box; }
-        .form-control:focus { border-color: #d97706; outline: none; }
-        .btn-action { width: 100%; padding: 15px; font-size: 16px; font-weight: bold; border-radius: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; border: none; cursor: pointer; margin-top: 10px; }
-        .btn-whatsapp { display: block; width: 100%; padding: 14px; text-align: center; background-color: #25D366; color: white; border-radius: 10px; font-weight: bold; text-decoration: none; margin-top: 10px; box-sizing: border-box; }
-        #message-alerte { display: none; padding: 12px; border-radius: 8px; margin-top: 15px; font-weight: bold; text-align: center; font-size: 14px; }
-        .alert-success { background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
-        .alert-error { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
-        .paiement-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; margin-bottom: 10px; text-align: center; }
-    </style>
-<link href="harmonisation.css?v=1" rel="stylesheet"/></head>
+<link href="harmonisation.css?v=1" rel="stylesheet"/>
+</head>
 <body>
 <header class="top-header">
-<div class="logo">
-        🏇 <span>AZ Turf Pro</span>
-</div>
-<nav class="top-menu">
-<a href="index.html">🏠 Accueil</a>
-<a href="analyse.html">📊 Analyse</a>
-<a href="ticket-premium.html">🎟️ Ticket VIP</a>
-</nav>
+  <div class="logo">🏇 <span>AZ Turf Pro</span></div>
+  <nav class="top-menu"><a href="index.html">🏠 Accueil</a><a href="forfaits.html">💎 Forfaits</a><a href="mon-abonnement.html">🔑 Compte</a></nav>
 </header>
 <main class="content">
-<!-- ÉTAPE 1 : PAIEMENT -->
-<section class="card">
-<h2>💳 1. Effectuer le paiement</h2>
-<p style="font-size: 13px; color: #475569; margin-bottom: 12px;">Faites votre dépôt Mobile Money puis contactez-nous pour recevoir votre Code VIP.</p>
-<div class="paiement-card">
-<h3 style="color: #ea580c; font-size: 15px;">Orange Money</h3>
-<p style="font-size: 18px; font-weight: 800; color: #0f172a;">+226 XX XX XX XX</p>
-</div>
-<div class="paiement-card">
-<h3 style="color: #0284c7; font-size: 15px;">Moov Money</h3>
-<p style="font-size: 18px; font-weight: 800; color: #0f172a;">+226 XX XX XX XX</p>
-</div>
-<a class="btn-whatsapp" href="https://wa.me/22600000000?text=Bonjour,%20je%20souhaite%20recevoir%20mon%20Code%20VIP%20AZ%20Turf%20Pro." target="_blank">
-            💬 Demander mon Code VIP sur WhatsApp
-        </a>
-</section>
-<!-- ÉTAPE 2 : ACTIVATION AVEC LE CODE -->
-<section class="card">
-<h2>🔑 2. Activer mon accès VIP</h2>
-<p style="font-size: 13px; color: #475569; margin-bottom: 15px;">Entrez votre numéro et le code fourni par l'administrateur.</p>
-<form id="form-activation">
-<div class="form-group">
-<label for="telephone-input">Votre numéro de téléphone :</label>
-<input class="form-control" id="telephone-input" placeholder="Ex: 70000000" required="" type="tel"/>
-</div>
-<div class="form-group">
-<label for="code-input">Référence de paiement :</label>
-<input class="form-control" disabled="" id="code-input" placeholder="Sera demandée à l'étape suivante" style="text-transform: uppercase;" type="text"/>
-</div>
-<button class="btn-action" type="submit">✅ Débloquer mes Tickets VIP</button>
-</form>
-<div id="message-alerte"></div>
-</section>
+  <section class="card">
+    <h1>Votre espace Premium</h1>
+    <p>Le parcours d'abonnement et d'activation a été regroupé pour vous guider en une seule procédure sécurisée.</p>
+    <p>Si vous avez déjà choisi un forfait, vous pouvez poursuivre la validation de votre paiement.</p>
+    <a class="btn-action" href="activation.html" style="display:block;text-align:center;text-decoration:none;box-sizing:border-box;width:100%;padding:15px;font-size:16px;font-weight:bold;border-radius:10px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;margin-top:10px;">Continuer vers l'activation</a>
+    <p style="margin-top:14px;"><a href="forfaits.html">Voir les forfaits disponibles</a></p>
+  </section>
 </main>
-<footer class="bottom-menu">
-<a href="index.html">🏠 Accueil</a>
-<a href="analyse.html">📊 Analyse</a>
-<a href="ticket-premium.html">🎟️ Ticket</a>
-<a class="active" href="espace-premium.html">⭐ Premium</a>
-</footer>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const form = document.getElementById("form-activation");
-        const inputTel = document.getElementById("telephone-input");
-        const messageAlerte = document.getElementById("message-alerte");
-
-        // Pré-remplir le numéro s'il existe déjà
-        const telExistant = localStorage.getItem("AZ_TURF_TELEPHONE");
-        if (telExistant) inputTel.value = telExistant;
-
-        form.addEventListener("submit", (e) => {
-            e.preventDefault();
-
-            let tel = inputTel.value.replace(/\s+/g, '').trim();
-
-            if (tel.length < 8) {
-                afficherMessage("Veuillez entrer un numéro de téléphone valide.", "error");
-                return;
-            }
-
-            // L'activation Premium est désormais vérifiée par le serveur
-            // (référence de paiement) sur la page dédiée — plus de code VIP
-            // codé en clair côté client.
-            localStorage.setItem("AZ_TURF_TELEPHONE", tel);
-            window.location.href = "activation.html";
-        });
-
-        function afficherMessage(texte, type) {
-            messageAlerte.textContent = texte;
-            messageAlerte.className = type === "success" ? "alert-success" : "alert-error";
-            messageAlerte.style.display = "block";
-        }
-    });
-</script>
+<footer class="bottom-menu"><a href="index.html">🏠 Accueil</a><a href="forfaits.html">💎 Forfaits</a><a href="mon-abonnement.html">🔑 Compte</a></footer>
 </body>
 </html>

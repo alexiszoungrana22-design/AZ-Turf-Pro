@@ -66,13 +66,14 @@
 <!-- EN-TÊTE PAGE -->
 <section class="card">
 <h1 style="color: #0f172a; margin-bottom: 8px;">🏆 Activation Premium</h1>
-<p style="color: #4b5563; font-size: 14px;">Finalisez l'activation de votre abonnement AZ Turf Pro en 2 étapes simple.</p>
+<p style="color: #4b5563; font-size: 14px;">Retrouvez votre formule, effectuez le dépôt sur le compte correspondant, puis transmettez la référence de transaction. L'activation reste soumise à la vérification de l'administrateur.</p>
+<div id="recap-forfait" style="margin-top:12px;padding:12px;background:#f8fafc;border-radius:8px;color:#0f172a;font-weight:700;">Formule : chargement...</div>
 </section>
 <!-- ÉTAPE 1 : NUMÉROS DE DÉPÔT -->
 <section class="card" style="border-left: 5px solid #f59e0b;">
 <h2 style="color: #0f172a; font-size: 18px; margin-bottom: 10px;">💳 Étape 1 : Effectuez votre dépôt</h2>
 <p style="color: #4b5563; font-size: 14px; margin-bottom: 15px;">
-            Envoyez le montant de votre abonnement sur l'un de nos comptes officiels ci-dessous :
+            Envoyez exactement le montant de votre formule au numéro correspondant au moyen de paiement choisi. Conservez la référence reçue par SMS ou dans l'application.
         </p>
 <!-- ORANGE MONEY -->
 <div class="methode-paiement">
@@ -96,6 +97,14 @@
                 +226 73 62 93 28  
             </span>
 </div>
+<!-- WAVE -->
+<div class="methode-paiement" style="margin-bottom: 0;">
+<div style="display: flex; align-items: center; justify-content: space-between;">
+<strong style="color: #2563eb; font-size: 16px;">🔵 Wave</strong>
+<span style="font-size: 12px; background: #dbeafe; color: #1d4ed8; padding: 2px 8px; border-radius: 12px; font-weight: bold;">Dépôt direct</span>
+</div>
+<span style="font-size: 20px; font-weight: 900; color: #000000; display: block; margin-top: 6px; letter-spacing: 1px;">+226 56 22 13 51</span>
+</div>
 </section>
 <!-- ÉTAPE 2 : VALIDER LA RÉFÉRENCE -->
 <section class="card">
@@ -104,7 +113,7 @@
 <strong id="telephone-affiche" style="font-size: 18px; color: #0f172a;">Chargement...</strong>
 <div style="margin-top: 20px;">
 <label for="reference" style="display: block; font-weight: bold; color: #0f172a; font-size: 14px;">
-                Référence de la transaction (reçue par SMS) :
+                Référence de la transaction (reçue après le dépôt) :
             </label>
 <input class="input-premium" id="reference" placeholder="Ex : OM12345678 ou MP98765432" type="text"/>
 </div>
@@ -131,9 +140,22 @@
     const message = document.getElementById("message");
 
     if (telephone) {
-        affichage.innerHTML = telephone;
+        affichage.textContent = telephone;
     } else {
-        affichage.innerHTML = "<span style='color: #dc2626;'>Aucun numéro enregistré</span>";
+        affichage.textContent = "Aucun numéro enregistré";
+        affichage.style.color = "#dc2626";
+    }
+
+    const recap = document.getElementById("recap-forfait");
+    try {
+        const forfait = JSON.parse(localStorage.getItem("AZ_TURF_FORFAIT") || "null");
+        if (forfait && forfait.offre) {
+            recap.textContent = `Formule : ${forfait.offre} — ${Number(forfait.prix).toLocaleString("fr-FR")} FCFA — ${forfait.duree} jours — ${forfait.paiement || "Paiement à confirmer"}`;
+        } else {
+            recap.textContent = "Formule : aucune formule récente enregistrée. Si vous n'avez pas encore choisi, retournez aux forfaits.";
+        }
+    } catch (_) {
+        recap.textContent = "Formule : informations indisponibles. Retournez aux forfaits pour recommencer.";
     }
 
     document.getElementById("activer-premium").onclick = async function () {

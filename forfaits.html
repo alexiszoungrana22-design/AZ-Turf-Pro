@@ -122,8 +122,7 @@
 <section class="card">
 <h2>💎 Choisissez votre forfait Premium</h2>
 <p style="color:#475569; font-size: 14px; margin-bottom: 14px;">
-            Sélectionnez l'offre qui vous convient, puis indiquez votre numéro
-            pour recevoir les instructions de paiement.
+Sélectionnez votre formule, indiquez votre numéro et choisissez votre moyen de paiement. Vous recevrez ensuite les instructions pour transmettre votre référence de transaction.
         </p>
 <div class="forfaits-grille" id="grille-forfaits">
 <div class="forfait-carte" data-duree="7" data-offre="Semaine" data-prix="25000">
@@ -221,7 +220,13 @@
             }
 
             localStorage.setItem("AZ_TURF_TELEPHONE", telephone);
-            window.location.href = "espace-premium.html";
+            localStorage.setItem("AZ_TURF_FORFAIT", JSON.stringify({
+                offre: forfaitChoisi.offre,
+                prix: forfaitChoisi.prix,
+                duree: forfaitChoisi.duree,
+                paiement
+            }));
+            window.location.href = "activation.html";
         } catch (erreur) {
             message.textContent = "❌ Erreur réseau : " + erreur.message;
         }
