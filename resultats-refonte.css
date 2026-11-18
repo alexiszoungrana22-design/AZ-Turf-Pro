@@ -1,0 +1,16 @@
+/* AZ Turf Pro — finition visuelle Résultats V7 */
+body{background:#f3f7f4!important;color:#20352b!important;padding:0!important;font-family:Arial,sans-serif}
+.az-global-nav{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:13px max(16px,calc((100% - 1120px)/2));background:#fff;border-bottom:1px solid #dce8df;box-shadow:0 3px 14px rgba(24,65,43,.06)}
+.az-global-nav .az-brand{font-weight:800;color:#176b43;margin-right:auto;white-space:nowrap}
+.az-global-nav a{color:#315b45;text-decoration:none;font-size:14px;font-weight:600}
+.az-global-nav a:hover{color:#b18a35}
+.results{box-sizing:border-box;max-width:1040px!important;width:calc(100% - 32px);margin:28px auto!important;padding:clamp(18px,3vw,30px)!important;background:#fff;border:1px solid #e1ebe3;border-radius:18px!important;box-shadow:0 10px 30px rgba(28,72,47,.07)}
+.results h1{margin:0 0 8px;color:#176b43;font-size:clamp(23px,4vw,32px);line-height:1.2}
+.results>.muted{margin:0 0 22px;color:#718277;font-size:14px;line-height:1.5}
+#results-list{display:grid;gap:13px}
+#results-list>p{margin:0;padding:18px;background:#f7faf7;border:1px dashed #d7e4d9;border-radius:12px;color:#637469;line-height:1.6}
+.results .course{margin:0!important;padding:18px 20px!important;border:1px solid #e2ebe3!important;border-left:4px solid #238653!important;border-radius:13px!important;background:linear-gradient(110deg,#fff 0%,#fbfdfb 100%);box-shadow:0 3px 12px rgba(26,75,46,.04)}
+.results .course>strong:first-child{display:inline-block;color:#214d35;font-size:17px;margin-bottom:5px}
+.results .course .muted{display:inline-block;margin:2px 0 10px;color:#75857a;font-size:13px}
+.results .course>strong:last-child{color:#176b43;letter-spacing:.3px}
+@media(max-width:620px){.az-global-nav{gap:10px 14px;padding:11px 14px}.az-global-nav .az-brand{width:100%;margin:0 0 2px}.az-global-nav a{font-size:12px}.results{width:calc(100% - 20px);margin:14px auto!important;padding:17px!important;border-radius:14px!important}.results .course{padding:15px!important}}
