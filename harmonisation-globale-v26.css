@@ -1,0 +1,116 @@
+/* AZ TURF PRO — V26 : harmonisation globale des espaces et des bords
+   Objectif : réduire les vides, remplir la largeur utile et conserver
+   une séparation visuelle fine entre les blocs. Aucun comportement JS modifié. */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 !important;
+  overflow-x: hidden;
+}
+
+body {
+  background: #f1f5f2 !important;
+}
+
+/* Les grandes enveloppes ne doivent plus laisser de larges bandes latérales. */
+main, .content, .page-container, .home-content, .programme-page,
+.partants-main, .premium-container, .az-history-page, .stats-container,
+.journal-page, .analyse-page, .results-page, .admin-container,
+.container, .main-container, .app-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Réduction des espaces verticaux entre les sections principales. */
+main, .content, .page-container, .home-content, .programme-page,
+.partants-main, .premium-container, .az-history-page, .stats-container,
+.journal-page, .analyse-page {
+  row-gap: 10px !important;
+}
+
+/* Cartes : marges resserrées, largeur utile complète, bordures conservées. */
+.card, .course-card, .module-card, .premium-card, .results, .course,
+.comment-card, .forfait-carte, .partants-course-card, .partants-list-card,
+.analysis-news, .hp-news-card, .az-performance, .section-card,
+.stat-card, .history-card, .ticket-card, .pub-box, .advert-card {
+  max-width: 100% !important;
+  margin-top: 7px !important;
+  margin-bottom: 7px !important;
+}
+
+/* Évite les marges cumulées entre cartes imbriquées. */
+.card .card, .module-card .module-card, .premium-card .premium-card,
+.section-card .section-card {
+  margin-top: 5px !important;
+  margin-bottom: 5px !important;
+}
+
+/* Les listes et groupes de cartes restent rapprochés et réguliers. */
+.cards, .cards-grid, .modules-grid, .stats-grid, .analysis-grid,
+.courses-list, .partants-list, .history-list, .premium-grid {
+  gap: 8px !important;
+}
+
+/* Les séparations se font par un trait discret plutôt que par de grands vides. */
+.course-card + .course-card,
+.partants-list-card + .partants-list-card,
+.history-card + .history-card {
+  margin-top: 0 !important;
+}
+
+/* Les tableaux, images et blocs internes utilisent toute la place disponible. */
+.table-container, .table-responsive, .pub-box, .slider-pub,
+.course-arrival, .course-arrival-numbers {
+  max-width: 100% !important;
+}
+img, video, canvas, table { max-width: 100%; }
+
+/* Téléphones : bords remplis, petit retrait intérieur pour ne pas coller le texte
+   au bord physique de l'écran. */
+@media (max-width: 760px) {
+  body { padding-bottom: calc(84px + env(safe-area-inset-bottom)) !important; }
+
+  main, .content, .page-container, .home-content, .programme-page,
+  .partants-main, .premium-container, .az-history-page, .stats-container,
+  .journal-page, .analyse-page, .results-page, .admin-container,
+  .container, .main-container, .app-container {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  .card, .course-card, .module-card, .premium-card, .results, .course,
+  .comment-card, .forfait-carte, .partants-course-card, .partants-list-card,
+  .analysis-news, .hp-news-card, .az-performance, .section-card,
+  .stat-card, .history-card, .ticket-card, .pub-box, .advert-card {
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* Pas de grandes gouttières entre les composants de la page. */
+  .home-content > *, .content > *, .page-container > *,
+  .programme-page > *, .premium-container > *, .partants-main > * {
+    margin-bottom: 8px;
+  }
+
+  .bottom-menu {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+  }
+}
+
+/* Très petits écrans : conserver une bordure de sécurité minimale. */
+@media (max-width: 380px) {
+  main, .content, .page-container, .home-content, .programme-page,
+  .partants-main, .premium-container, .az-history-page, .stats-container,
+  .journal-page, .analyse-page {
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+  }
+}
