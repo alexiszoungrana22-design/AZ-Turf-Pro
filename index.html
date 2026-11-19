@@ -21,6 +21,7 @@
 <link href="interface-pro-v13.css?v=13" rel="stylesheet"/>
 
 <link rel="stylesheet" href="identite-visuelle-v15.css?v=15">
+<link rel="stylesheet" href="partants-accueil-v18.css?v=18">
 </head>
 <body>
 <header class="top-header">
@@ -143,25 +144,15 @@
 <div id="chevaux-surveiller">Analyse en cours...</div>
 </section>
 <!-- TABLEAU PARTANTS -->
-<section class="card">
-<h2>🐎 Tous les partants</h2>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th>N°</th>
-<th>Cheval</th>
-<th>Jockey / Driver</th>
-<th>Entraîneur</th>
-<th>Cote</th>
-<th>Indice AZ</th>
-<th>Confiance</th>
-<th>Tendance</th>
-</tr>
-</thead>
-<tbody id="all-horses"></tbody>
-</table>
+<section class="card home-partants-card">
+<div class="home-partants-heading">
+  <div><p class="home-partants-kicker">DÉTAIL DES ENGAGÉS</p><h2>🐎 Tous les partants</h2></div>
+  <span id="home-partants-count" class="home-partants-count">— partant</span>
 </div>
+<div id="all-horses" class="home-partants-list" aria-live="polite">
+  <div class="home-partants-loading">Chargement des chevaux…</div>
+</div>
+<p class="home-partants-note">Les informations affichées dépendent des données transmises par la source PMU.</p>
 </section>
 <!-- CHEVAUX LES PLUS JOUÉS -->
 <section class="card">
@@ -200,7 +191,7 @@
 </a>
 </footer>
 <script src="historique.js?v=4"></script>
-<script src="accueil.js?v=17"></script>
+<script src="accueil.js?v=18"></script>
 <script src="tri-partants.js"></script>
 </body>
 </html>
