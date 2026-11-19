@@ -1,0 +1,38 @@
+/* AZ Turf Pro V23 — harmonisation réellement appliquée aux structures existantes */
+:root{--az23-green:#176b43;--az23-dark:#124b32;--az23-soft:#eaf4ee;--az23-bg:#f1f5f2;--az23-line:#d9e4dd;--az23-ink:#24332b;--az23-muted:#65736b;--az23-gold:#f2bd35;--az23-blue:#347db5;--az23-teal:#168b83;--az23-orange:#d98228;--az23-red:#bd4050}
+*{box-sizing:border-box}
+html,body{width:100%;max-width:100%;min-height:100%;margin:0;overflow-x:hidden}
+body{background:var(--az23-bg)!important;color:var(--az23-ink)!important;font-family:Inter,"Segoe UI",system-ui,-apple-system,sans-serif}
+/* Zones principales réelles des pages AZ Turf Pro */
+body>.content,body>.page-container,body>.home-content,body>.programme-page,body>.partants-main,body>.premium-container,body>.container,body>.results,
+.content,.page-container,.home-content,.programme-page,.partants-main,.premium-container,.az-history-page,.journal-page .content,.analyse-page .page-container,.results,.stats-container{
+ width:100%!important;max-width:1440px!important;min-width:0!important;margin-left:auto!important;margin-right:auto!important}
+.content,.page-container,.home-content,.programme-page,.partants-main,.premium-container,.az-history-page,.journal-page .content,.analyse-page .page-container,.stats-container{
+ padding-left:clamp(12px,2.2vw,28px)!important;padding-right:clamp(12px,2.2vw,28px)!important}
+/* Surfaces, panneaux et sections */
+.card,.course-card,.module-card,.premium-card,.results,.course,.programme-summary,.programme-status,.az-metric,.ticket-premium-box,.comment-card,.forfait-carte,.partants-course-card,.partants-list-card,.analysis-news,.hp-news-card,.az-performance,.stats-container .stat-box{
+ border:1px solid var(--az23-line)!important;border-radius:15px!important;box-shadow:0 4px 16px rgba(18,75,50,.055)!important;min-width:0}
+.card,.course-card,.module-card,.premium-card,.results,.course,.comment-card,.forfait-carte,.partants-course-card,.partants-list-card,.analysis-news,.hp-news-card,.az-performance{background:#fff!important}
+.section-head h1,.section-head h2,.card h1,.card h2,.card h3,.programme-heading h1,.az-history-page h1,.az-history-page h2,.journal-page h1,.journal-page h2,.partants-intro h1,.partants-main h2{color:var(--az23-dark)!important}
+/* En-têtes et navigation */
+.top-header,.header-az,.premium-header,.partants-header,.header{width:100%!important;max-width:none!important;background:#fff!important;color:var(--az23-ink)!important;border-bottom:1px solid var(--az23-line)!important;box-shadow:0 2px 12px rgba(18,75,50,.07)!important}
+.logo span,.top-header .logo,.header-az h1,.partants-brand,.premium-logo{color:var(--az23-green)!important}
+.btn-vip,.btn-premium-main,.partants-premium{background:linear-gradient(135deg,#f6ca4e,#e8a91c)!important;color:#49360c!important;border:1px solid #e4b33d!important}
+button,.btn,.programme-nav,.programme-today,.az-refresh,.btn-action{border-radius:10px!important}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid rgba(52,125,181,.35)!important;outline-offset:2px}
+/* Couleurs fonctionnelles et tableaux */
+th{background:var(--az23-soft)!important;color:var(--az23-dark)!important}td,th{border-color:var(--az23-line)!important}
+.table-container,.table-responsive{width:100%!important;max-width:100%!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch}
+img,svg,video,canvas{max-width:100%}
+/* Navigation mobile fixe */
+.bottom-menu{width:100%!important;left:0!important;right:0!important;box-sizing:border-box!important;background:rgba(255,255,255,.98)!important;border-top:1px solid var(--az23-line)!important;box-shadow:0 -4px 16px rgba(18,75,50,.08)!important}
+.bottom-menu a.active,.bottom-menu a[aria-current=page]{color:var(--az23-green)!important}
+@media(max-width:760px){
+ body{padding-bottom:calc(82px + env(safe-area-inset-bottom))!important}
+ .content,.page-container,.home-content,.programme-page,.partants-main,.premium-container,.az-history-page,.journal-page .content,.analyse-page .page-container,.stats-container{width:100%!important;max-width:none!important;padding:12px 10px calc(90px + env(safe-area-inset-bottom))!important}
+ .card,.course-card,.module-card,.premium-card,.results,.course,.comment-card,.forfait-carte,.partants-course-card,.partants-list-card,.analysis-news,.hp-news-card,.az-performance{max-width:none!important}
+ .top-header,.header-az,.premium-header,.partants-header,.header{padding-left:12px!important;padding-right:12px!important}
+ .table-container,.table-responsive{margin-left:0!important;margin-right:0!important}
+ .bottom-menu{padding-left:3px!important;padding-right:3px!important}
+}
+@media(max-width:380px){.content,.page-container,.home-content,.programme-page,.partants-main,.premium-container,.az-history-page,.journal-page .content,.analyse-page .page-container{padding-left:7px!important;padding-right:7px!important}}
