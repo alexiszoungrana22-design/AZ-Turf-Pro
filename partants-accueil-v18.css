@@ -1,0 +1,49 @@
+/* AZ Turf Pro V18 — partants intégrés à l'accueil : responsive, sans tableau débordant */
+.home-partants-card{overflow:hidden}
+.home-partants-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #dce7e0}
+.home-partants-kicker{margin:0 0 4px;color:#2878b9;font-size:10px;font-weight:900;letter-spacing:1.1px}
+.home-partants-heading h2{margin:0;color:#174f36}
+.home-partants-count{flex:0 0 auto;padding:6px 9px;border-radius:8px;background:#eaf4ee;color:#176b43;font-size:11px;font-weight:850}
+.home-partants-list{display:flex;flex-direction:column;gap:7px;min-width:0}
+.home-horse-row{display:grid;grid-template-columns:36px minmax(0,1fr) 62px;align-items:center;gap:9px;min-width:0;padding:10px 9px;border:1px solid #e0e9e3;border-radius:10px;background:#fff;color:#293a31}
+.home-horse-row:nth-child(even){background:#eff7f2}
+.home-horse-row.is-non-runner{background:#fff1f0;border-color:#edcfcc}
+.home-horse-number{display:grid;place-items:center;width:34px;height:37px;border-radius:8px;background:#202c40;color:#fff;font-size:16px;font-weight:900;font-variant-numeric:tabular-nums}
+.home-horse-content{min-width:0;display:flex;flex-direction:column;gap:4px}
+.home-horse-title{display:flex;align-items:center;gap:7px;min-width:0;flex-wrap:wrap}
+.home-horse-title>strong{min-width:0;overflow-wrap:anywhere;color:#202f27;font-size:14px;font-weight:850;line-height:1.25}
+.home-horse-silk{display:grid;place-items:center;flex:0 0 27px;width:27px;height:27px;object-fit:contain;border:1px solid #dce6df;border-radius:6px;background:#fff}
+.home-horse-silk-fallback{font-size:16px}
+.home-horse-np{padding:2px 5px;border-radius:4px;background:#c44747;color:#fff;font-size:9px;font-weight:900}
+.home-horse-people{display:flex;flex-wrap:wrap;gap:3px 6px;color:#68776f;font-size:10px;line-height:1.4}
+.home-horse-people strong{color:#3d5146;font-weight:800}
+.home-horse-people i{color:#a4b0a8;font-style:normal}
+.home-horse-indicators{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
+.home-horse-chip{display:inline-flex;max-width:100%;padding:3px 5px;border-radius:5px;background:#edf3ef;color:#53655a;font-size:9px;font-weight:750;overflow-wrap:anywhere}
+.home-horse-chip.index{background:#e8f2fb;color:#205c8a}
+.home-horse-chip.confidence{background:#e4f5f1;color:#12665d}
+.home-horse-chip.music{background:#f1edfa;color:#654c91}
+.home-horse-chip.gains{background:#fff5df;color:#87631b}
+.home-horse-right{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0}
+.home-horse-odds{display:block;width:100%;padding:6px 3px;border-radius:7px;background:#fff0ef;color:#b43e45;text-align:center;font-size:14px;font-weight:900;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.home-horse-odds-label{color:#87938b;font-size:8px;font-weight:900;letter-spacing:.7px}
+.home-horse-trend{color:#68776f;font-size:13px;line-height:1}
+.home-partants-loading{padding:20px;text-align:center;color:#68776f}
+.home-partants-note{margin:10px 2px 0;color:#87938b;font-size:10px;line-height:1.4}
+@media(min-width:760px){
+ .home-horse-row{grid-template-columns:42px minmax(0,1fr) 82px;padding:12px 14px}
+ .home-horse-number{width:38px;height:40px}
+ .home-horse-title>strong{font-size:15px}
+ .home-horse-people{font-size:11px}
+ .home-horse-chip{font-size:10px}
+ .home-horse-odds{font-size:15px}
+}
+@media(max-width:380px){
+ .home-horse-row{grid-template-columns:31px minmax(0,1fr) 53px;gap:6px;padding:8px 6px}
+ .home-horse-number{width:30px;height:34px;font-size:14px}
+ .home-horse-title>strong{font-size:12px}
+ .home-horse-silk{flex-basis:23px;width:23px;height:23px}
+ .home-horse-people{font-size:9px}
+ .home-horse-chip{font-size:8px}
+ .home-horse-odds{font-size:12px}
+}
