@@ -1,0 +1,57 @@
+/* AZ TURF PRO V15 — système de couleurs commun, élégant et accessible */
+:root{
+ --az-brand:#176b43; --az-brand-dark:#104d32; --az-brand-soft:#e8f3ec;
+ --az-gold:#e5ad24; --az-gold-dark:#8b6410; --az-gold-soft:#fff6dc;
+ --az-blue:#2878b9; --az-blue-dark:#18527f; --az-blue-soft:#eaf4fc;
+ --az-teal:#168b83; --az-teal-dark:#11645f; --az-teal-soft:#e5f5f2;
+ --az-orange:#d97724; --az-orange-dark:#995018; --az-orange-soft:#fff1e4;
+ --az-red:#c44747; --az-red-dark:#8e3030; --az-red-soft:#fff0ef;
+ --az-purple:#7557a8; --az-purple-soft:#f2edfa;
+ --az-ink:#26352e; --az-muted:#68776f; --az-bg:#f3f6f4;
+ --az-surface:#fff; --az-border:#dce6df;
+ --az-shadow:0 5px 18px rgba(24,55,38,.065); --az-radius:14px;
+}
+html{background:var(--az-bg)!important}
+body{background:var(--az-bg)!important;color:var(--az-ink)!important}
+a{color:var(--az-brand)}
+/* En-têtes et identité */
+.top-header,.header-az,.az-global-nav{background:linear-gradient(105deg,#fff 0%,#f7fbf8 72%,#eef6f1 100%)!important;color:var(--az-ink)!important;border:0!important;border-bottom:1px solid var(--az-border)!important;box-shadow:0 3px 13px rgba(24,55,38,.055)!important}
+.top-header .logo span,.logo span,.header-az h1,.az-global-nav .az-brand{color:var(--az-brand)!important;font-weight:850!important}
+.mini-countdown{color:var(--az-orange-dark)!important;font-weight:800!important}
+.top-menu a,.menu a,.az-global-nav a{color:#53665b!important;border-radius:9px!important;transition:background .18s ease,color .18s ease}
+.top-menu a:hover,.menu a:hover,.az-global-nav a:hover{background:var(--az-blue-soft)!important;color:var(--az-blue-dark)!important}
+.top-menu a.active,.menu a.active,.az-global-nav a.active{background:var(--az-brand-soft)!important;color:var(--az-brand-dark)!important}
+/* Surfaces : cartes claires, traits colorés discrets */
+.card,.course-card,.premium-card,.results,.programme-summary,.programme-status,.az-metric,.course,.ticket-premium-box,.module-card,.pub-box,.pmu-clone-header,.page-container,.content-panel{border-radius:var(--az-radius)!important;box-shadow:var(--az-shadow)!important}
+.card,.course-card,.premium-card,.results,.course,.module-card,.programme-summary,.programme-status,.az-metric,.pub-box{background:var(--az-surface)!important;color:var(--az-ink)!important;border:1px solid var(--az-border)!important}
+.card h1,.card h2,.card h3,.course-card h1,.course-card h2,.premium-card h1,.premium-card h2{color:var(--az-brand-dark)!important}
+/* Actions principales et variantes */
+button,.btn,.programme-nav,.programme-today,.az-refresh{border-radius:10px!important;font-weight:750}
+button:not(.unstyled),.btn:not(.btn-vip):not(.btn-premium):not(.btn-danger):not(.btn-warning):not(.btn-info),.programme-today,.az-refresh{background:var(--az-brand)!important;color:#fff!important;border-color:var(--az-brand)!important}
+.btn-vip,.btn-premium,.premium-button,.btn-gold{background:linear-gradient(135deg,#f5c64c,#e4a91d)!important;color:#392b08!important;border:1px solid #e0aa2a!important;box-shadow:0 3px 9px rgba(199,145,25,.16)!important}
+.btn-info,.info,.badge-info{background:var(--az-blue-soft)!important;color:var(--az-blue-dark)!important;border-color:#c9e0f2!important}
+.btn-success,.success,.badge-success{background:var(--az-teal-soft)!important;color:var(--az-teal-dark)!important;border-color:#bfe5de!important}
+.btn-warning,.warning,.badge-warning{background:var(--az-orange-soft)!important;color:var(--az-orange-dark)!important;border-color:#f2d2b3!important}
+.btn-danger,.danger,.badge-danger{background:var(--az-red-soft)!important;color:var(--az-red-dark)!important;border-color:#f0c9c7!important}
+/* Indicateurs hippiques avec couleurs distinctes et cohérentes */
+.badge-simple{background:var(--az-blue)!important}.badge-couple{background:var(--az-orange)!important}.badge-2sur4{background:var(--az-purple)!important}.badge-multi{background:var(--az-teal)!important}.badge-tierce{background:var(--az-brand)!important}.badge-quarte{background:#3975b9!important}.badge-quinte{background:var(--az-red)!important}
+.favori-az{border-left:4px solid var(--az-teal)!important;background:linear-gradient(90deg,var(--az-teal-soft),#fff 42%)!important}
+.outsider-az{border-left:4px solid var(--az-orange)!important;background:linear-gradient(90deg,var(--az-orange-soft),#fff 42%)!important}
+.ticket-premium-box{border:1px solid #ecd99e!important;background:linear-gradient(145deg,#fffaf0,#fff)!important}
+.numero-cheval{border-radius:8px!important;background:var(--az-brand)!important;color:#fff!important}
+/* Formulaires et tableaux */
+input,select,textarea{border:1px solid #cbd8cf!important;border-radius:9px!important;background:#fff!important;color:var(--az-ink)!important;max-width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid #b9d9c6!important;border-color:var(--az-brand)!important}
+table{border-collapse:collapse}th{background:var(--az-brand-soft)!important;color:var(--az-brand-dark)!important}td,th{border-color:var(--az-border)!important}
+tbody tr:nth-child(even){background:#f7faf8}
+/* Navigation mobile : active en vert, les autres restent neutres */
+.bottom-menu{background:rgba(255,255,255,.98)!important;border-top:1px solid var(--az-border)!important;box-shadow:0 -4px 16px rgba(24,55,38,.07)!important;backdrop-filter:blur(10px)}
+.bottom-menu a{color:#66756d!important}.bottom-menu a.active,.bottom-menu a[aria-current="page"]{color:var(--az-brand)!important;font-weight:850!important}
+/* Petits accents de couleur pour les sections et états */
+.section-title,.page-title{color:var(--az-brand-dark)!important}
+.stat-card:nth-child(4n+1){border-top:3px solid var(--az-blue)!important}
+.stat-card:nth-child(4n+2){border-top:3px solid var(--az-teal)!important}
+.stat-card:nth-child(4n+3){border-top:3px solid var(--az-gold)!important}
+.stat-card:nth-child(4n+4){border-top:3px solid var(--az-purple)!important}
+hr{border:0;border-top:1px solid var(--az-border)}
+@media(max-width:760px){body{padding-bottom:calc(82px + env(safe-area-inset-bottom))!important}.bottom-menu{padding-bottom:calc(7px + env(safe-area-inset-bottom))!important}.card,.course-card,.premium-card,.results,.module-card{border-radius:13px!important}}
