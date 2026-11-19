@@ -58,6 +58,21 @@
       .format(new Date(y,m-1,d));
   }
 
+  // Course écoulée : date antérieure, heure de départ dépassée aujourd'hui,
+  // ou statut de fin explicitement fourni par le programme PMU.
+  function courseEstEcoulee(dateCourse, course) {
+    if (dateCourse < today()) return true;
+    const statut = String(course.statut || "").trim().toLocaleLowerCase("fr-FR");
+    if (/non\s*termin|annul|report/.test(statut)) return false;
+    if (/(termin|courue|arrivee|arrivée|resultat|résultat|finished|finish)/.test(statut)) return true;
+    const heure = String(course.heure_depart || "").trim();
+    const match = heure.match(/(?:^|T|\s)(\d{1,2})[:hH](\d{2})(?::\d{2})?/);
+    if (!match) return false;
+    const depart = Number(match[1]) * 60 + Number(match[2]);
+    const maintenant = new Date();
+    return depart <= maintenant.getHours() * 60 + maintenant.getMinutes();
+  }
+
   async function loadProgramme() {
     const date = dateInput.value || today();
     dateInput.value = date;
@@ -139,15 +154,19 @@
       });
       card.appendChild(details);
 
-      // Les arrivées ne sont affichées que lorsqu'elles sont fournies par la source PMU.
-      // Pour une date passée sans résultat publié, on indique clairement l'attente.
-      if (date < today()) {
-        const arrival = Array.isArray(course.arrivee_officielle) ? course.arrivee_officielle.slice(0, 5) : [];
+      // Afficher toute arrivée officielle disponible, y compris pour les courses
+      // déjà écoulées aujourd'hui. Aucun classement n'est inventé si le PMU
+      // n'a pas encore publié le résultat.
+      const arrival = Array.isArray(course.arrivee_officielle)
+        ? course.arrivee_officielle.map(n => String(n).trim()).filter(Boolean).slice(0, 5)
+        : [];
+      const courseEcoulee = courseEstEcoulee(date, course);
+      if (arrival.length || courseEcoulee) {
         const arrivalPanel = element("section", `course-arrival${arrival.length ? " is-published" : " is-pending"}`);
         arrivalPanel.appendChild(element("strong", "course-arrival-title", "Arrivée officielle"));
         arrivalPanel.appendChild(element("p", "course-arrival-numbers",
-          arrival.length ? arrival.join(" – ") : "Arrivée officielle en attente de publication"));
-        if (arrival.length) arrivalPanel.appendChild(element("span", "course-arrival-source", "Source : programme officiel PMU"));
+          arrival.length ? arrival.join(" – ") : "Résultat officiel en attente de publication"));
+        if (arrival.length) arrivalPanel.appendChild(element("span", "course-arrival-source", "Source : programme officiel PMU · 5 premiers"));
         card.appendChild(arrivalPanel);
       }
 
