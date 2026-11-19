@@ -1,124 +1,69 @@
 <!DOCTYPE html>
-
 <html lang="fr">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Partants</title>
-<link href="style.css" rel="stylesheet"/>
-<link href="harmonisation.css?v=1" rel="stylesheet"/>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#176b43">
+<title>Partants – AZ Turf Pro</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="harmonisation.css?v=1">
 <link rel="stylesheet" href="identite-visuelle-v15.css?v=15">
+<link rel="stylesheet" href="partants-pro-v17.css?v=17">
 </head>
-<body>
-<header class="header-az">
-<div class="logo">
-Partants
-</div>
-<nav>
-<a href="index.html">Accueil</a>
-<a href="analyse.html">Analyse</a>
-<a href="partants.html">Partants</a>
-<a href="arrivee.html">Arrivée</a>
-<a href="historique.html">Historique</a>
-<a href="ticket.html">Ticket</a>
-<a href="abonnement.html">Premium</a>
-</nav>
+<body class="partants-pro-page">
+<header class="partants-header">
+  <a class="partants-brand" href="index.html" aria-label="AZ Turf Pro, accueil"><span class="brand-mark">🏇</span><span>AZ Turf Pro</span></a>
+  <a class="partants-premium" href="abonnement.html">💎 Premium</a>
 </header>
-<div class="container">
-<div class="course-box">
-<h1>
-🐎 Tous les partants
-</h1>
-<p>
-Liste professionnelle des chevaux engagés.
-</p>
-</div>
-<div class="course-box">
-<h2>
-Informations course
-</h2>
-<p>🏇 Hippodrome : À venir</p>
-<p>📅 Date : À venir</p>
-<p>🏆 Course : Quinté+</p>
-</div>
-<div class="course-box">
-<h2>
-Tableau des partants
-</h2>
-<table style="width:100%; border-collapse:collapse;">
-<tbody id="corps-tableau-partants">
-<tr style="background:#0b3d91;color:white;">
-<th>N°</th>
-<th>Cheval</th>
-<th>Jockey</th>
-<th>Entraîneur</th>
-<th>Cote</th>
-<th>Indice</th>
-<th>Statut</th>
-</tr>
-<tr>
-<td>1</td>
-<td>Nom cheval</td>
-<td>À venir</td>
-<td>À venir</td>
-<td>-</td>
-<td class="confiance">85%</td>
-<td>Favori</td>
-</tr>
-<tr>
-<td>2</td>
-<td>Nom cheval</td>
-<td>À venir</td>
-<td>À venir</td>
-<td>-</td>
-<td class="confiance">72%</td>
-<td>À suivre</td>
-</tr>
-<tr>
-<td>3</td>
-<td>Nom cheval</td>
-<td>À venir</td>
-<td>À venir</td>
-<td>-</td>
-<td class="confiance">60%</td>
-<td>Outsider</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="ticket-box">
-<h2>
-Analyse rapide
-</h2>
-<p>
-⭐ Favoris : en attente des données officielles
-</p>
-<p>
-🎯 Chevaux à suivre : en attente
-</p>
-<p>
-⚠️ Outsiders intéressants : en attente
-</p>
-</div>
-</div>
-<footer>
-<p>
-Partants et informations hippiques professionnelles
-</p>
-</footer>
-<script src="tri-partants.js"></script>
-<script>
-// Chargement des données réelles via le backend courant.
-(async function(){
-  const tbody=document.getElementById("corps-tableau-partants");
-  if(!tbody) return;
-  try {
-    const r=await fetch("/api/partants");
-    if(!r.ok) return;
-    const data=await r.json();
-    tbody.innerHTML=data.map(c=>`<tr><td>${c.numero??"-"}</td><td>${c.nom??"-"}</td><td>${c.jockey??"-"}</td><td>${c.entraineur??"-"}</td><td>${c.cote??"-"}</td><td class="confiance">${c.confiance??"-"}%</td><td>${c.statut??"-"}</td></tr>`).join("");
-  } catch(e) { console.warn("Partants indisponibles",e); }
-})();
-</script>
+<main class="partants-main">
+  <section class="partants-intro">
+    <p class="partants-eyebrow">PROGRAMME HIPPIQUE</p>
+    <h1>🐎 Les partants</h1>
+    <p>Retrouvez les chevaux engagés, leurs cotes et leurs informations disponibles.</p>
+  </section>
+
+  <section class="partants-course-card" aria-labelledby="course-title">
+    <div class="course-card-top">
+      <div>
+        <p class="course-kicker">COURSE SÉLECTIONNÉE</p>
+        <h2 id="course-title">Chargement de la course…</h2>
+      </div>
+      <span class="course-source" id="course-source">PMU</span>
+    </div>
+    <div class="course-facts" id="course-facts">
+      <span>🏟️ Hippodrome : en attente</span>
+      <span>🕒 Départ : en attente</span>
+      <span>🐎 Partants : en attente</span>
+    </div>
+    <p class="partants-status" id="partants-status" role="status" aria-live="polite">Récupération des partants…</p>
+  </section>
+
+  <section class="partants-list-card" aria-labelledby="list-title">
+    <div class="list-heading">
+      <div><p class="course-kicker">DÉTAIL DES ENGAGÉS</p><h2 id="list-title">Tous les partants</h2></div>
+      <span class="partants-count" id="partants-count">— cheval</span>
+    </div>
+    <div class="partants-tools">
+      <label class="partants-search-wrap"><span>⌕</span><input id="partants-search" type="search" placeholder="Rechercher un cheval ou un jockey" autocomplete="off"></label>
+      <div class="sort-controls" role="group" aria-label="Trier les chevaux">
+        <button type="button" class="sort-button active" data-sort="numero">N° de départ</button>
+        <button type="button" class="sort-button" data-sort="cote">Cote</button>
+        <button type="button" class="sort-button" data-sort="indice">Indice AZ</button>
+      </div>
+    </div>
+    <div id="partants-list" class="partants-list" aria-live="polite">
+      <div class="partants-loading"><span class="loading-dot"></span> Chargement des chevaux…</div>
+    </div>
+    <p class="partants-footnote">Les informations affichées dépendent des données transmises par la source. Une donnée absente reste indiquée comme non disponible.</p>
+  </section>
+</main>
+<nav class="partants-bottom-nav" aria-label="Navigation principale">
+  <a href="index.html"><span>⌂</span>Accueil</a>
+  <a href="programme.html"><span>▦</span>Programme</a>
+  <a href="analyse.html"><span>▥</span>Analyse</a>
+  <a href="historique.html"><span>▤</span>Journal</a>
+  <a href="resultats.html"><span>🏆</span>Résultats</a>
+</nav>
+<script src="partants.js?v=17" defer></script>
 </body>
 </html>
