@@ -133,57 +133,10 @@ async function chargerAnalyse(){
             afficher("outsider-raison", outsider.raison || "Outsider AZ");
         }
 
-        // LISTE RESPONSIVE DES PARTANTS : cartes compactes sur mobile, lignes sur écran large.
-        const tableau = document.getElementById("all-horses") || document.getElementById("corps-tableau-partants");
-        if(tableau){
-            const echapper = valeur => String(valeur ?? "-").replace(/[&<>"']/g, c => ({
-                "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
-            }[c]));
-            const compteur = document.getElementById("home-partants-count");
-            if(compteur) compteur.textContent = `${chevaux.length} partant${chevaux.length > 1 ? "s" : ""}`;
-            tableau.innerHTML = chevaux.map(cheval => {
-                const numero = cheval.numero ?? "-";
-                const nom = cheval.nom || cheval.nom_cheval || "Cheval sans nom";
-                const jockey = cheval.jockey || cheval.driver || cheval.driver_nom || "";
-                const entraineur = cheval.entraineur || cheval.trainer || "";
-                const cote = cheval.cote_brute ?? cheval.cote ?? cheval.rapport ?? null;
-                const indice = cheval.indice_az != null ? Math.round(cheval.indice_az) : null;
-                const confiance = cheval.confiance != null ? cheval.confiance : null;
-                const musique = cheval.musique_brute || cheval.musique || cheval.forme || "";
-                const gains = cheval.gains_carriere_brute || cheval.gains || "";
-                const estNonPartant = nonPartants.has(String(numero)) || cheval.non_partant === true ||
-                    String(cheval.statut || "").toUpperCase().includes("NON_PARTANT") ||
-                    String(cheval.statut || "").toUpperCase() === "NP";
-                const casaque = cheval.casaque_url || cheval.url_casaque || "";
-                const casaqueHtml = /^https?:\/\//i.test(String(casaque))
-                    ? `<img class="home-horse-silk" src="${echapper(casaque)}" alt="" loading="lazy">`
-                    : `<span class="home-horse-silk home-horse-silk-fallback" aria-hidden="true">🏇</span>`;
-                const tendance = badgeTendance(cheval);
-                const details = [
-                    jockey ? `<span>Jockey <strong>${echapper(jockey)}</strong></span>` : "",
-                    entraineur ? `<span>Entraîneur <strong>${echapper(entraineur)}</strong></span>` : ""
-                ].filter(Boolean).join('<i aria-hidden="true">·</i>');
-                const indicateurs = [
-                    musique ? `<span class="home-horse-chip music">Musique : ${echapper(musique)}</span>` : "",
-                    indice !== null ? `<span class="home-horse-chip index">Indice AZ : ${echapper(indice)}</span>` : "",
-                    confiance !== null ? `<span class="home-horse-chip confidence">Confiance : ${echapper(confiance)} %</span>` : "",
-                    gains ? `<span class="home-horse-chip gains">Gains : ${echapper(gains)}</span>` : ""
-                ].filter(Boolean).join("");
-                return `<article class="home-horse-row${estNonPartant ? " is-non-runner" : ""}">
-                    <span class="home-horse-number">${echapper(numero)}</span>
-                    <div class="home-horse-content">
-                      <div class="home-horse-title">${casaqueHtml}<strong>${echapper(nom)}</strong>${estNonPartant ? '<span class="home-horse-np">NON PARTANT</span>' : ""}</div>
-                      <div class="home-horse-people">${details || '<span>Jockey et entraîneur non renseignés</span>'}</div>
-                      ${indicateurs ? `<div class="home-horse-indicators">${indicateurs}</div>` : ""}
-                    </div>
-                    <div class="home-horse-right">
-                      <span class="home-horse-odds">${cote !== null && cote !== "" ? echapper(cote) : "—"}</span>
-                      <span class="home-horse-odds-label">COTE</span>
-                      <span class="home-horse-trend">${tendance}</span>
-                    </div>
-                </article>`;
-            }).join("");
-        }
+        // Liste des partants : tri fonctionnel sur les données réelles, sans manipuler le DOM comme un tableau HTML.
+        window.azHomePartantsData = Array.isArray(chevaux) ? chevaux.slice() : [];
+        window.azHomeNonPartants = Array.from(nonPartants);
+        afficherListePartantsAccueil(window.azHomePartantsData);
 
         const tickets = data.tickets?.gratuit || {};
         afficher("quinte-gratuit", (tickets.quinte || []).join(" - "));
@@ -440,6 +393,70 @@ function afficherChevauxSurveiller(data){
 // La course du jour est chargée par /api/analyse dans chargerAnalyse().
 // Les fenêtres hier et demain ont été retirées de l'accueil.
 // =====================================
+
+// Tri et affichage des partants de l'accueil (V19).
+window.azHomePartantsSort = window.azHomePartantsSort || "numero";
+function valeurCoteAccueil(cheval){
+    const brut = cheval && (cheval.cote_brute ?? cheval.cote ?? cheval.rapport);
+    if (brut === null || brut === undefined || brut === "") return Number.POSITIVE_INFINITY;
+    const n = Number(String(brut).replace(/\s/g, "").replace(",", ".").replace(/[^0-9.]/g, ""));
+    return Number.isFinite(n) && n > 0 ? n : Number.POSITIVE_INFINITY;
+}
+function afficherListePartantsAccueil(source){
+    const zone = document.getElementById("all-horses");
+    if(!zone) return;
+    const echapper = valeur => String(valeur ?? "-").replace(/[&<>"']/g, c => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"}[c]));
+    const chevaux = (Array.isArray(source) ? source : []).slice();
+    if(window.azHomePartantsSort === "cote"){
+        chevaux.sort((a,b) => valeurCoteAccueil(a)-valeurCoteAccueil(b) || (Number(a.numero)||9999)-(Number(b.numero)||9999));
+    } else {
+        chevaux.sort((a,b) => (Number(a.numero)||9999)-(Number(b.numero)||9999));
+    }
+    const compteur = document.getElementById("home-partants-count");
+    if(compteur) compteur.textContent = `${chevaux.length} partant${chevaux.length > 1 ? "s" : ""}`;
+    if(!chevaux.length){ zone.innerHTML='<div class="home-partants-loading">Aucun partant disponible pour cette course.</div>'; return; }
+    zone.innerHTML = chevaux.map(cheval => {
+        const numero = cheval.numero ?? "-";
+        const nom = cheval.nom || cheval.nom_cheval || "Cheval sans nom";
+        const jockey = cheval.jockey || cheval.driver || cheval.driver_nom || "";
+        const entraineur = cheval.entraineur || cheval.trainer || "";
+        const cote = cheval.cote_brute ?? cheval.cote ?? cheval.rapport ?? null;
+        const indice = cheval.indice_az != null ? Math.round(cheval.indice_az) : null;
+        const confiance = cheval.confiance != null ? cheval.confiance : null;
+        const musique = cheval.musique_brute || cheval.musique || cheval.forme || "";
+        const gains = cheval.gains_carriere_brute || cheval.gains || "";
+        const estNonPartant = (window.azHomeNonPartants || []).includes(String(numero)) || cheval.non_partant === true || String(cheval.statut || "").toUpperCase().includes("NON_PARTANT") || String(cheval.statut || "").toUpperCase() === "NP";
+        const casaque = cheval.casaque_url || cheval.url_casaque || "";
+        const casaqueHtml = /^https?:\/\//i.test(String(casaque)) ? `<img class="home-horse-silk" src="${echapper(casaque)}" alt="Casaque" loading="lazy">` : `<span class="home-horse-silk home-horse-silk-fallback" aria-hidden="true">🏇</span>`;
+        const tendance = badgeTendance(cheval);
+        const details = [jockey ? `<span>Jockey <strong>${echapper(jockey)}</strong></span>` : "", entraineur ? `<span>Entraîneur <strong>${echapper(entraineur)}</strong></span>` : ""].filter(Boolean).join('<i aria-hidden="true">·</i>');
+        const indicateurs = [
+            musique ? `<span class="home-horse-chip music">Musique : ${echapper(musique)}</span>` : "",
+            indice !== null ? `<span class="home-horse-chip index">Indice AZ : ${echapper(indice)}</span>` : "",
+            confiance !== null ? `<span class="home-horse-chip confidence">Confiance : ${echapper(confiance)} %</span>` : "",
+            gains ? `<span class="home-horse-chip gains">Gains : ${echapper(gains)}</span>` : ""
+        ].filter(Boolean).join("");
+        return `<article class="home-horse-row${estNonPartant ? " is-non-runner" : ""}">
+          <span class="home-horse-number">${echapper(numero)}</span>
+          <div class="home-horse-content">
+            <div class="home-horse-title">${casaqueHtml}<strong>${echapper(nom)}</strong>${estNonPartant ? '<span class="home-horse-np">NON PARTANT</span>' : ""}</div>
+            <div class="home-horse-people">${details || '<span>Jockey et entraîneur non renseignés</span>'}</div>
+            ${indicateurs ? `<div class="home-horse-indicators">${indicateurs}</div>` : ""}
+          </div>
+          <div class="home-horse-right"><span class="home-horse-odds">${cote !== null && cote !== "" ? echapper(cote) : "—"}</span><span class="home-horse-odds-label">COTE</span><span class="home-horse-trend">${tendance}</span></div>
+        </article>`;
+    }).join("");
+    document.querySelectorAll(".home-sort-btn").forEach(btn => {
+        const active = (btn.id === "home-sort-odds" && window.azHomePartantsSort === "cote") || (btn.id === "home-sort-number" && window.azHomePartantsSort === "numero");
+        btn.classList.toggle("is-active", active); btn.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+}
+document.addEventListener("DOMContentLoaded", () => {
+    const numero = document.getElementById("home-sort-number");
+    const cote = document.getElementById("home-sort-odds");
+    if(numero) numero.addEventListener("click", () => { window.azHomePartantsSort="numero"; afficherListePartantsAccueil(window.azHomePartantsData || []); });
+    if(cote) cote.addEventListener("click", () => { window.azHomePartantsSort="cote"; afficherListePartantsAccueil(window.azHomePartantsData || []); });
+});
 
 document.addEventListener("DOMContentLoaded", () => {
     chargerAnalyse();

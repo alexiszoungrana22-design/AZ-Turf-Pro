@@ -22,6 +22,7 @@
 
 <link rel="stylesheet" href="identite-visuelle-v15.css?v=15">
 <link rel="stylesheet" href="partants-accueil-v18.css?v=18">
+<link rel="stylesheet" href="partants-accueil-v19.css?v=19">
 </head>
 <body>
 <header class="top-header">
@@ -149,6 +150,10 @@
   <div><p class="home-partants-kicker">DÉTAIL DES ENGAGÉS</p><h2>🐎 Tous les partants</h2></div>
   <span id="home-partants-count" class="home-partants-count">— partant</span>
 </div>
+<div class="home-partants-sort" role="group" aria-label="Trier les partants">
+  <button type="button" class="home-sort-btn is-active" id="home-sort-number" aria-pressed="true">Trier par numéro</button>
+  <button type="button" class="home-sort-btn" id="home-sort-odds" aria-pressed="false">Trier par cote</button>
+</div>
 <div id="all-horses" class="home-partants-list" aria-live="polite">
   <div class="home-partants-loading">Chargement des chevaux…</div>
 </div>
@@ -192,6 +197,6 @@
 </footer>
 <script src="historique.js?v=4"></script>
 <script src="accueil.js?v=18"></script>
-<script src="tri-partants.js"></script>
+
 </body>
 </html>
