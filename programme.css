@@ -185,3 +185,21 @@ body:has(.programme-page) .bottom-menu .menu-icon{font-size:20px}
   .programme-controls{padding:11px}
   .programme-nav,.programme-today{font-size:12px}
 }
+
+
+/* V25 — Arrivées officielles en rouge, en conservant l'attente en ambre */
+.course-arrival.is-published{
+  background:#fff1f1!important;
+  border:1px solid #efb7b7!important;
+  border-left:5px solid #c62828!important;
+}
+.course-arrival.is-published .course-arrival-title{
+  color:#a31616!important;
+}
+.course-arrival.is-published .course-arrival-numbers{
+  color:#c62828!important;
+  font-weight:950!important;
+}
+.course-arrival.is-published .course-arrival-source{
+  color:#8e3030!important;
+}
