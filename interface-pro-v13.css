@@ -1,0 +1,65 @@
+/* AZ Turf Pro V13 — lisibilité du bloc Quinté et densité mobile */
+:root{--az-v13-green:#176b43;--az-v13-dark:#124b33;--az-v13-pale:#e8f3ec;--az-v13-line:#cbded2;}
+body:has(.pmu-clone-header) .pmu-clone-header .clone-body{
+  gap:7px!important;padding:14px 16px 15px!important;
+}
+body:has(.pmu-clone-header) .pmu-clone-header .clone-title{
+  margin:0!important;line-height:1.3!important;
+}
+body:has(.pmu-clone-header) .pmu-clone-header .clone-subtitle{
+  margin:0!important;line-height:1.25!important;
+}
+body:has(.pmu-clone-header) .pmu-clone-header .clone-date:empty,
+body:has(.pmu-clone-header) .pmu-clone-header .clone-subtitle:empty{display:none!important}
+body:has(.pmu-clone-header) .pmu-clone-header .clone-infos{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  min-height:0!important;margin:3px 0 5px!important;padding:0!important;gap:7px!important;
+}
+body:has(.pmu-clone-header) .pmu-clone-header .clone-info-text{
+  color:var(--az-v13-dark)!important;font-size:13px!important;font-weight:750!important;
+  line-height:1.45!important;text-align:center!important;
+}
+body:has(.pmu-clone-header) .pmu-clone-header .clone-infos:has(.clone-info-text:empty){display:none!important}
+body:has(.pmu-clone-header) .pmu-clone-header .clone-infos:has(.clone-info-text:not(:empty)) .icon-cheval{flex:0 0 20px}
+body:has(.pmu-clone-header) .pmu-clone-header .clone-footer{
+  display:flex!important;flex-direction:column!important;align-items:stretch!important;
+  gap:9px!important;margin-top:3px!important;padding-top:10px!important;
+}
+body:has(.pmu-clone-header) .pmu-clone-header .clone-timer{
+  display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;
+}
+body:has(.pmu-clone-header) .pmu-clone-header .heure-depart-course{
+  background:#edf5f0!important;border:1px solid #cbded2!important;
+  color:#145b3b!important;font-weight:850!important;border-radius:10px!important;
+  padding:8px 13px!important;
+}
+/* Paris : contraste fort et cohérent, sans texte blanc sur fond blanc. */
+body:has(.pmu-clone-header) .pmu-clone-header .clone-badges{
+  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:7px!important;width:100%!important;align-items:stretch!important;
+}
+body:has(.pmu-clone-header) .pmu-clone-header .pmu-badge{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  min-width:0!important;min-height:37px!important;padding:7px 4px!important;
+  transform:none!important;border-radius:9px!important;
+  background:#e8f3ec!important;border:1px solid #c5ddce!important;
+  box-shadow:none!important;opacity:1!important;
+}
+body:has(.pmu-clone-header) .pmu-clone-header .pmu-badge span{
+  display:block!important;transform:none!important;color:#145b3b!important;
+  font-size:12px!important;font-style:normal!important;font-weight:850!important;
+  text-shadow:none!important;opacity:1!important;white-space:nowrap!important;
+}
+body:has(.pmu-clone-header) .pmu-clone-header .badge-quinte{
+  background:#176b43!important;border-color:#176b43!important;
+}
+body:has(.pmu-clone-header) .pmu-clone-header .badge-quinte span{color:#fff!important}
+@media(max-width:600px){
+ body:has(.pmu-clone-header) .pmu-clone-header .clone-body{padding:12px 12px 13px!important}
+ body:has(.pmu-clone-header) .pmu-clone-header .clone-title{font-size:13px!important}
+ body:has(.pmu-clone-header) .pmu-clone-header .clone-subtitle{font-size:17px!important}
+ body:has(.pmu-clone-header) .pmu-clone-header .clone-info-text{font-size:12px!important}
+ body:has(.pmu-clone-header) .pmu-clone-header .clone-footer{gap:8px!important}
+ body:has(.pmu-clone-header) .pmu-clone-header .pmu-badge{min-height:35px!important;padding:6px 2px!important}
+ body:has(.pmu-clone-header) .pmu-clone-header .pmu-badge span{font-size:11px!important}
+}

@@ -80,7 +80,13 @@ async function chargerAnalyse(){
         const disciplineAffichee = disciplinesLisibles[disciplineBrute.toUpperCase()] || disciplineBrute.replace(/_/g, " ").toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase());
         afficher("meta-discipline", disciplineAffichee);
         afficher("meta-distance", data.distance ? data.distance + " m" : "-");
-        afficher("meta-partants", data.partants);
+        // Le compteur de partants utilise le champ API s'il est numérique,
+        // sinon le nombre réel de chevaux reçus dans la liste.
+        const partantsAPI = Number(data.partants);
+        const nombrePartants = Number.isFinite(partantsAPI) && partantsAPI > 0
+            ? partantsAPI
+            : chevaux.length;
+        afficher("meta-partants", nombrePartants > 0 ? nombrePartants : "");
 
         const popular = document.getElementById("popular-horses");
         if(popular){
