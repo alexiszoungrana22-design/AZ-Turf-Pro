@@ -1,0 +1,41 @@
+/* AZ Turf Pro V19 — typographie mobile lisible et commandes de tri opérationnelles */
+.home-partants-sort{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 14px}
+.home-sort-btn{appearance:none;border:1px solid #b8d7c7;border-radius:12px;background:#edf6f0;color:#176b43;padding:11px 15px;font:800 15px/1.2 system-ui,sans-serif;min-height:46px;cursor:pointer;box-shadow:0 2px 0 rgba(18,75,49,.12)}
+.home-sort-btn.is-active{background:#176b43;border-color:#176b43;color:#fff}
+.home-sort-btn:focus-visible{outline:3px solid #e5ad24;outline-offset:2px}
+.home-partants-heading h2{font-size:clamp(21px,5.2vw,27px)}
+.home-partants-kicker{font-size:12px}
+.home-partants-count{font-size:13px;padding:8px 11px}
+.home-partants-list{gap:9px}
+.home-horse-row{grid-template-columns:48px minmax(0,1fr) 68px;gap:10px;padding:12px 10px;border-radius:13px}
+.home-horse-number{width:46px;height:48px;font-size:21px;border-radius:11px}
+.home-horse-title{gap:8px}
+.home-horse-title>strong{font-size:17px;line-height:1.3}
+.home-horse-silk{flex-basis:34px;width:34px;height:34px;border-radius:8px}
+.home-horse-silk-fallback{font-size:20px}
+.home-horse-people{font-size:13px;line-height:1.5;gap:3px 7px}
+.home-horse-indicators{gap:5px;margin-top:4px}
+.home-horse-chip{font-size:11px;line-height:1.35;padding:5px 7px;border-radius:7px}
+.home-horse-odds{font-size:17px;padding:9px 4px;border-radius:9px;min-height:42px;display:grid;place-items:center}
+.home-horse-odds-label{font-size:10px}
+.home-horse-trend{font-size:15px}
+.home-horse-np{font-size:11px;padding:3px 6px}
+.home-partants-note{font-size:12px}
+@media(max-width:420px){
+ .home-horse-row{grid-template-columns:44px minmax(0,1fr) 62px;gap:8px;padding:11px 8px}
+ .home-horse-number{width:42px;height:44px;font-size:20px}
+ .home-horse-title>strong{font-size:16px}
+ .home-horse-silk{flex-basis:31px;width:31px;height:31px}
+ .home-horse-people{font-size:12px}
+ .home-horse-chip{font-size:10.5px;padding:5px 6px}
+ .home-horse-odds{font-size:16px}
+ .home-sort-btn{font-size:14px;padding:10px 12px}
+}
+@media(max-width:350px){
+ .home-horse-row{grid-template-columns:39px minmax(0,1fr) 54px;gap:6px;padding:9px 6px}
+ .home-horse-number{width:38px;height:40px;font-size:18px}
+ .home-horse-title>strong{font-size:15px}
+ .home-horse-people{font-size:11px}
+ .home-horse-chip{font-size:10px}
+ .home-horse-odds{font-size:14px}
+}
