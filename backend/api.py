@@ -532,6 +532,32 @@ def actualites(limit: int = 10):
     return recuperer_actualites(max(1, min(limit, 20)))
 
 
+def _resume_qualite_donnees(classement, non_partants=None):
+    """Résumé de qualité fondé uniquement sur les indicateurs de provenance réellement fournis."""
+    non_partants = {str(x) for x in (non_partants or [])}
+    valeurs = []
+    for cheval in classement if isinstance(classement, list) else []:
+        if not isinstance(cheval, dict):
+            continue
+        numero = str(cheval.get("numero", ""))
+        statut = str(cheval.get("statut", "")).upper()
+        if numero in non_partants or cheval.get("non_partant") is True or statut in {"NP", "NON_PARTANT", "NON PARTANT"}:
+            continue
+        valeur = cheval.get("confiance_donnees")
+        try:
+            if valeur is not None:
+                nombre = float(valeur)
+                if 0 <= nombre <= 100:
+                    valeurs.append(nombre)
+        except (TypeError, ValueError):
+            continue
+    return {
+        "pourcentage": round(sum(valeurs) / len(valeurs)) if valeurs else None,
+        "effectif_evalue": len(valeurs),
+        "definition": "Moyenne des indicateurs confiance_donnees disponibles sur les partants. Ce n'est ni une probabilité de victoire ni une garantie de résultat."
+    }
+
+
 @router.get("/analyse")
 def analyse():
 
@@ -757,7 +783,14 @@ def analyse():
                 resultat.get(
                     "tickets",
                     {}
-                )
+                ),
+            "qualite_donnees": resultat.get("qualite_donnees", {}),
+            "qualite_donnees_pourcentage": _resume_qualite_donnees(
+                classement, course.get("non_partants", [])
+            )["pourcentage"],
+            "qualite_donnees_effectif": _resume_qualite_donnees(
+                classement, course.get("non_partants", [])
+            )["effectif_evalue"],
 
         }
 
@@ -865,6 +898,13 @@ def analyse_course(date: str = None, reunion: str = None, course: str = None):
             "classement": classement,
             "favori": classement[0],
             "tickets": resultat.get("tickets", {}),
+            "qualite_donnees": resultat.get("qualite_donnees", {}),
+            "qualite_donnees_pourcentage": _resume_qualite_donnees(
+                classement, course_data.get("non_partants", [])
+            )["pourcentage"],
+            "qualite_donnees_effectif": _resume_qualite_donnees(
+                classement, course_data.get("non_partants", [])
+            )["effectif_evalue"],
         }
     except HTTPException:
         raise
