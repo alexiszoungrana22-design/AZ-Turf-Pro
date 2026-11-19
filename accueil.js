@@ -42,7 +42,7 @@ function enregistrerAnalyseDansHistorique(data){
 
 async function chargerAnalyse(){
     try {
-        const response = await fetch(API);
+        const response = await fetch(API, { cache: "no-store" });
         if(!response.ok){
             throw new Error("Erreur API");
         }
@@ -53,9 +53,14 @@ async function chargerAnalyse(){
         afficherHeureDepartCourse(data);
         afficherChronometre(data);
 
-        const chevauxClassement = data.classement || data.chevaux || [];
-        const chevauxSource = data.partants_complets || data.chevaux || chevauxClassement;
-        const nonPartants = new Set((data.non_partants || []).map(n => String(n)));
+        // La réponse PMU réelle utilise notamment "course", "partants" et "chevaux".
+        // Sécuriser les tableaux pour éviter qu'un champ absent bloque tout l'affichage.
+        const chevauxAPI = Array.isArray(data.chevaux) ? data.chevaux : [];
+        const classementAPI = Array.isArray(data.classement) ? data.classement : chevauxAPI;
+        const partantsCompletsAPI = Array.isArray(data.partants_complets) ? data.partants_complets : [];
+        const chevauxClassement = classementAPI;
+        const chevauxSource = partantsCompletsAPI.length ? partantsCompletsAPI : (chevauxAPI.length ? chevauxAPI : classementAPI);
+        const nonPartants = new Set((Array.isArray(data.non_partants) ? data.non_partants : []).map(n => String(n)));
         const chevaux = [...chevauxSource].sort((a, b) => Number(a.numero || 0) - Number(b.numero || 0));
         const classement = [...chevauxClassement].sort((a, b) => Number(a.rang || 0) - Number(b.rang || 0));
 
@@ -66,8 +71,11 @@ async function chargerAnalyse(){
             }
         }
 
+        // Le titre réel de la course est dans "course". "nom_prix" peut
+        // contenir un code de réunion/course (ex. R1/C6) et ne doit pas le remplacer.
         afficher("meta-hippodrome", data.hippodrome);
-        afficher("meta-course", data.course);
+        afficher("meta-course", data.course || data.nom_course || data.nom_prix);
+        afficher("meta-nom-prix", (data.nom_prix && !/^R\d+\/C\d+$/i.test(String(data.nom_prix).trim())) ? data.nom_prix : "");
         // Libellé public : éviter d'afficher les codes techniques de la source PMU.
         const disciplinesLisibles = {
             "ATTELE_TROT_ATTELE": "Trot attelé",
@@ -82,11 +90,11 @@ async function chargerAnalyse(){
         afficher("meta-distance", data.distance ? data.distance + " m" : "-");
         // Le compteur de partants utilise le champ API s'il est numérique,
         // sinon le nombre réel de chevaux reçus dans la liste.
-        const partantsAPI = Number(data.partants);
+        const partantsAPI = Number.parseInt(data.partants, 10);
         const nombrePartants = Number.isFinite(partantsAPI) && partantsAPI > 0
             ? partantsAPI
             : chevaux.length;
-        afficher("meta-partants", nombrePartants > 0 ? nombrePartants : "");
+        afficher("meta-partants", nombrePartants > 0 ? nombrePartants : "Partants indisponibles");
 
         const popular = document.getElementById("popular-horses");
         if(popular){
@@ -157,7 +165,13 @@ async function chargerAnalyse(){
         afficherChevauxSurveiller(data);
 
     } catch(error) {
-        console.log("Erreur analyse :", error);
+        console.error("Erreur analyse AZ Turf Pro :", error);
+        const titre = document.getElementById("meta-course");
+        const infos = document.querySelector(".clone-info-text");
+        if(titre && !titre.textContent.trim()) titre.textContent = "Données de course momentanément indisponibles";
+        if(infos && !infos.textContent.trim()) infos.textContent = "Vérifiez la connexion aux données PMU puis actualisez la page.";
+        const heure = document.getElementById("heure-depart-course");
+        if(heure) heure.textContent = "Départ : données indisponibles";
     }
 }
 
