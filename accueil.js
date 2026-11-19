@@ -335,19 +335,26 @@ function changerPublicite(){
 function afficherConfianceCourse(data){
     const indice = document.getElementById("indice-confiance");
     const message = document.getElementById("message-confiance");
-
     if(!indice) return;
 
-    let confiance = data.favori?.confiance || 0;
-    indice.innerHTML = confiance + "%";
+    // La confiance du favori mesure seulement sa proximité au meilleur indice.
+    // Elle ne doit jamais être présentée comme la qualité de toute la course.
+    const qualite = data && data.qualite_donnees_pourcentage;
+    const effectif = Number(data && data.qualite_donnees_effectif || 0);
+    const valeur = (qualite !== null && qualite !== undefined && Number.isFinite(Number(qualite)))
+        ? Math.max(0, Math.min(100, Math.round(Number(qualite))))
+        : null;
 
+    indice.textContent = valeur === null ? "Non évaluée" : valeur + "%";
     if(message){
-        if(confiance >= 80){
-            message.innerHTML = "Course avec un niveau de confiance élevé";
-        } else if(confiance >= 60){
-            message.innerHTML = "Course avec quelques incertitudes";
+        if(valeur === null || effectif === 0){
+            message.textContent = "Qualité non calculable : les indicateurs de provenance des données ne sont pas disponibles.";
+        } else if(valeur >= 80){
+            message.textContent = `Données bien documentées (${effectif} partants évalués). Cet indicateur mesure la disponibilité des données, pas une chance de victoire.`;
+        } else if(valeur >= 60){
+            message.textContent = `Données partiellement documentées (${effectif} partants évalués). Certaines informations sont manquantes.`;
         } else {
-            message.innerHTML = "Course ouverte, prudence recommandée";
+            message.textContent = `Données peu documentées (${effectif} partants évalués). Prudence : plusieurs informations manquent.`;
         }
     }
 }
