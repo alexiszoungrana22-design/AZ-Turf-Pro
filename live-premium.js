@@ -1,4 +1,4 @@
-const API_URL = window.location.origin;
+const API_URL = window.AZ_API_BASE;
 
 document.addEventListener("DOMContentLoaded", () => {
     const btnTableau = document.getElementById("btn-toggle-tableau");

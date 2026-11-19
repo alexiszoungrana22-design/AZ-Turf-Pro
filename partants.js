@@ -1,7 +1,7 @@
 /* AZ Turf Pro — Partants V17. Présentation uniquement, aucune modification du moteur. */
 (() => {
   "use strict";
-  const API = "/api/partants";
+  const API = window.azApiUrl('/api/partants');
   const $ = (id) => document.getElementById(id);
   const state = { horses: [], sort: "numero", query: "", meta: {} };
   const esc = (v) => String(v ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
@@ -80,7 +80,7 @@
       // de course déjà calculées par le backend. Si ce second appel échoue, la liste reste visible.
       let courseMeta = {};
       try {
-        const metaResponse = await fetch("/api/analyse", {cache:"no-store",headers:{"Accept":"application/json"}});
+        const metaResponse = await fetch(window.azApiUrl('/api/analyse'), {cache:"no-store",headers:{"Accept":"application/json"}});
         if (metaResponse.ok) courseMeta = await metaResponse.json();
       } catch (metaError) { console.warn("Métadonnées de course non disponibles :", metaError); }
       const raw=getHorses(data);

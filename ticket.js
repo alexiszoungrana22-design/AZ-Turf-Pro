@@ -1,4 +1,4 @@
-const API = "https://az-turf-pro.onrender.com/api/analyse";
+const API = window.azApiUrl('/api/analyse');
 
 
 

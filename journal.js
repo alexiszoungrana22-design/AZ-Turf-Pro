@@ -4,7 +4,7 @@
 // =====================================
 
 const API_JOURNAL =
-"https://az-turf-pro.onrender.com/api/journal";
+window.azApiUrl('/api/journal');
 
 
 document.addEventListener(

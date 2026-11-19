@@ -2,6 +2,7 @@
 
 <html lang="fr">
 <head>
+<script src="api-config.js?v=1"></script>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
@@ -171,7 +172,7 @@ Sélectionnez votre formule, indiquez votre numéro et choisissez votre moyen de
 </main>
 <script>
     let forfaitChoisi = null;
-    const API_ABONNEMENT = "https://az-turf-pro.onrender.com/api/abonnement";
+    const API_ABONNEMENT = window.azApiUrl('/api/abonnement');
 
     document.querySelectorAll(".forfait-carte").forEach(carte => {
         carte.addEventListener("click", () => {

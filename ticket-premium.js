@@ -5,8 +5,7 @@
 (function () {
   "use strict";
 
-  const API = "/api/analyse";
-  const ABS_API = "https://az-turf-pro.onrender.com/api/analyse";
+  const API = window.azApiUrl('/api/analyse');
 
   function el(id) { return document.getElementById(id); }
   function put(id, value, fallback = "Indisponible") {
@@ -193,17 +192,7 @@
         headers: { "Accept": "application/json", ...window.AZAuth.authHeaders() }
       });
 
-      if (!response.ok) {
-        // Même domaine Render : second essai absolu.
-        const retry = await fetch(ABS_API + "?t=" + Date.now(), {
-          cache: "no-store",
-          headers: { "Accept": "application/json", ...window.AZAuth.authHeaders() }
-        });
-        if (!retry.ok) throw new Error("API analyse indisponible (" + retry.status + ")");
-        render(await retry.json());
-        return;
-      }
-
+      if (!response.ok) throw new Error("API analyse indisponible (" + response.status + ")");
       render(await response.json());
     } catch (error) {
       console.error("AZ Premium :", error);

@@ -58,7 +58,7 @@
   // On ne fait jamais confiance à une clé saisie sans validation backend.
   async function loginAdmin(key) {
     try {
-      const res = await fetch("/api/admin/verification", {
+      const res = await fetch(window.azApiUrl('/api/admin/verification'), {
         headers: { "X-Admin-Key": key || "" }
       });
       if (!res.ok) return false;

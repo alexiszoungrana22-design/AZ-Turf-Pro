@@ -2,6 +2,7 @@
 
 <html lang="fr">
 <head>
+<script src="api-config.js?v=1"></script>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Activation Premium - AZ Turf Pro</title>
@@ -141,7 +142,7 @@
   <a href="historique.html"><span class="menu-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a4 4 0 0 0 4 4M17 6h3v2a4 4 0 0 1-4 4"/></svg></span><span class="menu-label">Historique</span></a>
 </footer>
 <script>
-    const API_URL = "https://az-turf-pro.onrender.com/api/activation";
+    const API_URL = window.azApiUrl('/api/activation');
     const telephone = localStorage.getItem("AZ_TURF_TELEPHONE");
 
     const affichage = document.getElementById("telephone-affiche");

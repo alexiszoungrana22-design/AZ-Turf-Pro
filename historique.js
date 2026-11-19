@@ -4,9 +4,9 @@
  */
 (() => {
   'use strict';
-  const API_HISTORIQUE = '/api/historique';
-  const API_ARCHIVE = '/api/archive/courses?limit=100';
-  const API_PERFORMANCE = '/api/archive/performance';
+  const API_HISTORIQUE = window.azApiUrl('/api/historique');
+  const API_ARCHIVE = window.azApiUrl('/api/archive/courses?limit=100');
+  const API_PERFORMANCE = window.azApiUrl('/api/archive/performance');
   const STORAGE = 'AZ_TURF_HISTORIQUE_COURSES_V1';
 
   const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));

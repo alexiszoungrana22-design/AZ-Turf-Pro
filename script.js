@@ -3,7 +3,7 @@
 // Compatible ticket.html + API Premium
 // ===============================
 
-const API_URL = "https://az-turf-pro.onrender.com/api/analyse";
+const API_URL = window.azApiUrl('/api/analyse');
 
 document.addEventListener("DOMContentLoaded", chargerTickets);
 

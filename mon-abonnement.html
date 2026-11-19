@@ -2,6 +2,7 @@
 
 <html lang="fr">
 <head>
+<script src="api-config.js?v=1"></script>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Mon Compte - AZ Turf Pro</title>
@@ -126,7 +127,7 @@
         }
         try {
             const response = await fetch(
-                "https://az-turf-pro.onrender.com/api/premium/" + encodeURIComponent(phone),
+                window.azApiUrl('/api/premium/') + encodeURIComponent(phone),
                 { headers: { "Authorization": "Bearer " + token, "Accept": "application/json" }, cache: "no-store" }
             );
             const data = await response.json();

@@ -1,4 +1,4 @@
-const API = "https://az-turf-pro.onrender.com/api/analyse";
+const API = window.azApiUrl('/api/analyse');
 
 function badgeTendance(cheval){
     const signal = String(cheval && cheval.signal_marche || "NEUTRE");
@@ -477,7 +477,7 @@ async function chargerActualitesHippiques(){
     const zone=document.getElementById('home-news'), status=document.getElementById('news-status'), sources=document.getElementById('news-sources');
     if(!zone) return;
     try{
-        const r=await fetch('/api/actualites?limit=10',{cache:'no-store'}); const d=await r.json();
+        const r=await fetch(window.azApiUrl('/api/actualites?limit=10'),{cache:'no-store'}); const d=await r.json();
         const items=d.actualites||[];
         if(status) status.textContent=items.length?'● En direct':'● Sources indisponibles';
         zone.innerHTML=items.length?items.map(a=>`<a class="news-item" href="${a.url}" target="_blank" rel="noopener noreferrer"><span class="news-source">${a.source||'Source hippique'}</span><div class="news-title">${a.titre}</div><span class="news-more">Lire la source →</span></a>`).join(''):'<div class="news-skeleton">Les sources d’actualité ne sont pas disponibles pour le moment. Aucun contenu n’est inventé.</div>';

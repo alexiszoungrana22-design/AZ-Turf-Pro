@@ -1,4 +1,4 @@
-const API = "https://az-turf-pro.onrender.com/api/analyse";
+const API = window.azApiUrl('/api/analyse');
 
 
 async function chargerAnalyse(){
@@ -600,7 +600,7 @@ champ.value = "";
 
 async function chargerActualitesAnalyse(){
   const z=document.getElementById('analyse-news'); if(!z)return;
-  try{const r=await fetch('/api/actualites?limit=6',{cache:'no-store'});const d=await r.json();const items=d.actualites||[];z.innerHTML=items.length?items.map(a=>`<a class="news-item" href="${a.url}" target="_blank" rel="noopener noreferrer"><span class="news-source">${a.source||'Source hippique'}</span><div class="news-title">${a.titre}</div><span class="news-more">Lire la source →</span></a>`).join(''):'<div class="news-skeleton">Actualités indisponibles momentanément.</div>';}catch(e){z.innerHTML='<div class="news-skeleton">Actualités indisponibles momentanément.</div>';}}
+  try{const r=await fetch(window.azApiUrl('/api/actualites?limit=6'),{cache:'no-store'});const d=await r.json();const items=d.actualites||[];z.innerHTML=items.length?items.map(a=>`<a class="news-item" href="${a.url}" target="_blank" rel="noopener noreferrer"><span class="news-source">${a.source||'Source hippique'}</span><div class="news-title">${a.titre}</div><span class="news-more">Lire la source →</span></a>`).join(''):'<div class="news-skeleton">Actualités indisponibles momentanément.</div>';}catch(e){z.innerHTML='<div class="news-skeleton">Actualités indisponibles momentanément.</div>';}}
 
 function formaterDepart(value){
   if(value===null||value===undefined||value==='') return 'Non communiqué';
@@ -619,7 +619,7 @@ function enrichirContexteAnalyse(data){
 async function chargerContexteAvance(){
   try{
     const r=await fetch(API,{cache:'no-store'}); if(!r.ok) return; const data=await r.json(); enrichirContexteAnalyse(data);
-    const r2=await fetch('/api/analyse/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chevaux:data.chevaux||data.classement||[],info_course:data})});
+    const r2=await fetch(window.azApiUrl('/api/analyse/complete'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chevaux:data.chevaux||data.classement||[],info_course:data})});
     if(!r2.ok) return; const d=await r2.json();
     const c=d.tendances_cotes||[]; const sig=c.find(x=>x.signal&&x.signal!=='NEUTRE'&&x.signal!=='NON_DOCUMENTE');
     const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v||'—'};

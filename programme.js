@@ -1,6 +1,6 @@
 (() => {
   "use strict";
-  const API_PROGRAMME = "https://az-turf-pro.onrender.com/api/programme";
+  const API_PROGRAMME = window.azApiUrl('/api/programme');
   const dateInput = document.getElementById("programme-date");
   const status = document.getElementById("programme-status");
   const summary = document.getElementById("programme-summary");
@@ -258,7 +258,7 @@
 
     try {
       const query = new URLSearchParams({date, reunion: String(reunion), course: String(course)});
-      const response = await fetch(`https://az-turf-pro.onrender.com/api/analyse/course?${query.toString()}`, {cache:"no-store"});
+      const response = await fetch(window.azApiUrl(`/api/analyse/course?${query.toString()}`), {cache:"no-store"});
       let data = {};
       try { data = await response.json(); } catch (_) {}
       if (!response.ok) throw new Error(data.detail || `Erreur du serveur (${response.status})`);

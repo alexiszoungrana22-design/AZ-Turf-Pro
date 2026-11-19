@@ -5,8 +5,7 @@
 // =====================================
 
 
-const API_BASE =
-"https://az-turf-pro.onrender.com/api";
+const API_BASE = window.azApiUrl('/api');
 
 
 const API_ANALYSE =

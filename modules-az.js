@@ -34,7 +34,7 @@ async function envoyerQuestion() {
 
   try {
     // 2. Appel vers le backend Render
-    const res = await fetch("/api/assistant/chat", {
+    const res = await fetch(window.azApiUrl('/api/assistant/chat'), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -71,7 +71,7 @@ async function lancerBacktest() {
   const historiqueExemple = JSON.parse(localStorage.getItem("az_historique_courses") || "[]");
 
   try {
-    const res = await fetch("/api/stats/backtest", {
+    const res = await fetch(window.azApiUrl('/api/stats/backtest'), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

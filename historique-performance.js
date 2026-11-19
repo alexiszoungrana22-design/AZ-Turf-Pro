@@ -3,8 +3,7 @@
  */
 (() => {
   'use strict';
-  const API_BASE = (window.AZ_API_BASE || '').replace(/\/$/, '');
-  const API = `${API_BASE}/api/archive/performance`;
+  const API = window.azApiUrl('/api/archive/performance');
 
   function esc(v) {
     return String(v ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
